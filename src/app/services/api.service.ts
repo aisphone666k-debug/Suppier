@@ -1,14 +1,24 @@
 import { Injectable } from '@angular/core';
 
+export interface EmployeeUser {
+  empNo: string;
+  fullName: string;
+  rawName?: string;
+  division: string;
+  divisionName?: string;
+  section: string;
+  sectionName?: string;
+  process?: string;
+  positionGroup?: string;
+  shiftGroup?: string;
+  profilePictureUrl?: string;
+  deletedAt?: string | null;
+}
+
 export interface VerifyEmployeeResponse {
   success: boolean;
   message: string;
-  user?: {
-    employeeId: string;
-    fullName: string;
-    department: string;
-    role: string;
-  };
+  user?: EmployeeUser;
 }
 
 @Injectable({
@@ -18,42 +28,69 @@ export class ApiService {
   private baseUrl = 'http://localhost:5000/api';
 
   /**
-   * Verify 5-digit employee ID with backend API
+   * Verify employee ID from [Suppier].[dbo].[Master_Employee] via Backend API
    */
   async verifyEmployee(employeeId: string): Promise<VerifyEmployeeResponse> {
+    const code = (employeeId || '').trim().toUpperCase();
+    console.log(`%c[Suppier API] 📡 Sending employee verification for "${code}" to ${this.baseUrl}/auth/verify-employee`, 'color: #2563eb; font-weight: bold;');
+
     try {
       const response = await fetch(`${this.baseUrl}/auth/verify-employee`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ employeeId })
+        body: JSON.stringify({ employeeId: code })
       });
 
       const data = await response.json();
+      console.log(`%c[Suppier API] 📥 Received response from Backend (Status: ${response.status}):`, 'color: #059669; font-weight: bold;', data);
       return data;
     } catch (err) {
-      console.warn('Backend API offline or unreachable, using local fallback:', err);
-      // Fallback check if backend server is not running yet
-      const validMock = ['BPT01', 'MA105', 'GM101', 'PMA01', '12345'];
-      const code = employeeId.toUpperCase();
-      if (validMock.includes(code) || code.startsWith('BPT') || code.startsWith('MA')) {
+      console.warn('%c[Suppier API] ⚠️ Backend API offline or unreachable. Using fallback:', 'color: #d97706;', err);
+      
+      // Standalone Fallback for Danuphon and common test accounts
+      if (code === 'X4770') {
         return {
           success: true,
-          message: 'เข้าสู่ระบบสำเร็จ (Local Mode)',
+          message: 'เข้าสู่ระบบสำเร็จ (Fallback Mode)',
           user: {
-            employeeId: code,
-            fullName: `พนักงานรหัส ${code}`,
-            department: 'Manufacturing',
-            role: 'Staff'
+            empNo: 'X4770',
+            fullName: 'DANUPHON SUTTHIWATTHANAK',
+            rawName: 'MR.  DANUPHON  SUTTHIWATTHANAK',
+            division: 'MA',
+            divisionName: 'MECHANICAL ASS\'Y',
+            section: 'M/M',
+            sectionName: 'MACHINE MAINTENANCE',
+            process: 'HEAT TREATMENT',
+            positionGroup: 'TECH',
+            profilePictureUrl: 'http://pbp083.bp.minebea.local:90/EmployeePicMA/X4770.jpg'
           }
         };
-      } else {
+      }
+
+      if (code === 'A3415') {
         return {
-          success: false,
-          message: 'รหัสพนักงานไม่ถูกต้อง'
+          success: true,
+          message: 'เข้าสู่ระบบสำเร็จ (Fallback Mode)',
+          user: {
+            empNo: 'A3415',
+            fullName: 'ARUNEE CHANCHAY',
+            rawName: 'MISS ARUNEE  CHANCHAY',
+            division: 'GM',
+            divisionName: 'G/M',
+            section: 'MACHINING',
+            sectionName: 'MACHINING',
+            process: 'BIG CLEAN',
+            positionGroup: 'OPT'
+          }
         };
       }
+
+      return {
+        success: false,
+        message: `ไม่สามารถเชื่อมต่อ Backend API ได้ และไม่พบข้อมูลรหัส "${code}"`
+      };
     }
   }
 
@@ -61,12 +98,14 @@ export class ApiService {
    * Fetch all requisition items from Database
    */
   async getRequisitionItems(): Promise<any[]> {
+    console.log(`%c[Suppier API] 📡 Fetching requisition items...`, 'color: #2563eb;');
     try {
       const response = await fetch(`${this.baseUrl}/requisition/items`);
       const result = await response.json();
+      console.log(`%c[Suppier API] 📥 Requisition items loaded:`, 'color: #059669;', result);
       return result.data || [];
     } catch (err) {
-      console.warn('Backend API offline, using local requisition data:', err);
+      console.warn('%c[Suppier API] ⚠️ Backend API offline, using local requisition data:', 'color: #d97706;', err);
       return [];
     }
   }
@@ -75,6 +114,7 @@ export class ApiService {
    * Save or update requisition item
    */
   async saveRequisitionItem(item: any): Promise<boolean> {
+    console.log(`%c[Suppier API] 📡 Saving requisition item:`, 'color: #2563eb;', item);
     try {
       const url = item.id ? `${this.baseUrl}/requisition/items/${item.id}` : `${this.baseUrl}/requisition/items`;
       const method = item.id ? 'PUT' : 'POST';
@@ -84,9 +124,10 @@ export class ApiService {
         body: JSON.stringify(item)
       });
       const res = await response.json();
+      console.log(`%c[Suppier API] 📥 Save item response:`, 'color: #059669;', res);
       return !!res.success;
     } catch (err) {
-      console.error('Failed to save requisition item to backend:', err);
+      console.error('%c[Suppier API] ❌ Failed to save requisition item to backend:', 'color: #dc2626;', err);
       return false;
     }
   }

@@ -17,6 +17,26 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Request logger middleware to display interaction logs clearly in terminal
+app.use((req, res, next) => {
+  const start = Date.now();
+  const timestamp = new Date().toLocaleTimeString('th-TH', { hour12: false });
+  console.log(`\n=========================================================`);
+  console.log(`📡 [${timestamp}] API Request: ${req.method} ${req.originalUrl}`);
+  if (req.body && Object.keys(req.body).length > 0) {
+    console.log(`📦 Request Body:`, JSON.stringify(req.body));
+  }
+
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    const statusIcon = res.statusCode >= 400 ? '❌' : '✅';
+    console.log(`${statusIcon} [${timestamp}] API Response: ${req.method} ${req.originalUrl} | Status: ${res.statusCode} | Time: ${duration}ms`);
+    console.log(`=========================================================`);
+  });
+
+  next();
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({

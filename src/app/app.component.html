@@ -40,7 +40,7 @@
             autofocus
             [value]="otpCode"
             (input)="onCodeChange($any($event.target).value)"
-            (keydown.enter)="otpCode.length === 5 && submitLogin()"
+            (keydown.enter)="otpCode.length >= 4 && submitLogin()"
             (focus)="isInputFocused = true"
             (blur)="isInputFocused = false"
             class="absolute inset-0 w-full h-full opacity-0 z-20 cursor-text"
@@ -67,6 +67,30 @@
           {{ loginError }}
         </div>
 
+        <!-- Quick Employee ID chips for instant testing -->
+        <div class="pt-2">
+          <div class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">ตัวอย่างรหัสพนักงาน (Quick Test)</div>
+          <div class="flex flex-wrap items-center justify-center gap-2">
+            <button 
+              type="button" 
+              (click)="setDemoCode('X4770')" 
+              class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors cursor-pointer">
+              X4770 (Danuphon M/M)
+            </button>
+            <button 
+              type="button" 
+              (click)="setDemoCode('A3415')" 
+              class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer">
+              A3415 (Arunee GM)
+            </button>
+            <button 
+              type="button" 
+              (click)="setDemoCode('A4858')" 
+              class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer">
+              A4858 (Saleena MA)
+            </button>
+          </div>
+        </div>
 
       </div>
 
@@ -240,12 +264,17 @@
         <!-- Logged in employee info & Logout button -->
         <div class="flex items-center gap-3">
           <div class="flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-xl border border-slate-200">
-            <div class="w-6 h-6 rounded-lg bg-[#131936] text-white flex items-center justify-center font-black text-[10px]">
-              {{ loggedInEmployeeId ? loggedInEmployeeId.slice(-2) : 'ID' }}
+            <div *ngIf="currentUser?.profilePictureUrl; else fallbackAvatar" class="w-6 h-6 rounded-lg overflow-hidden border border-slate-300">
+              <img [src]="currentUser?.profilePictureUrl" alt="Avatar" class="w-full h-full object-cover" (error)="currentUser!.profilePictureUrl = ''" />
             </div>
+            <ng-template #fallbackAvatar>
+              <div class="w-6 h-6 rounded-lg bg-[#131936] text-white flex items-center justify-center font-black text-[10px]">
+                {{ loggedInEmployeeId ? loggedInEmployeeId.slice(-2) : 'ID' }}
+              </div>
+            </ng-template>
             <div class="text-left hidden sm:block">
               <div class="text-[11px] font-black text-[#131936] leading-tight">รหัส: {{ loggedInEmployeeId || '12345' }}</div>
-              <div class="text-[9px] text-slate-500 font-medium leading-tight truncate max-w-[120px]">{{ requestBy }}</div>
+              <div class="text-[9px] text-slate-500 font-medium leading-tight truncate max-w-[140px]">{{ requestBy }}</div>
             </div>
           </div>
 

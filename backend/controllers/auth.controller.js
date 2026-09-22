@@ -1,94 +1,214 @@
 const { connectDB, sql } = require('../config/db');
+const fs = require('fs');
+const path = require('path');
 
-// Mock fallback employees when DB is not yet migrated
-const MOCK_EMPLOYEES = [
-  { id: 'BPT01', name: 'นาย กิตติพงษ์ สว่างจิตต์', department: 'GM1 Engineering', role: 'Engineer' },
-  { id: 'MA105', name: 'นางสาว ศิริพร พัฒนากุล', department: 'MA Maintenance', role: 'Staff' },
-  { id: 'GM101', name: 'นาย สุรชัย ชัยวัฒน์', department: 'GM1 Production', role: 'Supervisor' },
-  { id: 'PMA01', name: 'นาย วรพจน์ กิจเจริญ', department: 'PMA Planning', role: 'Manager' },
-  { id: '12345', name: 'Demo Administrator', department: 'Procurement GM1', role: 'Admin' }
-];
+// Helper to format/clean employee name (e.g. remove "MR.  ", "MISS  ", "MRS.  " and single-space)
+function cleanEmployeeName(rawName) {
+  if (!rawName) return '';
+  return rawName
+    .replace(/^(MR\.|MISS|MRS\.|MS\.)\s+/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Section abbreviation mapping for factory sections
+function getSectionAbbreviation(sectionName) {
+  if (!sectionName) return '';
+  const upper = sectionName.toUpperCase().trim();
+  const map = {
+    'MACHINE MAINTENANCE': 'M/M',
+    'PRODUCTION CONTROL': 'P/C',
+    'PRODUCTION CONTROL(PC)': 'P/C',
+    'QUALITY CONTROL': 'Q/C',
+    'QUALITY CONTROL(QC)': 'Q/C',
+    'QUALITY CONTROL HDEV6': 'Q/C',
+    'QUALITY ASSURANCE': 'Q/A',
+    'QUALITY ASSURANCE(QA)': 'Q/A',
+    'PURCHASE': 'P/H',
+    'ENGINEER': 'ENG',
+    'PROCESS ENGINEER': 'PE',
+    'FIRST ARTICLE ENGINEER': 'FAE',
+    'SUPPLIE QUALITY CONTROL': 'SQC',
+    'MATERIAL CONTROL': 'M/C',
+    'FINAL INSPECTION': 'F/I',
+    'INPROCESS INSPECTION': 'I/I',
+    'COST REDUCTION': 'C/R',
+    'PRODUCTION IMPROVEMENT': 'P/I',
+    'PRODUCTION DIRECTION': 'P/D',
+    'GAUGE CONTROL': 'G/C',
+    'GENERAL ADMIN': 'GA',
+    'FACTORY CO-ORDINATION': 'FC',
+    'ASSEMBLY': 'ASSY',
+    'MACHINING': 'MC'
+  };
+  return map[upper] || sectionName;
+}
+
+// Optional CSV fallback loader in case DB connection is interrupted
+function findEmployeeFromCsv(empCode) {
+  try {
+    const csvPath = path.resolve(__dirname, '../../../../Master_Employee.csv');
+    if (!fs.existsSync(csvPath)) return null;
+    const content = fs.readFileSync(csvPath, 'utf8');
+    const lines = content.split('\n');
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      const cols = line.split(',');
+      if (cols.length >= 3 && cols[1].toUpperCase() === empCode) {
+        return {
+          User_Id: cols[0],
+          Emp_No: cols[1],
+          Name: cols[2],
+          Profile_Picture_Url: cols[3] || '',
+          Division_Id: cols[4] || '',
+          Section_Id: cols[5] || '',
+          Process_Id: cols[6] || ''
+        };
+      }
+    }
+  } catch (err) {
+    console.error('CSV fallback read error:', err.message);
+  }
+  return null;
+}
 
 /**
- * Verify 5-digit employee ID
+ * Verify employee ID from [Suppier].[dbo].[Master_Employee]
  * POST /api/auth/verify-employee
  */
 exports.verifyEmployee = async (req, res) => {
+  const { employeeId } = req.body;
+  const timestamp = new Date().toLocaleTimeString('th-TH', { hour12: false });
+
+  console.log(`\n┌──────────────────────────────────────────────────────────┐`);
+  console.log(`│ 🔐 [AUTH VERIFICATION] Request Received at ${timestamp}      │`);
+  console.log(`│ 👉 Target Employee ID: "${employeeId || ''}"             │`);
+  console.log(`└──────────────────────────────────────────────────────────┘`);
+
+  if (!employeeId || employeeId.trim().length < 4) {
+    console.warn(`⚠️ [Auth Error] Invalid Employee ID format: "${employeeId}"`);
+    return res.status(400).json({
+      success: false,
+      message: 'กรุณาระบุรหัสพนักงานให้ถูกต้อง (4-5 หลัก)'
+    });
+  }
+
+  const code = employeeId.trim().toUpperCase();
+
   try {
-    const { employeeId } = req.body;
-
-    if (!employeeId || employeeId.length !== 5) {
-      return res.status(400).json({
-        success: false,
-        message: 'กรุณาระบุรหัสพนักงาน 5 หลักให้ถูกต้อง'
-      });
-    }
-
-    const code = employeeId.toUpperCase();
     const pool = await connectDB();
 
-    // 1. If database pool is active, query SQL Server table
     if (pool) {
-      try {
-        const result = await pool.request()
-          .input('code', sql.NVarChar(10), code)
-          .query('SELECT EmployeeID, FullName, Department, Role, IsActive FROM Employees WHERE EmployeeID = @code AND IsActive = 1');
+      console.log(`🔎 [Database Query] Searching [Suppier].[dbo].[Master_Employee] for Emp_No = '${code}'...`);
+      
+      const query = `
+        SELECT TOP 1
+          e.User_Id,
+          e.Emp_No,
+          e.Name,
+          e.Profile_Picture_Url,
+          e.Division_Id,
+          d.Division_Code,
+          d.Division_Name,
+          d.Division_Purchase,
+          e.Section_Id,
+          s.Section_Code,
+          s.Section_Name,
+          e.Process_Id,
+          p.Process_Code,
+          p.Process_Name,
+          e.Position_Group,
+          e.ShiftGroup_Code,
+          e.Deleted_At
+        FROM [dbo].[Master_Employee] e
+        LEFT JOIN [dbo].[Master_Division] d ON e.Division_Id = d.Division_Id
+        LEFT JOIN [dbo].[Master_Section] s ON e.Section_Id = s.Section_Id
+        LEFT JOIN [dbo].[Master_Process] p ON e.Process_Id = p.Process_Id
+        WHERE UPPER(LTRIM(RTRIM(e.Emp_No))) = @code
+      `;
 
-        if (result.recordset && result.recordset.length > 0) {
-          const user = result.recordset[0];
-          return res.json({
-            success: true,
-            message: 'เข้าสู่ระบบสำเร็จ',
-            user: {
-              employeeId: user.EmployeeID,
-              fullName: user.FullName,
-              department: user.Department,
-              role: user.Role
-            }
-          });
-        } else {
-          return res.status(401).json({
-            success: false,
-            message: 'รหัสพนักงานไม่ถูกต้อง หรือถูกระงับการใช้งาน'
-          });
-        }
-      } catch (dbErr) {
-        console.error('SQL query error, falling back to mock check:', dbErr);
+      const result = await pool.request()
+        .input('code', sql.NVarChar(20), code)
+        .query(query);
+
+      if (result.recordset && result.recordset.length > 0) {
+        const emp = result.recordset[0];
+        const rawName = emp.Name ? emp.Name.trim() : '';
+        const fullName = cleanEmployeeName(rawName);
+        const division = emp.Division_Purchase || emp.Division_Name || 'MA';
+        const section = getSectionAbbreviation(emp.Section_Name);
+
+        console.log(`✨ [Database Result] MATCH FOUND!`);
+        console.log(`   ├─ 🆔 Emp_No:    ${emp.Emp_No}`);
+        console.log(`   ├─ 👤 Name:      ${fullName} (Raw: "${rawName}")`);
+        console.log(`   ├─ 🏢 Division:  ${division} (${emp.Division_Name || '-'})`);
+        console.log(`   ├─ 🔧 Section:   ${section} (${emp.Section_Name || '-'})`);
+        console.log(`   ├─ ⚙️ Process:   ${emp.Process_Name || '-'}`);
+        console.log(`   └─ 🖼️ Avatar:    ${emp.Profile_Picture_Url || 'None'}`);
+
+        return res.json({
+          success: true,
+          message: 'เข้าสู่ระบบสำเร็จ',
+          user: {
+            empNo: emp.Emp_No.trim(),
+            fullName: fullName,
+            rawName: rawName,
+            division: division,
+            divisionName: emp.Division_Name || '',
+            section: section,
+            sectionName: emp.Section_Name || '',
+            process: emp.Process_Name || '',
+            positionGroup: emp.Position_Group || '',
+            shiftGroup: emp.ShiftGroup_Code || '',
+            profilePictureUrl: emp.Profile_Picture_Url || '',
+            deletedAt: emp.Deleted_At
+          }
+        });
+      } else {
+        console.warn(`❌ [Database Result] No employee found in dbo.Master_Employee with Emp_No: "${code}"`);
       }
+    } else {
+      console.warn(`⚠️ [Database Pool] Database pool not connected. Trying CSV fallback...`);
     }
 
-    // 2. Mock Fallback (when DB is not ready yet)
-    const mockUser = MOCK_EMPLOYEES.find(e => e.id === code) || 
-      (code.startsWith('BPT') || code.startsWith('MA') ? {
-        id: code,
-        name: `เจ้าหน้าที่รหัส ${code}`,
-        department: 'Manufacturing Department',
-        role: 'Employee'
-      } : null);
+    // CSV fallback if database query returned no record or pool failed
+    const csvEmp = findEmployeeFromCsv(code);
+    if (csvEmp) {
+      const rawName = csvEmp.Name || '';
+      const fullName = cleanEmployeeName(rawName);
+      console.log(`📄 [CSV Fallback] Found in Master_Employee.csv: ${code} - ${fullName}`);
 
-    if (mockUser) {
       return res.json({
         success: true,
-        message: 'เข้าสู่ระบบสำเร็จ (Dev Mode)',
+        message: 'เข้าสู่ระบบสำเร็จ (จาก CSV)',
         user: {
-          employeeId: mockUser.id,
-          fullName: mockUser.name,
-          department: mockUser.department,
-          role: mockUser.role
+          empNo: csvEmp.Emp_No,
+          fullName: fullName,
+          rawName: rawName,
+          division: 'MA',
+          divisionName: 'MECHANICAL ASS\'Y',
+          section: 'M/M',
+          sectionName: 'MACHINE MAINTENANCE',
+          process: 'General',
+          positionGroup: 'STAFF',
+          shiftGroup: 'A',
+          profilePictureUrl: csvEmp.Profile_Picture_Url || ''
         }
-      });
-    } else {
-      return res.status(401).json({
-        success: false,
-        message: 'รหัสพนักงานไม่ถูกต้อง'
       });
     }
 
+    console.warn(`🚫 [Auth Denied] Invalid Employee ID "${code}" - not found in any source.`);
+    return res.status(401).json({
+      success: false,
+      message: `รหัสพนักงาน "${code}" ไม่ถูกต้อง หรือไม่พบข้อมูลใน Master_Employee`
+    });
+
   } catch (error) {
-    console.error('Verify employee error:', error);
+    console.error(`💥 [Auth Exception] Error verifying employee "${code}":`, error);
     return res.status(500).json({
       success: false,
-      message: 'เกิดข้อผิดพลาดในการตรวจสอบข้อมูลพนักงาน'
+      message: 'เกิดข้อผิดพลาดภายในระบบในการตรวจสอบข้อมูลพนักงาน'
     });
   }
 };

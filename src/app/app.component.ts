@@ -1,6 +1,7 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ApiService, EmployeeUser } from './services/api.service';
 
 export interface Attachment {
   name: string;
@@ -65,6 +66,9 @@ export class AppComponent implements AfterViewInit {
   loggedInEmployeeId = '';
   loginPhase: 'input' | 'rotating' | 'converging' | 'downloading' | 'success' | 'fail-converging' | 'shattered' = 'input';
   downloadPercent = 0;
+  currentUser: EmployeeUser | null = null;
+
+  constructor(private apiService: ApiService) {}
 
   ngAfterViewInit(): void {
     this.focusInput();
@@ -569,15 +573,9 @@ export class AppComponent implements AfterViewInit {
     this.submitLogin();
   }
 
-  isCodeValid(code: string): boolean {
-    const clean = (code || '').toUpperCase();
-    const validCodes = ['BPT01', 'MA105', 'GM101', 'PMA01', '12345', 'ADMIN'];
-    return validCodes.includes(clean) || clean.startsWith('BPT') || clean.startsWith('MA');
-  }
-
-  submitLogin(): void {
-    if (this.otpCode.length < 5) {
-      this.loginError = 'Please enter a valid 5-digit Employee ID.';
+  async submitLogin(): Promise<void> {
+    if (this.otpCode.length < 4) {
+      this.loginError = 'Please enter a valid Employee ID (4-5 characters).';
       return;
     }
 
@@ -586,55 +584,76 @@ export class AppComponent implements AfterViewInit {
     }
 
     this.loginError = '';
-    const isValid = this.isCodeValid(this.otpCode);
+    const candidateCode = this.otpCode;
 
-    if (isValid) {
-      // --- SUCCESS FLOW (Orbit -> Fuse into single square -> Circular download -> Success) ---
-      this.loginPhase = 'rotating';
+    // 1. Immediately start rotating animation for instant UI feedback
+    this.loginPhase = 'rotating';
+    console.log(`%c[Suppier Auth] 🚀 Initiating verification for: ${candidateCode}`, 'color: #2563eb; font-weight: bold;');
 
-      setTimeout(() => {
-        this.loginPhase = 'converging';
-      }, 1300);
+    try {
+      // 2. Query backend API connected to [Suppier].[dbo].[Master_Employee]
+      const res = await this.apiService.verifyEmployee(candidateCode);
 
-      setTimeout(() => {
-        this.loginPhase = 'downloading';
-        this.animateDownloadProgress();
-      }, 1950);
+      if (res && res.success && res.user) {
+        const user = res.user;
+        console.log(`%c[Suppier Auth] ✅ Verification SUCCESS:`, 'color: #059669; font-weight: bold;', user);
 
-      setTimeout(() => {
-        this.loginPhase = 'success';
-      }, 3400);
+        // Store user and update document detail fields (Request by, Division, Section)
+        this.currentUser = user;
+        this.loggedInEmployeeId = user.empNo;
+        this.requestBy = user.fullName;
+        if (user.division) this.division = user.division;
+        if (user.section) this.section = user.section;
 
-      setTimeout(() => {
-        this.loggedInEmployeeId = this.otpCode;
-        this.isLoggedIn = true;
-        this.loginPhase = 'input';
-        this.downloadPercent = 0;
-        this.showToast(`Login successful. Welcome, Employee ID: ${this.loggedInEmployeeId}`);
-      }, 4000);
+        // Progress smoothly through the animations
+        setTimeout(() => {
+          this.loginPhase = 'converging';
+        }, 1200);
 
-    } else {
-      // --- FAIL FLOW (Shatter animation on invalid employee code) ---
-      this.loginPhase = 'rotating';
+        setTimeout(() => {
+          this.loginPhase = 'downloading';
+          this.animateDownloadProgress();
+        }, 1850);
 
-      // 1. Rotate and turn red with warning vibration
-      setTimeout(() => {
-        this.loginPhase = 'fail-converging';
-      }, 900);
+        setTimeout(() => {
+          this.loginPhase = 'success';
+        }, 3300);
 
-      // 2. Shatter into pieces
-      setTimeout(() => {
-        this.loginPhase = 'shattered';
-      }, 1600);
+        setTimeout(() => {
+          this.isLoggedIn = true;
+          this.loginPhase = 'input';
+          this.downloadPercent = 0;
+          this.showToast(`Login successful. Welcome, ${this.requestBy} (${this.loggedInEmployeeId})`);
+        }, 3900);
 
-      // 3. Reset back to input
-      setTimeout(() => {
-        const failedCode = this.otpCode;
-        this.loginPhase = 'input';
-        this.loginError = `Invalid Employee ID "${failedCode}". Please try again.`;
-        this.clearOtp();
-      }, 3500);
+      } else {
+        console.warn(`%c[Suppier Auth] ❌ Verification FAILED for: ${candidateCode}`, 'color: #dc2626; font-weight: bold;', res);
+        this.handleLoginFailure(candidateCode, res?.message || `Invalid Employee ID "${candidateCode}". Please try again.`);
+      }
+
+    } catch (err: any) {
+      console.error(`%c[Suppier Auth] 💥 Unexpected error during login:`, 'color: #dc2626;', err);
+      this.handleLoginFailure(candidateCode, 'Failed to connect to authentication service.');
     }
+  }
+
+  private handleLoginFailure(failedCode: string, errorMsg: string): void {
+    // 1. Rotate and turn red with warning vibration
+    setTimeout(() => {
+      this.loginPhase = 'fail-converging';
+    }, 800);
+
+    // 2. Shatter into pieces
+    setTimeout(() => {
+      this.loginPhase = 'shattered';
+    }, 1500);
+
+    // 3. Reset back to input
+    setTimeout(() => {
+      this.loginPhase = 'input';
+      this.loginError = errorMsg || `Invalid Employee ID "${failedCode}". Please try again.`;
+      this.clearOtp();
+    }, 3300);
   }
 
   animateDownloadProgress(): void {
@@ -651,12 +670,15 @@ export class AppComponent implements AfterViewInit {
   }
 
   logout(): void {
+    console.log(`%c[Suppier Auth] 🚪 User ${this.loggedInEmployeeId} logged out.`, 'color: #64748b;');
     this.isLoggedIn = false;
     this.otpCode = '';
     this.loggedInEmployeeId = '';
+    this.currentUser = null;
     this.loginPhase = 'input';
     this.downloadPercent = 0;
     this.showToast('Logged out successfully.');
     this.focusInput();
   }
+
 }

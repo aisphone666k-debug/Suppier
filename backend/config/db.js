@@ -2,14 +2,14 @@ const sql = require('mssql');
 require('dotenv').config();
 
 const dbConfig = {
-  user: process.env.DB_USER || 'sa',
-  password: process.env.DB_PASSWORD || '',
-  server: process.env.DB_SERVER || 'localhost',
+  user: process.env.DB_USER || 'Cost_Team',
+  password: process.env.DB_PASSWORD || 'Cost@User1',
+  server: process.env.DB_SERVER || 'PBGM8G',
   port: parseInt(process.env.DB_PORT || '1433', 10),
-  database: process.env.DB_NAME || 'SuppierDB',
+  database: process.env.DB_NAME || 'Suppier',
   options: {
-    encrypt: false, // Set to true if using Azure
-    trustServerCertificate: true // Change to true for local dev / self-signed certs
+    encrypt: false,
+    trustServerCertificate: true
   },
   pool: {
     max: 10,
