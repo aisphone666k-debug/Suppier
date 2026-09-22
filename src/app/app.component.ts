@@ -18,6 +18,7 @@ export interface RequisitionItem {
   qty: number;
   unit: string;
   remark: string;
+  poRef?: string;
   isUrgent: boolean;
   attachments?: Attachment[];
   // Detail for M/M
@@ -34,6 +35,7 @@ export interface RequisitionItem {
   quotationPdf?: string;
   leadTime: string;
   vendor2?: string;
+  unitPrice2?: number | null;
   status: 'Waiting Quotation' | 'Quoted' | 'Approved' | 'PO Issued';
 }
 
@@ -45,17 +47,140 @@ export interface RequisitionItem {
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  // Document Metadata
+  // Navigation & View State
+  activeMenu = 'spare-part';
+  activeView: 'list' | 'edit' = 'edit';
+  
+  // Left Sidebar Menus
+  documentMenus: Array<{
+    id: string;
+    label: string;
+    isExpanded?: boolean;
+    subItems?: Array<{ id: string; label: string }>;
+  }> = [
+    { 
+      id: 'kzw', 
+      label: 'KZW',
+      isExpanded: true,
+      subItems: [
+        { id: 'kzw-gm1', label: 'GM1' },
+        { id: 'kzw-ma', label: 'MA' },
+        { id: 'kzw-pma', label: 'PMA' }
+      ]
+    },
+    { 
+      id: 'made-to-order', 
+      label: 'Made to order',
+      isExpanded: true,
+      subItems: [
+        { id: 'mto-gm1', label: 'GM1' },
+        { id: 'mto-ma', label: 'MA' },
+        { id: 'mto-pma', label: 'PMA' }
+      ]
+    },
+    { 
+      id: 'repair', 
+      label: 'Repair',
+      isExpanded: true,
+      subItems: [
+        { id: 'repair-gm1', label: 'GM1' },
+        { id: 'repair-ma', label: 'MA' },
+        { id: 'repair-pma', label: 'PMA' }
+      ]
+    },
+    { id: 'spare-part', label: 'Spare part (Oversea & Local)' },
+    { id: 'made-to-maker', label: 'Made to maker' },
+    { id: 'store-tooling', label: 'Store tooling' },
+    { id: 'project', label: 'Project' },
+    { id: 'maker-misumi', label: 'Maker Misumi' }
+  ];
+  activeSubMenu = '';
+
+  masterMenus = [
+    { id: 'master-section', label: 'Master Section' },
+    { id: 'master-unit', label: 'Master Unit' },
+    { id: 'master-order-type', label: 'Master Order Type' },
+    { id: 'master-purchase', label: 'Master Purchase' },
+    { id: 'master-access', label: 'Master Access' }
+  ];
+
+  // Document Tree Sample Rows
+  quotationList = [
+    { date: '08/06/2026 10:28', partName: 'DRY SCREW VACUUM PUMP', spec: 'SDV-30S', maker: 'SHCOH SANGYO', qty: 1, unit: 'PCS', vendor1: 'WORLD PUMP' },
+    { date: '25/06/2026 15:46', partName: 'AIR CYLINDER', spec: 'ACQ100x115-S-B', maker: 'AIRTAC', qty: 1, unit: 'PCS', vendor1: 'AIRTAC 2060080' },
+    { date: '06/08/2026 17:41', partName: 'FILTER', spec: 'MP5002-40WN-DOE(0.2UM 40")', maker: 'PEMIUM', qty: 1, unit: 'PCS', vendor1: 'IPO 22222ZS', isCurrentDoc: true },
+    { date: '14/09/2026 12:18', partName: 'ROBO CYLINDER', spec: 'RCP2-SS7R-I-42P-12-200', maker: 'IAI', qty: 1, unit: 'PCS', vendor1: 'IPO 22222ZS' },
+    { date: '21/09/2026 16:22', partName: 'AIR CYLINDER', spec: 'MGPL50-150A-Y59BL', maker: 'SMC', qty: 1, unit: 'PCS', vendor1: 'CHAVANAN' },
+    { date: '21/09/2026 16:36', partName: 'CLAMP / REDUCER', spec: 'KQC-16 / KF16/25', maker: 'ULVAC', qty: 12, unit: 'PCS', vendor1: 'ULVAC' }
+  ];
+
+  // Document Metadata & Status
   docNumber = 'DOC-2026-0901-003';
-  docDate = '01/09/2026 15:45';
-  requestBy = 'SIRIRAT SANGUANHONG';
-  division = 'GM1';
+  docDate = '06/08/2026 17:41';
+  documentStatus = 'Waiting for purchase approve';
+  requestBy = 'DANUPHON SUTTHIWATTHANAK';
+  division = 'MA';
   section = 'M/M';
-  priority = 'URGENT';
-  priorityReason = 'SPARE STORE of TAG on [ A1030-901 ] -3';
+  priority = 'NORMAL';
+  priorityReason = 'SPARE PART FOR UDI SYSTEM';
   orderType = 'Spare Part M/C';
   orderTypeDesc = 'อะไหล่ ของเครื่องจักร (ถ้าไม่มีใช้เครื่องจักรทำงานไม่ได้)';
   
+  // Approval Information
+  isApprovalExpanded = true;
+  approvalComment = '';
+  approvers = [
+    { name: 'NATTHANICHA SONTHIKESORN', status: '', date: '' },
+    { name: 'PEERAPAT BUASA', status: '', date: '' },
+    { name: 'TICHAGORN PROMJAREE', status: '', date: '' },
+    { name: 'SIRITORN KUSOLEIAM', status: '', date: '' },
+    { name: 'KUNLADA PANMAN', status: '', date: '' },
+    { name: 'THEERARAT NANTHAWISIT', status: '', date: '' },
+    { name: 'ANUSARA KUEADET', status: '', date: '' },
+    { name: 'CHANTHANY THAI', status: '', date: '' }
+  ];
+
+  toggleMenu(menu: any, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    if (menu.subItems) {
+      menu.isExpanded = !menu.isExpanded;
+    }
+  }
+
+  selectMenu(menuId: string): void {
+    this.activeMenu = menuId;
+    this.activeSubMenu = '';
+    const foundMenu = this.documentMenus.find(m => m.id === menuId);
+    if (foundMenu?.subItems) {
+      foundMenu.isExpanded = true;
+    }
+    if (menuId === 'spare-part') {
+      this.activeView = 'edit';
+    } else {
+      this.activeView = 'list';
+    }
+  }
+
+  selectSubMenu(parentMenu: any, subItem: { id: string; label: string }, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.activeMenu = parentMenu.id;
+    this.activeSubMenu = subItem.id;
+    this.division = subItem.label;
+    this.activeView = 'edit';
+  }
+
+  openDocument(): void {
+    this.activeView = 'edit';
+  }
+
+  closeDocument(): void {
+    this.activeView = 'list';
+  }
+
   purchasers = [
     { name: 'NATTHANICHA SONTHIKESORN', initials: 'NS', role: 'Buyer Lead' },
     { name: 'SUNAN SRISOD', initials: 'SS', role: 'Senior Buyer' },
@@ -86,16 +211,15 @@ export class AppComponent {
       no: 1,
       partName: 'CONNECT AXIS DEVEC',
       spec: 'ST8101300',
-      position: '-',
+      position: '',
       makerName: 'FEDEX',
       qty: 5,
       unit: 'PCS',
-      remark: '2008819 Ref.Last qtt for issue pr fitst(Q-NMB240901)',
+      poRef: '2008819',
+      remark: 'Ref.Last qtt for issue pr fitst(Q-NMB240901 )',
       isUrgent: false,
-      attachments: [
-        { name: '2008819_Ref.pdf', type: 'pdf', size: '245 KB' }
-      ],
-      machineModel: 'HGM10152N / PMM F-4 / BROKEN',
+      attachments: [],
+      machineModel: 'HGM10152N\n/ PMM F-4\n/ BROKEN',
       machineMaker: 'BM16#34',
       serialNo: '1231',
       acCode: '6218-G',
@@ -107,86 +231,93 @@ export class AppComponent {
       quotationPdf: '260902-150926-ST8101300.pdf',
       leadTime: '20-25 DAYS',
       vendor2: '',
+      unitPrice2: null,
       status: 'Quoted'
     },
     {
       id: 2,
       no: 2,
       partName: 'FILTER',
-      spec: 'FOR CLEANVY (FVH4-3856V2CV)',
-      position: '-',
+      spec: 'FOR CLEANVY\n(FVH4-3856V2CV)',
+      position: '',
       makerName: 'CLEANVY',
       qty: 2,
       unit: 'PCS',
-      remark: '2108146/22222ZS | Ref.Last qtt for issue pr fitsy',
+      poRef: '2108146/22222ZS',
+      remark: 'Ref.Last qtt for issue pr fitsy',
       isUrgent: false,
       attachments: [
         { name: '20250428140628.pdf', type: 'pdf', size: '1.2 MB' }
       ],
-      machineModel: 'HGG11166N / PMM F-1 / DIRTY',
+      machineModel: 'HGG11166N\n/ PMM F-1\n/ DIRTY',
       machineMaker: 'Cleanvy#02',
       serialNo: 'A06-026',
-      acCode: '6218-G',
+      acCode: '',
       vendor: 'IPO',
       unitPrice: null,
-      currency: 'BT',
-      crCode: '-',
+      currency: '',
+      crCode: '',
       quotationNo: 'WAIT',
       quotationPdf: undefined,
-      leadTime: 'Pending',
-      vendor2: 'SIAM OHGITANI (2108146)',
+      leadTime: '',
+      vendor2: 'SIAM OHGITANI\n2108146',
+      unitPrice2: null,
       status: 'Waiting Quotation'
     },
     {
       id: 3,
       no: 3,
       partName: 'DISTILLATION COIL',
-      spec: 'COIL-200L (INSIDE) /FVH4-3856V2CV',
-      position: 'INSIDE',
+      spec: 'COIL-200L\n(INSIDE)\n/FVH4-3856V2CV',
+      position: '',
       makerName: 'CLEANVY',
       qty: 3,
       unit: 'PCS',
-      remark: '2108146/22222ZS (Ref.po:G33602A) Ref.Last price for issue pr first(27,000bt) (Q202410-002NMBT)',
+      poRef: '2108146/22222ZS\n(Ref.po:G33602A)',
+      remark: 'Ref.Last price for issue pr first(27,000bt)\n(Q202410-002NMBT)',
       isUrgent: true,
       attachments: [],
-      machineModel: 'HGG12643N / PMM F-1 / DEFECT',
+      machineModel: 'HGG12643N\n/ PMM F-1\n/ DEFECT',
       machineMaker: 'Cleanvy#02',
       serialNo: 'A06-026',
-      acCode: '6218-G',
+      acCode: '',
       vendor: 'IPO',
-      unitPrice: 27000,
-      currency: 'BT',
-      crCode: '-',
+      unitPrice: null,
+      currency: '',
+      crCode: '',
       quotationNo: 'WAIT',
       quotationPdf: undefined,
-      leadTime: 'Pending',
-      vendor2: 'SIAM OHGITANI (2108146)',
+      leadTime: '',
+      vendor2: 'SIAM OHGITANI\n2108146',
+      unitPrice2: null,
       status: 'Waiting Quotation'
     },
     {
       id: 4,
       no: 4,
       partName: 'DISTILLATION COIL',
-      spec: 'COIL-200L (OUTSIDE) /FVH4-3856V2CV',
-      position: 'OUTSIDE',
+      spec: 'COIL-200L\n(OUTSIDE)\n/FVH4-3856V2CV',
+      position: '',
       makerName: 'CLEANVY',
       qty: 3,
       unit: 'PCS',
-      remark: '2108146/22222ZS (Ref.po:G33603A) Ref.Last price for issue pr first(27,000bt) (Q202410-002NMBT)',
+      poRef: '2108146/22222ZS\n(Ref.po:G33603A)',
+      remark: 'Ref.Last price for issue',
       isUrgent: true,
       attachments: [],
-      machineModel: 'HGG12644N / PMM F-1 / DEFECT',
+      machineModel: 'HGG12644N\n/ PMM F-1\n/ DEFECT',
       machineMaker: 'Cleanvy#02',
       serialNo: 'A06-026',
-      acCode: '6218-G',
+      acCode: '',
       vendor: 'IPO',
-      unitPrice: 27000,
-      currency: 'BT',
-      crCode: '-',
+      unitPrice: null,
+      currency: '',
+      crCode: '',
       quotationNo: 'WAIT',
       quotationPdf: undefined,
-      leadTime: 'Pending',
-      vendor2: 'SIAM OHGITANI (2108146)',
+      leadTime: '',
+      vendor2: 'SIAM OHGITANI\n2108146',
+      unitPrice2: null,
       status: 'Waiting Quotation'
     }
   ];
@@ -275,33 +406,50 @@ export class AppComponent {
   }
 
   addNewItem(): void {
+    this.addRow();
+  }
+
+  addRow(): void {
     const nextNo = this.items.length + 1;
     const newItem: RequisitionItem = {
       id: Date.now(),
       no: nextNo,
-      partName: 'NEW SPARE PART',
-      spec: 'SPECIFICATION DETAILS',
-      position: '-',
-      makerName: 'GENERIC',
+      partName: '',
+      spec: '',
+      position: '',
+      makerName: '',
       qty: 1,
       unit: 'PCS',
-      remark: 'New requisition item',
+      remark: '',
+      poRef: '',
       isUrgent: false,
-      machineModel: 'LINE 1 / PMM',
-      machineMaker: 'MAKER',
-      serialNo: 'SN-000',
-      acCode: '6218-G',
-      vendor: 'IPO',
+      attachments: [],
+      machineModel: '',
+      machineMaker: '',
+      serialNo: '',
+      acCode: '',
+      vendor: '',
       unitPrice: null,
       currency: 'BT',
-      crCode: '-',
+      crCode: '',
       quotationNo: 'WAIT',
-      leadTime: 'Pending',
+      leadTime: '',
+      vendor2: '',
+      unitPrice2: null,
       status: 'Waiting Quotation'
     };
     this.items.push(newItem);
-    this.showToast(`เพิ่มรายการใหม่ #${nextNo} แล้ว`);
-    this.openDrawer(newItem);
+    this.showToast(`เพิ่มรายการ #${nextNo} เรียบร้อยแล้ว`);
+  }
+
+  deleteItem(index: number, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    const removedNo = this.items[index]?.no;
+    this.items.splice(index, 1);
+    this.items.forEach((item, idx) => item.no = idx + 1);
+    this.showToast(`ลบรายการ #${removedNo} แล้ว`);
   }
 
   saveEntireDocument(): void {
