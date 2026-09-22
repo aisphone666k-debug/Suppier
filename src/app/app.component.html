@@ -8,9 +8,9 @@
 
     <div class="relative z-10 max-w-md w-full bg-white border border-slate-200/90 rounded-3xl p-7 sm:p-9 shadow-2xl shadow-slate-300/40 text-center space-y-6">
       
-      <!-- App Brand Logo (SP Ribbon Emblem) -->
-      <div class="w-20 h-20 mx-auto rounded-3xl bg-blue-50/70 border border-blue-100 p-2.5 flex items-center justify-center shadow-sm shadow-blue-500/10 group">
-        <img src="/sp-logo.png" alt="Suppier Logo" class="w-full h-full object-contain filter drop-shadow-xs transition-transform duration-300 group-hover:scale-105 select-none" />
+      <!-- App Brand Logo (Pure Logo, No Background Box) -->
+      <div class="mx-auto flex items-center justify-center py-1">
+        <img src="/sp-logo.png" alt="Suppier Logo" class="h-16 sm:h-20 w-auto object-contain filter drop-shadow-sm select-none" />
       </div>
 
       <!-- Header Title -->
@@ -67,18 +67,6 @@
           {{ loginError }}
         </div>
 
-        <!-- Optional Clear Action when typing -->
-        <div *ngIf="otpCode.length > 0" class="pt-1 flex justify-center">
-          <button 
-            (click)="clearOtp()" 
-            type="button" 
-            class="inline-flex items-center gap-1.5 py-1 px-3 text-xs font-medium text-slate-400 hover:text-rose-500 hover:bg-rose-50/60 rounded-xl transition-all cursor-pointer">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-            <span>Clear</span>
-          </button>
-        </div>
 
       </div>
 
@@ -395,55 +383,89 @@
           <div class="max-w-4xl mx-auto space-y-6 pt-2">
 
             <!-- ================= APPROVAL INFORMATION SECTION ================= -->
-            <div class="space-y-2">
-              <!-- Toggle Header -->
+            <div class="space-y-3">
+              <!-- Toggle Header Card with Standalone Downward Arrow -->
               <button 
                 type="button"
                 (click)="isApprovalExpanded = !isApprovalExpanded"
-                class="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-blue-700 hover:text-blue-900 transition-colors focus:outline-none">
-                <span class="text-[10px] transform transition-transform" [class.rotate-90]="!isApprovalExpanded">▼</span>
-                <span class="underline underline-offset-2">Approval Information</span>
+                class="flex items-center gap-2 py-1 text-left group cursor-pointer focus:outline-none">
+                <!-- Standalone Collapsible Downward Arrow (No Background Box) -->
+                <svg class="w-4 h-4 text-blue-700 group-hover:text-blue-900 transition-transform duration-200 shrink-0"
+                  [class.-rotate-90]="!isApprovalExpanded"
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                </svg>
+                <span class="font-extrabold text-blue-700 text-sm sm:text-base group-hover:text-blue-900 transition-colors">
+                  Approval Information
+                </span>
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                  {{ approvers.length }} Approvers
+                </span>
               </button>
 
               <!-- Collapsible Content -->
-              <div *ngIf="isApprovalExpanded" class="space-y-2.5">
-                <!-- Approval Table -->
-                <div class="border border-slate-300 rounded-lg overflow-hidden shadow-2xs">
+              <div *ngIf="isApprovalExpanded" class="space-y-3 pt-1">
+                <!-- Modern Approval Table -->
+                <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white">
                   <table class="w-full text-left text-xs sm:text-sm border-collapse">
                     <thead>
-                      <tr class="bg-[#5a9e53] text-white font-bold">
-                        <th class="py-2 px-3 sm:px-4 border-r border-white/20 w-1/2">Approver Name</th>
-                        <th class="py-2 px-3 sm:px-4 border-r border-white/20 text-center w-1/4">Status</th>
-                        <th class="py-2 px-3 sm:px-4 text-center w-1/4">Date</th>
+                      <tr class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-bold">
+                        <th class="py-3 px-4 font-bold text-white text-xs uppercase tracking-wider">Approver Name</th>
+                        <th class="py-3 px-4 font-bold text-white text-xs uppercase tracking-wider text-center w-36">Status</th>
+                        <th class="py-3 px-4 font-bold text-white text-xs uppercase tracking-wider text-center w-36">Date</th>
                       </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-200 bg-white">
-                      <tr *ngFor="let approver of approvers" class="hover:bg-slate-50/80 transition-colors">
-                        <td class="py-1.5 px-3 sm:px-4 border-r border-slate-200 font-medium text-blue-700 font-mono text-[11px] sm:text-xs">
-                          {{ approver.name }}
+                    <tbody class="divide-y divide-slate-100 bg-white">
+                      <tr 
+                        *ngFor="let approver of approvers; let idx = index" 
+                        class="hover:bg-blue-50/40 transition-colors"
+                        [class.bg-slate-50]="idx % 2 === 1">
+                        
+                        <!-- Approver Name with Clean Step Number -->
+                        <td class="py-2.5 px-4">
+                          <div class="flex items-center gap-2.5">
+                            <span class="w-6 h-6 rounded-lg bg-slate-100 border border-slate-200/80 text-slate-600 font-bold text-xs flex items-center justify-center shrink-0">
+                              {{ idx + 1 }}
+                            </span>
+                            <span class="font-semibold text-slate-800 text-xs sm:text-sm">
+                              {{ approver.name }}
+                            </span>
+                          </div>
                         </td>
-                        <td class="py-1.5 px-3 sm:px-4 border-r border-slate-200 text-center text-xs">
-                          <span *ngIf="approver.status" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">
+
+                        <!-- Status with modern badge pill -->
+                        <td class="py-2.5 px-4 text-center">
+                          <span *ngIf="approver.status" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                             {{ approver.status }}
                           </span>
-                          <span *ngIf="!approver.status" class="text-slate-300">-</span>
+                          <span *ngIf="!approver.status" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-slate-100 text-slate-400 border border-slate-200/80">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                            Pending
+                          </span>
                         </td>
-                        <td class="py-1.5 px-3 sm:px-4 text-center text-slate-500 font-mono text-[11px] sm:text-xs">
-                          {{ approver.date || '-' }}
+
+                        <!-- Date -->
+                        <td class="py-2.5 px-4 text-center text-xs">
+                          <span *ngIf="approver.date" class="font-medium text-slate-700">{{ approver.date }}</span>
+                          <span *ngIf="!approver.date" class="text-slate-300">-</span>
                         </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
 
-                <!-- Comment Box -->
-                <div class="flex flex-col sm:flex-row sm:items-center gap-2 pt-0.5">
-                  <span class="font-bold text-red-700 text-xs sm:text-sm shrink-0">Comment :</span>
+                <!-- Modern Comment Box -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2.5 p-3 bg-slate-50/80 border border-slate-200/80 rounded-2xl shadow-2xs">
+                  <label class="font-bold text-slate-700 text-xs sm:text-sm shrink-0 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                    <span class="text-rose-600 font-bold">Comment :</span>
+                  </label>
                   <input 
                     type="text" 
                     [(ngModel)]="approvalComment"
-                    placeholder=""
-                    class="flex-1 px-3 py-1 text-xs sm:text-sm border border-slate-300 rounded bg-white focus:border-[#131936] focus:ring-1 focus:ring-[#131936]/20 outline-none"
+                    placeholder="Add comments or remarks for the approvers..."
+                    class="flex-1 px-3.5 py-1.5 text-xs sm:text-sm border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:bg-white bg-white rounded-xl transition-all outline-none focus:ring-4 focus:ring-blue-100 shadow-2xs text-slate-800 placeholder:text-slate-400 font-normal"
                   />
                 </div>
               </div>
@@ -558,133 +580,171 @@
         </div>
 
         <!-- ================= MAIN DATA TABLE ================= -->
-        <div class="bg-white rounded-lg border border-orange-200/90 shadow-xs overflow-hidden">
+        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
           <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[1600px] border border-orange-200">
+            <table class="w-full text-left border-collapse min-w-[1700px]">
               
-              <!-- 3-TIER GROUPED HEADERS (Soft Orange Theme) -->
+              <!-- 3-TIER GROUPED HEADERS (Modern Enterprise Theme) -->
               <thead>
-                <!-- ROW 1: Super Categories -->
-                <tr class="bg-orange-100/80 border-b border-orange-200 text-xs font-bold">
-                  <th colspan="8" class="py-2.5 px-3 text-center text-orange-900 uppercase tracking-wider border-r border-orange-200">
-                    DETAIL FOR REQUEST
+                <!-- ROW 1: Super Categories (Pantone #131936 & Slate Hierarchy) -->
+                <tr class="border-b border-slate-700/30 text-xs font-black tracking-wider">
+                  <th colspan="8" class="py-3 px-4 text-center bg-[#131936] text-white uppercase border-r border-slate-700/50 shadow-2xs">
+                    <div class="flex items-center justify-center gap-2">
+                      <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                      </svg>
+                      <span>DETAIL FOR REQUEST</span>
+                    </div>
                   </th>
-                  <th colspan="3" class="py-2.5 px-3 text-center text-orange-900 tracking-wider border-r border-orange-200">
-                    Detail for M/M
+                  <th colspan="3" class="py-3 px-4 text-center bg-[#1e293b] text-slate-100 uppercase border-r border-slate-700/50">
+                    <div class="flex items-center justify-center gap-2">
+                      <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      </svg>
+                      <span>DETAIL FOR M/M</span>
+                    </div>
                   </th>
-                  <th colspan="9" class="py-2.5 px-6 text-right text-orange-900 uppercase tracking-wider">
-                    DETAIL FOR P/H
+                  <th colspan="14" class="py-3 px-6 text-center bg-[#262f68] text-white uppercase">
+                    <div class="flex items-center justify-center gap-2">
+                      <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                      </svg>
+                      <span>DETAIL FOR P/H (QUOTATIONS)</span>
+                    </div>
                   </th>
                 </tr>
 
                 <!-- ROW 2: Secondary Level Groups & Spans -->
-                <tr class="bg-[#fff7ed] border-b border-orange-200 text-xs font-bold text-orange-950">
+                <tr class="bg-slate-100/90 border-b border-slate-200 text-xs font-bold text-slate-800">
                   <!-- No. (rowspan 2) -->
-                  <th rowspan="2" class="px-2 py-2 text-center w-10 border-r border-orange-200">
+                  <th rowspan="2" class="px-3 py-2.5 text-center w-12 border-r border-slate-200">
                     No.
                   </th>
 
                   <!-- Part name (rowspan 2) -->
-                  <th rowspan="2" class="px-3 py-2 text-center min-w-[140px] border-r border-orange-200">
-                    <div>Part name</div>
-                    <div class="text-orange-700 font-bold text-[11px] mt-0.5">(Item Name)</div>
+                  <th rowspan="2" class="px-3 py-2.5 text-center min-w-[150px] border-r border-slate-200">
+                    <div class="font-extrabold text-slate-900">Part name</div>
+                    <div class="text-slate-400 font-medium text-[10px] mt-0.5 tracking-normal">(Item Name)</div>
                   </th>
 
                   <!-- Detail Spec (colspan 3) -->
-                  <th colspan="3" class="px-3 py-1.5 text-center border-r border-orange-200">
+                  <th colspan="3" class="px-3 py-2 text-center border-r border-slate-200 bg-slate-50/70 font-extrabold text-slate-800">
                     Detail Spec
                   </th>
 
                   <!-- Qty (colspan 2) -->
-                  <th colspan="2" class="px-3 py-1.5 text-center border-r border-orange-200">
+                  <th colspan="2" class="px-3 py-2 text-center border-r border-slate-200 bg-slate-50/70 font-extrabold text-slate-800">
                     Qty
                   </th>
 
                   <!-- Remark (rowspan 2) -->
-                  <th rowspan="2" class="px-3 py-2 text-center min-w-[220px] border-r border-orange-200">
-                    <div>Remark</div>
-                    <div class="text-orange-700 font-normal text-[11px] mt-0.5">(อ้างอิง po ที่เคยซื้อ, etc.)</div>
+                  <th rowspan="2" class="px-3 py-2.5 text-center min-w-[220px] border-r border-slate-200">
+                    <div class="font-extrabold text-slate-900">Remark</div>
+                    <div class="text-slate-400 font-normal text-[10px] mt-0.5 tracking-normal">(อ้างอิง PO ที่เคยซื้อ, etc.)</div>
                   </th>
 
                   <!-- Machine model (rowspan 2) -->
-                  <th rowspan="2" class="px-2.5 py-2 text-center min-w-[150px] border-r border-orange-200 leading-tight">
+                  <th rowspan="2" class="px-3 py-2.5 text-center min-w-[150px] border-r border-slate-200 leading-tight">
                     Machine<br>model
                   </th>
 
                   <!-- Machine maker (rowspan 2) -->
-                  <th rowspan="2" class="px-2.5 py-2 text-center min-w-[100px] border-r border-orange-200 leading-tight">
+                  <th rowspan="2" class="px-3 py-2.5 text-center min-w-[100px] border-r border-slate-200 leading-tight">
                     Machine<br>maker
                   </th>
 
                   <!-- Serial no. (rowspan 2) -->
-                  <th rowspan="2" class="px-2.5 py-2 text-center min-w-[90px] border-r border-orange-200">
+                  <th rowspan="2" class="px-3 py-2.5 text-center min-w-[90px] border-r border-slate-200">
                     Serial no.
                   </th>
 
                   <!-- Quotation 1 (colspan 7) -->
-                  <th colspan="7" class="px-3 py-1 text-center border-r border-orange-200 text-sm font-black">
-                    1
+                  <th colspan="7" class="px-3 py-2 text-center border-r border-slate-200 bg-blue-50/60">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-600 text-white shadow-2xs">
+                      <span class="text-xs font-black">1</span>
+                      <span class="text-[11px] font-bold tracking-wider uppercase">Quotation 1</span>
+                    </div>
                   </th>
 
-                  <!-- Quotation 2 (colspan 2) -->
-                  <th colspan="2" class="px-3 py-1 text-center font-black">
+                  <!-- Quotation 2 (colspan 7) -->
+                  <th colspan="7" class="px-3 py-2 text-center bg-indigo-50/60">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-slate-600 text-white shadow-2xs">
+                      <span class="text-xs font-black">2</span>
+                      <span class="text-[11px] font-bold tracking-wider uppercase">Quotation 2</span>
+                    </div>
                   </th>
                 </tr>
 
                 <!-- ROW 3: Column Specific Headers -->
-                <tr class="bg-[#fff7ed] border-b border-orange-200 text-xs font-bold text-orange-950">
+                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600">
                   <!-- Under Detail Spec -->
-                  <th class="px-3 py-1.5 text-center min-w-[150px] border-r border-orange-200">
-                    <div>Spec</div>
-                    <div class="text-orange-700 font-bold text-[11px] mt-0.5">(Maker Spec)</div>
+                  <th class="px-3 py-2 text-center min-w-[150px] border-r border-slate-200">
+                    <div class="text-slate-700">Spec</div>
+                    <div class="text-slate-400 font-normal text-[9px] mt-0.5">(Maker Spec)</div>
                   </th>
-                  <th class="px-2.5 py-1.5 text-center min-w-[70px] border-r border-orange-200">
+                  <th class="px-2.5 py-2 text-center min-w-[70px] border-r border-slate-200 text-slate-700">
                     Position
                   </th>
-                  <th class="px-3 py-1.5 text-center min-w-[100px] border-r border-orange-200 leading-tight">
+                  <th class="px-3 py-2 text-center min-w-[100px] border-r border-slate-200 leading-tight text-slate-700">
                     Maker<br>Name
                   </th>
 
                   <!-- Under Qty -->
-                  <th class="px-2 py-1.5 text-center min-w-[85px] border-r border-orange-200">
-                    <div>QTY.</div>
-                    <div class="text-orange-700 font-bold text-[10px] mt-0.5">(ตัวเลขเท่านั้น)</div>
+                  <th class="px-2.5 py-2 text-center min-w-[85px] border-r border-slate-200">
+                    <div class="text-slate-700">QTY.</div>
+                    <div class="text-slate-400 font-normal text-[9px] mt-0.5">(ตัวเลข)</div>
                   </th>
-                  <th class="px-2 py-1.5 text-center min-w-[50px] border-r border-orange-200">
+                  <th class="px-2 py-2 text-center min-w-[55px] border-r border-slate-200 text-slate-700">
                     Unit
                   </th>
 
                   <!-- Under Quotation 1 -->
-                  <th class="px-2.5 py-1.5 text-center min-w-[75px] border-r border-orange-200 whitespace-nowrap">
+                  <th class="px-2.5 py-2 text-center min-w-[75px] border-r border-slate-200 whitespace-nowrap text-slate-700">
                     A/C Code
                   </th>
-                  <th class="px-3 py-1.5 text-center min-w-[75px] border-r border-orange-200">
+                  <th class="px-3 py-2 text-center min-w-[75px] border-r border-slate-200 text-slate-700">
                     Vendor
                   </th>
-                  <th class="px-2.5 py-1.5 text-center min-w-[85px] border-r border-orange-200 leading-tight">
-                    <div>Unit price</div>
-                    <div class="text-orange-700 font-bold text-[10px] mt-0.5">(เฉพาะตัวเลข)</div>
+                  <th class="px-2.5 py-2 text-center min-w-[85px] border-r border-slate-200 leading-tight">
+                    <div class="text-slate-700">Unit price</div>
+                    <div class="text-slate-400 font-normal text-[9px] mt-0.5">(ตัวเลข)</div>
                   </th>
-                  <th class="px-1.5 py-1.5 text-center w-12 border-r border-orange-200 leading-tight">
+                  <th class="px-1.5 py-2 text-center w-12 border-r border-slate-200 leading-tight text-slate-700">
                     Curre<br>ncy
                   </th>
-                  <th class="px-1.5 py-1.5 text-center w-12 border-r border-orange-200 leading-tight">
+                  <th class="px-1.5 py-2 text-center w-12 border-r border-slate-200 leading-tight text-slate-700">
                     C/R<br>code
                   </th>
-                  <th class="px-3 py-1.5 text-center min-w-[170px] border-r border-orange-200 whitespace-nowrap">
+                  <th class="px-3 py-2 text-center min-w-[170px] border-r border-slate-200 whitespace-nowrap text-slate-700">
                     Quotation no.
                   </th>
-                  <th class="px-2 py-1.5 text-center min-w-[70px] border-r border-orange-200">
+                  <th class="px-2 py-2 text-center min-w-[70px] border-r border-slate-200 text-slate-700">
                     L/T
                   </th>
 
                   <!-- Under Quotation 2 -->
-                  <th class="px-3 py-1.5 text-center min-w-[120px] border-r border-orange-200">
+                  <th class="px-2.5 py-2 text-center min-w-[75px] border-r border-slate-200 whitespace-nowrap text-slate-700">
+                    A/C Code
+                  </th>
+                  <th class="px-3 py-2 text-center min-w-[75px] border-r border-slate-200 text-slate-700">
                     Vendor
                   </th>
-                  <th class="px-2.5 py-1.5 text-center min-w-[85px] leading-tight">
-                    <div>Unit price</div>
-                    <div class="text-orange-700 font-bold text-[10px] mt-0.5">(เฉพาะตัวเลข)</div>
+                  <th class="px-2.5 py-2 text-center min-w-[85px] border-r border-slate-200 leading-tight">
+                    <div class="text-slate-700">Unit price</div>
+                    <div class="text-slate-400 font-normal text-[9px] mt-0.5">(ตัวเลข)</div>
+                  </th>
+                  <th class="px-1.5 py-2 text-center w-12 border-r border-slate-200 leading-tight text-slate-700">
+                    Curre<br>ncy
+                  </th>
+                  <th class="px-1.5 py-2 text-center w-12 border-r border-slate-200 leading-tight text-slate-700">
+                    C/R<br>code
+                  </th>
+                  <th class="px-3 py-2 text-center min-w-[170px] border-r border-slate-200 whitespace-nowrap text-slate-700">
+                    Quotation no.
+                  </th>
+                  <th class="px-2 py-2 text-center min-w-[70px] text-slate-700">
+                    L/T
                   </th>
                 </tr>
               </thead>
@@ -1010,9 +1070,19 @@
                       class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-[11px] text-slate-800">
                   </td>
 
-                  <!-- 19. Vendor (Quotation 2) -->
+                  <!-- Quotation 2: 19. A/C Code -->
+                  <td class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[75px] font-mono">
+                    <span *ngIf="!item.isEditing">{{ item.acCode2 || '-' }}</span>
+                    <input 
+                      *ngIf="item.isEditing"
+                      type="text" 
+                      [(ngModel)]="item.acCode2" 
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
+                  </td>
+
+                  <!-- Quotation 2: 20. Vendor -->
                   <td class="px-3 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[120px] text-[11px] whitespace-pre-line leading-tight">
-                    <span *ngIf="!item.isEditing">{{ item.vendor2 }}</span>
+                    <span *ngIf="!item.isEditing">{{ item.vendor2 || '-' }}</span>
                     <textarea 
                       *ngIf="item.isEditing"
                       rows="2" 
@@ -1020,17 +1090,77 @@
                       class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded p-1 text-[11px] text-slate-800 resize-none leading-tight"></textarea>
                   </td>
 
-                  <!-- 20. Unit price (Quotation 2) -->
-                  <td class="px-2 py-2.5 text-center text-slate-800 min-w-[85px] font-mono relative">
-                    <span *ngIf="!item.isEditing">{{ item.unitPrice2 ? (item.unitPrice2 | number:'1.2-2') : '' }}</span>
+                  <!-- Quotation 2: 21. Unit price -->
+                  <td class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[85px] font-mono">
+                    <span *ngIf="!item.isEditing">{{ item.unitPrice2 ? (item.unitPrice2 | number:'1.2-2') : '-' }}</span>
                     <input 
                       *ngIf="item.isEditing"
                       type="number" 
                       [(ngModel)]="item.unitPrice2" 
                       placeholder="-" 
                       class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
+                  </td>
+
+                  <!-- Quotation 2: 22. Currency -->
+                  <td class="px-1.5 py-2.5 text-center text-slate-800 border-r border-slate-200 w-12 font-mono uppercase">
+                    <span *ngIf="!item.isEditing">{{ item.currency2 || '-' }}</span>
+                    <input 
+                      *ngIf="item.isEditing"
+                      type="text" 
+                      [(ngModel)]="item.currency2" 
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs uppercase">
+                  </td>
+
+                  <!-- Quotation 2: 23. C/R code -->
+                  <td class="px-1.5 py-2.5 text-center text-slate-800 border-r border-slate-200 w-12 font-mono uppercase">
+                    <span *ngIf="!item.isEditing">{{ item.crCode2 || '-' }}</span>
+                    <input 
+                      *ngIf="item.isEditing"
+                      type="text" 
+                      [(ngModel)]="item.crCode2" 
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs uppercase">
+                  </td>
+
+                  <!-- Quotation 2: 24. Quotation no. -->
+                  <td class="px-3 py-2.5 border-r border-slate-200 text-center min-w-[170px]">
+                    <!-- View Mode -->
+                    <div *ngIf="!item.isEditing">
+                      <div 
+                        *ngIf="item.quotationPdf2"
+                        (click)="openPdfPreview(item.quotationPdf2, 'Quotation 2: ' + item.quotationPdf2, $event)"
+                        class="flex flex-col items-center cursor-pointer group">
+                        <span class="inline-flex items-center justify-center bg-rose-600 text-white rounded px-1 py-0.2 text-[9px] font-black mb-1">
+                          PDF
+                        </span>
+                        <span class="font-mono text-[10px] text-slate-800 group-hover:text-rose-600 truncate max-w-[160px] font-medium underline underline-offset-2">
+                          {{ item.quotationPdf2 }}
+                        </span>
+                      </div>
+                      <div *ngIf="!item.quotationPdf2" class="font-bold text-slate-800 text-xs">
+                        {{ item.quotationNo2 || '-' }}
+                      </div>
+                    </div>
+
+                    <!-- Edit Mode -->
+                    <div *ngIf="item.isEditing" class="space-y-1">
+                      <input 
+                        type="text" 
+                        [(ngModel)]="item.quotationNo2" 
+                        placeholder="Quotation No."
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-bold text-slate-800 text-xs">
+                    </div>
+                  </td>
+
+                  <!-- Quotation 2: 25. L/T -->
+                  <td class="px-2 py-2.5 text-center text-slate-800 min-w-[70px] font-mono text-[11px] whitespace-nowrap relative">
+                    <span *ngIf="!item.isEditing">{{ item.leadTime2 || '-' }}</span>
+                    <input 
+                      *ngIf="item.isEditing"
+                      type="text" 
+                      [(ngModel)]="item.leadTime2" 
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-[11px] text-slate-800">
                     
-                    <!-- Row delete button on hover (when not in edit mode, or always) -->
+                    <!-- Row delete button on hover -->
                     <button 
                       type="button" 
                       (click)="deleteItem(i, $event)"
@@ -1046,7 +1176,7 @@
               <!-- TABLE FOOTER / ADD ROW BAR -->
               <tfoot class="bg-slate-50/70 border-t border-orange-200">
                 <tr>
-                  <td colspan="20" class="py-2.5 px-4 text-left">
+                  <td colspan="25" class="py-2.5 px-4 text-left">
                     <button 
                       type="button" 
                       (click)="addRow()"

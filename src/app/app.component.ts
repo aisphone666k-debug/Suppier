@@ -26,6 +26,7 @@ export interface RequisitionItem {
   machineMaker: string;
   serialNo: string;
   // Detail for P/H (Procurement)
+  // Quotation 1
   acCode: string;
   vendor: string;
   unitPrice: number | null;
@@ -34,8 +35,15 @@ export interface RequisitionItem {
   quotationNo: string;
   quotationPdf?: string;
   leadTime: string;
+  // Quotation 2
+  acCode2?: string;
   vendor2?: string;
   unitPrice2?: number | null;
+  currency2?: string;
+  crCode2?: string;
+  quotationNo2?: string;
+  quotationPdf2?: string;
+  leadTime2?: string;
   status: 'Waiting Quotation' | 'Quoted' | 'Approved' | 'PO Issued';
   isEditing?: boolean;
   backupData?: any;
@@ -154,6 +162,13 @@ export class AppComponent implements AfterViewInit {
     { name: 'ANUSARA KUEADET', status: '', date: '' },
     { name: 'CHANTHANY THAI', status: '', date: '' }
   ];
+
+  getInitials(name: string): string {
+    if (!name) return '';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
 
   toggleMenu(menu: any, event?: Event): void {
     if (event) {
