@@ -8,6 +8,7 @@ module.exports = {
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', '"Prompt"', 'system-ui', 'sans-serif'],
         display: ['"Plus Jakarta Sans"', '"Prompt"', 'sans-serif'],
+        code: ['"Outfit"', '"Plus Jakarta Sans"', 'sans-serif'],
       },
       colors: {
         pantone: {

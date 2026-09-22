@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -48,7 +48,20 @@ export interface RequisitionItem {
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit {
+  // Authentication & OTP State
+  isLoggedIn = false;
+  otpCode = '';
+  isInputFocused = true;
+  loginError = '';
+  loggedInEmployeeId = '';
+  loginPhase: 'input' | 'rotating' | 'converging' | 'downloading' | 'success' | 'fail-converging' | 'shattered' = 'input';
+  downloadPercent = 0;
+
+  ngAfterViewInit(): void {
+    this.focusInput();
+  }
+
   // Navigation & View State
   activeMenu = 'spare-part';
   activeView: 'list' | 'edit' = 'edit';
@@ -501,5 +514,134 @@ export class AppComponent {
     setTimeout(() => {
       this.toastVisible = false;
     }, 3200);
+  }
+
+  // OTP Login Methods (Single State - Zero Double-Type Bug)
+  onCodeChange(val: string): void {
+    const cleaned = (val || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 5);
+    this.otpCode = cleaned;
+    this.loginError = '';
+
+    const input = document.getElementById('master-otp-input') as HTMLInputElement;
+    if (input && input.value !== cleaned) {
+      input.value = cleaned;
+    }
+
+    if (this.otpCode.length === 5) {
+      setTimeout(() => this.submitLogin(), 180);
+    }
+  }
+
+  focusInput(): void {
+    setTimeout(() => {
+      const input = document.getElementById('master-otp-input') as HTMLInputElement;
+      input?.focus();
+    }, 10);
+  }
+
+  clearOtp(): void {
+    this.otpCode = '';
+    this.loginError = '';
+    const input = document.getElementById('master-otp-input') as HTMLInputElement;
+    if (input) input.value = '';
+    this.focusInput();
+  }
+
+  setDemoCode(code: string): void {
+    this.otpCode = code;
+    const input = document.getElementById('master-otp-input') as HTMLInputElement;
+    if (input) input.value = code;
+    this.submitLogin();
+  }
+
+  isCodeValid(code: string): boolean {
+    const clean = (code || '').toUpperCase();
+    const validCodes = ['BPT01', 'MA105', 'GM101', 'PMA01', '12345', 'ADMIN'];
+    return validCodes.includes(clean) || clean.startsWith('BPT') || clean.startsWith('MA');
+  }
+
+  submitLogin(): void {
+    if (this.otpCode.length < 5) {
+      this.loginError = 'Please enter a valid 5-digit Employee ID.';
+      return;
+    }
+
+    if (this.loginPhase !== 'input') {
+      return;
+    }
+
+    this.loginError = '';
+    const isValid = this.isCodeValid(this.otpCode);
+
+    if (isValid) {
+      // --- SUCCESS FLOW (Orbit -> Fuse into single square -> Circular download -> Success) ---
+      this.loginPhase = 'rotating';
+
+      setTimeout(() => {
+        this.loginPhase = 'converging';
+      }, 1300);
+
+      setTimeout(() => {
+        this.loginPhase = 'downloading';
+        this.animateDownloadProgress();
+      }, 1950);
+
+      setTimeout(() => {
+        this.loginPhase = 'success';
+      }, 3400);
+
+      setTimeout(() => {
+        this.loggedInEmployeeId = this.otpCode;
+        this.isLoggedIn = true;
+        this.loginPhase = 'input';
+        this.downloadPercent = 0;
+        this.showToast(`Login successful. Welcome, Employee ID: ${this.loggedInEmployeeId}`);
+      }, 4000);
+
+    } else {
+      // --- FAIL FLOW (Shatter animation on invalid employee code) ---
+      this.loginPhase = 'rotating';
+
+      // 1. Rotate and turn red with warning vibration
+      setTimeout(() => {
+        this.loginPhase = 'fail-converging';
+      }, 900);
+
+      // 2. Shatter into pieces
+      setTimeout(() => {
+        this.loginPhase = 'shattered';
+      }, 1600);
+
+      // 3. Reset back to input
+      setTimeout(() => {
+        const failedCode = this.otpCode;
+        this.loginPhase = 'input';
+        this.loginError = `Invalid Employee ID "${failedCode}". Please try again.`;
+        this.clearOtp();
+      }, 3500);
+    }
+  }
+
+  animateDownloadProgress(): void {
+    this.downloadPercent = 18;
+    const timer = setInterval(() => {
+      if (this.downloadPercent < 96) {
+        this.downloadPercent += Math.floor(Math.random() * 18) + 12;
+        if (this.downloadPercent > 100) this.downloadPercent = 100;
+      } else {
+        this.downloadPercent = 100;
+        clearInterval(timer);
+      }
+    }, 120);
+  }
+
+  logout(): void {
+    this.isLoggedIn = false;
+    this.otpCode = '';
+    this.loggedInEmployeeId = '';
+    this.loginPhase = 'input';
+    this.downloadPercent = 0;
+    this.showToast('Logged out successfully.');
+    this.focusInput();
   }
 }

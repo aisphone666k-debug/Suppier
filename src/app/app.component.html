@@ -1,25 +1,294 @@
-<div class="h-screen bg-slate-50 text-slate-800 flex flex-col font-sans overflow-hidden">
+<div class="font-sans antialiased text-slate-800">
 
-  <!-- ================= TOP SYSTEM BANNER (Matching Original Screenshot) ================= -->
-  <header class="bg-white border-b border-slate-200 py-3 px-6 shadow-2xs shrink-0 z-10">
-    <div class="max-w-[1800px] mx-auto flex items-center justify-between">
-      <div class="flex-1 text-center">
-        <h1 class="text-2xl sm:text-3xl font-black text-blue-700 tracking-tight">
-          Request quotation to Purchase GM1 - MA - PMA
+  <!-- ================= 1. LOGIN SCREEN (CLEAN WHITE TONE 5-DIGIT OTP STYLE) ================= -->
+  <div *ngIf="!isLoggedIn" class="min-h-screen bg-gradient-to-b from-slate-50 via-slate-100/80 to-slate-200/60 flex items-center justify-center p-4 relative overflow-hidden">
+    <!-- Subtle clean ambient gradients in background -->
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-100/60 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-100/50 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-md w-full bg-white border border-slate-200/90 rounded-3xl p-7 sm:p-9 shadow-2xl shadow-slate-300/40 text-center space-y-6">
+      
+      <!-- Logo / Icon Badge (Clean White & Blue Style) -->
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-blue-50/80 border border-blue-100 text-blue-600 flex items-center justify-center shadow-xs">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004 11m0 0a8 8 0 001.07 4.02m1.94 3.018A12.01 12.01 0 0012 21" />
+        </svg>
+      </div>
+
+      <!-- Header Title -->
+      <div class="space-y-1">
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-800 tracking-tight">
+          Login
         </h1>
+        <p class="text-xs font-medium text-slate-500">
+          Login with Employee ID
+        </p>
       </div>
-      <div class="hidden sm:flex items-center gap-2 text-xs font-mono text-slate-400">
-        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-        <span>Online</span>
+
+      <!-- 1. NORMAL INPUT CONTROLS (WHEN loginPhase === 'input') -->
+      <div *ngIf="loginPhase === 'input'" class="space-y-4">
+        
+        <!-- 5-Digit OTP Boxes (Alphanumeric A-Z, 0-9) -->
+        <div class="relative flex items-center justify-center gap-2 sm:gap-3 py-1 cursor-text" (click)="focusInput()">
+          
+          <!-- Master Native Input (Handles all keyboard input, IME, backspace, paste flawlessly) -->
+          <input 
+            id="master-otp-input"
+            type="text"
+            maxlength="5"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+            autofocus
+            [value]="otpCode"
+            (input)="onCodeChange($any($event.target).value)"
+            (keydown.enter)="otpCode.length === 5 && submitLogin()"
+            (focus)="isInputFocused = true"
+            (blur)="isInputFocused = false"
+            class="absolute inset-0 w-full h-full opacity-0 z-20 cursor-text"
+          />
+
+          <!-- 5 Visual OTP Display Boxes -->
+          <div 
+            *ngFor="let idx of [0, 1, 2, 3, 4]"
+            class="w-12 h-14 sm:w-14 sm:h-16 flex items-center justify-center text-center text-2xl sm:text-3xl otp-box-char uppercase rounded-2xl transition-all shadow-xs select-none"
+            [ngClass]="{
+              'border-2 border-blue-600 bg-blue-50/70 text-blue-700 font-extrabold shadow-sm shadow-blue-500/10': otpCode.charAt(idx) !== '',
+              'border-2 border-blue-600 bg-white ring-4 ring-blue-100 shadow-sm': otpCode.charAt(idx) === '' && (isInputFocused && otpCode.length === idx),
+              'border-2 border-slate-200 bg-slate-50/70 text-slate-800': otpCode.charAt(idx) === '' && !(isInputFocused && otpCode.length === idx)
+            }">
+            <span class="leading-none">{{ otpCode.charAt(idx) }}</span>
+            <!-- Blinking cursor indicator when active box is empty -->
+            <span *ngIf="isInputFocused && otpCode.length === idx" class="inline-block w-0.5 h-6 bg-blue-600 animate-pulse ml-0.5 rounded-full"></span>
+          </div>
+
+        </div>
+
+        <!-- Error message -->
+        <div *ngIf="loginError" class="bg-rose-50 border border-rose-200 text-rose-600 text-xs font-semibold py-2 px-3 rounded-xl">
+          {{ loginError }}
+        </div>
+
+        <!-- Actions -->
+        <div class="space-y-2 pt-1">
+          <!-- Submit Button -->
+          <button 
+            type="button" 
+            (click)="submitLogin()"
+            [disabled]="otpCode.length < 5"
+            class="w-full py-3.5 rounded-xl font-bold text-sm text-white shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+            [class]="otpCode.length === 5 
+              ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/25 active:scale-[0.99]' 
+              : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'">
+            <span>Sign In</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            </svg>
+          </button>
+
+          <!-- Clear Button -->
+          <button 
+            *ngIf="otpCode.length > 0"
+            (click)="clearOtp()" 
+            type="button" 
+            class="w-full py-1 text-xs font-medium text-slate-400 hover:text-rose-500 transition-colors cursor-pointer">
+            Clear
+          </button>
+        </div>
+
       </div>
+
+      <!-- 2. ANIMATION ARENA (ROTATING -> CONVERGING -> CIRCULAR DOWNLOAD -> SUCCESS) -->
+      <div *ngIf="loginPhase !== 'input'" class="py-6 flex flex-col items-center justify-center min-h-[220px] transition-all">
+        
+        <!-- STEP A & B: ROTATING & CONVERGING (Valid Credentials) -->
+        <div *ngIf="loginPhase === 'rotating' || loginPhase === 'converging'" class="relative w-48 h-48 flex items-center justify-center clean-arena-deploy">
+          <!-- Subtle clean hairline track -->
+          <div class="absolute inset-2 rounded-full border border-slate-100 shadow-xs"></div>
+          
+          <!-- Orbit container -->
+          <div class="absolute inset-0 flex items-center justify-center clean-orbit-spin" [class.clean-orbit-merge]="loginPhase === 'converging'">
+            <!-- 5 Clean White OTP Nodes -->
+            <div 
+              *ngFor="let idx of [0, 1, 2, 3, 4]" 
+              class="absolute w-12 h-14 rounded-2xl bg-white border-2 border-blue-600 text-blue-700 otp-box-char font-extrabold text-2xl flex items-center justify-center shadow-md shadow-slate-200/80"
+              [ngClass]="'orbit-node-' + idx">
+              <span class="clean-counter-spin leading-none">{{ otpCode.charAt(idx) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Label while rotating (Normal) -->
+        <div *ngIf="loginPhase === 'rotating' || loginPhase === 'converging'" class="pt-4 text-center space-y-0.5">
+          <div class="text-xs font-bold text-slate-700">Verifying Employee ID...</div>
+          <div class="text-[11px] text-slate-500 otp-box-char font-semibold tracking-wider">ID: {{ otpCode }}</div>
+        </div>
+
+        <!-- FAIL STATE A: FAIL CONVERGING (Invalid Credentials - Warning red & shake) -->
+        <div *ngIf="loginPhase === 'fail-converging'" class="relative w-48 h-48 flex items-center justify-center danger-shake">
+          <!-- Red warning hairline track -->
+          <div class="absolute inset-2 rounded-full border-2 border-rose-200 shadow-xs"></div>
+
+          <!-- Orbit container rapidly converging in danger mode -->
+          <div class="absolute inset-0 flex items-center justify-center clean-orbit-spin clean-orbit-merge">
+            <!-- 5 Red Danger OTP Nodes -->
+            <div 
+              *ngFor="let idx of [0, 1, 2, 3, 4]" 
+              class="absolute w-12 h-14 rounded-2xl bg-rose-50 border-2 border-rose-600 text-rose-600 otp-box-char font-extrabold text-2xl flex items-center justify-center shadow-lg shadow-rose-400/40"
+              [ngClass]="'orbit-node-' + idx">
+              <span class="clean-counter-spin leading-none">{{ otpCode.charAt(idx) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Label while fail converging -->
+        <div *ngIf="loginPhase === 'fail-converging'" class="pt-4 text-center space-y-0.5">
+          <div class="text-xs font-bold text-rose-600 animate-pulse">Validating Credentials...</div>
+          <div class="text-[11px] text-rose-500 otp-box-char font-semibold tracking-wider">ID: {{ otpCode }}</div>
+        </div>
+
+        <!-- FAIL STATE B: ITEM SHATTERED -->
+        <div *ngIf="loginPhase === 'shattered'" class="relative w-52 h-52 flex flex-col items-center justify-center">
+          
+          <!-- Red shockwave expansion ring -->
+          <div class="absolute w-24 h-24 rounded-full border-4 border-rose-500 shockwave-ring pointer-events-none"></div>
+
+          <!-- 12 Exploding Shards -->
+          <div class="relative w-28 h-28 flex items-center justify-center">
+            <div class="absolute w-6 h-6 rounded-md bg-rose-500 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-1">✕</div>
+            <div class="absolute w-5 h-7 rounded-md bg-rose-600 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-2">✕</div>
+            <div class="absolute w-7 h-5 rounded-md bg-rose-500 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-3">✕</div>
+            <div class="absolute w-6 h-6 rounded-md bg-rose-600 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-4">✕</div>
+            <div class="absolute w-5 h-6 rounded-md bg-rose-500 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-5">✕</div>
+            <div class="absolute w-7 h-5 rounded-md bg-rose-600 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-6">✕</div>
+            <div class="absolute w-6 h-7 rounded-md bg-rose-500 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-7">✕</div>
+            <div class="absolute w-5 h-5 rounded-md bg-rose-600 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-8">✕</div>
+            <div class="absolute w-4 h-4 rounded-md bg-rose-400 border border-white shard-node-9"></div>
+            <div class="absolute w-4 h-4 rounded-md bg-rose-500 border border-white shard-node-10"></div>
+            <div class="absolute w-5 h-5 rounded-md bg-rose-600 border border-white shard-node-11"></div>
+            <div class="absolute w-4 h-4 rounded-md bg-rose-500 border border-white shard-node-12"></div>
+
+            <!-- Center Broken Item Core -->
+            <div class="w-20 h-20 rounded-2xl bg-rose-50 border-2 border-dashed border-rose-500 text-rose-600 flex flex-col items-center justify-center shadow-lg shadow-rose-300/50 scale-90">
+              <svg class="w-8 h-8 text-rose-600 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              <span class="text-[9px] font-black tracking-wider text-rose-600 mt-1 uppercase">INVALID</span>
+            </div>
+          </div>
+
+          <!-- Fail Status Text -->
+          <div class="pt-3 text-center space-y-0.5">
+            <div class="text-sm font-bold text-rose-600 tracking-wide flex items-center justify-center gap-1">
+              <span>Invalid Employee ID</span>
+            </div>
+            <div class="text-xs text-slate-400 otp-box-char font-medium tracking-wide">Authentication Failed &bull; {{ otpCode }}</div>
+          </div>
+
+        </div>
+
+        <!-- STEP C: FUSED INTO A SINGLE SQUARE (Clean Modern) -->
+        <div *ngIf="loginPhase === 'downloading'" class="flex flex-col items-center justify-center space-y-3">
+          <!-- The Single Merged Square Box (Clean Pure White) -->
+          <div class="relative w-28 h-28 rounded-2xl bg-white border-2 border-blue-600 shadow-xl shadow-slate-200/90 flex items-center justify-center merged-square-box">
+            
+            <!-- Clean Circular Download Progress inside the single square -->
+            <div class="relative w-20 h-20 flex items-center justify-center">
+              <svg class="w-20 h-20 -rotate-90" viewBox="0 0 72 72">
+                <!-- Clean background ring -->
+                <circle cx="36" cy="36" r="30" stroke="#f1f5f9" stroke-width="4" fill="none" />
+                <!-- Clean blue progress ring -->
+                <circle 
+                  cx="36" cy="36" r="30" 
+                  stroke="#2563eb" stroke-width="4" fill="none" stroke-linecap="round"
+                  stroke-dasharray="188.5"
+                  [style.strokeDashoffset]="188.5 - (188.5 * downloadPercent / 100)"
+                  class="transition-all duration-120 ease-out"
+                />
+              </svg>
+
+              <!-- Center Download Arrow & Percent -->
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <svg class="w-5 h-5 text-blue-600 download-arrow-gentle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                <span class="text-xs otp-box-char font-extrabold text-slate-700 mt-0.5">{{ downloadPercent }}%</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Loading details -->
+          <div class="text-center space-y-0.5">
+            <div class="text-xs font-bold text-slate-800">Downloading Profile...</div>
+            <div class="text-[11px] text-slate-400 otp-box-char font-medium tracking-wide">Employee ID: {{ otpCode }}</div>
+          </div>
+        </div>
+
+        <!-- STEP D: SUCCESS IN THE SINGLE SQUARE -->
+        <div *ngIf="loginPhase === 'success'" class="flex flex-col items-center justify-center space-y-3">
+          <div class="w-28 h-28 rounded-2xl bg-white border-2 border-emerald-500 shadow-xl shadow-slate-200/90 flex flex-col items-center justify-center success-pop">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shadow-xs">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <span class="text-[10px] font-black tracking-wider text-emerald-600 mt-1.5">VERIFIED</span>
+          </div>
+          <div class="text-center space-y-0.5">
+            <div class="text-sm font-bold text-emerald-600">Login Successful</div>
+            <div class="text-xs text-slate-400 otp-box-char font-medium tracking-wide">Welcome, Employee ID: {{ otpCode }}</div>
+          </div>
+        </div>
+
+      </div>
+
     </div>
-  </header>
+  </div>
 
-  <!-- ================= MAIN LAYOUT WITH FIXED LEFT SIDEBAR ================= -->
-  <div class="max-w-[1850px] w-full mx-auto flex flex-1 overflow-hidden min-h-0">
+  <!-- ================= 2. MAIN APPLICATION SYSTEM (VISIBLE WHEN LOGGED IN) ================= -->
+  <div *ngIf="isLoggedIn" class="h-screen bg-slate-50 text-slate-800 flex flex-col font-sans overflow-hidden">
 
-    <!-- ================= LEFT SIDEBAR NAVIGATION (FIXED / STICKY) ================= -->
-    <aside class="w-64 sm:w-72 bg-white border-r border-slate-200 shrink-0 p-4 sm:p-5 flex flex-col space-y-6 shadow-xs h-full overflow-y-auto">
+    <!-- ================= TOP SYSTEM BANNER (Matching Original Screenshot) ================= -->
+    <header class="bg-white border-b border-slate-200 py-3 px-6 shadow-2xs shrink-0 z-10">
+      <div class="max-w-[1800px] mx-auto flex items-center justify-between">
+        <div class="flex-1 text-center">
+          <h1 class="text-2xl sm:text-3xl font-black text-blue-700 tracking-tight">
+            Request quotation to Purchase GM1 - MA - PMA
+          </h1>
+        </div>
+
+        <!-- Logged in employee info & Logout button -->
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-xl border border-slate-200">
+            <div class="w-6 h-6 rounded-lg bg-[#131936] text-white flex items-center justify-center font-black text-[10px]">
+              {{ loggedInEmployeeId ? loggedInEmployeeId.slice(-2) : 'ID' }}
+            </div>
+            <div class="text-left hidden sm:block">
+              <div class="text-[11px] font-black text-[#131936] leading-tight">รหัส: {{ loggedInEmployeeId || '12345' }}</div>
+              <div class="text-[9px] text-slate-500 font-medium leading-tight truncate max-w-[120px]">{{ requestBy }}</div>
+            </div>
+          </div>
+
+          <button 
+            (click)="logout()" 
+            title="ออกจากระบบ"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+            <span class="hidden sm:inline">Logout</span>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- ================= MAIN LAYOUT WITH FIXED LEFT SIDEBAR ================= -->
+    <div class="max-w-[1850px] w-full mx-auto flex flex-1 overflow-hidden min-h-0">
+
+      <!-- ================= LEFT SIDEBAR NAVIGATION (FIXED / STICKY) ================= -->
+      <aside class="w-64 sm:w-72 bg-white border-r border-slate-200 shrink-0 p-4 sm:p-5 flex flex-col space-y-6 shadow-xs h-full overflow-y-auto">
       
       <!-- Group 1: ALL DOCUMENT -->
       <div class="space-y-3">
