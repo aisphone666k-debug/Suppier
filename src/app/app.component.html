@@ -8,11 +8,9 @@
 
     <div class="relative z-10 max-w-md w-full bg-white border border-slate-200/90 rounded-3xl p-7 sm:p-9 shadow-2xl shadow-slate-300/40 text-center space-y-6">
       
-      <!-- Logo / Icon Badge (Clean White & Blue Style) -->
-      <div class="w-16 h-16 mx-auto rounded-2xl bg-blue-50/80 border border-blue-100 text-blue-600 flex items-center justify-center shadow-xs">
-        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004 11m0 0a8 8 0 001.07 4.02m1.94 3.018A12.01 12.01 0 0012 21" />
-        </svg>
+      <!-- App Brand Logo (SP Ribbon Emblem) -->
+      <div class="w-20 h-20 mx-auto rounded-3xl bg-blue-50/70 border border-blue-100 p-2.5 flex items-center justify-center shadow-sm shadow-blue-500/10 group">
+        <img src="/sp-logo.png" alt="Suppier Logo" class="w-full h-full object-contain filter drop-shadow-xs transition-transform duration-300 group-hover:scale-105 select-none" />
       </div>
 
       <!-- Header Title -->
@@ -69,30 +67,16 @@
           {{ loginError }}
         </div>
 
-        <!-- Actions -->
-        <div class="space-y-2 pt-1">
-          <!-- Submit Button -->
+        <!-- Optional Clear Action when typing -->
+        <div *ngIf="otpCode.length > 0" class="pt-1 flex justify-center">
           <button 
-            type="button" 
-            (click)="submitLogin()"
-            [disabled]="otpCode.length < 5"
-            class="w-full py-3.5 rounded-xl font-bold text-sm text-white shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
-            [class]="otpCode.length === 5 
-              ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/25 active:scale-[0.99]' 
-              : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'">
-            <span>Sign In</span>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-            </svg>
-          </button>
-
-          <!-- Clear Button -->
-          <button 
-            *ngIf="otpCode.length > 0"
             (click)="clearOtp()" 
             type="button" 
-            class="w-full py-1 text-xs font-medium text-slate-400 hover:text-rose-500 transition-colors cursor-pointer">
-            Clear
+            class="inline-flex items-center gap-1.5 py-1 px-3 text-xs font-medium text-slate-400 hover:text-rose-500 hover:bg-rose-50/60 rounded-xl transition-all cursor-pointer">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            <span>Clear</span>
           </button>
         </div>
 
@@ -249,11 +233,18 @@
   <!-- ================= 2. MAIN APPLICATION SYSTEM (VISIBLE WHEN LOGGED IN) ================= -->
   <div *ngIf="isLoggedIn" class="h-screen bg-slate-50 text-slate-800 flex flex-col font-sans overflow-hidden">
 
-    <!-- ================= TOP SYSTEM BANNER (Matching Original Screenshot) ================= -->
-    <header class="bg-white border-b border-slate-200 py-3 px-6 shadow-2xs shrink-0 z-10">
-      <div class="max-w-[1800px] mx-auto flex items-center justify-between">
+    <!-- ================= TOP SYSTEM BANNER ================= -->
+    <header class="bg-white border-b border-slate-200 py-2.5 px-6 shadow-2xs shrink-0 z-10">
+      <div class="max-w-[1800px] mx-auto flex items-center justify-between gap-4">
+        
+        <!-- App Brand Logo -->
+        <div class="flex items-center gap-3 shrink-0">
+          <img src="/sp-logo.png" alt="Suppier Logo" class="h-8 w-auto object-contain filter drop-shadow-xs" />
+          <span class="text-base font-extrabold text-slate-800 tracking-tight hidden md:inline">Suppier</span>
+        </div>
+
         <div class="flex-1 text-center">
-          <h1 class="text-2xl sm:text-3xl font-black text-blue-700 tracking-tight">
+          <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-blue-700 tracking-tight">
             Request quotation to Purchase GM1 - MA - PMA
           </h1>
         </div>
