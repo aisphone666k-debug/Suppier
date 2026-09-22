@@ -433,13 +433,18 @@
               <tbody class="text-xs divide-y divide-slate-200">
                 <tr 
                   *ngFor="let item of items; let i = index" 
-                  [class]="item.isEditing ? 'bg-blue-50/40 ring-1 ring-blue-300 transition-colors' : 'hover:bg-slate-50/80 transition-colors group'">
+                  [class]="item.isEditing 
+                    ? 'bg-blue-50/50 ring-1 ring-blue-300 transition-colors' 
+                    : (item.isUrgent ? 'bg-red-50/60 hover:bg-red-100/60 transition-colors group' : 'hover:bg-slate-50/80 transition-colors group')">
                   
                   <!-- 1. No. (With Pen Icon in View Mode, and Save/Cancel in Edit Mode) -->
-                  <td class="px-2 py-2.5 text-center font-bold text-slate-800 border-r border-slate-200 min-w-[70px]">
+                  <td class="px-2 py-2.5 text-center font-bold text-slate-800 border-r border-slate-200 min-w-[75px]"
+                    [class.border-l-4]="item.isUrgent"
+                    [class.border-l-red-500]="item.isUrgent">
                     <!-- View Mode: No. + Pen Icon ✏️ -->
-                    <div *ngIf="!item.isEditing" class="flex items-center justify-center gap-1.5">
-                      <span class="font-bold text-slate-800">{{ item.no }}</span>
+                    <div *ngIf="!item.isEditing" class="flex items-center justify-center gap-1">
+                      <span *ngIf="item.isUrgent" class="w-2 h-2 rounded-full bg-red-600 animate-pulse shrink-0" title="ด่วน (Urgent)"></span>
+                      <span class="font-bold" [class]="item.isUrgent ? 'text-red-700 font-black' : 'text-slate-800'">{{ item.no }}</span>
                       <button 
                         type="button" 
                         (click)="editRow(item, $event)" 
@@ -481,7 +486,14 @@
 
                   <!-- 2. Part name -->
                   <td class="px-3 py-2.5 font-semibold text-slate-800 border-r border-slate-200 min-w-[140px]">
-                    <div *ngIf="!item.isEditing" class="uppercase">{{ item.partName }}</div>
+                    <div *ngIf="!item.isEditing" class="flex items-center gap-1.5 flex-wrap">
+                      <span *ngIf="item.isUrgent" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-black bg-red-600 text-white tracking-wider shadow-2xs">
+                        URGENT
+                      </span>
+                      <span class="uppercase font-bold" [class]="item.isUrgent ? 'text-red-950 font-black' : 'text-slate-800'">
+                        {{ item.partName }}
+                      </span>
+                    </div>
                     <textarea 
                       *ngIf="item.isEditing"
                       rows="2" 
@@ -559,10 +571,11 @@
                           <span class="font-mono text-[11px] underline underline-offset-2">{{ att.name }}</span>
                         </div>
                       </div>
-                      <div *ngIf="item.isUrgent" class="text-red-600 font-extrabold text-xs tracking-wider">
-                        URGENT !
+                      <div *ngIf="item.isUrgent" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-red-600 text-white font-black text-[11px] tracking-wider shadow-xs">
+                        <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                        <span>URGENT !</span>
                       </div>
-                      <div *ngIf="item.remark" class="text-slate-700 whitespace-pre-line">
+                      <div *ngIf="item.remark" class="text-slate-700 whitespace-pre-line leading-relaxed">
                         {{ item.remark }}
                       </div>
                     </div>
