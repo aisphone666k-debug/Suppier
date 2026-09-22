@@ -1,7 +1,7 @@
-<div class="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
+<div class="h-screen bg-slate-50 text-slate-800 flex flex-col font-sans overflow-hidden">
 
   <!-- ================= TOP SYSTEM BANNER (Matching Original Screenshot) ================= -->
-  <div class="bg-white border-b border-slate-200 py-3 px-6 shadow-2xs">
+  <header class="bg-white border-b border-slate-200 py-3 px-6 shadow-2xs shrink-0 z-10">
     <div class="max-w-[1800px] mx-auto flex items-center justify-between">
       <div class="flex-1 text-center">
         <h1 class="text-2xl sm:text-3xl font-black text-blue-700 tracking-tight">
@@ -13,13 +13,13 @@
         <span>Online</span>
       </div>
     </div>
-  </div>
+  </header>
 
-  <!-- ================= MAIN LAYOUT WITH LEFT SIDEBAR ================= -->
-  <div class="max-w-[1850px] w-full mx-auto flex flex-1 overflow-hidden">
+  <!-- ================= MAIN LAYOUT WITH FIXED LEFT SIDEBAR ================= -->
+  <div class="max-w-[1850px] w-full mx-auto flex flex-1 overflow-hidden min-h-0">
 
-    <!-- ================= LEFT SIDEBAR NAVIGATION ================= -->
-    <aside class="w-64 sm:w-72 bg-white border-r border-slate-200 shrink-0 p-4 sm:p-5 flex flex-col space-y-6 shadow-xs">
+    <!-- ================= LEFT SIDEBAR NAVIGATION (FIXED / STICKY) ================= -->
+    <aside class="w-64 sm:w-72 bg-white border-r border-slate-200 shrink-0 p-4 sm:p-5 flex flex-col space-y-6 shadow-xs h-full overflow-y-auto">
       
       <!-- Group 1: ALL DOCUMENT -->
       <div class="space-y-3">
@@ -101,7 +101,7 @@
     </aside>
 
     <!-- ================= RIGHT MAIN CONTENT AREA ================= -->
-    <main class="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-100/60">
+    <main class="flex-1 h-full overflow-y-auto p-4 sm:p-6 bg-slate-100/60">
 
       <!-- ================= VIEW 1: EDIT DOCUMENT VIEW ================= -->
       <div *ngIf="activeView === 'edit'" class="space-y-6">
