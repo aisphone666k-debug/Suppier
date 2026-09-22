@@ -429,82 +429,154 @@
                 </tr>
               </thead>
 
-              <!-- TABLE BODY (Directly Editable Cells Matching Screenshot) -->
+              <!-- TABLE BODY (Pen icon triggered edit mode) -->
               <tbody class="text-xs divide-y divide-slate-200">
-                <tr *ngFor="let item of items; let i = index" class="hover:bg-blue-50/20 transition-colors group">
+                <tr 
+                  *ngFor="let item of items; let i = index" 
+                  [class]="item.isEditing ? 'bg-blue-50/40 ring-1 ring-blue-300 transition-colors' : 'hover:bg-slate-50/80 transition-colors group'">
                   
-                  <!-- 1. No. -->
-                  <td class="p-1 text-center font-bold text-slate-800 border-r border-slate-200 w-10">
-                    <input 
-                      type="number" 
-                      [(ngModel)]="item.no" 
-                      class="w-full text-center bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded py-1 font-bold text-slate-800 text-xs">
+                  <!-- 1. No. (With Pen Icon in View Mode, and Save/Cancel in Edit Mode) -->
+                  <td class="px-2 py-2.5 text-center font-bold text-slate-800 border-r border-slate-200 min-w-[70px]">
+                    <!-- View Mode: No. + Pen Icon ✏️ -->
+                    <div *ngIf="!item.isEditing" class="flex items-center justify-center gap-1.5">
+                      <span class="font-bold text-slate-800">{{ item.no }}</span>
+                      <button 
+                        type="button" 
+                        (click)="editRow(item, $event)" 
+                        title="คลิกรูปปากกาเพื่อแก้ไขข้อมูลแถวนี้"
+                        class="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-100 transition-all cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    <!-- Edit Mode: No. + Save (✓) & Cancel (✕) Buttons -->
+                    <div *ngIf="item.isEditing" class="flex flex-col items-center justify-center gap-1">
+                      <span class="font-bold text-blue-700 text-xs">#{{ item.no }}</span>
+                      <div class="flex items-center gap-1">
+                        <!-- Save Button ✓ -->
+                        <button 
+                          type="button" 
+                          (click)="saveRow(item, $event)" 
+                          title="บันทึกข้อมูล (Save)"
+                          class="bg-emerald-600 hover:bg-emerald-700 text-white p-1 rounded shadow-2xs transition-colors cursor-pointer">
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </button>
+                        <!-- Cancel Button ✕ -->
+                        <button 
+                          type="button" 
+                          (click)="cancelEditRow(item, $event)" 
+                          title="ยกเลิกการแก้ไข (Cancel)"
+                          class="bg-slate-200 hover:bg-rose-600 hover:text-white text-slate-600 p-1 rounded shadow-2xs transition-colors cursor-pointer">
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
                   </td>
 
                   <!-- 2. Part name -->
-                  <td class="p-1.5 font-semibold text-slate-800 border-r border-slate-200 min-w-[140px]">
+                  <td class="px-3 py-2.5 font-semibold text-slate-800 border-r border-slate-200 min-w-[140px]">
+                    <div *ngIf="!item.isEditing" class="uppercase">{{ item.partName }}</div>
                     <textarea 
+                      *ngIf="item.isEditing"
                       rows="2" 
                       [(ngModel)]="item.partName" 
-                      class="w-full bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded p-1 font-bold text-slate-800 text-xs uppercase resize-none leading-snug"></textarea>
+                      class="w-full bg-white border border-blue-400 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-400 rounded p-1 font-bold text-slate-800 text-xs uppercase resize-none leading-snug"></textarea>
                   </td>
 
                   <!-- 3. Spec -->
-                  <td class="p-1.5 text-slate-800 border-r border-slate-200 min-w-[150px]">
+                  <td class="px-3 py-2.5 text-slate-800 border-r border-slate-200 min-w-[150px]">
+                    <div *ngIf="!item.isEditing" class="whitespace-pre-line font-medium leading-relaxed">{{ item.spec }}</div>
                     <textarea 
+                      *ngIf="item.isEditing"
                       rows="2" 
                       [(ngModel)]="item.spec" 
-                      class="w-full bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded p-1 font-medium text-slate-800 text-xs resize-none leading-snug"></textarea>
+                      class="w-full bg-white border border-blue-400 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-400 rounded p-1 font-medium text-slate-800 text-xs resize-none leading-snug"></textarea>
                   </td>
 
                   <!-- 4. Position -->
-                  <td class="p-1 text-center text-slate-700 border-r border-slate-200 min-w-[70px]">
+                  <td class="px-2 py-2.5 text-center text-slate-600 border-r border-slate-200 min-w-[70px]">
+                    <span *ngIf="!item.isEditing">{{ item.position || '' }}</span>
                     <input 
+                      *ngIf="item.isEditing"
                       type="text" 
                       [(ngModel)]="item.position" 
                       placeholder="-" 
-                      class="w-full text-center bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded py-1 text-slate-700 text-xs">
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 text-slate-700 text-xs">
                   </td>
 
                   <!-- 5. Maker Name -->
-                  <td class="p-1 text-center font-medium text-slate-800 border-r border-slate-200 min-w-[100px]">
+                  <td class="px-3 py-2.5 text-center font-medium text-slate-800 border-r border-slate-200 min-w-[100px] uppercase">
+                    <span *ngIf="!item.isEditing">{{ item.makerName }}</span>
                     <input 
+                      *ngIf="item.isEditing"
                       type="text" 
                       [(ngModel)]="item.makerName" 
-                      class="w-full text-center bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded py-1 font-bold text-slate-800 text-xs uppercase">
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-bold text-slate-800 text-xs uppercase">
                   </td>
 
                   <!-- 6. QTY. -->
-                  <td class="p-1 text-center font-bold text-slate-900 border-r border-slate-200 min-w-[85px]">
+                  <td class="px-2 py-2.5 text-center font-bold text-slate-900 border-r border-slate-200 min-w-[85px]">
+                    <span *ngIf="!item.isEditing">{{ item.qty }}</span>
                     <input 
+                      *ngIf="item.isEditing"
                       type="number" 
                       [(ngModel)]="item.qty" 
                       min="1" 
-                      class="w-full text-center bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded py-1 font-black text-slate-900 text-xs">
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-black text-slate-900 text-xs">
                   </td>
 
                   <!-- 7. Unit -->
-                  <td class="p-1 text-center text-slate-800 border-r border-slate-200 min-w-[50px]">
+                  <td class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[50px] uppercase">
+                    <span *ngIf="!item.isEditing">{{ item.unit }}</span>
                     <input 
+                      *ngIf="item.isEditing"
                       type="text" 
                       [(ngModel)]="item.unit" 
-                      class="w-full text-center bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded py-1 font-bold text-slate-800 text-xs uppercase">
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-bold text-slate-800 text-xs uppercase">
                   </td>
 
                   <!-- 8. Remark -->
-                  <td class="p-2 border-r border-slate-200 min-w-[220px] text-[11px] leading-relaxed">
-                    <div class="space-y-1">
-                      <!-- PO Ref input -->
+                  <td class="px-3 py-2.5 border-r border-slate-200 min-w-[220px] text-[11px] leading-relaxed">
+                    <!-- View Mode -->
+                    <div *ngIf="!item.isEditing" class="space-y-1">
+                      <div *ngIf="item.poRef" class="text-slate-800 font-medium whitespace-pre-line">
+                        {{ item.poRef }}
+                      </div>
+                      <div *ngIf="item.attachments && item.attachments.length > 0" class="py-0.5">
+                        <div 
+                          *ngFor="let att of item.attachments"
+                          (click)="openPdfPreview(att.name, 'เอกสารแนบ: ' + item.partName, $event)"
+                          class="inline-flex items-center gap-1 text-slate-800 hover:text-rose-600 font-medium cursor-pointer">
+                          <span class="inline-flex items-center justify-center bg-rose-600 text-white rounded px-1 py-0.2 text-[9px] font-black">
+                            PDF
+                          </span>
+                          <span class="font-mono text-[11px] underline underline-offset-2">{{ att.name }}</span>
+                        </div>
+                      </div>
+                      <div *ngIf="item.isUrgent" class="text-red-600 font-extrabold text-xs tracking-wider">
+                        URGENT !
+                      </div>
+                      <div *ngIf="item.remark" class="text-slate-700 whitespace-pre-line">
+                        {{ item.remark }}
+                      </div>
+                    </div>
+
+                    <!-- Edit Mode -->
+                    <div *ngIf="item.isEditing" class="space-y-1.5">
                       <div class="flex items-center gap-1">
                         <span class="text-slate-400 text-[10px] shrink-0 font-mono">PO:</span>
                         <input 
                           type="text" 
                           [(ngModel)]="item.poRef" 
                           placeholder="อ้างอิง PO..." 
-                          class="w-full bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded px-1 py-0.5 font-medium text-slate-800 text-[11px]">
+                          class="w-full bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded px-1 py-0.5 font-medium text-slate-800 text-[11px]">
                       </div>
-
-                      <!-- Attachment file if present -->
                       <div *ngIf="item.attachments && item.attachments.length > 0" class="flex items-center gap-1 py-0.5">
                         <div 
                           *ngFor="let att of item.attachments"
@@ -516,8 +588,6 @@
                           <span class="font-mono text-[11px] underline underline-offset-2">{{ att.name }}</span>
                         </div>
                       </div>
-
-                      <!-- URGENT clickable toggle button -->
                       <div class="flex items-center gap-1.5">
                         <button 
                           type="button" 
@@ -529,131 +599,165 @@
                           {{ item.isUrgent ? 'URGENT !' : '+ Mark Urgent' }}
                         </button>
                       </div>
-
-                      <!-- Remark text -->
                       <textarea 
                         rows="2" 
                         [(ngModel)]="item.remark" 
                         placeholder="Remark..." 
-                        class="w-full bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded p-1 text-slate-700 text-[11px] resize-none leading-snug"></textarea>
+                        class="w-full bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded p-1 text-slate-700 text-[11px] resize-none leading-snug"></textarea>
                     </div>
                   </td>
 
                   <!-- 9. Machine model -->
-                  <td class="p-1.5 border-r border-slate-200 min-w-[150px]">
+                  <td class="px-3 py-2.5 border-r border-slate-200 min-w-[150px]">
+                    <div *ngIf="!item.isEditing" class="font-mono text-[11px] text-slate-800 whitespace-pre-line leading-relaxed">{{ item.machineModel }}</div>
                     <textarea 
+                      *ngIf="item.isEditing"
                       rows="2" 
                       [(ngModel)]="item.machineModel" 
-                      class="w-full bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded p-1 font-mono text-[11px] text-slate-800 resize-none leading-snug"></textarea>
+                      class="w-full bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded p-1 font-mono text-[11px] text-slate-800 resize-none leading-snug"></textarea>
                   </td>
 
                   <!-- 10. Machine maker -->
-                  <td class="p-1 text-center text-slate-800 border-r border-slate-200 min-w-[100px]">
+                  <td class="px-2.5 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[100px] font-medium">
+                    <span *ngIf="!item.isEditing">{{ item.machineMaker }}</span>
                     <input 
+                      *ngIf="item.isEditing"
                       type="text" 
                       [(ngModel)]="item.machineMaker" 
-                      class="w-full text-center bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded py-1 font-medium text-slate-800 text-xs">
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-medium text-slate-800 text-xs">
                   </td>
 
                   <!-- 11. Serial no. -->
-                  <td class="p-1 text-center text-slate-800 border-r border-slate-200 min-w-[90px]">
+                  <td class="px-2.5 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[90px] font-mono">
+                    <span *ngIf="!item.isEditing">{{ item.serialNo }}</span>
                     <input 
+                      *ngIf="item.isEditing"
                       type="text" 
                       [(ngModel)]="item.serialNo" 
-                      class="w-full text-center bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
                   </td>
 
                   <!-- 12. A/C Code -->
-                  <td class="p-1 text-center text-slate-800 border-r border-slate-200 min-w-[75px]">
+                  <td class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[75px] font-mono">
+                    <span *ngIf="!item.isEditing">{{ item.acCode }}</span>
                     <input 
+                      *ngIf="item.isEditing"
                       type="text" 
                       [(ngModel)]="item.acCode" 
-                      class="w-full text-center bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
                   </td>
 
                   <!-- 13. Vendor -->
-                  <td class="p-1 text-center text-slate-800 border-r border-slate-200 min-w-[75px]">
+                  <td class="px-3 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[75px] font-medium uppercase">
+                    <span *ngIf="!item.isEditing">{{ item.vendor }}</span>
                     <input 
+                      *ngIf="item.isEditing"
                       type="text" 
                       [(ngModel)]="item.vendor" 
-                      class="w-full text-center bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded py-1 font-medium text-slate-800 text-xs uppercase">
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-medium text-slate-800 text-xs uppercase">
                   </td>
 
                   <!-- 14. Unit price -->
-                  <td class="p-1 text-center text-slate-800 border-r border-slate-200 min-w-[85px]">
+                  <td class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[85px] font-mono">
+                    <span *ngIf="!item.isEditing">{{ item.unitPrice ? (item.unitPrice | number:'1.2-2') : '' }}</span>
                     <input 
+                      *ngIf="item.isEditing"
                       type="number" 
                       [(ngModel)]="item.unitPrice" 
                       placeholder="-" 
-                      class="w-full text-center bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
                   </td>
 
                   <!-- 15. Currency -->
-                  <td class="p-1 text-center text-slate-800 border-r border-slate-200 w-12">
+                  <td class="px-1.5 py-2.5 text-center text-slate-800 border-r border-slate-200 w-12 font-mono uppercase">
+                    <span *ngIf="!item.isEditing">{{ item.currency }}</span>
                     <input 
+                      *ngIf="item.isEditing"
                       type="text" 
                       [(ngModel)]="item.currency" 
-                      class="w-full text-center bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded py-1 font-mono text-slate-800 text-xs uppercase">
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs uppercase">
                   </td>
 
                   <!-- 16. C/R code -->
-                  <td class="p-1 text-center text-slate-800 border-r border-slate-200 w-12">
+                  <td class="px-1.5 py-2.5 text-center text-slate-800 border-r border-slate-200 w-12 font-mono uppercase">
+                    <span *ngIf="!item.isEditing">{{ item.crCode }}</span>
                     <input 
+                      *ngIf="item.isEditing"
                       type="text" 
                       [(ngModel)]="item.crCode" 
-                      class="w-full text-center bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded py-1 font-mono text-slate-800 text-xs uppercase">
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs uppercase">
                   </td>
 
                   <!-- 17. Quotation no. -->
-                  <td class="p-1.5 border-r border-slate-200 text-center min-w-[170px]">
-                    <div class="space-y-1">
-                      <!-- If PDF exists, show badge + input -->
+                  <td class="px-3 py-2.5 border-r border-slate-200 text-center min-w-[170px]">
+                    <!-- View Mode -->
+                    <div *ngIf="!item.isEditing">
+                      <div 
+                        *ngIf="item.quotationPdf"
+                        (click)="openPdfPreview(item.quotationPdf, 'Quotation: ' + item.quotationPdf, $event)"
+                        class="flex flex-col items-center cursor-pointer group">
+                        <span class="inline-flex items-center justify-center bg-rose-600 text-white rounded px-1 py-0.2 text-[9px] font-black mb-1">
+                          PDF
+                        </span>
+                        <span class="font-mono text-[10px] text-slate-800 group-hover:text-rose-600 truncate max-w-[160px] font-medium underline underline-offset-2">
+                          {{ item.quotationPdf }}
+                        </span>
+                      </div>
+                      <div *ngIf="!item.quotationPdf" class="font-bold text-slate-800 text-xs">
+                        {{ item.quotationNo || 'WAIT' }}
+                      </div>
+                    </div>
+
+                    <!-- Edit Mode -->
+                    <div *ngIf="item.isEditing" class="space-y-1">
                       <div *ngIf="item.quotationPdf" class="flex flex-col items-center">
-                        <span 
-                          (click)="openPdfPreview(item.quotationPdf, 'Quotation: ' + item.quotationPdf, $event)"
-                          class="inline-flex items-center justify-center bg-rose-600 text-white rounded px-1 py-0.2 text-[9px] font-black cursor-pointer hover:bg-rose-700 transition-colors">
+                        <span class="inline-flex items-center justify-center bg-rose-600 text-white rounded px-1 py-0.2 text-[9px] font-black">
                           PDF
                         </span>
                         <input 
                           type="text" 
                           [(ngModel)]="item.quotationPdf" 
-                          class="w-full text-center bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded px-1 py-0.5 font-mono text-[10px] text-slate-800 underline">
+                          class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded px-1 py-0.5 font-mono text-[10px] text-slate-800 underline">
                       </div>
-
-                      <!-- If WAIT or no PDF -->
                       <input 
                         *ngIf="!item.quotationPdf" 
                         type="text" 
                         [(ngModel)]="item.quotationNo" 
-                        class="w-full text-center bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded py-1 font-bold text-slate-800 text-xs">
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-bold text-slate-800 text-xs">
                     </div>
                   </td>
 
                   <!-- 18. L/T -->
-                  <td class="p-1 text-center text-slate-800 border-r border-slate-200 min-w-[70px]">
+                  <td class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[70px] font-mono text-[11px] whitespace-nowrap">
+                    <span *ngIf="!item.isEditing">{{ item.leadTime }}</span>
                     <input 
+                      *ngIf="item.isEditing"
                       type="text" 
                       [(ngModel)]="item.leadTime" 
-                      class="w-full text-center bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded py-1 font-mono text-[11px] text-slate-800">
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-[11px] text-slate-800">
                   </td>
 
                   <!-- 19. Vendor (Quotation 2) -->
-                  <td class="p-1.5 text-center text-slate-800 border-r border-slate-200 min-w-[120px]">
+                  <td class="px-3 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[120px] text-[11px] whitespace-pre-line leading-tight">
+                    <span *ngIf="!item.isEditing">{{ item.vendor2 }}</span>
                     <textarea 
+                      *ngIf="item.isEditing"
                       rows="2" 
                       [(ngModel)]="item.vendor2" 
-                      class="w-full text-center bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded p-1 text-[11px] text-slate-800 resize-none leading-tight"></textarea>
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded p-1 text-[11px] text-slate-800 resize-none leading-tight"></textarea>
                   </td>
 
                   <!-- 20. Unit price (Quotation 2) -->
-                  <td class="p-1 text-center text-slate-800 min-w-[85px] relative">
+                  <td class="px-2 py-2.5 text-center text-slate-800 min-w-[85px] font-mono relative">
+                    <span *ngIf="!item.isEditing">{{ item.unitPrice2 ? (item.unitPrice2 | number:'1.2-2') : '' }}</span>
                     <input 
+                      *ngIf="item.isEditing"
                       type="number" 
                       [(ngModel)]="item.unitPrice2" 
                       placeholder="-" 
-                      class="w-full text-center bg-transparent border border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
+                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
                     
-                    <!-- Row delete button on hover -->
+                    <!-- Row delete button on hover (when not in edit mode, or always) -->
                     <button 
                       type="button" 
                       (click)="deleteItem(i, $event)"

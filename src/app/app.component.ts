@@ -37,6 +37,8 @@ export interface RequisitionItem {
   vendor2?: string;
   unitPrice2?: number | null;
   status: 'Waiting Quotation' | 'Quoted' | 'Approved' | 'PO Issued';
+  isEditing?: boolean;
+  backupData?: any;
 }
 
 @Component({
@@ -405,6 +407,38 @@ export class AppComponent {
     this.activePdfName = '';
   }
 
+  editRow(item: RequisitionItem, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    // Store backup copy of current values in case user cancels
+    item.backupData = JSON.parse(JSON.stringify(item));
+    item.isEditing = true;
+    this.showToast(`กำลังแก้ไขรายการ #${item.no}`);
+  }
+
+  saveRow(item: RequisitionItem, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    item.isEditing = false;
+    delete item.backupData;
+    this.showToast(`บันทึกข้อมูลรายการ #${item.no} เรียบร้อยแล้ว`);
+  }
+
+  cancelEditRow(item: RequisitionItem, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    if (item.backupData) {
+      const backup = item.backupData;
+      Object.assign(item, backup);
+      delete item.backupData;
+    }
+    item.isEditing = false;
+    this.showToast(`ยกเลิกการแก้ไขรายการ #${item.no}`);
+  }
+
   addNewItem(): void {
     this.addRow();
   }
@@ -436,10 +470,11 @@ export class AppComponent {
       leadTime: '',
       vendor2: '',
       unitPrice2: null,
-      status: 'Waiting Quotation'
+      status: 'Waiting Quotation',
+      isEditing: true
     };
     this.items.push(newItem);
-    this.showToast(`เพิ่มรายการ #${nextNo} เรียบร้อยแล้ว`);
+    this.showToast(`เพิ่มรายการใหม่ #${nextNo} พร้อมแก้ไข`);
   }
 
   deleteItem(index: number, event?: Event): void {
