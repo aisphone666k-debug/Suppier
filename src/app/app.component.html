@@ -1395,18 +1395,15 @@
       <!-- Modal Card Container (Vertically centered column) -->
       <div (click)="$event.stopPropagation()" class="relative flex flex-col items-center max-w-2xl w-full">
 
-        <!-- 3D PERSPECTIVE CARD FLIPPER (Clicking anywhere flips card) -->
-        <div (click)="toggleCardSide()" class="card-perspective-container relative w-[520px] sm:w-[580px] h-[330px] sm:h-[370px] max-w-full select-none cursor-pointer" title="คลิกที่บัตรเพื่อพลิกหน้า/หลัง">
-          <div class="card-flipper w-full h-full relative" [class.is-flipped]="cardSide === 'back'">
-
-            <!-- ================= FRONT SIDE: REALISTIC MINEBEAMITSUMI HORIZONTAL BADGE CARD ================= -->
-            <div
-              class="card-face absolute inset-0 w-full h-full rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-300 flex flex-col justify-between">
+        <!-- ================= TEMPLATES FOR CARD FACES ================= -->
+        <!-- 1. BADGE FRONT TEMPLATE -->
+        <ng-template #badgeTemplate>
+          <div
+            class="w-full h-full rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-300 flex flex-col justify-between relative">
 
               <!-- CARD BACKGROUND ELEMENTS (Directly matching badge-oriented.png) -->
               <!-- 1. Left Horizontal alternating white & gray stripes (เฉพาะฝั่งซ้ายของบัตร ขอบข้างรูปและใต้รูป ตามบัตรตัวอย่าง) -->
-              <div
-                class="absolute left-0 top-0 bottom-7 sm:bottom-8 w-[210px] sm:w-[240px] pointer-events-none"
+              <div class="absolute left-0 top-0 bottom-7 sm:bottom-8 w-[210px] sm:w-[240px] pointer-events-none"
                 style="background: repeating-linear-gradient(to bottom, #ffffff 0px, #ffffff 5px, #d5dde8 5px, #d5dde8 10px);
                        opacity: 0.65;
                        -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 140px, rgba(0,0,0,0.3) 195px, transparent 100%);
@@ -1414,9 +1411,7 @@
               </div>
 
               <!-- 2. Subtle Guilloche Security Wave Lines (เส้นคลื่นความปลอดภัยจางๆ ใต้รูปรหัสพนักงาน) -->
-              <div
-                class="absolute left-0 bottom-7 sm:bottom-8 w-72 h-36 pointer-events-none opacity-20"
-                style="background: repeating-radial-gradient(ellipse at -10% 120%, transparent 0, transparent 7px, rgba(100, 116, 139, 0.4) 8px, transparent 9px);
+              <div class="absolute left-0 bottom-7 sm:bottom-8 w-72 h-36 pointer-events-none opacity-20" style="background: repeating-radial-gradient(ellipse at -10% 120%, transparent 0, transparent 7px, rgba(100, 116, 139, 0.4) 8px, transparent 9px);
                        -webkit-mask-image: linear-gradient(to top right, black 25%, transparent 75%);
                        mask-image: linear-gradient(to top right, black 25%, transparent 75%);">
               </div>
@@ -1454,7 +1449,8 @@
                         [src]="currentUser?.profilePictureUrl" alt="Employee Photo" class="w-full h-full object-cover"
                         (error)="currentUser!.profilePictureUrl = ''" />
                       <ng-template #fallbackCardPhoto>
-                        <img src="facebook-default-avatar.png" alt="Default Avatar" class="w-full h-full object-cover" />
+                        <img src="facebook-default-avatar.png" alt="Default Avatar"
+                          class="w-full h-full object-cover" />
                       </ng-template>
                     </div>
 
@@ -1483,7 +1479,8 @@
                     </div>
 
                     <!-- Middle Space: Section_Name (ดึงข้อมูล Section_Name มาแสดงตรงช่องว่าง) -->
-                    <div class="text-sm sm:text-base font-extrabold text-slate-900 uppercase tracking-tight leading-snug">
+                    <div
+                      class="text-sm sm:text-base font-extrabold text-slate-900 uppercase tracking-tight leading-snug">
                       {{ employeeSectionName }}
                     </div>
 
@@ -1498,7 +1495,8 @@
                       <div
                         class="text-sm sm:text-base font-extrabold text-slate-950 flex items-center gap-2.5 leading-none pt-0.5">
                         <span>Emp.Date</span>
-                        <span class="font-mono font-black text-slate-950">{{ currentUser?.empDate || cardEmpDate }}</span>
+                        <span class="font-mono font-black text-slate-950">{{ currentUser?.empDate || cardEmpDate
+                          }}</span>
                       </div>
                     </div>
 
@@ -1526,72 +1524,85 @@
                 class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/5 pointer-events-none rounded-2xl">
               </div>
 
-            </div>
+          </div>
+        </ng-template>
 
-            <!-- ================= BACK SIDE: 2026 CALENDAR & COMPANY CONTACTS (PURE HANDCRAFTED CODE) ================= -->
-            <!-- ================= BACK SIDE: 2026 CALENDAR & COMPANY CONTACTS (PURE HANDCRAFTED CODE) ================= -->
-            <!-- ================= BACK SIDE: 2026 CALENDAR & COMPANY CONTACTS (MATCHING SAMPLE 1:1) ================= -->
-            <div
-              class="card-face card-face-back absolute inset-0 w-full h-full rounded-2xl bg-[#bde64a] shadow-2xl overflow-hidden border border-slate-300 flex flex-col select-none justify-between">
+        <!-- 2. CALENDAR BACK TEMPLATE (Reused for H1 and H2) -->
+        <ng-template #calendarTemplate let-half="half">
+          <div
+            class="w-full h-full rounded-2xl bg-[#8FD940] shadow-2xl overflow-hidden border border-slate-300 flex flex-col select-none justify-between relative">
 
               <!-- 1. TOP HEADER: FULL-WIDTH LIME GREEN BANNER (Matching Sample Photo 1:1) -->
-              <div class="bg-[#bde64a] px-2.5 sm:px-3 pt-1.5 sm:pt-2 pb-1 sm:pb-1.5 flex items-center justify-between shrink-0 border-b border-[#a8d836]">
+              <div
+                class="bg-[#8FD940] px-2.5 sm:px-3 pt-1.5 sm:pt-2 pb-1 sm:pb-1.5 flex items-center justify-between shrink-0 border-b border-[#7BC935]">
                 <!-- Left: Official MinebeaMitsumi Logo Image -->
                 <div class="flex items-center shrink-0">
                   <img [src]="calendarLogoDataUrl" alt="MinebeaMitsumi - Passion to Create Value through Difference"
-                    class="h-7 sm:h-8.5 w-auto object-contain select-none" />
+                    class="h-[28px] sm:h-[34px] w-auto object-contain select-none" />
                 </div>
 
-                <!-- Center: Calendar Year Title (Stacked CALENDAR on top of 2026) -->
-                <div class="flex flex-col items-center justify-center px-2">
-                  <span class="text-[7px] sm:text-[8px] font-black tracking-widest text-[#004fa3] uppercase font-sans leading-tight">
-                    CALENDAR
-                  </span>
-                  <span class="text-sm sm:text-lg font-black text-[#004fa3] leading-none font-sans tracking-tight">
-                    2026
-                  </span>
-                </div>
-
-                <!-- Right: Summary Stat Badges (2-Row Grid matching photo 1:1) -->
-                <div class="flex flex-col gap-0.5 text-[6px] sm:text-[7px] font-bold text-slate-900 shrink-0">
-                  <!-- Row 1: 261 Working Day | 15 Traditional Holiday | 104 Total Holiday -->
-                  <div class="flex items-center gap-1 sm:gap-1.5">
-                    <div class="flex items-center gap-0.5">
-                      <span class="px-1 py-0.2 rounded-xs font-mono font-black bg-transparent text-slate-950 border border-slate-700">261</span>
-                      <span class="whitespace-nowrap font-sans font-bold">Working Day</span>
-                    </div>
-                    <div class="flex items-center gap-0.5">
-                      <span class="px-1 py-0.2 rounded-xs font-mono font-black bg-[#16a34a] text-white">15</span>
-                      <span class="whitespace-nowrap font-sans font-bold">Traditional Holiday</span>
-                    </div>
-                    <div class="flex items-center gap-0.5">
-                      <span class="px-1 py-0.2 rounded-xs font-mono font-black bg-white text-slate-950 border border-slate-600">104</span>
-                      <span class="whitespace-nowrap font-sans font-bold">Total Holiday</span>
-                    </div>
+                <!-- Right Group: CALENDAR 2026 + Stat Badges placed close together -->
+                <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                  <!-- Calendar Year Title (Stacked CALENDAR on top of 2026) -->
+                  <div class="flex flex-col items-center justify-center shrink-0">
+                    <span
+                      class="text-[7.5px] sm:text-[8.5px] font-black tracking-widest text-[#004fa3] uppercase font-sans leading-tight">
+                      CALENDAR
+                    </span>
+                    <span class="text-sm sm:text-lg font-black text-[#004fa3] leading-none font-sans tracking-tight">
+                      2026
+                    </span>
                   </div>
-                  <!-- Row 2: 52 Holiday (sun) | 37 Holiday (sat) -->
-                  <div class="flex items-center gap-1 sm:gap-1.5">
-                    <div class="flex items-center gap-0.5">
-                      <span class="px-1 py-0.2 rounded-xs font-mono font-black bg-[#dc2626] text-white">52</span>
-                      <span class="whitespace-nowrap font-sans font-bold">Holiday (sun)</span>
+
+                  <!-- Summary Stat Badges (Aligned columns with [104] pulled forward next to Holiday (sat)) -->
+                  <div
+                    class="flex flex-col gap-0.5 sm:gap-1 text-[7.5px] sm:text-[8.5px] font-bold text-slate-900 shrink-0">
+                    <!-- Row 1: 261 Working Day | 15 Traditional Holiday -->
+                    <div class="flex items-center gap-1.5 sm:gap-2">
+                      <div class="w-[74px] sm:w-[84px] flex items-center gap-1 shrink-0">
+                        <span
+                          class="min-w-[20px] sm:min-w-[22px] h-3.5 sm:h-4 rounded-xs font-mono font-black flex items-center justify-center bg-transparent text-slate-950 border border-slate-700 leading-none">261</span>
+                        <span class="whitespace-nowrap font-sans font-bold">Working Day</span>
+                      </div>
+                      <div class="flex items-center gap-1 shrink-0">
+                        <span
+                          class="min-w-[20px] sm:min-w-[22px] h-3.5 sm:h-4 rounded-xs font-mono font-black flex items-center justify-center bg-[#16a34a] text-slate-950 leading-none">15</span>
+                        <span class="whitespace-nowrap font-sans font-bold">Traditional Holiday</span>
+                      </div>
                     </div>
-                    <div class="flex items-center gap-0.5">
-                      <span class="px-1 py-0.2 rounded-xs font-mono font-black bg-[#facc15] text-slate-950">37</span>
-                      <span class="whitespace-nowrap font-sans font-bold">Holiday (sat)</span>
+
+                    <!-- Row 2: 52 Holiday (sun) | 37 Holiday (sat) | 104 Total Holiday -->
+                    <div class="flex items-center gap-1.5 sm:gap-2">
+                      <div class="w-[74px] sm:w-[84px] flex items-center gap-1 shrink-0">
+                        <span
+                          class="min-w-[20px] sm:min-w-[22px] h-3.5 sm:h-4 rounded-xs font-mono font-black flex items-center justify-center bg-[#dc2626] text-white leading-none">52</span>
+                        <span class="whitespace-nowrap font-sans font-bold">Holiday (sun)</span>
+                      </div>
+                      <div class="flex items-center gap-1 shrink-0">
+                        <span
+                          class="min-w-[20px] sm:min-w-[22px] h-3.5 sm:h-4 rounded-xs font-mono font-black flex items-center justify-center bg-[#facc15] text-slate-950 leading-none">37</span>
+                        <span class="whitespace-nowrap font-sans font-bold">Holiday (sat)</span>
+                      </div>
+                      <div class="flex items-center gap-1 shrink-0">
+                        <span
+                          class="min-w-[20px] sm:min-w-[22px] h-3.5 sm:h-4 rounded-xs font-mono font-black flex items-center justify-center bg-white text-slate-950 border border-slate-600 leading-none">104</span>
+                        <span class="whitespace-nowrap font-sans font-bold">Total Holiday</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- 2. MIDDLE WHITE SHEET: 6 Months Grid + Traditional Holidays -->
-              <div class="bg-white flex-1 px-2.5 sm:px-3 py-1.5 sm:py-2 flex flex-col justify-between overflow-hidden">
+              <!-- 2. MIDDLE WHITE SHEET: 6 Months Grid -->
+              <div class="bg-white flex-1 px-2.5 sm:px-3 py-2 sm:py-2.5 flex flex-col justify-center overflow-hidden">
 
-                <!-- Months Grid (6 Months: July - December 2026, 2 Rows x 3 Columns) -->
-                <div class="grid grid-cols-3 gap-x-2.5 sm:gap-x-3.5 gap-y-1 sm:gap-y-1.5 flex-1">
-                  <div *ngFor="let m of calendarMonths" class="flex flex-col">
+                <!-- Months Grid (6 Months: 2 Rows x 3 Columns) -->
+                <div class="grid grid-cols-3 gap-x-2.5 sm:gap-x-3.5 gap-y-2 sm:gap-y-3.5 my-auto">
+                  <div *ngFor="let m of getMonthsForHalf(half)" class="flex flex-col w-full max-w-[124px] sm:max-w-[140px] mx-auto">
                     <!-- Month Title & Working Day Ratio -->
-                    <div class="flex items-center justify-between pb-0.5">
-                      <span class="text-[8px] sm:text-[9.5px] font-black text-[#004fa3] tracking-wide leading-none font-sans">
+                    <div class="flex items-center justify-between pb-0.5 w-full">
+                      <span
+                        class="text-[8px] sm:text-[9.5px] font-black text-[#004fa3] tracking-wide leading-none font-sans">
                         {{ m.name }}
                       </span>
                       <span class="text-[5.8px] sm:text-[6.8px] font-bold text-slate-600 font-mono leading-none">
@@ -1599,53 +1610,67 @@
                       </span>
                     </div>
 
-                    <!-- Calendar Table: S M T W T F S -->
-                    <table class="w-full table-fixed border-collapse text-center">
-                      <thead>
-                        <tr class="text-[6.5px] sm:text-[7.5px] font-black leading-none">
-                          <th class="w-[14.28%] text-red-600 py-0.5 font-sans">S</th>
-                          <th class="w-[14.28%] text-slate-700 py-0.5 font-sans">M</th>
-                          <th class="w-[14.28%] text-slate-700 py-0.5 font-sans">T</th>
-                          <th class="w-[14.28%] text-slate-700 py-0.5 font-sans">W</th>
-                          <th class="w-[14.28%] text-slate-700 py-0.5 font-sans">T</th>
-                          <th class="w-[14.28%] text-slate-700 py-0.5 font-sans">F</th>
-                          <th class="w-[14.28%] py-0.5">
-                            <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#facc15] text-slate-900 inline-flex items-center justify-center text-[5.5px] sm:text-[6.5px] font-black">S</span>
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr *ngFor="let week of m.weeks" class="leading-none">
-                          <td *ngFor="let cell of week" class="p-[0.5px]">
-                            <!-- Day Cell with Color Coding -->
-                            <div *ngIf="cell.d"
-                              class="w-full h-3 sm:h-3.5 flex items-center justify-center text-[6.2px] sm:text-[7px] font-mono leading-none rounded-[1px]"
+                    <!-- Calendar Grid: S M T W T F S with compact spacing -->
+                    <div class="w-full select-none">
+                      <!-- Column Headers -->
+                      <div class="grid grid-cols-7 gap-[1px] sm:gap-[1.5px] text-center mb-[1px]">
+                        <div class="flex items-center justify-center py-0.5">
+                          <span class="text-[#dc2626] font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">S</span>
+                        </div>
+                        <div class="flex items-center justify-center py-0.5 text-black font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">M</div>
+                        <div class="flex items-center justify-center py-0.5 text-black font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">T</div>
+                        <div class="flex items-center justify-center py-0.5 text-black font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">W</div>
+                        <div class="flex items-center justify-center py-0.5 text-black font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">T</div>
+                        <div class="flex items-center justify-center py-0.5 text-black font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">F</div>
+                        <div class="flex items-center justify-center py-0.5">
+                          <span
+                            class="w-[11px] h-[11px] sm:w-[13px] sm:h-[13px] rounded-full bg-[#facc15] text-black inline-flex items-center justify-center text-[5.8px] sm:text-[6.8px] font-sans font-black leading-none">S</span>
+                        </div>
+                      </div>
+
+                      <!-- Month Weeks & Days -->
+                      <div class="flex flex-col gap-[1px] sm:gap-[1.5px]">
+                        <div *ngFor="let week of m.weeks" class="grid grid-cols-7 gap-[1px] sm:gap-[1.5px]">
+                          <div *ngFor="let cell of week" class="w-full">
+                            <!-- Split Day Cell (August 23/30 and 24/31) -->
+                            <div *ngIf="cell.split"
+                              class="relative w-full h-[12.5px] sm:h-[14.5px] overflow-hidden select-none rounded-[1px]"
                               [ngClass]="{
-                                'bg-[#dc2626] text-white font-black': cell.t === 'sun',
-                                'bg-[#16a34a] text-white font-black': cell.t === 'trad',
-                                'bg-[#facc15] text-slate-950 font-black': cell.t === 'sat',
-                                'text-slate-800 font-semibold': cell.t === 'work'
+                                'bg-[#dc2626]': cell.t === 'sun',
+                                'bg-white': cell.t !== 'sun'
                               }">
+                              <svg class="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none" viewBox="0 0 100 100">
+                                <line x1="0" y1="100" x2="100" y2="0"
+                                  [attr.stroke]="cell.t === 'sun' ? '#ffffff' : '#000000'"
+                                  stroke-width="1.2" vector-effect="non-scaling-stroke" />
+                              </svg>
+                              <span class="absolute top-[0.5px] left-[1px] text-[5px] sm:text-[5.8px] font-sans font-black leading-none"
+                                [style.color]="cell.t === 'sun' ? '#ffffff' : '#000000'">
+                                {{ cell.d1 }}
+                              </span>
+                              <span class="absolute bottom-[0.5px] right-[1px] text-[5px] sm:text-[5.8px] font-sans font-black leading-none"
+                                [style.color]="cell.t === 'sun' ? '#ffffff' : '#000000'">
+                                {{ cell.d2 }}
+                              </span>
+                            </div>
+
+                            <!-- Single Day Cell -->
+                            <div *ngIf="!cell.split && cell.d"
+                              class="w-full h-[12.5px] sm:h-[14.5px] flex items-center justify-center text-[6.5px] sm:text-[7.5px] font-sans leading-none rounded-[1px]"
+                              [ngClass]="{
+                                'bg-[#dc2626]': cell.t === 'sun',
+                                'bg-[#16a34a]': cell.t === 'trad',
+                                'bg-[#facc15]': cell.t === 'sat'
+                              }"
+                              [style.color]="cell.t === 'sun' ? '#ffffff' : '#000000'"
+                              [style.fontWeight]="cell.t !== 'work' ? '900' : '700'">
                               {{ cell.d }}
                             </div>
-                            <div *ngIf="!cell.d" class="w-full h-3 sm:h-3.5"></div>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
 
-                <!-- Traditional Holidays (3 Columns directly under Month Columns) -->
-                <div class="pt-1 border-t border-slate-200 shrink-0">
-                  <div class="grid grid-cols-3 gap-x-2.5 sm:gap-x-3.5 text-[5.8px] sm:text-[6.5px] leading-tight font-sans">
-                    <div *ngFor="let col of calendarHolidayCols" class="space-y-0.5">
-                      <div *ngIf="col.header" class="text-[6.8px] sm:text-[7.5px] font-black text-[#004fa3] tracking-wider uppercase font-sans mb-0.5">
-                        {{ col.header }}
-                      </div>
-                      <div *ngFor="let item of col.items" class="flex items-baseline gap-1 whitespace-nowrap overflow-hidden">
-                        <span class="font-bold text-slate-950 font-mono shrink-0">{{ item.date }}</span>
-                        <span class="truncate text-slate-800">{{ item.name }}</span>
+                            <!-- Empty Cell -->
+                            <div *ngIf="!cell.split && !cell.d" class="w-full h-[12.5px] sm:h-[14.5px]"></div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1653,46 +1678,56 @@
 
               </div>
 
-              <!-- 3. BOTTOM FOOTER: LIME GREEN HOSPITAL CONTACTS BANNER (1 ROW MATCHING SAMPLE) -->
-              <div class="bg-[#bde64a] px-2.5 sm:px-3 py-1 flex items-center shrink-0 border-t border-[#a8d836]">
-                <div class="w-full grid grid-cols-3 gap-x-2.5 sm:gap-x-3.5 text-[5.8px] sm:text-[6.5px] leading-tight text-slate-950 font-sans">
-                  <div *ngFor="let h of calendarHospitals" class="flex items-baseline justify-between gap-1 overflow-hidden">
-                    <span class="truncate font-semibold">{{ h.name }}</span>
-                    <span class="font-mono font-bold shrink-0 text-slate-950">{{ h.phone }}</span>
-                  </div>
-                </div>
-              </div>
+              <!-- 3. BOTTOM FOOTER: SOLID LIME GREEN BANNER (TEXT REMOVED AS REQUESTED) -->
+              <div class="bg-[#8FD940] h-6 sm:h-7 w-full shrink-0 border-t border-[#7BC935]"></div>
 
               <!-- Laminated Sheen -->
               <div
                 class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/5 pointer-events-none rounded-2xl">
               </div>
 
+          </div>
+        </ng-template>
+
+        <!-- 3D PERSPECTIVE CARD FLIPPER (Clicking anywhere flips card sequentially) -->
+        <div (click)="nextCardPage()"
+          class="card-perspective-container relative w-[520px] sm:w-[580px] h-[330px] sm:h-[370px] max-w-full select-none cursor-pointer"
+          title="คลิกที่บัตรเพื่อพลิกเปลี่ยนทีละหน้า (หน้าบัตร ➔ ปฏิทินครึ่งปีแรก ➔ ปฏิทินครึ่งปีหลัง)">
+          <div class="card-flipper w-full h-full relative"
+            [style.transform]="'rotateY(' + cardRotation + 'deg)'"
+            [style.transition]="noTransition ? 'none' : 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)'">
+
+            <!-- Card Face 1: Front (0deg relative) -->
+            <div class="card-face absolute inset-0 w-full h-full rounded-2xl overflow-hidden shadow-2xl">
+              <ng-container *ngIf="frontFaceType === 'badge'">
+                <ng-container *ngTemplateOutlet="badgeTemplate"></ng-container>
+              </ng-container>
+              <ng-container *ngIf="frontFaceType === 'calendar'">
+                <ng-container *ngTemplateOutlet="calendarTemplate; context: { half: frontFaceHalf }"></ng-container>
+              </ng-container>
+            </div>
+
+            <!-- Card Face 2: Back (180deg relative) -->
+            <div class="card-face card-face-back absolute inset-0 w-full h-full rounded-2xl overflow-hidden shadow-2xl">
+              <ng-container *ngIf="backFaceType === 'badge'">
+                <ng-container *ngTemplateOutlet="badgeTemplate"></ng-container>
+              </ng-container>
+              <ng-container *ngIf="backFaceType === 'calendar'">
+                <ng-container *ngTemplateOutlet="calendarTemplate; context: { half: backFaceHalf }"></ng-container>
+              </ng-container>
             </div>
 
           </div>
         </div>
 
-        <!-- Action Footer (Flip Button + Close Button) -->
-        <div class="mt-5 flex items-center gap-3">
-          <!-- Flip Card Button -->
-          <button type="button" (click)="toggleCardSide()"
-            class="px-6 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 rounded-xl shadow-lg border border-blue-400/30 transition-all flex items-center gap-2 cursor-pointer active:scale-95">
-            <svg *ngIf="cardSide === 'front'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-            </svg>
-            <svg *ngIf="cardSide === 'back'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-            </svg>
-            <span>{{ cardSide === 'front' ? 'ดูข้างหลังบัตร (ปฏิทิน 2026)' : 'ดูข้างหน้าบัตร (ข้อมูลพนักงาน)' }}</span>
-          </button>
-
-          <!-- Close Button -->
+        <!-- Action Footer (Only Close Button) -->
+        <div class="mt-5 flex items-center justify-center">
           <button type="button" (click)="closeEmployeeCard()"
-            class="px-6 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 rounded-xl shadow-md border border-slate-200 transition-all cursor-pointer active:scale-95">
-            ปิด
+            class="px-8 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 rounded-xl shadow-md border border-slate-200 transition-all cursor-pointer active:scale-95 flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            <span>CLOSE</span>
           </button>
         </div>
 
