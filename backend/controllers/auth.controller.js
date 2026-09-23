@@ -44,6 +44,14 @@ function getSectionAbbreviation(sectionName) {
   return map[upper] || sectionName;
 }
 
+// Thai name dictionary mapping for known employees
+const THAI_NAME_MAP = {
+  'TK212': 'เหนือฟ้า พงษ์พรหม',
+  '6284B': 'รวิภาส เขียนอักษร',
+  'X4770': 'ดนุพล สุทธิวัฒนกุล',
+  'A3415': 'อรุณี จันทร์ฉาย'
+};
+
 // Optional CSV fallback loader in case DB connection is interrupted
 function findEmployeeFromCsv(empCode) {
   try {
@@ -134,14 +142,29 @@ exports.verifyEmployee = async (req, res) => {
 
       if (result.recordset && result.recordset.length > 0) {
         const emp = result.recordset[0];
-        const rawName = emp.Name ? emp.Name.trim() : '';
+        const rawName = emp.Name ? emp.Name.replace(/\s+/g, ' ').trim() : '';
         const fullName = cleanEmployeeName(rawName);
+        const thaiName = THAI_NAME_MAP[code] || '';
         const division = emp.Division_Purchase || emp.Division_Name || 'MA';
         const section = getSectionAbbreviation(emp.Section_Name);
 
+        const rawPos = (emp.Position_Group || '').toUpperCase().trim();
+        let positionGroup = 'STAFF';
+        if (rawPos.startsWith('STAFF')) {
+          positionGroup = 'STAFF';
+        } else if (rawPos === 'OPT' || rawPos.includes('OPERAT')) {
+          positionGroup = 'OPERATOR';
+        } else if (rawPos === 'TECH' || rawPos.includes('TECHNIC')) {
+          positionGroup = 'TECHNICIAN';
+        } else if (rawPos.includes('TRAINEE')) {
+          positionGroup = 'STUDENT TRAINEE';
+        } else if (rawPos) {
+          positionGroup = rawPos;
+        }
+
         console.log(`✨ [Database Result] MATCH FOUND!`);
         console.log(`   ├─ 🆔 Emp_No:    ${emp.Emp_No}`);
-        console.log(`   ├─ 👤 Name:      ${fullName} (Raw: "${rawName}")`);
+        console.log(`   ├─ 👤 Name:      ${fullName} (Raw: "${rawName}" | Thai: "${thaiName}")`);
         console.log(`   ├─ 🏢 Division:  ${division} (${emp.Division_Name || '-'})`);
         console.log(`   ├─ 🔧 Section:   ${section} (${emp.Section_Name || '-'})`);
         console.log(`   ├─ ⚙️ Process:   ${emp.Process_Name || '-'}`);
@@ -153,13 +176,15 @@ exports.verifyEmployee = async (req, res) => {
           user: {
             empNo: emp.Emp_No.trim(),
             fullName: fullName,
-            rawName: rawName,
+            titleName: rawName,
+            rawName: thaiName || rawName,
+            thaiName: thaiName,
             division: division,
-            divisionName: emp.Division_Name || '',
+            divisionName: emp.Division_Name || emp.Division_Purchase || '',
             section: section,
             sectionName: emp.Section_Name || '',
             process: emp.Process_Name || '',
-            positionGroup: emp.Position_Group || '',
+            positionGroup: positionGroup,
             shiftGroup: emp.ShiftGroup_Code || '',
             profilePictureUrl: emp.Profile_Picture_Url || '',
             deletedAt: emp.Deleted_At
@@ -175,8 +200,9 @@ exports.verifyEmployee = async (req, res) => {
     // CSV fallback if database query returned no record or pool failed
     const csvEmp = findEmployeeFromCsv(code);
     if (csvEmp) {
-      const rawName = csvEmp.Name || '';
+      const rawName = csvEmp.Name ? csvEmp.Name.replace(/\s+/g, ' ').trim() : '';
       const fullName = cleanEmployeeName(rawName);
+      const thaiName = THAI_NAME_MAP[code] || '';
       console.log(`📄 [CSV Fallback] Found in Master_Employee.csv: ${code} - ${fullName}`);
 
       return res.json({
@@ -185,7 +211,9 @@ exports.verifyEmployee = async (req, res) => {
         user: {
           empNo: csvEmp.Emp_No,
           fullName: fullName,
-          rawName: rawName,
+          titleName: rawName,
+          rawName: thaiName || rawName,
+          thaiName: thaiName,
           division: 'MA',
           divisionName: 'MECHANICAL ASS\'Y',
           section: 'M/M',

@@ -198,3 +198,38 @@
 .shard-node-11 { animation: shard11 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .shard-node-12 { animation: shard12 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
+/* =========================================================
+   3D CARD FLIP ANIMATIONS
+   ========================================================= */
+.card-perspective-container {
+  perspective: 1200px;
+}
+
+.card-flipper {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.card-flipper.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.card-face-back {
+  transform: rotateY(180deg);
+}
+

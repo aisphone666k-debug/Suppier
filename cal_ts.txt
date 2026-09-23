@@ -1,0 +1,111 @@
+  calendarMonths: Array<{ name: string; wd: string; weeks: Array<Array<{ d: number | null; t: string }>> }> = [
+    {
+      name: 'JULY',
+      wd: '22/9',
+      weeks: [
+        [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'work' }, { d: 2, t: 'work' }, { d: 3, t: 'work' }, { d: 4, t: 'sat' }],
+        [{ d: 5, t: 'sun' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'sat' }],
+        [{ d: 12, t: 'sun' }, { d: 13, t: 'work' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'sat' }],
+        [{ d: 19, t: 'sun' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'sat' }],
+        [{ d: 26, t: 'sun' }, { d: 27, t: 'sat' }, { d: 28, t: 'trad' }, { d: 29, t: 'trad' }, { d: 30, t: 'work' }, { d: 31, t: 'work' }, { d: null, t: 'none' }],
+      ]
+    },
+    {
+      name: 'AUGUST',
+      wd: '22/9',
+      weeks: [
+        [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'sat' }],
+        [{ d: 2, t: 'sun' }, { d: 3, t: 'work' }, { d: 4, t: 'work' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }, { d: 8, t: 'sat' }],
+        [{ d: 9, t: 'sun' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'trad' }, { d: 13, t: 'work' }, { d: 14, t: 'work' }, { d: 15, t: 'sat' }],
+        [{ d: 16, t: 'sun' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }, { d: 22, t: 'sat' }],
+        [{ d: 23, t: 'sun' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'work' }, { d: 27, t: 'work' }, { d: 28, t: 'work' }, { d: 29, t: 'sat' }],
+        [{ d: 30, t: 'sun' }, { d: 31, t: 'work' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }],
+      ]
+    },
+    {
+      name: 'SEPTEMBER',
+      wd: '22/8',
+      weeks: [
+        [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'work' }, { d: 2, t: 'work' }, { d: 3, t: 'work' }, { d: 4, t: 'work' }, { d: 5, t: 'sat' }],
+        [{ d: 6, t: 'sun' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'sat' }],
+        [{ d: 13, t: 'sun' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'sat' }],
+        [{ d: 20, t: 'sun' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'sat' }],
+        [{ d: 27, t: 'sun' }, { d: 28, t: 'work' }, { d: 29, t: 'work' }, { d: 30, t: 'work' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }],
+      ]
+    },
+    {
+      name: 'OCTOBER',
+      wd: '21/10',
+      weeks: [
+        [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'work' }, { d: 2, t: 'work' }, { d: 3, t: 'sat' }],
+        [{ d: 4, t: 'sun' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'sat' }],
+        [{ d: 11, t: 'sun' }, { d: 12, t: 'sat' }, { d: 13, t: 'trad' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'sat' }],
+        [{ d: 18, t: 'sun' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'trad' }, { d: 24, t: 'sat' }],
+        [{ d: 25, t: 'sun' }, { d: 26, t: 'work' }, { d: 27, t: 'work' }, { d: 28, t: 'work' }, { d: 29, t: 'work' }, { d: 30, t: 'work' }, { d: 31, t: 'sat' }],
+      ]
+    },
+    {
+      name: 'NOVEMBER',
+      wd: '23/7',
+      weeks: [
+        [{ d: 1, t: 'sun' }, { d: 2, t: 'work' }, { d: 3, t: 'work' }, { d: 4, t: 'work' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }, { d: 7, t: 'sat' }],
+        [{ d: 8, t: 'sun' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'work' }, { d: 13, t: 'work' }, { d: 14, t: 'sat' }],
+        [{ d: 15, t: 'sun' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }, { d: 21, t: 'sat' }],
+        [{ d: 22, t: 'sun' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'work' }, { d: 27, t: 'work' }, { d: 28, t: 'sat' }],
+        [{ d: 29, t: 'sun' }, { d: 30, t: 'work' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }],
+      ]
+    },
+    {
+      name: 'DECEMBER',
+      wd: '22/9',
+      weeks: [
+        [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'work' }, { d: 2, t: 'work' }, { d: 3, t: 'work' }, { d: 4, t: 'work' }, { d: 5, t: 'trad' }],
+        [{ d: 6, t: 'sun' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'sat' }],
+        [{ d: 13, t: 'sun' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'sat' }],
+        [{ d: 20, t: 'sun' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'sat' }],
+        [{ d: 27, t: 'sun' }, { d: 28, t: 'work' }, { d: 29, t: 'work' }, { d: 30, t: 'sat' }, { d: 31, t: 'trad' }, { d: null, t: 'none' }, { d: null, t: 'none' }],
+      ]
+    },
+  ];
+
+  calendarSummaryStats = [
+    { value: '261', label: 'Working Day', boxClass: 'border border-emerald-600 text-emerald-800 bg-emerald-50' },
+    { value: '15', label: 'Traditional Holiday', boxClass: 'bg-[#22c55e] text-white' },
+    { value: '52', label: 'Holiday (sun)', boxClass: 'bg-red-500 text-white' },
+    { value: '37', label: 'Holiday (sat)', boxClass: 'bg-[#facc15] text-slate-900' },
+    { value: '104', label: 'Total Holiday', boxClass: 'border border-slate-400 text-slate-800 bg-white' }
+  ];
+
+  calendarHolidays = [
+    { date: '28 July', title: "H.M. The King's Birthday" },
+    { date: '29 July', title: 'Asanha Bucha Day' },
+    { date: '12 August', title: "National Mother's Day" },
+    { date: '13 October', title: 'Bhumibol Adulyadej Memorial Day' },
+    { date: '23 October', title: 'Chulalongkorn Memorial Day' },
+    { date: '5 December', title: "National Father's Day and National Day" },
+    { date: '31 December', title: "New Year's eve" }
+  ];
+
+  calendarHospitalCols = [
+    [
+      { name: 'Thammasat University Hospital', phone: '0-2926-9999' },
+      { name: 'Bumrungrad Hospital', phone: '0-2066-8888, 1378' },
+      { name: 'Kasemrad Hospital Pathumthani', phone: '0-2529-4533' },
+      { name: 'Karunvej Ayutthaya Hospital', phone: '0-3531-5100' },
+      { name: 'Angthong Medical 2 Hospital', phone: '0-3561-2301-4' }
+    ],
+    [
+      { name: 'Rajthanee Hospital', phone: '0-3533-5555-61' },
+      { name: 'Navanakorn Hospital', phone: '0-2529-7888' },
+      { name: 'Mitraparp Memorial Hospital', phone: '0-3621-8000' },
+      { name: 'Phyathai 1 Hospital', phone: '0-2201-4600' },
+      { name: 'Singburi Medical Hospital', phone: '0-3652-0517' }
+    ],
+    [
+      { name: 'Benjarom Hospital', phone: '0-3641-3833' },
+      { name: 'Ananda Mahidol Hospital', phone: '0-3678-5891' },
+      { name: 'Vibhavadi Hospital', phone: '0-2561-1111' },
+      { name: 'Phyathai 2 Hospital', phone: '0-2617-2444' },
+      { name: 'Muangnarai Hospital', phone: '0-3642-0666' }
+    ]
+  ];

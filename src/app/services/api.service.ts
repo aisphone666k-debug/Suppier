@@ -3,7 +3,9 @@ import { Injectable } from '@angular/core';
 export interface EmployeeUser {
   empNo: string;
   fullName: string;
+  titleName?: string;
   rawName?: string;
+  thaiName?: string;
   division: string;
   divisionName?: string;
   section: string;
@@ -12,6 +14,7 @@ export interface EmployeeUser {
   positionGroup?: string;
   shiftGroup?: string;
   profilePictureUrl?: string;
+  empDate?: string;
   deletedAt?: string | null;
 }
 
@@ -31,8 +34,8 @@ export class ApiService {
    * Verify employee ID from [Suppier].[dbo].[Master_Employee] via Backend API
    */
   async verifyEmployee(employeeId: string): Promise<VerifyEmployeeResponse> {
-    const code = (employeeId || '').trim().toUpperCase();
-    console.log(`%c[Suppier API] 📡 Sending employee verification for "${code}" to ${this.baseUrl}/auth/verify-employee`, 'color: #2563eb; font-weight: bold;');
+    const code = employeeId.trim().toUpperCase();
+    console.log(`%c[Suppier API] 📡 Requesting auth verification for "${code}"...`, 'color: #2563eb; font-weight: bold;');
 
     try {
       const response = await fetch(`${this.baseUrl}/auth/verify-employee`, {
@@ -43,9 +46,9 @@ export class ApiService {
         body: JSON.stringify({ employeeId: code })
       });
 
-      const data = await response.json();
-      console.log(`%c[Suppier API] 📥 Received response from Backend (Status: ${response.status}):`, 'color: #059669; font-weight: bold;', data);
-      return data;
+      const result = await response.json();
+      console.log(`%c[Suppier API] 📥 Server Response:`, 'color: #059669;', result);
+      return result;
     } catch (err) {
       console.warn('%c[Suppier API] ⚠️ Backend API offline or unreachable. Using fallback:', 'color: #d97706;', err);
       
@@ -57,13 +60,15 @@ export class ApiService {
           user: {
             empNo: 'X4770',
             fullName: 'DANUPHON SUTTHIWATTHANAK',
-            rawName: 'MR.  DANUPHON  SUTTHIWATTHANAK',
+            titleName: 'MR. DANUPHON SUTTHIWATTHANAK',
+            rawName: 'ดนุพล สุทธิวัฒนกุล',
+            thaiName: 'ดนุพล สุทธิวัฒนกุล',
             division: 'MA',
             divisionName: 'MECHANICAL ASS\'Y',
             section: 'M/M',
             sectionName: 'MACHINE MAINTENANCE',
             process: 'HEAT TREATMENT',
-            positionGroup: 'TECH',
+            positionGroup: 'TECHNICIAN',
             profilePictureUrl: 'http://pbp083.bp.minebea.local:90/EmployeePicMA/X4770.jpg'
           }
         };
@@ -76,13 +81,79 @@ export class ApiService {
           user: {
             empNo: 'A3415',
             fullName: 'ARUNEE CHANCHAY',
-            rawName: 'MISS ARUNEE  CHANCHAY',
+            titleName: 'MISS ARUNEE CHANCHAY',
+            rawName: 'อรุณี จันทร์ฉาย',
+            thaiName: 'อรุณี จันทร์ฉาย',
             division: 'GM',
             divisionName: 'G/M',
-            section: 'MACHINING',
+            section: 'MC',
             sectionName: 'MACHINING',
             process: 'BIG CLEAN',
-            positionGroup: 'OPT'
+            positionGroup: 'OPERATOR',
+            profilePictureUrl: 'http://pbp083.bp.minebea.local:90/EmployeePicPMC/A3415.jpg'
+          }
+        };
+      }
+
+      if (code === 'TK212') {
+        return {
+          success: true,
+          message: 'เข้าสู่ระบบสำเร็จ (Fallback Mode)',
+          user: {
+            empNo: 'TK212',
+            fullName: 'NUEAFA PONGPROM',
+            titleName: 'MR. NUEAFA PONGPROM',
+            rawName: 'เหนือฟ้า พงษ์พรหม',
+            thaiName: 'เหนือฟ้า พงษ์พรหม',
+            division: 'GM',
+            divisionName: 'G/M',
+            section: 'C/R',
+            sectionName: 'COST REDUCTION',
+            process: 'OFFICE CLERK',
+            positionGroup: 'STAFF',
+            profilePictureUrl: 'http://pbp083.bp.minebea.local:90/EmployeePicGM/TK212.jpg'
+          }
+        };
+      }
+
+      if (code === 'AB326') {
+        return {
+          success: true,
+          message: 'เข้าสู่ระบบสำเร็จ (Fallback Mode)',
+          user: {
+            empNo: 'AB326',
+            fullName: 'TEERAYUT NEUEGAEW',
+            titleName: 'MR. TEERAYUT NEUEGAEW',
+            rawName: 'MR. TEERAYUT NEUEGAEW',
+            thaiName: '',
+            division: 'MA',
+            divisionName: 'MECHANICAL ASS\'Y',
+            section: 'ASSY',
+            sectionName: 'ASSEMBLY',
+            process: 'PRODUCTION SET UP',
+            positionGroup: 'TECHNICIAN',
+            profilePictureUrl: 'http://pbp083.bp.minebea.local:90/EmployeePicMA/AB326.jpg'
+          }
+        };
+      }
+
+      if (code === '6284B') {
+        return {
+          success: true,
+          message: 'เข้าสู่ระบบสำเร็จ (Fallback Mode)',
+          user: {
+            empNo: '6284B',
+            fullName: 'RAWIPAT KHIANOAKSORN',
+            titleName: 'MR. RAWIPAT KHIANOAKSORN',
+            rawName: 'รวิภาส เขียนอักษร',
+            thaiName: 'รวิภาส เขียนอักษร',
+            division: 'MA',
+            divisionName: 'MECHANICAL ASS\'Y',
+            section: 'M/M',
+            sectionName: 'MACHINE MAINTENANCE',
+            process: 'STUDENT TRAINEE',
+            positionGroup: 'STUDENT TRAINEE',
+            profilePictureUrl: ''
           }
         };
       }

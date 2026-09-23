@@ -1,16 +1,20 @@
 <div class="font-sans antialiased text-slate-800">
 
   <!-- ================= 1. LOGIN SCREEN (CLEAN WHITE TONE 5-DIGIT OTP STYLE) ================= -->
-  <div *ngIf="!isLoggedIn" class="min-h-screen bg-gradient-to-b from-slate-50 via-slate-100/80 to-slate-200/60 flex items-center justify-center p-4 relative overflow-hidden">
+  <div *ngIf="!isLoggedIn"
+    class="min-h-screen bg-gradient-to-b from-slate-50 via-slate-100/80 to-slate-200/60 flex items-center justify-center p-4 relative overflow-hidden">
     <!-- Subtle clean ambient gradients in background -->
     <div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-100/60 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-100/50 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-100/50 rounded-full blur-3xl pointer-events-none">
+    </div>
 
-    <div class="relative z-10 max-w-md w-full bg-white border border-slate-200/90 rounded-3xl p-7 sm:p-9 shadow-2xl shadow-slate-300/40 text-center space-y-6">
-      
+    <div
+      class="relative z-10 max-w-md w-full bg-white border border-slate-200/90 rounded-3xl p-7 sm:p-9 shadow-2xl shadow-slate-300/40 text-center space-y-6">
+
       <!-- App Brand Logo (Pure Logo, No Background Box) -->
       <div class="mx-auto flex items-center justify-center py-1">
-        <img src="/sp-logo.png" alt="Suppier Logo" class="h-16 sm:h-20 w-auto object-contain filter drop-shadow-sm select-none" />
+        <img src="/sp-logo.png" alt="Suppier Logo"
+          class="h-16 sm:h-20 w-auto object-contain filter drop-shadow-sm select-none" />
       </div>
 
       <!-- Header Title -->
@@ -25,30 +29,18 @@
 
       <!-- 1. NORMAL INPUT CONTROLS (WHEN loginPhase === 'input') -->
       <div *ngIf="loginPhase === 'input'" class="space-y-4">
-        
+
         <!-- 5-Digit OTP Boxes (Alphanumeric A-Z, 0-9) -->
         <div class="relative flex items-center justify-center gap-2 sm:gap-3 py-1 cursor-text" (click)="focusInput()">
-          
+
           <!-- Master Native Input (Handles all keyboard input, IME, backspace, paste flawlessly) -->
-          <input 
-            id="master-otp-input"
-            type="text"
-            maxlength="5"
-            autocomplete="off"
-            autocapitalize="characters"
-            spellcheck="false"
-            autofocus
-            [value]="otpCode"
-            (input)="onCodeChange($any($event.target).value)"
-            (keydown.enter)="otpCode.length >= 4 && submitLogin()"
-            (focus)="isInputFocused = true"
-            (blur)="isInputFocused = false"
-            class="absolute inset-0 w-full h-full opacity-0 z-20 cursor-text"
-          />
+          <input id="master-otp-input" type="text" maxlength="5" autocomplete="off" autocapitalize="characters"
+            spellcheck="false" autofocus [value]="otpCode" (input)="onCodeChange($any($event.target).value)"
+            (keydown.enter)="otpCode.length >= 4 && submitLogin()" (focus)="isInputFocused = true"
+            (blur)="isInputFocused = false" class="absolute inset-0 w-full h-full opacity-0 z-20 cursor-text" />
 
           <!-- 5 Visual OTP Display Boxes -->
-          <div 
-            *ngFor="let idx of [0, 1, 2, 3, 4]"
+          <div *ngFor="let idx of [0, 1, 2, 3, 4]"
             class="w-12 h-14 sm:w-14 sm:h-16 flex items-center justify-center text-center text-2xl sm:text-3xl otp-box-char uppercase rounded-2xl transition-all shadow-xs select-none"
             [ngClass]="{
               'border-2 border-blue-600 bg-blue-50/70 text-blue-700 font-extrabold shadow-sm shadow-blue-500/10': otpCode.charAt(idx) !== '',
@@ -57,56 +49,34 @@
             }">
             <span class="leading-none">{{ otpCode.charAt(idx) }}</span>
             <!-- Blinking cursor indicator when active box is empty -->
-            <span *ngIf="isInputFocused && otpCode.length === idx" class="inline-block w-0.5 h-6 bg-blue-600 animate-pulse ml-0.5 rounded-full"></span>
+            <span *ngIf="isInputFocused && otpCode.length === idx"
+              class="inline-block w-0.5 h-6 bg-blue-600 animate-pulse ml-0.5 rounded-full"></span>
           </div>
 
         </div>
 
         <!-- Error message -->
-        <div *ngIf="loginError" class="bg-rose-50 border border-rose-200 text-rose-600 text-xs font-semibold py-2 px-3 rounded-xl">
+        <div *ngIf="loginError"
+          class="bg-rose-50 border border-rose-200 text-rose-600 text-xs font-semibold py-2 px-3 rounded-xl">
           {{ loginError }}
         </div>
-
-        <!-- Quick Employee ID chips for instant testing -->
-        <div class="pt-2">
-          <div class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">ตัวอย่างรหัสพนักงาน (Quick Test)</div>
-          <div class="flex flex-wrap items-center justify-center gap-2">
-            <button 
-              type="button" 
-              (click)="setDemoCode('X4770')" 
-              class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors cursor-pointer">
-              X4770 (Danuphon M/M)
-            </button>
-            <button 
-              type="button" 
-              (click)="setDemoCode('A3415')" 
-              class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer">
-              A3415 (Arunee GM)
-            </button>
-            <button 
-              type="button" 
-              (click)="setDemoCode('A4858')" 
-              class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer">
-              A4858 (Saleena MA)
-            </button>
-          </div>
-        </div>
-
       </div>
 
       <!-- 2. ANIMATION ARENA (ROTATING -> CONVERGING -> CIRCULAR DOWNLOAD -> SUCCESS) -->
-      <div *ngIf="loginPhase !== 'input'" class="py-6 flex flex-col items-center justify-center min-h-[220px] transition-all">
-        
+      <div *ngIf="loginPhase !== 'input'"
+        class="py-6 flex flex-col items-center justify-center min-h-[220px] transition-all">
+
         <!-- STEP A & B: ROTATING & CONVERGING (Valid Credentials) -->
-        <div *ngIf="loginPhase === 'rotating' || loginPhase === 'converging'" class="relative w-48 h-48 flex items-center justify-center clean-arena-deploy">
+        <div *ngIf="loginPhase === 'rotating' || loginPhase === 'converging'"
+          class="relative w-48 h-48 flex items-center justify-center clean-arena-deploy">
           <!-- Subtle clean hairline track -->
           <div class="absolute inset-2 rounded-full border border-slate-100 shadow-xs"></div>
-          
+
           <!-- Orbit container -->
-          <div class="absolute inset-0 flex items-center justify-center clean-orbit-spin" [class.clean-orbit-merge]="loginPhase === 'converging'">
+          <div class="absolute inset-0 flex items-center justify-center clean-orbit-spin"
+            [class.clean-orbit-merge]="loginPhase === 'converging'">
             <!-- 5 Clean White OTP Nodes -->
-            <div 
-              *ngFor="let idx of [0, 1, 2, 3, 4]" 
+            <div *ngFor="let idx of [0, 1, 2, 3, 4]"
               class="absolute w-12 h-14 rounded-2xl bg-white border-2 border-blue-600 text-blue-700 otp-box-char font-extrabold text-2xl flex items-center justify-center shadow-md shadow-slate-200/80"
               [ngClass]="'orbit-node-' + idx">
               <span class="clean-counter-spin leading-none">{{ otpCode.charAt(idx) }}</span>
@@ -121,15 +91,15 @@
         </div>
 
         <!-- FAIL STATE A: FAIL CONVERGING (Invalid Credentials - Warning red & shake) -->
-        <div *ngIf="loginPhase === 'fail-converging'" class="relative w-48 h-48 flex items-center justify-center danger-shake">
+        <div *ngIf="loginPhase === 'fail-converging'"
+          class="relative w-48 h-48 flex items-center justify-center danger-shake">
           <!-- Red warning hairline track -->
           <div class="absolute inset-2 rounded-full border-2 border-rose-200 shadow-xs"></div>
 
           <!-- Orbit container rapidly converging in danger mode -->
           <div class="absolute inset-0 flex items-center justify-center clean-orbit-spin clean-orbit-merge">
             <!-- 5 Red Danger OTP Nodes -->
-            <div 
-              *ngFor="let idx of [0, 1, 2, 3, 4]" 
+            <div *ngFor="let idx of [0, 1, 2, 3, 4]"
               class="absolute w-12 h-14 rounded-2xl bg-rose-50 border-2 border-rose-600 text-rose-600 otp-box-char font-extrabold text-2xl flex items-center justify-center shadow-lg shadow-rose-400/40"
               [ngClass]="'orbit-node-' + idx">
               <span class="clean-counter-spin leading-none">{{ otpCode.charAt(idx) }}</span>
@@ -145,29 +115,48 @@
 
         <!-- FAIL STATE B: ITEM SHATTERED -->
         <div *ngIf="loginPhase === 'shattered'" class="relative w-52 h-52 flex flex-col items-center justify-center">
-          
+
           <!-- Red shockwave expansion ring -->
-          <div class="absolute w-24 h-24 rounded-full border-4 border-rose-500 shockwave-ring pointer-events-none"></div>
+          <div class="absolute w-24 h-24 rounded-full border-4 border-rose-500 shockwave-ring pointer-events-none">
+          </div>
 
           <!-- 12 Exploding Shards -->
           <div class="relative w-28 h-28 flex items-center justify-center">
-            <div class="absolute w-6 h-6 rounded-md bg-rose-500 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-1">✕</div>
-            <div class="absolute w-5 h-7 rounded-md bg-rose-600 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-2">✕</div>
-            <div class="absolute w-7 h-5 rounded-md bg-rose-500 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-3">✕</div>
-            <div class="absolute w-6 h-6 rounded-md bg-rose-600 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-4">✕</div>
-            <div class="absolute w-5 h-6 rounded-md bg-rose-500 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-5">✕</div>
-            <div class="absolute w-7 h-5 rounded-md bg-rose-600 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-6">✕</div>
-            <div class="absolute w-6 h-7 rounded-md bg-rose-500 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-7">✕</div>
-            <div class="absolute w-5 h-5 rounded-md bg-rose-600 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-8">✕</div>
+            <div
+              class="absolute w-6 h-6 rounded-md bg-rose-500 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-1">
+              ✕</div>
+            <div
+              class="absolute w-5 h-7 rounded-md bg-rose-600 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-2">
+              ✕</div>
+            <div
+              class="absolute w-7 h-5 rounded-md bg-rose-500 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-3">
+              ✕</div>
+            <div
+              class="absolute w-6 h-6 rounded-md bg-rose-600 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-4">
+              ✕</div>
+            <div
+              class="absolute w-5 h-6 rounded-md bg-rose-500 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-5">
+              ✕</div>
+            <div
+              class="absolute w-7 h-5 rounded-md bg-rose-600 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-6">
+              ✕</div>
+            <div
+              class="absolute w-6 h-7 rounded-md bg-rose-500 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-7">
+              ✕</div>
+            <div
+              class="absolute w-5 h-5 rounded-md bg-rose-600 border border-white text-white flex items-center justify-center font-mono font-bold text-[10px] shard-node-8">
+              ✕</div>
             <div class="absolute w-4 h-4 rounded-md bg-rose-400 border border-white shard-node-9"></div>
             <div class="absolute w-4 h-4 rounded-md bg-rose-500 border border-white shard-node-10"></div>
             <div class="absolute w-5 h-5 rounded-md bg-rose-600 border border-white shard-node-11"></div>
             <div class="absolute w-4 h-4 rounded-md bg-rose-500 border border-white shard-node-12"></div>
 
             <!-- Center Broken Item Core -->
-            <div class="w-20 h-20 rounded-2xl bg-rose-50 border-2 border-dashed border-rose-500 text-rose-600 flex flex-col items-center justify-center shadow-lg shadow-rose-300/50 scale-90">
+            <div
+              class="w-20 h-20 rounded-2xl bg-rose-50 border-2 border-dashed border-rose-500 text-rose-600 flex flex-col items-center justify-center shadow-lg shadow-rose-300/50 scale-90">
               <svg class="w-8 h-8 text-rose-600 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               <span class="text-[9px] font-black tracking-wider text-rose-600 mt-1 uppercase">INVALID</span>
             </div>
@@ -178,7 +167,8 @@
             <div class="text-sm font-bold text-rose-600 tracking-wide flex items-center justify-center gap-1">
               <span>Invalid Employee ID</span>
             </div>
-            <div class="text-xs text-slate-400 otp-box-char font-medium tracking-wide">Authentication Failed &bull; {{ otpCode }}</div>
+            <div class="text-xs text-slate-400 otp-box-char font-medium tracking-wide">Authentication Failed &bull; {{
+              otpCode }}</div>
           </div>
 
         </div>
@@ -186,27 +176,26 @@
         <!-- STEP C: FUSED INTO A SINGLE SQUARE (Clean Modern) -->
         <div *ngIf="loginPhase === 'downloading'" class="flex flex-col items-center justify-center space-y-3">
           <!-- The Single Merged Square Box (Clean Pure White) -->
-          <div class="relative w-28 h-28 rounded-2xl bg-white border-2 border-blue-600 shadow-xl shadow-slate-200/90 flex items-center justify-center merged-square-box">
-            
+          <div
+            class="relative w-28 h-28 rounded-2xl bg-white border-2 border-blue-600 shadow-xl shadow-slate-200/90 flex items-center justify-center merged-square-box">
+
             <!-- Clean Circular Download Progress inside the single square -->
             <div class="relative w-20 h-20 flex items-center justify-center">
               <svg class="w-20 h-20 -rotate-90" viewBox="0 0 72 72">
                 <!-- Clean background ring -->
                 <circle cx="36" cy="36" r="30" stroke="#f1f5f9" stroke-width="4" fill="none" />
                 <!-- Clean blue progress ring -->
-                <circle 
-                  cx="36" cy="36" r="30" 
-                  stroke="#2563eb" stroke-width="4" fill="none" stroke-linecap="round"
-                  stroke-dasharray="188.5"
-                  [style.strokeDashoffset]="188.5 - (188.5 * downloadPercent / 100)"
-                  class="transition-all duration-120 ease-out"
-                />
+                <circle cx="36" cy="36" r="30" stroke="#2563eb" stroke-width="4" fill="none" stroke-linecap="round"
+                  stroke-dasharray="188.5" [style.strokeDashoffset]="188.5 - (188.5 * downloadPercent / 100)"
+                  class="transition-all duration-120 ease-out" />
               </svg>
 
               <!-- Center Download Arrow & Percent -->
               <div class="absolute inset-0 flex flex-col items-center justify-center">
-                <svg class="w-5 h-5 text-blue-600 download-arrow-gentle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                <svg class="w-5 h-5 text-blue-600 download-arrow-gentle" fill="none" stroke="currentColor"
+                  viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 <span class="text-xs otp-box-char font-extrabold text-slate-700 mt-0.5">{{ downloadPercent }}%</span>
               </div>
@@ -217,23 +206,27 @@
           <!-- Loading details -->
           <div class="text-center space-y-0.5">
             <div class="text-xs font-bold text-slate-800">Downloading Profile...</div>
-            <div class="text-[11px] text-slate-400 otp-box-char font-medium tracking-wide">Employee ID: {{ otpCode }}</div>
+            <div class="text-[11px] text-slate-400 otp-box-char font-medium tracking-wide">Employee ID: {{ otpCode }}
+            </div>
           </div>
         </div>
 
         <!-- STEP D: SUCCESS IN THE SINGLE SQUARE -->
         <div *ngIf="loginPhase === 'success'" class="flex flex-col items-center justify-center space-y-3">
-          <div class="w-28 h-28 rounded-2xl bg-white border-2 border-emerald-500 shadow-xl shadow-slate-200/90 flex flex-col items-center justify-center success-pop">
-            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shadow-xs">
+          <div
+            class="w-28 h-28 rounded-2xl bg-white border-2 border-emerald-500 shadow-xl shadow-slate-200/90 flex flex-col items-center justify-center success-pop">
+            <div
+              class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shadow-xs">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <span class="text-[10px] font-black tracking-wider text-emerald-600 mt-1.5">VERIFIED</span>
           </div>
           <div class="text-center space-y-0.5">
             <div class="text-sm font-bold text-emerald-600">Login Successful</div>
-            <div class="text-xs text-slate-400 otp-box-char font-medium tracking-wide">Welcome, Employee ID: {{ otpCode }}</div>
+            <div class="text-xs text-slate-400 otp-box-char font-medium tracking-wide">Welcome, Employee ID: {{ otpCode
+              }}</div>
           </div>
         </div>
 
@@ -248,7 +241,7 @@
     <!-- ================= TOP SYSTEM BANNER ================= -->
     <header class="bg-white border-b border-slate-200 py-2.5 px-6 shadow-2xs shrink-0 z-10">
       <div class="max-w-[1800px] mx-auto flex items-center justify-between gap-4">
-        
+
         <!-- App Brand Logo -->
         <div class="flex items-center gap-3 shrink-0">
           <img src="/sp-logo.png" alt="Suppier Logo" class="h-8 w-auto object-contain filter drop-shadow-xs" />
@@ -263,27 +256,32 @@
 
         <!-- Logged in employee info & Logout button -->
         <div class="flex items-center gap-3">
-          <div class="flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-xl border border-slate-200">
-            <div *ngIf="currentUser?.profilePictureUrl; else fallbackAvatar" class="w-6 h-6 rounded-lg overflow-hidden border border-slate-300">
-              <img [src]="currentUser?.profilePictureUrl" alt="Avatar" class="w-full h-full object-cover" (error)="currentUser!.profilePictureUrl = ''" />
+          <div (click)="openEmployeeCard()" title="คลิกเพื่อดูบัตรพนักงาน (Employee Badge)"
+            class="flex items-center gap-2.5 bg-slate-100/90 hover:bg-blue-50/80 px-3.5 py-1.5 rounded-2xl border border-slate-200/80 hover:border-blue-300 shadow-2xs hover:shadow-xs transition-all cursor-pointer group">
+            <div *ngIf="currentUser?.profilePictureUrl; else fallbackAvatar"
+              class="w-10 h-10 rounded-xl overflow-hidden border border-slate-300/80 shadow-xs shrink-0 group-hover:border-blue-400 transition-colors">
+              <img [src]="currentUser?.profilePictureUrl" alt="Avatar" class="w-full h-full object-cover"
+                (error)="currentUser!.profilePictureUrl = ''" />
             </div>
             <ng-template #fallbackAvatar>
-              <div class="w-6 h-6 rounded-lg bg-[#131936] text-white flex items-center justify-center font-black text-[10px]">
-                {{ loggedInEmployeeId ? loggedInEmployeeId.slice(-2) : 'ID' }}
+              <div
+                class="w-10 h-10 rounded-xl overflow-hidden border border-slate-300/80 shadow-xs shrink-0 group-hover:border-blue-400 transition-colors bg-[#f1f3f6]">
+                <img src="facebook-default-avatar.png" alt="Avatar" class="w-full h-full object-cover" />
               </div>
             </ng-template>
-            <div class="text-left hidden sm:block">
-              <div class="text-[11px] font-black text-[#131936] leading-tight">รหัส: {{ loggedInEmployeeId || '12345' }}</div>
-              <div class="text-[9px] text-slate-500 font-medium leading-tight truncate max-w-[140px]">{{ requestBy }}</div>
+            <div class="text-left">
+              <div
+                class="text-sm sm:text-base font-black text-[#131936] group-hover:text-blue-700 leading-none tracking-tight transition-colors">
+                รหัส: <span class="font-mono text-blue-700">{{ loggedInEmployeeId || '12345' }}</span>
+              </div>
             </div>
           </div>
 
-          <button 
-            (click)="logout()" 
-            title="ออกจากระบบ"
+          <button (click)="logout()" title="ออกจากระบบ"
             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
             <span class="hidden sm:inline">Logout</span>
           </button>
@@ -296,1144 +294,1416 @@
     <div class="max-w-[1850px] w-full mx-auto flex flex-1 overflow-hidden min-h-0">
 
       <!-- ================= LEFT SIDEBAR NAVIGATION (FIXED / STICKY) ================= -->
-      <aside class="w-64 sm:w-72 bg-white border-r border-slate-200 shrink-0 p-4 sm:p-5 flex flex-col space-y-6 shadow-xs h-full overflow-y-auto">
-      
-      <!-- Group 1: ALL DOCUMENT -->
-      <div class="space-y-3">
-        <h2 class="text-base font-black text-purple-900 uppercase tracking-wide pb-1.5 border-b-2 border-purple-200 flex items-center gap-2">
-          <svg class="w-4 h-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          ALL DOCUMENT
-        </h2>
-        
-        <nav class="space-y-1">
-          <div *ngFor="let menu of documentMenus" class="space-y-0.5">
-            <!-- Parent Menu Item -->
-            <button 
-              (click)="selectMenu(menu.id)"
-              [class]="(activeMenu === menu.id && !activeSubMenu) 
+      <aside
+        class="w-64 sm:w-72 bg-white border-r border-slate-200 shrink-0 p-4 sm:p-5 flex flex-col space-y-6 shadow-xs h-full overflow-y-auto">
+
+        <!-- Group 1: ALL DOCUMENT -->
+        <div class="space-y-3">
+          <h2
+            class="text-base font-black text-purple-900 uppercase tracking-wide pb-1.5 border-b-2 border-purple-200 flex items-center gap-2">
+            <svg class="w-4 h-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            ALL DOCUMENT
+          </h2>
+
+          <nav class="space-y-1">
+            <div *ngFor="let menu of documentMenus" class="space-y-0.5">
+              <!-- Parent Menu Item -->
+              <button (click)="selectMenu(menu.id)" [class]="(activeMenu === menu.id && !activeSubMenu) 
                 ? 'bg-[#131936] text-white shadow-xs font-bold' 
                 : 'text-blue-700 hover:bg-blue-50/50 font-bold'"
-              class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs sm:text-[13px] transition-all flex items-center justify-between group">
-              
-              <div class="flex items-center gap-2 truncate">
-                <!-- Pushpin icon -->
-                <span class="text-sm select-none">📌</span>
-                <span class="truncate">{{ menu.label }}</span>
-              </div>
+                class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs sm:text-[13px] transition-all flex items-center justify-between group">
 
-              <!-- Chevron indicator if has sub-items -->
-              <span *ngIf="menu.subItems" (click)="toggleMenu(menu, $event)" class="text-slate-400 hover:text-slate-600 p-0.5 rounded">
-                <svg class="w-3.5 h-3.5 transform transition-transform" [class.rotate-90]="menu.isExpanded" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </span>
-            </button>
+                <div class="flex items-center gap-2 truncate">
+                  <!-- Pushpin icon -->
+                  <span class="text-sm select-none">📌</span>
+                  <span class="truncate">{{ menu.label }}</span>
+                </div>
 
-            <!-- Sub-Items (GM1, MA, PMA) matching user screenshot -->
-            <div *ngIf="menu.subItems && menu.isExpanded" class="pl-7 space-y-0.5 py-0.5">
-              <button
-                *ngFor="let sub of menu.subItems"
-                (click)="selectSubMenu(menu, sub, $event)"
-                [class]="activeSubMenu === sub.id 
+                <!-- Chevron indicator if has sub-items -->
+                <span *ngIf="menu.subItems" (click)="toggleMenu(menu, $event)"
+                  class="text-slate-400 hover:text-slate-600 p-0.5 rounded">
+                  <svg class="w-3.5 h-3.5 transform transition-transform" [class.rotate-90]="menu.isExpanded"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </button>
+
+              <!-- Sub-Items (GM1, MA, PMA) matching user screenshot -->
+              <div *ngIf="menu.subItems && menu.isExpanded" class="pl-7 space-y-0.5 py-0.5">
+                <button *ngFor="let sub of menu.subItems" (click)="selectSubMenu(menu, sub, $event)" [class]="activeSubMenu === sub.id 
                   ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-300 font-black shadow-2xs' 
                   : 'text-emerald-600 hover:bg-emerald-50/60 font-bold'"
-                class="w-full text-left px-2 py-1 rounded-md text-xs sm:text-[13px] transition-all flex items-center gap-2">
-                <!-- Gray Folder Icon -->
-                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-                </svg>
-                <span>{{ sub.label }}</span>
-              </button>
+                  class="w-full text-left px-2 py-1 rounded-md text-xs sm:text-[13px] transition-all flex items-center gap-2">
+                  <!-- Gray Folder Icon -->
+                  <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                  </svg>
+                  <span>{{ sub.label }}</span>
+                </button>
+              </div>
             </div>
-          </div>
-        </nav>
-      </div>
+          </nav>
+        </div>
 
-      <!-- Group 2: MASTER -->
-      <div class="space-y-2 pt-2 border-t border-slate-100">
-        <h2 class="text-sm font-black text-purple-800 uppercase tracking-wider pb-1 border-b border-purple-100 flex items-center gap-2">
-          <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          </svg>
-          MASTER
-        </h2>
+        <!-- Group 2: MASTER -->
+        <div class="space-y-2 pt-2 border-t border-slate-100">
+          <h2
+            class="text-sm font-black text-purple-800 uppercase tracking-wider pb-1 border-b border-purple-100 flex items-center gap-2">
+            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            </svg>
+            MASTER
+          </h2>
 
-        <nav class="space-y-1">
-          <button 
-            *ngFor="let menu of masterMenus"
-            (click)="selectMenu(menu.id)"
-            [class]="activeMenu === menu.id 
+          <nav class="space-y-1">
+            <button *ngFor="let menu of masterMenus" (click)="selectMenu(menu.id)" [class]="activeMenu === menu.id 
               ? 'bg-[#131936] text-white shadow-xs font-bold' 
               : 'text-red-700 hover:bg-slate-100 font-semibold'"
-            class="w-full text-left px-3 py-1.5 rounded-lg text-xs sm:text-sm transition-all flex items-center gap-2.5 group">
-            
-            <span class="text-red-600 text-xs">♦</span>
-            <span class="truncate">{{ menu.label }}</span>
-          </button>
-        </nav>
-      </div>
+              class="w-full text-left px-3 py-1.5 rounded-lg text-xs sm:text-sm transition-all flex items-center gap-2.5 group">
 
-    </aside>
-
-    <!-- ================= RIGHT MAIN CONTENT AREA ================= -->
-    <main class="flex-1 h-full overflow-y-auto p-4 sm:p-6 bg-slate-100/60">
-
-      <!-- ================= VIEW 1: EDIT DOCUMENT VIEW ================= -->
-      <div *ngIf="activeView === 'edit'" class="space-y-6">
-
-        <!-- Top Navigation Bar for Edit Document -->
-        <div class="bg-[#131936] text-white h-11 px-4 rounded-xl flex items-center justify-between shadow-sm border border-[#1c244b]">
-          <div class="flex items-center space-x-2">
-            <svg class="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            <span class="text-sm font-bold tracking-wide">Edit Document</span>
-          </div>
-
-          <!-- Close button (Switches back to Quotation Tree/List view) -->
-          <button 
-            (click)="closeDocument()"
-            class="inline-flex items-center gap-1 text-xs font-bold text-rose-400 hover:text-rose-300 transition-colors">
-            <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Close
-          </button>
+              <span class="text-red-600 text-xs">♦</span>
+              <span class="truncate">{{ menu.label }}</span>
+            </button>
+          </nav>
         </div>
 
-        <!-- Requisition Document Form Container -->
-        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-8 lg:p-10 relative overflow-hidden">
-          
-          <!-- Top Decorative Accent (Pantone #131936) -->
-          <div class="absolute top-0 left-0 right-0 h-1.5 bg-[#131936]"></div>
+      </aside>
 
-          <div class="max-w-4xl mx-auto space-y-6 pt-2">
+      <!-- ================= RIGHT MAIN CONTENT AREA ================= -->
+      <main class="flex-1 h-full overflow-y-auto p-4 sm:p-6 bg-slate-100/60">
 
-            <!-- ================= APPROVAL INFORMATION SECTION ================= -->
-            <div class="space-y-3">
-              <!-- Toggle Header Card with Standalone Downward Arrow -->
-              <button 
-                type="button"
-                (click)="isApprovalExpanded = !isApprovalExpanded"
-                class="flex items-center gap-2 py-1 text-left group cursor-pointer focus:outline-none">
-                <!-- Standalone Collapsible Downward Arrow (No Background Box) -->
-                <svg class="w-4 h-4 text-blue-700 group-hover:text-blue-900 transition-transform duration-200 shrink-0"
-                  [class.-rotate-90]="!isApprovalExpanded"
-                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
-                </svg>
-                <span class="font-extrabold text-blue-700 text-sm sm:text-base group-hover:text-blue-900 transition-colors">
-                  Approval Information
-                </span>
-                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
-                  {{ approvers.length }} Approvers
-                </span>
-              </button>
+        <!-- ================= VIEW 1: EDIT DOCUMENT VIEW ================= -->
+        <div *ngIf="activeView === 'edit'" class="space-y-6">
 
-              <!-- Collapsible Content -->
-              <div *ngIf="isApprovalExpanded" class="space-y-3 pt-1">
-                <!-- Modern Approval Table -->
-                <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white">
-                  <table class="w-full text-left text-xs sm:text-sm border-collapse">
-                    <thead>
-                      <tr class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-bold">
-                        <th class="py-3 px-4 font-bold text-white text-xs uppercase tracking-wider">Approver Name</th>
-                        <th class="py-3 px-4 font-bold text-white text-xs uppercase tracking-wider text-center w-36">Status</th>
-                        <th class="py-3 px-4 font-bold text-white text-xs uppercase tracking-wider text-center w-36">Date</th>
-                      </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 bg-white">
-                      <tr 
-                        *ngFor="let approver of approvers; let idx = index" 
-                        class="hover:bg-blue-50/40 transition-colors"
-                        [class.bg-slate-50]="idx % 2 === 1">
-                        
-                        <!-- Approver Name with Clean Step Number -->
-                        <td class="py-2.5 px-4">
-                          <div class="flex items-center gap-2.5">
-                            <span class="w-6 h-6 rounded-lg bg-slate-100 border border-slate-200/80 text-slate-600 font-bold text-xs flex items-center justify-center shrink-0">
-                              {{ idx + 1 }}
-                            </span>
-                            <span class="font-semibold text-slate-800 text-xs sm:text-sm">
-                              {{ approver.name }}
-                            </span>
-                          </div>
-                        </td>
-
-                        <!-- Status with modern badge pill -->
-                        <td class="py-2.5 px-4 text-center">
-                          <span *ngIf="approver.status" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            {{ approver.status }}
-                          </span>
-                          <span *ngIf="!approver.status" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-slate-100 text-slate-400 border border-slate-200/80">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                            Pending
-                          </span>
-                        </td>
-
-                        <!-- Date -->
-                        <td class="py-2.5 px-4 text-center text-xs">
-                          <span *ngIf="approver.date" class="font-medium text-slate-700">{{ approver.date }}</span>
-                          <span *ngIf="!approver.date" class="text-slate-300">-</span>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <!-- Modern Comment Box -->
-                <div class="flex flex-col sm:flex-row sm:items-center gap-2.5 p-3 bg-slate-50/80 border border-slate-200/80 rounded-2xl shadow-2xs">
-                  <label class="font-bold text-slate-700 text-xs sm:text-sm shrink-0 flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-                    <span class="text-rose-600 font-bold">Comment :</span>
-                  </label>
-                  <input 
-                    type="text" 
-                    [(ngModel)]="approvalComment"
-                    placeholder="Add comments or remarks for the approvers..."
-                    class="flex-1 px-3.5 py-1.5 text-xs sm:text-sm border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:bg-white bg-white rounded-xl transition-all outline-none focus:ring-4 focus:ring-blue-100 shadow-2xs text-slate-800 placeholder:text-slate-400 font-normal"
-                  />
-                </div>
-              </div>
+          <!-- Top Navigation Bar for Edit Document -->
+          <div
+            class="bg-[#131936] text-white h-11 px-4 rounded-xl flex items-center justify-between shadow-sm border border-[#1c244b]">
+            <div class="flex items-center space-x-2">
+              <svg class="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              <span class="text-sm font-bold tracking-wide">Edit Document</span>
             </div>
 
-            <!-- Divider line -->
-            <div class="border-t border-slate-100"></div>
+            <!-- Close button (Switches back to Quotation Tree/List view) -->
+            <button (click)="closeDocument()"
+              class="inline-flex items-center gap-1 text-xs font-bold text-rose-400 hover:text-rose-300 transition-colors">
+              <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Close
+            </button>
+          </div>
 
-            <!-- ================= REQUISITION DETAILS ================= -->
-            <div class="space-y-3.5 sm:space-y-4 text-sm sm:text-base font-sans">
+          <!-- Requisition Document Form Container -->
+          <div
+            class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-8 lg:p-10 relative overflow-hidden">
 
-              <!-- 0. Status -->
-              <div class="flex flex-col sm:flex-row sm:items-baseline">
-                <div class="sm:w-48 shrink-0 font-bold text-[#131936] text-sm sm:text-base flex justify-between pr-3">
-                  <span>Status</span>
-                  <span>:</span>
-                </div>
-                <div class="flex-1 font-bold text-red-600 text-sm sm:text-base">
-                  {{ documentStatus }}
-                </div>
-              </div>
+            <!-- Top Decorative Accent (Pantone #131936) -->
+            <div class="absolute top-0 left-0 right-0 h-1.5 bg-[#131936]"></div>
 
-              <!-- 1. Request by -->
-              <div class="flex flex-col sm:flex-row sm:items-baseline">
-                <div class="sm:w-48 shrink-0 font-bold text-[#131936] text-sm sm:text-base flex justify-between pr-3">
-                  <span>Request by</span>
-                  <span>:</span>
-                </div>
-                <div class="flex-1 font-bold text-emerald-800 text-sm sm:text-base flex flex-wrap items-baseline gap-x-3">
-                  <span class="tracking-tight">{{ requestBy }}</span>
-                  <span class="font-mono font-medium text-xs sm:text-sm text-emerald-700">
-                    {{ docDate }}
+            <div class="max-w-4xl mx-auto space-y-6 pt-2">
+
+              <!-- ================= APPROVAL INFORMATION SECTION ================= -->
+              <div class="space-y-3">
+                <!-- Toggle Header Card with Standalone Downward Arrow -->
+                <button type="button" (click)="isApprovalExpanded = !isApprovalExpanded"
+                  class="flex items-center gap-2 py-1 text-left group cursor-pointer focus:outline-none">
+                  <!-- Standalone Collapsible Downward Arrow (No Background Box) -->
+                  <svg
+                    class="w-4 h-4 text-blue-700 group-hover:text-blue-900 transition-transform duration-200 shrink-0"
+                    [class.-rotate-90]="!isApprovalExpanded" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                  </svg>
+                  <span
+                    class="font-extrabold text-blue-700 text-sm sm:text-base group-hover:text-blue-900 transition-colors">
+                    Approval Information
                   </span>
-                </div>
-              </div>
+                  <span
+                    class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                    {{ approvers.length }} Approvers
+                  </span>
+                </button>
 
-              <!-- 2. Division -->
-              <div class="flex flex-col sm:flex-row sm:items-baseline">
-                <div class="sm:w-48 shrink-0 font-bold text-[#131936] text-sm sm:text-base flex justify-between pr-3">
-                  <span>Division</span>
-                  <span>:</span>
-                </div>
-                <div class="flex-1 font-bold text-emerald-800 text-sm sm:text-base">
-                  {{ division }}
-                </div>
-              </div>
+                <!-- Collapsible Content -->
+                <div *ngIf="isApprovalExpanded" class="space-y-3 pt-1">
+                  <!-- Modern Approval Table -->
+                  <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white">
+                    <table class="w-full text-left text-xs sm:text-sm border-collapse">
+                      <thead>
+                        <tr class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-bold">
+                          <th class="py-3 px-4 font-bold text-white text-xs uppercase tracking-wider">Approver Name</th>
+                          <th class="py-3 px-4 font-bold text-white text-xs uppercase tracking-wider text-center w-36">
+                            Status</th>
+                          <th class="py-3 px-4 font-bold text-white text-xs uppercase tracking-wider text-center w-36">
+                            Date</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-slate-100 bg-white">
+                        <tr *ngFor="let approver of approvers; let idx = index"
+                          class="hover:bg-blue-50/40 transition-colors" [class.bg-slate-50]="idx % 2 === 1">
 
-              <!-- 3. Section -->
-              <div class="flex flex-col sm:flex-row sm:items-baseline">
-                <div class="sm:w-48 shrink-0 font-bold text-[#131936] text-sm sm:text-base flex justify-between pr-3">
-                  <span>Section</span>
-                  <span>:</span>
-                </div>
-                <div class="flex-1 font-bold text-emerald-800 text-sm sm:text-base">
-                  {{ section }}
-                </div>
-              </div>
+                          <!-- Approver Name with Clean Step Number -->
+                          <td class="py-2.5 px-4">
+                            <div class="flex items-center gap-2.5">
+                              <span
+                                class="w-6 h-6 rounded-lg bg-slate-100 border border-slate-200/80 text-slate-600 font-bold text-xs flex items-center justify-center shrink-0">
+                                {{ idx + 1 }}
+                              </span>
+                              <span class="font-semibold text-slate-800 text-xs sm:text-sm">
+                                {{ approver.name }}
+                              </span>
+                            </div>
+                          </td>
 
-              <!-- 4. Priority check & Reason -->
-              <div class="flex flex-col sm:flex-row sm:items-start pt-1">
-                <div class="sm:w-48 shrink-0 font-bold text-[#131936] text-sm sm:text-base flex justify-between pr-3 pt-0.5">
-                  <span>Priority check</span>
-                  <span>:</span>
-                </div>
-                <div class="flex-1 space-y-1.5">
-                  <div class="font-black text-rose-600 text-sm sm:text-base tracking-wide">
-                    {{ priority }}
+                          <!-- Status with modern badge pill -->
+                          <td class="py-2.5 px-4 text-center">
+                            <span *ngIf="approver.status"
+                              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                              {{ approver.status }}
+                            </span>
+                            <span *ngIf="!approver.status"
+                              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-slate-100 text-slate-400 border border-slate-200/80">
+                              <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                              Pending
+                            </span>
+                          </td>
+
+                          <!-- Date -->
+                          <td class="py-2.5 px-4 text-center text-xs">
+                            <span *ngIf="approver.date" class="font-medium text-slate-700">{{ approver.date }}</span>
+                            <span *ngIf="!approver.date" class="text-slate-300">-</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
-                  <div class="font-bold text-rose-600 text-sm sm:text-base font-mono tracking-tight">
-                    Reason : {{ priorityReason }}
+
+                  <!-- Modern Comment Box -->
+                  <div
+                    class="flex flex-col sm:flex-row sm:items-center gap-2.5 p-3 bg-slate-50/80 border border-slate-200/80 rounded-2xl shadow-2xs">
+                    <label class="font-bold text-slate-700 text-xs sm:text-sm shrink-0 flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                      <span class="text-rose-600 font-bold">Comment :</span>
+                    </label>
+                    <input type="text" [(ngModel)]="approvalComment"
+                      placeholder="Add comments or remarks for the approvers..."
+                      class="flex-1 px-3.5 py-1.5 text-xs sm:text-sm border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:bg-white bg-white rounded-xl transition-all outline-none focus:ring-4 focus:ring-blue-100 shadow-2xs text-slate-800 placeholder:text-slate-400 font-normal" />
                   </div>
                 </div>
               </div>
 
-              <!-- 5. Order Type -->
-              <div class="flex flex-col sm:flex-row sm:items-baseline pt-1">
-                <div class="sm:w-48 shrink-0 font-bold text-[#131936] text-sm sm:text-base flex justify-between pr-3">
-                  <span>Order Type</span>
-                  <span>:</span>
-                </div>
-                <div class="flex-1 font-bold text-emerald-800 text-sm sm:text-base">
-                  <span>{{ orderType }}</span>
-                  <span class="font-normal text-xs sm:text-sm text-slate-600 ml-1.5">({{ orderTypeDesc }})</span>
-                </div>
-              </div>
+              <!-- Divider line -->
+              <div class="border-t border-slate-100"></div>
 
-              <!-- 6. Send to Purchase -->
-              <div class="flex flex-col sm:flex-row sm:items-start pt-1">
-                <div class="sm:w-48 shrink-0 font-bold text-[#131936] text-sm sm:text-base flex justify-between pr-3 pt-0.5">
-                  <span>Send to Purchase</span>
-                  <span>:</span>
-                </div>
-                <div class="flex-1 font-bold text-emerald-800 text-xs sm:text-sm leading-relaxed">
-                  NATTHANICHA SONTHIKESORN, PEERAPAT BUASA, TICHAGORN PROMJAREE, SIRITORN KUSOLEIAM, KUNLADA PANMAN, THEERARAT NANTHAWISIT, ANUSARA KUEADET, CHANTHANY THAI
-                </div>
-              </div>
+              <!-- ================= REQUISITION DETAILS ================= -->
+              <div class="space-y-3.5 sm:space-y-4 text-sm sm:text-base font-sans">
 
-              <!-- 7. CC -->
-              <div class="flex flex-col sm:flex-row sm:items-baseline pt-1">
-                <div class="sm:w-48 shrink-0 font-bold text-[#131936] text-sm sm:text-base flex justify-between pr-3">
-                  <span>CC</span>
-                  <span>:</span>
+                <!-- 0. Status -->
+                <div class="flex flex-col sm:flex-row sm:items-baseline">
+                  <div class="sm:w-48 shrink-0 font-bold text-[#131936] text-sm sm:text-base flex justify-between pr-3">
+                    <span>Status</span>
+                    <span>:</span>
+                  </div>
+                  <div class="flex-1 font-bold text-red-600 text-sm sm:text-base">
+                    {{ documentStatus }}
+                  </div>
                 </div>
-                <div class="flex-1 text-slate-400 font-medium text-sm sm:text-base">
-                  {{ ccList }}
+
+                <!-- 1. Request by -->
+                <div class="flex flex-col sm:flex-row sm:items-baseline">
+                  <div class="sm:w-48 shrink-0 font-bold text-[#131936] text-sm sm:text-base flex justify-between pr-3">
+                    <span>Request by</span>
+                    <span>:</span>
+                  </div>
+                  <div
+                    class="flex-1 font-bold text-emerald-800 text-sm sm:text-base flex flex-wrap items-baseline gap-x-3">
+                    <span class="tracking-tight">{{ requestBy }}</span>
+                    <span class="font-mono font-medium text-xs sm:text-sm text-emerald-700">
+                      {{ docDate }}
+                    </span>
+                  </div>
                 </div>
+
+                <!-- 2. Division -->
+                <div class="flex flex-col sm:flex-row sm:items-baseline">
+                  <div class="sm:w-48 shrink-0 font-bold text-[#131936] text-sm sm:text-base flex justify-between pr-3">
+                    <span>Division</span>
+                    <span>:</span>
+                  </div>
+                  <div class="flex-1 font-bold text-emerald-800 text-sm sm:text-base">
+                    {{ division }}
+                  </div>
+                </div>
+
+                <!-- 3. Section -->
+                <div class="flex flex-col sm:flex-row sm:items-baseline">
+                  <div class="sm:w-48 shrink-0 font-bold text-[#131936] text-sm sm:text-base flex justify-between pr-3">
+                    <span>Section</span>
+                    <span>:</span>
+                  </div>
+                  <div class="flex-1 font-bold text-emerald-800 text-sm sm:text-base">
+                    {{ section }}
+                  </div>
+                </div>
+
+                <!-- 4. Priority check & Reason -->
+                <div class="flex flex-col sm:flex-row sm:items-start pt-1">
+                  <div
+                    class="sm:w-48 shrink-0 font-bold text-[#131936] text-sm sm:text-base flex justify-between pr-3 pt-0.5">
+                    <span>Priority check</span>
+                    <span>:</span>
+                  </div>
+                  <div class="flex-1 space-y-1.5">
+                    <div class="font-black text-rose-600 text-sm sm:text-base tracking-wide">
+                      {{ priority }}
+                    </div>
+                    <div class="font-bold text-rose-600 text-sm sm:text-base font-mono tracking-tight">
+                      Reason : {{ priorityReason }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 5. Order Type -->
+                <div class="flex flex-col sm:flex-row sm:items-baseline pt-1">
+                  <div class="sm:w-48 shrink-0 font-bold text-[#131936] text-sm sm:text-base flex justify-between pr-3">
+                    <span>Order Type</span>
+                    <span>:</span>
+                  </div>
+                  <div class="flex-1 font-bold text-emerald-800 text-sm sm:text-base">
+                    <span>{{ orderType }}</span>
+                    <span class="font-normal text-xs sm:text-sm text-slate-600 ml-1.5">({{ orderTypeDesc }})</span>
+                  </div>
+                </div>
+
+                <!-- 6. Send to Purchase -->
+                <div class="flex flex-col sm:flex-row sm:items-start pt-1">
+                  <div
+                    class="sm:w-48 shrink-0 font-bold text-[#131936] text-sm sm:text-base flex justify-between pr-3 pt-0.5">
+                    <span>Send to Purchase</span>
+                    <span>:</span>
+                  </div>
+                  <div class="flex-1 font-bold text-emerald-800 text-xs sm:text-sm leading-relaxed">
+                    NATTHANICHA SONTHIKESORN, PEERAPAT BUASA, TICHAGORN PROMJAREE, SIRITORN KUSOLEIAM, KUNLADA PANMAN,
+                    THEERARAT NANTHAWISIT, ANUSARA KUEADET, CHANTHANY THAI
+                  </div>
+                </div>
+
+                <!-- 7. CC -->
+                <div class="flex flex-col sm:flex-row sm:items-baseline pt-1">
+                  <div class="sm:w-48 shrink-0 font-bold text-[#131936] text-sm sm:text-base flex justify-between pr-3">
+                    <span>CC</span>
+                    <span>:</span>
+                  </div>
+                  <div class="flex-1 text-slate-400 font-medium text-sm sm:text-base">
+                    {{ ccList }}
+                  </div>
+                </div>
+
               </div>
 
             </div>
-
           </div>
-        </div>
 
-        <!-- ================= MAIN DATA TABLE ================= -->
-        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[1700px]">
-              
-              <!-- 3-TIER GROUPED HEADERS (Modern Enterprise Theme) -->
-              <thead>
-                <!-- ROW 1: Super Categories (Pantone #131936 & Slate Hierarchy) -->
-                <tr class="border-b border-slate-700/30 text-xs font-black tracking-wider">
-                  <th colspan="8" class="py-3 px-4 text-center bg-[#131936] text-white uppercase border-r border-slate-700/50 shadow-2xs">
-                    <div class="flex items-center justify-center gap-2">
-                      <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                      </svg>
-                      <span>DETAIL FOR REQUEST</span>
-                    </div>
-                  </th>
-                  <th colspan="3" class="py-3 px-4 text-center bg-[#1e293b] text-slate-100 uppercase border-r border-slate-700/50">
-                    <div class="flex items-center justify-center gap-2">
-                      <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                      </svg>
-                      <span>DETAIL FOR M/M</span>
-                    </div>
-                  </th>
-                  <th colspan="14" class="py-3 px-6 text-center bg-[#262f68] text-white uppercase">
-                    <div class="flex items-center justify-center gap-2">
-                      <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
-                      </svg>
-                      <span>DETAIL FOR P/H (QUOTATIONS)</span>
-                    </div>
-                  </th>
-                </tr>
+          <!-- ================= MAIN DATA TABLE ================= -->
+          <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse min-w-[1700px]">
 
-                <!-- ROW 2: Secondary Level Groups & Spans -->
-                <tr class="bg-slate-100/90 border-b border-slate-200 text-xs font-bold text-slate-800">
-                  <!-- No. (rowspan 2) -->
-                  <th rowspan="2" class="px-3 py-2.5 text-center w-12 border-r border-slate-200">
-                    No.
-                  </th>
+                <!-- 3-TIER GROUPED HEADERS (Modern Enterprise Theme) -->
+                <thead>
+                  <!-- ROW 1: Super Categories (Pantone #131936 & Slate Hierarchy) -->
+                  <tr class="border-b border-slate-700/30 text-xs font-black tracking-wider">
+                    <th colspan="8"
+                      class="py-3 px-4 text-center bg-[#131936] text-white uppercase border-r border-slate-700/50 shadow-2xs">
+                      <div class="flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>DETAIL FOR REQUEST</span>
+                      </div>
+                    </th>
+                    <th colspan="3"
+                      class="py-3 px-4 text-center bg-[#1e293b] text-slate-100 uppercase border-r border-slate-700/50">
+                      <div class="flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span>DETAIL FOR M/M</span>
+                      </div>
+                    </th>
+                    <th colspan="14" class="py-3 px-6 text-center bg-[#262f68] text-white uppercase">
+                      <div class="flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span>DETAIL FOR P/H (QUOTATIONS)</span>
+                      </div>
+                    </th>
+                  </tr>
 
-                  <!-- Part name (rowspan 2) -->
-                  <th rowspan="2" class="px-3 py-2.5 text-center min-w-[150px] border-r border-slate-200">
-                    <div class="font-extrabold text-slate-900">Part name</div>
-                    <div class="text-slate-400 font-medium text-[10px] mt-0.5 tracking-normal">(Item Name)</div>
-                  </th>
+                  <!-- ROW 2: Secondary Level Groups & Spans -->
+                  <tr class="bg-slate-100/90 border-b border-slate-200 text-xs font-bold text-slate-800">
+                    <!-- No. (rowspan 2) -->
+                    <th rowspan="2" class="px-3 py-2.5 text-center w-12 border-r border-slate-200">
+                      No.
+                    </th>
 
-                  <!-- Detail Spec (colspan 3) -->
-                  <th colspan="3" class="px-3 py-2 text-center border-r border-slate-200 bg-slate-50/70 font-extrabold text-slate-800">
-                    Detail Spec
-                  </th>
+                    <!-- Part name (rowspan 2) -->
+                    <th rowspan="2" class="px-3 py-2.5 text-center min-w-[150px] border-r border-slate-200">
+                      <div class="font-extrabold text-slate-900">Part name</div>
+                      <div class="text-slate-400 font-medium text-[10px] mt-0.5 tracking-normal">(Item Name)</div>
+                    </th>
 
-                  <!-- Qty (colspan 2) -->
-                  <th colspan="2" class="px-3 py-2 text-center border-r border-slate-200 bg-slate-50/70 font-extrabold text-slate-800">
-                    Qty
-                  </th>
+                    <!-- Detail Spec (colspan 3) -->
+                    <th colspan="3"
+                      class="px-3 py-2 text-center border-r border-slate-200 bg-slate-50/70 font-extrabold text-slate-800">
+                      Detail Spec
+                    </th>
 
-                  <!-- Remark (rowspan 2) -->
-                  <th rowspan="2" class="px-3 py-2.5 text-center min-w-[220px] border-r border-slate-200">
-                    <div class="font-extrabold text-slate-900">Remark</div>
-                    <div class="text-slate-400 font-normal text-[10px] mt-0.5 tracking-normal">(อ้างอิง PO ที่เคยซื้อ, etc.)</div>
-                  </th>
+                    <!-- Qty (colspan 2) -->
+                    <th colspan="2"
+                      class="px-3 py-2 text-center border-r border-slate-200 bg-slate-50/70 font-extrabold text-slate-800">
+                      Qty
+                    </th>
 
-                  <!-- Machine model (rowspan 2) -->
-                  <th rowspan="2" class="px-3 py-2.5 text-center min-w-[150px] border-r border-slate-200 leading-tight">
-                    Machine<br>model
-                  </th>
+                    <!-- Remark (rowspan 2) -->
+                    <th rowspan="2" class="px-3 py-2.5 text-center min-w-[220px] border-r border-slate-200">
+                      <div class="font-extrabold text-slate-900">Remark</div>
+                      <div class="text-slate-400 font-normal text-[10px] mt-0.5 tracking-normal">(อ้างอิง PO ที่เคยซื้อ,
+                        etc.)</div>
+                    </th>
 
-                  <!-- Machine maker (rowspan 2) -->
-                  <th rowspan="2" class="px-3 py-2.5 text-center min-w-[100px] border-r border-slate-200 leading-tight">
-                    Machine<br>maker
-                  </th>
+                    <!-- Machine model (rowspan 2) -->
+                    <th rowspan="2"
+                      class="px-3 py-2.5 text-center min-w-[150px] border-r border-slate-200 leading-tight">
+                      Machine<br>model
+                    </th>
 
-                  <!-- Serial no. (rowspan 2) -->
-                  <th rowspan="2" class="px-3 py-2.5 text-center min-w-[90px] border-r border-slate-200">
-                    Serial no.
-                  </th>
+                    <!-- Machine maker (rowspan 2) -->
+                    <th rowspan="2"
+                      class="px-3 py-2.5 text-center min-w-[100px] border-r border-slate-200 leading-tight">
+                      Machine<br>maker
+                    </th>
 
-                  <!-- Quotation 1 (colspan 7) -->
-                  <th colspan="7" class="px-3 py-2 text-center border-r border-slate-200 bg-blue-50/60">
-                    <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-600 text-white shadow-2xs">
-                      <span class="text-xs font-black">1</span>
-                      <span class="text-[11px] font-bold tracking-wider uppercase">Quotation 1</span>
-                    </div>
-                  </th>
+                    <!-- Serial no. (rowspan 2) -->
+                    <th rowspan="2" class="px-3 py-2.5 text-center min-w-[90px] border-r border-slate-200">
+                      Serial no.
+                    </th>
 
-                  <!-- Quotation 2 (colspan 7) -->
-                  <th colspan="7" class="px-3 py-2 text-center bg-indigo-50/60">
-                    <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-slate-600 text-white shadow-2xs">
-                      <span class="text-xs font-black">2</span>
-                      <span class="text-[11px] font-bold tracking-wider uppercase">Quotation 2</span>
-                    </div>
-                  </th>
-                </tr>
+                    <!-- Quotation 1 (colspan 7) -->
+                    <th colspan="7" class="px-3 py-2 text-center border-r border-slate-200 bg-blue-50/60">
+                      <div
+                        class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-600 text-white shadow-2xs">
+                        <span class="text-xs font-black">1</span>
+                        <span class="text-[11px] font-bold tracking-wider uppercase">Quotation 1</span>
+                      </div>
+                    </th>
 
-                <!-- ROW 3: Column Specific Headers -->
-                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600">
-                  <!-- Under Detail Spec -->
-                  <th class="px-3 py-2 text-center min-w-[150px] border-r border-slate-200">
-                    <div class="text-slate-700">Spec</div>
-                    <div class="text-slate-400 font-normal text-[9px] mt-0.5">(Maker Spec)</div>
-                  </th>
-                  <th class="px-2.5 py-2 text-center min-w-[70px] border-r border-slate-200 text-slate-700">
-                    Position
-                  </th>
-                  <th class="px-3 py-2 text-center min-w-[100px] border-r border-slate-200 leading-tight text-slate-700">
-                    Maker<br>Name
-                  </th>
+                    <!-- Quotation 2 (colspan 7) -->
+                    <th colspan="7" class="px-3 py-2 text-center bg-indigo-50/60">
+                      <div
+                        class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-slate-600 text-white shadow-2xs">
+                        <span class="text-xs font-black">2</span>
+                        <span class="text-[11px] font-bold tracking-wider uppercase">Quotation 2</span>
+                      </div>
+                    </th>
+                  </tr>
 
-                  <!-- Under Qty -->
-                  <th class="px-2.5 py-2 text-center min-w-[85px] border-r border-slate-200">
-                    <div class="text-slate-700">QTY.</div>
-                    <div class="text-slate-400 font-normal text-[9px] mt-0.5">(ตัวเลข)</div>
-                  </th>
-                  <th class="px-2 py-2 text-center min-w-[55px] border-r border-slate-200 text-slate-700">
-                    Unit
-                  </th>
+                  <!-- ROW 3: Column Specific Headers -->
+                  <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600">
+                    <!-- Under Detail Spec -->
+                    <th class="px-3 py-2 text-center min-w-[150px] border-r border-slate-200">
+                      <div class="text-slate-700">Spec</div>
+                      <div class="text-slate-400 font-normal text-[9px] mt-0.5">(Maker Spec)</div>
+                    </th>
+                    <th class="px-2.5 py-2 text-center min-w-[70px] border-r border-slate-200 text-slate-700">
+                      Position
+                    </th>
+                    <th
+                      class="px-3 py-2 text-center min-w-[100px] border-r border-slate-200 leading-tight text-slate-700">
+                      Maker<br>Name
+                    </th>
 
-                  <!-- Under Quotation 1 -->
-                  <th class="px-2.5 py-2 text-center min-w-[75px] border-r border-slate-200 whitespace-nowrap text-slate-700">
-                    A/C Code
-                  </th>
-                  <th class="px-3 py-2 text-center min-w-[75px] border-r border-slate-200 text-slate-700">
-                    Vendor
-                  </th>
-                  <th class="px-2.5 py-2 text-center min-w-[85px] border-r border-slate-200 leading-tight">
-                    <div class="text-slate-700">Unit price</div>
-                    <div class="text-slate-400 font-normal text-[9px] mt-0.5">(ตัวเลข)</div>
-                  </th>
-                  <th class="px-1.5 py-2 text-center w-12 border-r border-slate-200 leading-tight text-slate-700">
-                    Curre<br>ncy
-                  </th>
-                  <th class="px-1.5 py-2 text-center w-12 border-r border-slate-200 leading-tight text-slate-700">
-                    C/R<br>code
-                  </th>
-                  <th class="px-3 py-2 text-center min-w-[170px] border-r border-slate-200 whitespace-nowrap text-slate-700">
-                    Quotation no.
-                  </th>
-                  <th class="px-2 py-2 text-center min-w-[70px] border-r border-slate-200 text-slate-700">
-                    L/T
-                  </th>
+                    <!-- Under Qty -->
+                    <th class="px-2.5 py-2 text-center min-w-[85px] border-r border-slate-200">
+                      <div class="text-slate-700">QTY.</div>
+                      <div class="text-slate-400 font-normal text-[9px] mt-0.5">(ตัวเลข)</div>
+                    </th>
+                    <th class="px-2 py-2 text-center min-w-[55px] border-r border-slate-200 text-slate-700">
+                      Unit
+                    </th>
 
-                  <!-- Under Quotation 2 -->
-                  <th class="px-2.5 py-2 text-center min-w-[75px] border-r border-slate-200 whitespace-nowrap text-slate-700">
-                    A/C Code
-                  </th>
-                  <th class="px-3 py-2 text-center min-w-[75px] border-r border-slate-200 text-slate-700">
-                    Vendor
-                  </th>
-                  <th class="px-2.5 py-2 text-center min-w-[85px] border-r border-slate-200 leading-tight">
-                    <div class="text-slate-700">Unit price</div>
-                    <div class="text-slate-400 font-normal text-[9px] mt-0.5">(ตัวเลข)</div>
-                  </th>
-                  <th class="px-1.5 py-2 text-center w-12 border-r border-slate-200 leading-tight text-slate-700">
-                    Curre<br>ncy
-                  </th>
-                  <th class="px-1.5 py-2 text-center w-12 border-r border-slate-200 leading-tight text-slate-700">
-                    C/R<br>code
-                  </th>
-                  <th class="px-3 py-2 text-center min-w-[170px] border-r border-slate-200 whitespace-nowrap text-slate-700">
-                    Quotation no.
-                  </th>
-                  <th class="px-2 py-2 text-center min-w-[70px] text-slate-700">
-                    L/T
-                  </th>
-                </tr>
-              </thead>
+                    <!-- Under Quotation 1 -->
+                    <th
+                      class="px-2.5 py-2 text-center min-w-[75px] border-r border-slate-200 whitespace-nowrap text-slate-700">
+                      A/C Code
+                    </th>
+                    <th class="px-3 py-2 text-center min-w-[75px] border-r border-slate-200 text-slate-700">
+                      Vendor
+                    </th>
+                    <th class="px-2.5 py-2 text-center min-w-[85px] border-r border-slate-200 leading-tight">
+                      <div class="text-slate-700">Unit price</div>
+                      <div class="text-slate-400 font-normal text-[9px] mt-0.5">(ตัวเลข)</div>
+                    </th>
+                    <th class="px-1.5 py-2 text-center w-12 border-r border-slate-200 leading-tight text-slate-700">
+                      Curre<br>ncy
+                    </th>
+                    <th class="px-1.5 py-2 text-center w-12 border-r border-slate-200 leading-tight text-slate-700">
+                      C/R<br>code
+                    </th>
+                    <th
+                      class="px-3 py-2 text-center min-w-[170px] border-r border-slate-200 whitespace-nowrap text-slate-700">
+                      Quotation no.
+                    </th>
+                    <th class="px-2 py-2 text-center min-w-[70px] border-r border-slate-200 text-slate-700">
+                      L/T
+                    </th>
 
-              <!-- TABLE BODY (Pen icon triggered edit mode) -->
-              <tbody class="text-xs divide-y divide-slate-200">
-                <tr 
-                  *ngFor="let item of items; let i = index" 
-                  [class]="item.isEditing 
+                    <!-- Under Quotation 2 -->
+                    <th
+                      class="px-2.5 py-2 text-center min-w-[75px] border-r border-slate-200 whitespace-nowrap text-slate-700">
+                      A/C Code
+                    </th>
+                    <th class="px-3 py-2 text-center min-w-[75px] border-r border-slate-200 text-slate-700">
+                      Vendor
+                    </th>
+                    <th class="px-2.5 py-2 text-center min-w-[85px] border-r border-slate-200 leading-tight">
+                      <div class="text-slate-700">Unit price</div>
+                      <div class="text-slate-400 font-normal text-[9px] mt-0.5">(ตัวเลข)</div>
+                    </th>
+                    <th class="px-1.5 py-2 text-center w-12 border-r border-slate-200 leading-tight text-slate-700">
+                      Curre<br>ncy
+                    </th>
+                    <th class="px-1.5 py-2 text-center w-12 border-r border-slate-200 leading-tight text-slate-700">
+                      C/R<br>code
+                    </th>
+                    <th
+                      class="px-3 py-2 text-center min-w-[170px] border-r border-slate-200 whitespace-nowrap text-slate-700">
+                      Quotation no.
+                    </th>
+                    <th class="px-2 py-2 text-center min-w-[70px] text-slate-700">
+                      L/T
+                    </th>
+                  </tr>
+                </thead>
+
+                <!-- TABLE BODY (Pen icon triggered edit mode) -->
+                <tbody class="text-xs divide-y divide-slate-200">
+                  <tr *ngFor="let item of items; let i = index"
+                    [class]="item.isEditing 
                     ? 'bg-blue-50/50 ring-1 ring-blue-300 transition-colors' 
                     : (item.isUrgent ? 'bg-red-50/60 hover:bg-red-100/60 transition-colors group' : 'hover:bg-slate-50/80 transition-colors group')">
-                  
-                  <!-- 1. No. (With Pen Icon in View Mode, and Save/Cancel in Edit Mode) -->
-                  <td class="px-2 py-2.5 text-center font-bold text-slate-800 border-r border-slate-200 min-w-[75px]"
-                    [class.border-l-4]="item.isUrgent"
-                    [class.border-l-red-500]="item.isUrgent">
-                    <!-- View Mode: No. + Pen Icon ✏️ -->
-                    <div *ngIf="!item.isEditing" class="flex items-center justify-center gap-1">
-                      <span *ngIf="item.isUrgent" class="w-2 h-2 rounded-full bg-red-600 animate-pulse shrink-0" title="ด่วน (Urgent)"></span>
-                      <span class="font-bold" [class]="item.isUrgent ? 'text-red-700 font-black' : 'text-slate-800'">{{ item.no }}</span>
-                      <button 
-                        type="button" 
-                        (click)="editRow(item, $event)" 
-                        title="คลิกรูปปากกาเพื่อแก้ไขข้อมูลแถวนี้"
-                        class="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-100 transition-all cursor-pointer">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                        </svg>
-                      </button>
-                    </div>
 
-                    <!-- Edit Mode: No. + Save (✓) & Cancel (✕) Buttons -->
-                    <div *ngIf="item.isEditing" class="flex flex-col items-center justify-center gap-1">
-                      <span class="font-bold text-blue-700 text-xs">#{{ item.no }}</span>
-                      <div class="flex items-center gap-1">
-                        <!-- Save Button ✓ -->
-                        <button 
-                          type="button" 
-                          (click)="saveRow(item, $event)" 
-                          title="บันทึกข้อมูล (Save)"
-                          class="bg-emerald-600 hover:bg-emerald-700 text-white p-1 rounded shadow-2xs transition-colors cursor-pointer">
-                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-                          </svg>
-                        </button>
-                        <!-- Cancel Button ✕ -->
-                        <button 
-                          type="button" 
-                          (click)="cancelEditRow(item, $event)" 
-                          title="ยกเลิกการแก้ไข (Cancel)"
-                          class="bg-slate-200 hover:bg-rose-600 hover:text-white text-slate-600 p-1 rounded shadow-2xs transition-colors cursor-pointer">
-                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
+                    <!-- 1. No. (With Pen Icon in View Mode, and Save/Cancel in Edit Mode) -->
+                    <td class="px-2 py-2.5 text-center font-bold text-slate-800 border-r border-slate-200 min-w-[75px]"
+                      [class.border-l-4]="item.isUrgent" [class.border-l-red-500]="item.isUrgent">
+                      <!-- View Mode: No. + Pen Icon ✏️ -->
+                      <div *ngIf="!item.isEditing" class="flex items-center justify-center gap-1">
+                        <span *ngIf="item.isUrgent" class="w-2 h-2 rounded-full bg-red-600 animate-pulse shrink-0"
+                          title="ด่วน (Urgent)"></span>
+                        <span class="font-bold"
+                          [class]="item.isUrgent ? 'text-red-700 font-black' : 'text-slate-800'">{{ item.no }}</span>
+                        <button type="button" (click)="editRow(item, $event)" title="คลิกรูปปากกาเพื่อแก้ไขข้อมูลแถวนี้"
+                          class="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-100 transition-all cursor-pointer">
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                           </svg>
                         </button>
                       </div>
-                    </div>
-                  </td>
 
-                  <!-- 2. Part name -->
-                  <td class="px-3 py-2.5 font-semibold text-slate-800 border-r border-slate-200 min-w-[140px]">
-                    <div *ngIf="!item.isEditing" class="flex items-center gap-1.5 flex-wrap">
-                      <span *ngIf="item.isUrgent" class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-black bg-red-600 text-white tracking-wider shadow-2xs">
-                        URGENT
-                      </span>
-                      <span class="uppercase font-bold" [class]="item.isUrgent ? 'text-red-950 font-black' : 'text-slate-800'">
-                        {{ item.partName }}
-                      </span>
-                    </div>
-                    <textarea 
-                      *ngIf="item.isEditing"
-                      rows="2" 
-                      [(ngModel)]="item.partName" 
-                      class="w-full bg-white border border-blue-400 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-400 rounded p-1 font-bold text-slate-800 text-xs uppercase resize-none leading-snug"></textarea>
-                  </td>
-
-                  <!-- 3. Spec -->
-                  <td class="px-3 py-2.5 text-slate-800 border-r border-slate-200 min-w-[150px]">
-                    <div *ngIf="!item.isEditing" class="whitespace-pre-line font-medium leading-relaxed">{{ item.spec }}</div>
-                    <textarea 
-                      *ngIf="item.isEditing"
-                      rows="2" 
-                      [(ngModel)]="item.spec" 
-                      class="w-full bg-white border border-blue-400 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-400 rounded p-1 font-medium text-slate-800 text-xs resize-none leading-snug"></textarea>
-                  </td>
-
-                  <!-- 4. Position -->
-                  <td class="px-2 py-2.5 text-center text-slate-600 border-r border-slate-200 min-w-[70px]">
-                    <span *ngIf="!item.isEditing">{{ item.position || '' }}</span>
-                    <input 
-                      *ngIf="item.isEditing"
-                      type="text" 
-                      [(ngModel)]="item.position" 
-                      placeholder="-" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 text-slate-700 text-xs">
-                  </td>
-
-                  <!-- 5. Maker Name -->
-                  <td class="px-3 py-2.5 text-center font-medium text-slate-800 border-r border-slate-200 min-w-[100px] uppercase">
-                    <span *ngIf="!item.isEditing">{{ item.makerName }}</span>
-                    <input 
-                      *ngIf="item.isEditing"
-                      type="text" 
-                      [(ngModel)]="item.makerName" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-bold text-slate-800 text-xs uppercase">
-                  </td>
-
-                  <!-- 6. QTY. -->
-                  <td class="px-2 py-2.5 text-center font-bold text-slate-900 border-r border-slate-200 min-w-[85px]">
-                    <span *ngIf="!item.isEditing">{{ item.qty }}</span>
-                    <input 
-                      *ngIf="item.isEditing"
-                      type="number" 
-                      [(ngModel)]="item.qty" 
-                      min="1" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-black text-slate-900 text-xs">
-                  </td>
-
-                  <!-- 7. Unit -->
-                  <td class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[50px] uppercase">
-                    <span *ngIf="!item.isEditing">{{ item.unit }}</span>
-                    <input 
-                      *ngIf="item.isEditing"
-                      type="text" 
-                      [(ngModel)]="item.unit" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-bold text-slate-800 text-xs uppercase">
-                  </td>
-
-                  <!-- 8. Remark -->
-                  <td class="px-3 py-2.5 border-r border-slate-200 min-w-[220px] text-[11px] leading-relaxed">
-                    <!-- View Mode -->
-                    <div *ngIf="!item.isEditing" class="space-y-1">
-                      <div *ngIf="item.poRef" class="text-slate-800 font-medium whitespace-pre-line">
-                        {{ item.poRef }}
-                      </div>
-                      <div *ngIf="item.attachments && item.attachments.length > 0" class="py-0.5">
-                        <div 
-                          *ngFor="let att of item.attachments"
-                          (click)="openPdfPreview(att.name, 'เอกสารแนบ: ' + item.partName, $event)"
-                          class="inline-flex items-center gap-1 text-slate-800 hover:text-rose-600 font-medium cursor-pointer">
-                          <span class="inline-flex items-center justify-center bg-rose-600 text-white rounded px-1 py-0.2 text-[9px] font-black">
-                            PDF
-                          </span>
-                          <span class="font-mono text-[11px] underline underline-offset-2">{{ att.name }}</span>
+                      <!-- Edit Mode: No. + Save (✓) & Cancel (✕) Buttons -->
+                      <div *ngIf="item.isEditing" class="flex flex-col items-center justify-center gap-1">
+                        <span class="font-bold text-blue-700 text-xs">#{{ item.no }}</span>
+                        <div class="flex items-center gap-1">
+                          <!-- Save Button ✓ -->
+                          <button type="button" (click)="saveRow(item, $event)" title="บันทึกข้อมูล (Save)"
+                            class="bg-emerald-600 hover:bg-emerald-700 text-white p-1 rounded shadow-2xs transition-colors cursor-pointer">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                d="M5 13l4 4L19 7" />
+                            </svg>
+                          </button>
+                          <!-- Cancel Button ✕ -->
+                          <button type="button" (click)="cancelEditRow(item, $event)" title="ยกเลิกการแก้ไข (Cancel)"
+                            class="bg-slate-200 hover:bg-rose-600 hover:text-white text-slate-600 p-1 rounded shadow-2xs transition-colors cursor-pointer">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
                         </div>
                       </div>
-                      <div *ngIf="item.isUrgent" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-red-600 text-white font-black text-[11px] tracking-wider shadow-xs">
-                        <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-                        <span>URGENT !</span>
-                      </div>
-                      <div *ngIf="item.remark" class="text-slate-700 whitespace-pre-line leading-relaxed">
-                        {{ item.remark }}
-                      </div>
-                    </div>
+                    </td>
 
-                    <!-- Edit Mode -->
-                    <div *ngIf="item.isEditing" class="space-y-1.5">
-                      <div class="flex items-center gap-1">
-                        <span class="text-slate-400 text-[10px] shrink-0 font-mono">PO:</span>
-                        <input 
-                          type="text" 
-                          [(ngModel)]="item.poRef" 
-                          placeholder="อ้างอิง PO..." 
-                          class="w-full bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded px-1 py-0.5 font-medium text-slate-800 text-[11px]">
+                    <!-- 2. Part name -->
+                    <td class="px-3 py-2.5 font-semibold text-slate-800 border-r border-slate-200 min-w-[140px]">
+                      <div *ngIf="!item.isEditing" class="flex items-center gap-1.5 flex-wrap">
+                        <span *ngIf="item.isUrgent"
+                          class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-black bg-red-600 text-white tracking-wider shadow-2xs">
+                          URGENT
+                        </span>
+                        <span class="uppercase font-bold"
+                          [class]="item.isUrgent ? 'text-red-950 font-black' : 'text-slate-800'">
+                          {{ item.partName }}
+                        </span>
                       </div>
-                      <div *ngIf="item.attachments && item.attachments.length > 0" class="flex items-center gap-1 py-0.5">
-                        <div 
-                          *ngFor="let att of item.attachments"
-                          (click)="openPdfPreview(att.name, 'เอกสารแนบ: ' + item.partName, $event)"
-                          class="inline-flex items-center gap-1 text-slate-800 hover:text-rose-600 font-medium cursor-pointer">
-                          <span class="inline-flex items-center justify-center bg-rose-600 text-white rounded px-1 py-0.2 text-[9px] font-black">
-                            PDF
-                          </span>
-                          <span class="font-mono text-[11px] underline underline-offset-2">{{ att.name }}</span>
+                      <textarea *ngIf="item.isEditing" rows="2" [(ngModel)]="item.partName"
+                        class="w-full bg-white border border-blue-400 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-400 rounded p-1 font-bold text-slate-800 text-xs uppercase resize-none leading-snug"></textarea>
+                    </td>
+
+                    <!-- 3. Spec -->
+                    <td class="px-3 py-2.5 text-slate-800 border-r border-slate-200 min-w-[150px]">
+                      <div *ngIf="!item.isEditing" class="whitespace-pre-line font-medium leading-relaxed">{{ item.spec
+                        }}</div>
+                      <textarea *ngIf="item.isEditing" rows="2" [(ngModel)]="item.spec"
+                        class="w-full bg-white border border-blue-400 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-400 rounded p-1 font-medium text-slate-800 text-xs resize-none leading-snug"></textarea>
+                    </td>
+
+                    <!-- 4. Position -->
+                    <td class="px-2 py-2.5 text-center text-slate-600 border-r border-slate-200 min-w-[70px]">
+                      <span *ngIf="!item.isEditing">{{ item.position || '' }}</span>
+                      <input *ngIf="item.isEditing" type="text" [(ngModel)]="item.position" placeholder="-"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 text-slate-700 text-xs">
+                    </td>
+
+                    <!-- 5. Maker Name -->
+                    <td
+                      class="px-3 py-2.5 text-center font-medium text-slate-800 border-r border-slate-200 min-w-[100px] uppercase">
+                      <span *ngIf="!item.isEditing">{{ item.makerName }}</span>
+                      <input *ngIf="item.isEditing" type="text" [(ngModel)]="item.makerName"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-bold text-slate-800 text-xs uppercase">
+                    </td>
+
+                    <!-- 6. QTY. -->
+                    <td class="px-2 py-2.5 text-center font-bold text-slate-900 border-r border-slate-200 min-w-[85px]">
+                      <span *ngIf="!item.isEditing">{{ item.qty }}</span>
+                      <input *ngIf="item.isEditing" type="number" [(ngModel)]="item.qty" min="1"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-black text-slate-900 text-xs">
+                    </td>
+
+                    <!-- 7. Unit -->
+                    <td class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[50px] uppercase">
+                      <span *ngIf="!item.isEditing">{{ item.unit }}</span>
+                      <input *ngIf="item.isEditing" type="text" [(ngModel)]="item.unit"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-bold text-slate-800 text-xs uppercase">
+                    </td>
+
+                    <!-- 8. Remark -->
+                    <td class="px-3 py-2.5 border-r border-slate-200 min-w-[220px] text-[11px] leading-relaxed">
+                      <!-- View Mode -->
+                      <div *ngIf="!item.isEditing" class="space-y-1">
+                        <div *ngIf="item.poRef" class="text-slate-800 font-medium whitespace-pre-line">
+                          {{ item.poRef }}
+                        </div>
+                        <div *ngIf="item.attachments && item.attachments.length > 0" class="py-0.5">
+                          <div *ngFor="let att of item.attachments"
+                            (click)="openPdfPreview(att.name, 'เอกสารแนบ: ' + item.partName, $event)"
+                            class="inline-flex items-center gap-1 text-slate-800 hover:text-rose-600 font-medium cursor-pointer">
+                            <span
+                              class="inline-flex items-center justify-center bg-rose-600 text-white rounded px-1 py-0.2 text-[9px] font-black">
+                              PDF
+                            </span>
+                            <span class="font-mono text-[11px] underline underline-offset-2">{{ att.name }}</span>
+                          </div>
+                        </div>
+                        <div *ngIf="item.isUrgent"
+                          class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-red-600 text-white font-black text-[11px] tracking-wider shadow-xs">
+                          <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                          <span>URGENT !</span>
+                        </div>
+                        <div *ngIf="item.remark" class="text-slate-700 whitespace-pre-line leading-relaxed">
+                          {{ item.remark }}
                         </div>
                       </div>
-                      <div class="flex items-center gap-1.5">
-                        <button 
-                          type="button" 
-                          (click)="item.isUrgent = !item.isUrgent"
-                          [class]="item.isUrgent 
+
+                      <!-- Edit Mode -->
+                      <div *ngIf="item.isEditing" class="space-y-1.5">
+                        <div class="flex items-center gap-1">
+                          <span class="text-slate-400 text-[10px] shrink-0 font-mono">PO:</span>
+                          <input type="text" [(ngModel)]="item.poRef" placeholder="อ้างอิง PO..."
+                            class="w-full bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded px-1 py-0.5 font-medium text-slate-800 text-[11px]">
+                        </div>
+                        <div *ngIf="item.attachments && item.attachments.length > 0"
+                          class="flex items-center gap-1 py-0.5">
+                          <div *ngFor="let att of item.attachments"
+                            (click)="openPdfPreview(att.name, 'เอกสารแนบ: ' + item.partName, $event)"
+                            class="inline-flex items-center gap-1 text-slate-800 hover:text-rose-600 font-medium cursor-pointer">
+                            <span
+                              class="inline-flex items-center justify-center bg-rose-600 text-white rounded px-1 py-0.2 text-[9px] font-black">
+                              PDF
+                            </span>
+                            <span class="font-mono text-[11px] underline underline-offset-2">{{ att.name }}</span>
+                          </div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                          <button type="button" (click)="item.isUrgent = !item.isUrgent"
+                            [class]="item.isUrgent 
                             ? 'bg-red-600 text-white font-black px-1.5 py-0.5 rounded text-[10px] tracking-wider' 
                             : 'text-slate-400 hover:text-red-500 text-[10px] font-semibold border border-dashed border-slate-300 hover:border-red-300 px-1 py-0.5 rounded'"
-                          class="transition-colors cursor-pointer">
-                          {{ item.isUrgent ? 'URGENT !' : '+ Mark Urgent' }}
-                        </button>
+                            class="transition-colors cursor-pointer">
+                            {{ item.isUrgent ? 'URGENT !' : '+ Mark Urgent' }}
+                          </button>
+                        </div>
+                        <textarea rows="2" [(ngModel)]="item.remark" placeholder="Remark..."
+                          class="w-full bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded p-1 text-slate-700 text-[11px] resize-none leading-snug"></textarea>
                       </div>
-                      <textarea 
-                        rows="2" 
-                        [(ngModel)]="item.remark" 
-                        placeholder="Remark..." 
-                        class="w-full bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded p-1 text-slate-700 text-[11px] resize-none leading-snug"></textarea>
-                    </div>
-                  </td>
+                    </td>
 
-                  <!-- 9. Machine model -->
-                  <td class="px-3 py-2.5 border-r border-slate-200 min-w-[150px]">
-                    <div *ngIf="!item.isEditing" class="font-mono text-[11px] text-slate-800 whitespace-pre-line leading-relaxed">{{ item.machineModel }}</div>
-                    <textarea 
-                      *ngIf="item.isEditing"
-                      rows="2" 
-                      [(ngModel)]="item.machineModel" 
-                      class="w-full bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded p-1 font-mono text-[11px] text-slate-800 resize-none leading-snug"></textarea>
-                  </td>
+                    <!-- 9. Machine model -->
+                    <td class="px-3 py-2.5 border-r border-slate-200 min-w-[150px]">
+                      <div *ngIf="!item.isEditing"
+                        class="font-mono text-[11px] text-slate-800 whitespace-pre-line leading-relaxed">{{
+                        item.machineModel }}</div>
+                      <textarea *ngIf="item.isEditing" rows="2" [(ngModel)]="item.machineModel"
+                        class="w-full bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded p-1 font-mono text-[11px] text-slate-800 resize-none leading-snug"></textarea>
+                    </td>
 
-                  <!-- 10. Machine maker -->
-                  <td class="px-2.5 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[100px] font-medium">
-                    <span *ngIf="!item.isEditing">{{ item.machineMaker }}</span>
-                    <input 
-                      *ngIf="item.isEditing"
-                      type="text" 
-                      [(ngModel)]="item.machineMaker" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-medium text-slate-800 text-xs">
-                  </td>
+                    <!-- 10. Machine maker -->
+                    <td
+                      class="px-2.5 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[100px] font-medium">
+                      <span *ngIf="!item.isEditing">{{ item.machineMaker }}</span>
+                      <input *ngIf="item.isEditing" type="text" [(ngModel)]="item.machineMaker"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-medium text-slate-800 text-xs">
+                    </td>
 
-                  <!-- 11. Serial no. -->
-                  <td class="px-2.5 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[90px] font-mono">
-                    <span *ngIf="!item.isEditing">{{ item.serialNo }}</span>
-                    <input 
-                      *ngIf="item.isEditing"
-                      type="text" 
-                      [(ngModel)]="item.serialNo" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
-                  </td>
+                    <!-- 11. Serial no. -->
+                    <td
+                      class="px-2.5 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[90px] font-mono">
+                      <span *ngIf="!item.isEditing">{{ item.serialNo }}</span>
+                      <input *ngIf="item.isEditing" type="text" [(ngModel)]="item.serialNo"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
+                    </td>
 
-                  <!-- 12. A/C Code -->
-                  <td class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[75px] font-mono">
-                    <span *ngIf="!item.isEditing">{{ item.acCode }}</span>
-                    <input 
-                      *ngIf="item.isEditing"
-                      type="text" 
-                      [(ngModel)]="item.acCode" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
-                  </td>
+                    <!-- 12. A/C Code -->
+                    <td class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[75px] font-mono">
+                      <span *ngIf="!item.isEditing">{{ item.acCode }}</span>
+                      <input *ngIf="item.isEditing" type="text" [(ngModel)]="item.acCode"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
+                    </td>
 
-                  <!-- 13. Vendor -->
-                  <td class="px-3 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[75px] font-medium uppercase">
-                    <span *ngIf="!item.isEditing">{{ item.vendor }}</span>
-                    <input 
-                      *ngIf="item.isEditing"
-                      type="text" 
-                      [(ngModel)]="item.vendor" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-medium text-slate-800 text-xs uppercase">
-                  </td>
+                    <!-- 13. Vendor -->
+                    <td
+                      class="px-3 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[75px] font-medium uppercase">
+                      <span *ngIf="!item.isEditing">{{ item.vendor }}</span>
+                      <input *ngIf="item.isEditing" type="text" [(ngModel)]="item.vendor"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-medium text-slate-800 text-xs uppercase">
+                    </td>
 
-                  <!-- 14. Unit price -->
-                  <td class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[85px] font-mono">
-                    <span *ngIf="!item.isEditing">{{ item.unitPrice ? (item.unitPrice | number:'1.2-2') : '' }}</span>
-                    <input 
-                      *ngIf="item.isEditing"
-                      type="number" 
-                      [(ngModel)]="item.unitPrice" 
-                      placeholder="-" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
-                  </td>
+                    <!-- 14. Unit price -->
+                    <td class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[85px] font-mono">
+                      <span *ngIf="!item.isEditing">{{ item.unitPrice ? (item.unitPrice | number:'1.2-2') : '' }}</span>
+                      <input *ngIf="item.isEditing" type="number" [(ngModel)]="item.unitPrice" placeholder="-"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
+                    </td>
 
-                  <!-- 15. Currency -->
-                  <td class="px-1.5 py-2.5 text-center text-slate-800 border-r border-slate-200 w-12 font-mono uppercase">
-                    <span *ngIf="!item.isEditing">{{ item.currency }}</span>
-                    <input 
-                      *ngIf="item.isEditing"
-                      type="text" 
-                      [(ngModel)]="item.currency" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs uppercase">
-                  </td>
+                    <!-- 15. Currency -->
+                    <td
+                      class="px-1.5 py-2.5 text-center text-slate-800 border-r border-slate-200 w-12 font-mono uppercase">
+                      <span *ngIf="!item.isEditing">{{ item.currency }}</span>
+                      <input *ngIf="item.isEditing" type="text" [(ngModel)]="item.currency"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs uppercase">
+                    </td>
 
-                  <!-- 16. C/R code -->
-                  <td class="px-1.5 py-2.5 text-center text-slate-800 border-r border-slate-200 w-12 font-mono uppercase">
-                    <span *ngIf="!item.isEditing">{{ item.crCode }}</span>
-                    <input 
-                      *ngIf="item.isEditing"
-                      type="text" 
-                      [(ngModel)]="item.crCode" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs uppercase">
-                  </td>
+                    <!-- 16. C/R code -->
+                    <td
+                      class="px-1.5 py-2.5 text-center text-slate-800 border-r border-slate-200 w-12 font-mono uppercase">
+                      <span *ngIf="!item.isEditing">{{ item.crCode }}</span>
+                      <input *ngIf="item.isEditing" type="text" [(ngModel)]="item.crCode"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs uppercase">
+                    </td>
 
-                  <!-- 17. Quotation no. -->
-                  <td class="px-3 py-2.5 border-r border-slate-200 text-center min-w-[170px]">
-                    <!-- View Mode -->
-                    <div *ngIf="!item.isEditing">
-                      <div 
-                        *ngIf="item.quotationPdf"
-                        (click)="openPdfPreview(item.quotationPdf, 'Quotation: ' + item.quotationPdf, $event)"
-                        class="flex flex-col items-center cursor-pointer group">
-                        <span class="inline-flex items-center justify-center bg-rose-600 text-white rounded px-1 py-0.2 text-[9px] font-black mb-1">
-                          PDF
-                        </span>
-                        <span class="font-mono text-[10px] text-slate-800 group-hover:text-rose-600 truncate max-w-[160px] font-medium underline underline-offset-2">
-                          {{ item.quotationPdf }}
-                        </span>
+                    <!-- 17. Quotation no. -->
+                    <td class="px-3 py-2.5 border-r border-slate-200 text-center min-w-[170px]">
+                      <!-- View Mode -->
+                      <div *ngIf="!item.isEditing">
+                        <div *ngIf="item.quotationPdf"
+                          (click)="openPdfPreview(item.quotationPdf, 'Quotation: ' + item.quotationPdf, $event)"
+                          class="flex flex-col items-center cursor-pointer group">
+                          <span
+                            class="inline-flex items-center justify-center bg-rose-600 text-white rounded px-1 py-0.2 text-[9px] font-black mb-1">
+                            PDF
+                          </span>
+                          <span
+                            class="font-mono text-[10px] text-slate-800 group-hover:text-rose-600 truncate max-w-[160px] font-medium underline underline-offset-2">
+                            {{ item.quotationPdf }}
+                          </span>
+                        </div>
+                        <div *ngIf="!item.quotationPdf" class="font-bold text-slate-800 text-xs">
+                          {{ item.quotationNo || 'WAIT' }}
+                        </div>
                       </div>
-                      <div *ngIf="!item.quotationPdf" class="font-bold text-slate-800 text-xs">
-                        {{ item.quotationNo || 'WAIT' }}
+
+                      <!-- Edit Mode -->
+                      <div *ngIf="item.isEditing" class="space-y-1">
+                        <div *ngIf="item.quotationPdf" class="flex flex-col items-center">
+                          <span
+                            class="inline-flex items-center justify-center bg-rose-600 text-white rounded px-1 py-0.2 text-[9px] font-black">
+                            PDF
+                          </span>
+                          <input type="text" [(ngModel)]="item.quotationPdf"
+                            class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded px-1 py-0.5 font-mono text-[10px] text-slate-800 underline">
+                        </div>
+                        <input *ngIf="!item.quotationPdf" type="text" [(ngModel)]="item.quotationNo"
+                          class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-bold text-slate-800 text-xs">
                       </div>
-                    </div>
+                    </td>
 
-                    <!-- Edit Mode -->
-                    <div *ngIf="item.isEditing" class="space-y-1">
-                      <div *ngIf="item.quotationPdf" class="flex flex-col items-center">
-                        <span class="inline-flex items-center justify-center bg-rose-600 text-white rounded px-1 py-0.2 text-[9px] font-black">
-                          PDF
-                        </span>
-                        <input 
-                          type="text" 
-                          [(ngModel)]="item.quotationPdf" 
-                          class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded px-1 py-0.5 font-mono text-[10px] text-slate-800 underline">
+                    <!-- 18. L/T -->
+                    <td
+                      class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[70px] font-mono text-[11px] whitespace-nowrap">
+                      <span *ngIf="!item.isEditing">{{ item.leadTime }}</span>
+                      <input *ngIf="item.isEditing" type="text" [(ngModel)]="item.leadTime"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-[11px] text-slate-800">
+                    </td>
+
+                    <!-- Quotation 2: 19. A/C Code -->
+                    <td class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[75px] font-mono">
+                      <span *ngIf="!item.isEditing">{{ item.acCode2 || '-' }}</span>
+                      <input *ngIf="item.isEditing" type="text" [(ngModel)]="item.acCode2"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
+                    </td>
+
+                    <!-- Quotation 2: 20. Vendor -->
+                    <td
+                      class="px-3 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[120px] text-[11px] whitespace-pre-line leading-tight">
+                      <span *ngIf="!item.isEditing">{{ item.vendor2 || '-' }}</span>
+                      <textarea *ngIf="item.isEditing" rows="2" [(ngModel)]="item.vendor2"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded p-1 text-[11px] text-slate-800 resize-none leading-tight"></textarea>
+                    </td>
+
+                    <!-- Quotation 2: 21. Unit price -->
+                    <td class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[85px] font-mono">
+                      <span *ngIf="!item.isEditing">{{ item.unitPrice2 ? (item.unitPrice2 | number:'1.2-2') : '-'
+                        }}</span>
+                      <input *ngIf="item.isEditing" type="number" [(ngModel)]="item.unitPrice2" placeholder="-"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
+                    </td>
+
+                    <!-- Quotation 2: 22. Currency -->
+                    <td
+                      class="px-1.5 py-2.5 text-center text-slate-800 border-r border-slate-200 w-12 font-mono uppercase">
+                      <span *ngIf="!item.isEditing">{{ item.currency2 || '-' }}</span>
+                      <input *ngIf="item.isEditing" type="text" [(ngModel)]="item.currency2"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs uppercase">
+                    </td>
+
+                    <!-- Quotation 2: 23. C/R code -->
+                    <td
+                      class="px-1.5 py-2.5 text-center text-slate-800 border-r border-slate-200 w-12 font-mono uppercase">
+                      <span *ngIf="!item.isEditing">{{ item.crCode2 || '-' }}</span>
+                      <input *ngIf="item.isEditing" type="text" [(ngModel)]="item.crCode2"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs uppercase">
+                    </td>
+
+                    <!-- Quotation 2: 24. Quotation no. -->
+                    <td class="px-3 py-2.5 border-r border-slate-200 text-center min-w-[170px]">
+                      <!-- View Mode -->
+                      <div *ngIf="!item.isEditing">
+                        <div *ngIf="item.quotationPdf2"
+                          (click)="openPdfPreview(item.quotationPdf2, 'Quotation 2: ' + item.quotationPdf2, $event)"
+                          class="flex flex-col items-center cursor-pointer group">
+                          <span
+                            class="inline-flex items-center justify-center bg-rose-600 text-white rounded px-1 py-0.2 text-[9px] font-black mb-1">
+                            PDF
+                          </span>
+                          <span
+                            class="font-mono text-[10px] text-slate-800 group-hover:text-rose-600 truncate max-w-[160px] font-medium underline underline-offset-2">
+                            {{ item.quotationPdf2 }}
+                          </span>
+                        </div>
+                        <div *ngIf="!item.quotationPdf2" class="font-bold text-slate-800 text-xs">
+                          {{ item.quotationNo2 || '-' }}
+                        </div>
                       </div>
-                      <input 
-                        *ngIf="!item.quotationPdf" 
-                        type="text" 
-                        [(ngModel)]="item.quotationNo" 
-                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-bold text-slate-800 text-xs">
-                    </div>
-                  </td>
 
-                  <!-- 18. L/T -->
-                  <td class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[70px] font-mono text-[11px] whitespace-nowrap">
-                    <span *ngIf="!item.isEditing">{{ item.leadTime }}</span>
-                    <input 
-                      *ngIf="item.isEditing"
-                      type="text" 
-                      [(ngModel)]="item.leadTime" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-[11px] text-slate-800">
-                  </td>
-
-                  <!-- Quotation 2: 19. A/C Code -->
-                  <td class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[75px] font-mono">
-                    <span *ngIf="!item.isEditing">{{ item.acCode2 || '-' }}</span>
-                    <input 
-                      *ngIf="item.isEditing"
-                      type="text" 
-                      [(ngModel)]="item.acCode2" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
-                  </td>
-
-                  <!-- Quotation 2: 20. Vendor -->
-                  <td class="px-3 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[120px] text-[11px] whitespace-pre-line leading-tight">
-                    <span *ngIf="!item.isEditing">{{ item.vendor2 || '-' }}</span>
-                    <textarea 
-                      *ngIf="item.isEditing"
-                      rows="2" 
-                      [(ngModel)]="item.vendor2" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded p-1 text-[11px] text-slate-800 resize-none leading-tight"></textarea>
-                  </td>
-
-                  <!-- Quotation 2: 21. Unit price -->
-                  <td class="px-2 py-2.5 text-center text-slate-800 border-r border-slate-200 min-w-[85px] font-mono">
-                    <span *ngIf="!item.isEditing">{{ item.unitPrice2 ? (item.unitPrice2 | number:'1.2-2') : '-' }}</span>
-                    <input 
-                      *ngIf="item.isEditing"
-                      type="number" 
-                      [(ngModel)]="item.unitPrice2" 
-                      placeholder="-" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs">
-                  </td>
-
-                  <!-- Quotation 2: 22. Currency -->
-                  <td class="px-1.5 py-2.5 text-center text-slate-800 border-r border-slate-200 w-12 font-mono uppercase">
-                    <span *ngIf="!item.isEditing">{{ item.currency2 || '-' }}</span>
-                    <input 
-                      *ngIf="item.isEditing"
-                      type="text" 
-                      [(ngModel)]="item.currency2" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs uppercase">
-                  </td>
-
-                  <!-- Quotation 2: 23. C/R code -->
-                  <td class="px-1.5 py-2.5 text-center text-slate-800 border-r border-slate-200 w-12 font-mono uppercase">
-                    <span *ngIf="!item.isEditing">{{ item.crCode2 || '-' }}</span>
-                    <input 
-                      *ngIf="item.isEditing"
-                      type="text" 
-                      [(ngModel)]="item.crCode2" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-slate-800 text-xs uppercase">
-                  </td>
-
-                  <!-- Quotation 2: 24. Quotation no. -->
-                  <td class="px-3 py-2.5 border-r border-slate-200 text-center min-w-[170px]">
-                    <!-- View Mode -->
-                    <div *ngIf="!item.isEditing">
-                      <div 
-                        *ngIf="item.quotationPdf2"
-                        (click)="openPdfPreview(item.quotationPdf2, 'Quotation 2: ' + item.quotationPdf2, $event)"
-                        class="flex flex-col items-center cursor-pointer group">
-                        <span class="inline-flex items-center justify-center bg-rose-600 text-white rounded px-1 py-0.2 text-[9px] font-black mb-1">
-                          PDF
-                        </span>
-                        <span class="font-mono text-[10px] text-slate-800 group-hover:text-rose-600 truncate max-w-[160px] font-medium underline underline-offset-2">
-                          {{ item.quotationPdf2 }}
-                        </span>
+                      <!-- Edit Mode -->
+                      <div *ngIf="item.isEditing" class="space-y-1">
+                        <input type="text" [(ngModel)]="item.quotationNo2" placeholder="Quotation No."
+                          class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-bold text-slate-800 text-xs">
                       </div>
-                      <div *ngIf="!item.quotationPdf2" class="font-bold text-slate-800 text-xs">
-                        {{ item.quotationNo2 || '-' }}
-                      </div>
-                    </div>
+                    </td>
 
-                    <!-- Edit Mode -->
-                    <div *ngIf="item.isEditing" class="space-y-1">
-                      <input 
-                        type="text" 
-                        [(ngModel)]="item.quotationNo2" 
-                        placeholder="Quotation No."
-                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-bold text-slate-800 text-xs">
-                    </div>
-                  </td>
+                    <!-- Quotation 2: 25. L/T -->
+                    <td
+                      class="px-2 py-2.5 text-center text-slate-800 min-w-[70px] font-mono text-[11px] whitespace-nowrap relative">
+                      <span *ngIf="!item.isEditing">{{ item.leadTime2 || '-' }}</span>
+                      <input *ngIf="item.isEditing" type="text" [(ngModel)]="item.leadTime2"
+                        class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-[11px] text-slate-800">
 
-                  <!-- Quotation 2: 25. L/T -->
-                  <td class="px-2 py-2.5 text-center text-slate-800 min-w-[70px] font-mono text-[11px] whitespace-nowrap relative">
-                    <span *ngIf="!item.isEditing">{{ item.leadTime2 || '-' }}</span>
-                    <input 
-                      *ngIf="item.isEditing"
-                      type="text" 
-                      [(ngModel)]="item.leadTime2" 
-                      class="w-full text-center bg-white border border-blue-400 focus:border-blue-600 focus:outline-none rounded py-1 font-mono text-[11px] text-slate-800">
-                    
-                    <!-- Row delete button on hover -->
-                    <button 
-                      type="button" 
-                      (click)="deleteItem(i, $event)"
-                      title="ลบแถวนี้"
-                      class="opacity-0 group-hover:opacity-100 absolute -right-2.5 top-1/2 -translate-y-1/2 bg-red-100 hover:bg-red-600 text-red-600 hover:text-white rounded-full w-5 h-5 flex items-center justify-center text-xs transition-all shadow-xs z-10 cursor-pointer">
-                      ×
-                    </button>
-                  </td>
+                      <!-- Row delete button on hover -->
+                      <button type="button" (click)="deleteItem(i, $event)" title="ลบแถวนี้"
+                        class="opacity-0 group-hover:opacity-100 absolute -right-2.5 top-1/2 -translate-y-1/2 bg-red-100 hover:bg-red-600 text-red-600 hover:text-white rounded-full w-5 h-5 flex items-center justify-center text-xs transition-all shadow-xs z-10 cursor-pointer">
+                        ×
+                      </button>
+                    </td>
 
-                </tr>
-              </tbody>
+                  </tr>
+                </tbody>
 
-              <!-- TABLE FOOTER / ADD ROW BAR -->
-              <tfoot class="bg-slate-50/70 border-t border-orange-200">
-                <tr>
-                  <td colspan="25" class="py-2.5 px-4 text-left">
-                    <button 
-                      type="button" 
-                      (click)="addRow()"
-                      class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 hover:text-blue-900 bg-white hover:bg-blue-50/50 border border-blue-200 px-3 py-1.5 rounded-lg shadow-2xs transition-colors cursor-pointer">
-                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                      </svg>
-                      <span>เพิ่มรายการ (Add Row)</span>
-                    </button>
-                    <span class="text-[11px] text-slate-400 ml-3 italic">
-                      * สามารถคลิกแก้ไขข้อมูลในแต่ละช่องได้โดยตรง
-                    </span>
-                  </td>
-                </tr>
-              </tfoot>
+                <!-- TABLE FOOTER / ADD ROW BAR -->
+                <tfoot class="bg-slate-50/70 border-t border-orange-200">
+                  <tr>
+                    <td colspan="25" class="py-2.5 px-4 text-left">
+                      <button type="button" (click)="addRow()"
+                        class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 hover:text-blue-900 bg-white hover:bg-blue-50/50 border border-blue-200 px-3 py-1.5 rounded-lg shadow-2xs transition-colors cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span>เพิ่มรายการ (Add Row)</span>
+                      </button>
+                      <span class="text-[11px] text-slate-400 ml-3 italic">
+                        * สามารถคลิกแก้ไขข้อมูลในแต่ละช่องได้โดยตรง
+                      </span>
+                    </td>
+                  </tr>
+                </tfoot>
 
-            </table>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ================= VIEW 2: QUOTATION REQUEST TREE / LIST VIEW ================= -->
+        <div *ngIf="activeView === 'list'" class="space-y-4">
+
+          <!-- Table Header Bar (New Quotation) -->
+          <div
+            class="bg-[#131936] text-white h-11 px-4 rounded-xl flex items-center justify-between shadow-sm border border-[#1c244b]">
+            <div class="flex items-center space-x-2">
+              <span class="text-amber-400">📝</span>
+              <span class="text-sm font-bold tracking-wide">New Quotation</span>
+            </div>
+
+            <button (click)="showToast('ปิดหน้ารายการ')"
+              class="inline-flex items-center gap-1 text-xs font-bold text-rose-400 hover:text-rose-300 transition-colors">
+              <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Close
+            </button>
+          </div>
+
+          <!-- Tree List Table -->
+          <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs min-w-[1300px]">
+                <thead>
+                  <tr class="bg-rose-100 text-rose-950 font-bold border-b border-rose-200 text-[11px] uppercase">
+                    <th class="py-2.5 px-3 border-r border-rose-200">Item</th>
+                    <th class="py-2.5 px-3 border-r border-rose-200">Day</th>
+                    <th class="py-2.5 px-3 border-r border-rose-200">Status</th>
+                    <th class="py-2.5 px-3 border-r border-rose-200">Section</th>
+                    <th class="py-2.5 px-3 border-r border-rose-200">Date request</th>
+                    <th class="py-2.5 px-3 border-r border-rose-200">Date return</th>
+                    <th class="py-2.5 px-3 border-r border-rose-200">Part name (Item Name)</th>
+                    <th class="py-2.5 px-3 border-r border-rose-200">Spec (Maker Spec)</th>
+                    <th class="py-2.5 px-3 border-r border-rose-200">Position</th>
+                    <th class="py-2.5 px-3 border-r border-rose-200">Maker Name</th>
+                    <th class="py-2.5 px-3 border-r border-rose-200">QTY.</th>
+                    <th class="py-2.5 px-3 border-r border-rose-200">Unit</th>
+                    <th class="py-2.5 px-3 border-r border-rose-200">Vendor 1</th>
+                    <th class="py-2.5 px-3">Unit price 1</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-[11px]">
+
+                  <!-- Category 1: Completed -->
+                  <tr class="bg-slate-50 font-bold text-slate-700">
+                    <td class="py-2 px-3 text-center">503</td>
+                    <td class="py-2 px-3">-</td>
+                    <td colspan="12"
+                      class="py-2 px-3 text-blue-700 flex items-center gap-1.5 cursor-pointer hover:underline">
+                      <span>▶</span> Completed (503)
+                    </td>
+                  </tr>
+
+                  <!-- Category 2: Deny by Purchase -->
+                  <tr class="bg-slate-50/60 text-slate-600">
+                    <td class="py-1.5 px-3 text-center">0</td>
+                    <td class="py-1.5 px-3">-</td>
+                    <td colspan="12"
+                      class="py-1.5 px-3 text-rose-700 flex items-center gap-1.5 cursor-pointer hover:underline">
+                      <span>▶</span> Deny by Purchase : ANUSARA KUEADET
+                    </td>
+                  </tr>
+                  <tr class="bg-slate-50/60 text-slate-600">
+                    <td class="py-1.5 px-3 text-center">0</td>
+                    <td class="py-1.5 px-3">-</td>
+                    <td colspan="12"
+                      class="py-1.5 px-3 text-rose-700 flex items-center gap-1.5 cursor-pointer hover:underline">
+                      <span>▶</span> Deny by Purchase : CHANTHANY THAI
+                    </td>
+                  </tr>
+
+                  <!-- Category 3: Waiting for purchase approve (Expanded) -->
+                  <tr class="bg-amber-50/50 font-bold text-amber-900 border-t border-amber-200">
+                    <td class="py-2 px-3 text-center">0</td>
+                    <td class="py-2 px-3">-</td>
+                    <td colspan="12" class="py-2 px-3 text-amber-800 flex items-center gap-1.5">
+                      <span>▼</span> Waiting for purchase approve
+                    </td>
+                  </tr>
+
+                  <!-- Section: M/M -->
+                  <tr class="bg-blue-50/40 text-blue-950 font-bold">
+                    <td class="py-1.5 px-3 text-center"></td>
+                    <td class="py-1.5 px-3"></td>
+                    <td class="py-1.5 px-3"></td>
+                    <td colspan="11" class="py-1.5 px-3 text-blue-800 flex items-center gap-1.5 pl-6">
+                      <span>▼</span> M/M
+                    </td>
+                  </tr>
+
+                  <!-- Rows under M/M -->
+                  <tr *ngFor="let row of quotationList" (click)="openDocument()"
+                    class="hover:bg-indigo-50 cursor-pointer transition-colors border-b border-slate-100"
+                    [class.bg-blue-50]="row.isCurrentDoc" [class.font-bold]="row.isCurrentDoc">
+                    <td class="py-2.5 px-3 text-center text-slate-400">#</td>
+                    <td class="py-2.5 px-3 text-center text-slate-400">-</td>
+                    <td class="py-2.5 px-3 text-amber-700">Waiting</td>
+                    <td class="py-2.5 px-3 text-slate-700 font-semibold">M/M</td>
+                    <td class="py-2.5 px-3 font-mono text-blue-700">{{ row.date }}</td>
+                    <td class="py-2.5 px-3 font-mono text-slate-400">-</td>
+                    <td class="py-2.5 px-3 text-slate-900 font-bold hover:text-indigo-600 flex items-center gap-1">
+                      <span *ngIf="row.isCurrentDoc" class="text-emerald-600">👉</span>
+                      {{ row.partName }}
+                    </td>
+                    <td class="py-2.5 px-3 font-mono text-slate-700">{{ row.spec }}</td>
+                    <td class="py-2.5 px-3 text-center text-slate-400">-</td>
+                    <td class="py-2.5 px-3 text-slate-700 font-semibold">{{ row.maker }}</td>
+                    <td class="py-2.5 px-3 text-center font-mono font-bold text-slate-900">{{ row.qty }}</td>
+                    <td class="py-2.5 px-3 text-center text-slate-500">{{ row.unit }}</td>
+                    <td class="py-2.5 px-3 text-slate-700 font-medium">{{ row.vendor1 }}</td>
+                    <td class="py-2.5 px-3 text-slate-400">-</td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+
+    <!-- ================= PDF PREVIEW MODAL ================= -->
+    <div *ngIf="isPdfModalOpen" class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+      <!-- Backdrop -->
+      <div (click)="closePdfModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"></div>
+
+      <!-- Modal Box -->
+      <div
+        class="relative bg-white rounded-2xl shadow-2xl max-w-3xl w-full border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+
+        <!-- Modal Header -->
+        <div class="px-6 py-4 bg-[#131936] text-white flex items-center justify-between border-b border-[#1c244b]">
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                  clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-white">{{ activePdfTitle }}</h3>
+              <p class="text-[11px] text-slate-400 font-mono">{{ activePdfName }}</p>
+            </div>
+          </div>
+          <button (click)="closePdfModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Mock Document Preview -->
+        <div class="flex-1 p-8 bg-slate-100 overflow-y-auto flex items-center justify-center">
+          <div
+            class="bg-white shadow-md rounded-xl p-8 max-w-lg w-full border border-slate-200 text-slate-700 space-y-5">
+            <div class="flex justify-between items-start border-b pb-4">
+              <div>
+                <span class="text-xs font-bold text-indigo-600">OFFICIAL QUOTATION & SPEC</span>
+                <h2 class="text-base font-bold text-slate-900 mt-1">{{ activePdfName }}</h2>
+              </div>
+              <span
+                class="px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded border border-emerald-200">
+                Verified Attachment
+              </span>
+            </div>
+
+            <div class="space-y-2 text-xs">
+              <div class="flex justify-between py-1 border-b border-slate-100">
+                <span class="text-slate-400">Document Type:</span>
+                <span class="font-semibold text-slate-800">Supplier Quotation / Spec Sheet</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-100">
+                <span class="text-slate-400">Ref Requisition:</span>
+                <span class="font-mono text-slate-800">{{ docNumber }}</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-100">
+                <span class="text-slate-400">Security:</span>
+                <span class="text-slate-800">Internal Manufacturing Confidential</span>
+              </div>
+            </div>
+
+            <div class="p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300 text-center space-y-2">
+              <svg class="w-8 h-8 text-slate-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <p class="text-xs text-slate-500 font-medium">ไฟล์จำลองการแสดงผล PDF เอกสารใบเสนอราคา</p>
+            </div>
           </div>
         </div>
 
-      </div>
-
-      <!-- ================= VIEW 2: QUOTATION REQUEST TREE / LIST VIEW ================= -->
-      <div *ngIf="activeView === 'list'" class="space-y-4">
-        
-        <!-- Table Header Bar (New Quotation) -->
-        <div class="bg-[#131936] text-white h-11 px-4 rounded-xl flex items-center justify-between shadow-sm border border-[#1c244b]">
-          <div class="flex items-center space-x-2">
-            <span class="text-amber-400">📝</span>
-            <span class="text-sm font-bold tracking-wide">New Quotation</span>
-          </div>
-
-          <button 
-            (click)="showToast('ปิดหน้ารายการ')"
-            class="inline-flex items-center gap-1 text-xs font-bold text-rose-400 hover:text-rose-300 transition-colors">
-            <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <!-- Modal Footer -->
+        <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+          <span class="text-xs text-slate-500">PDF Reader &bull; Suppier Viewer</span>
+          <button (click)="closePdfModal()"
+            class="px-4 py-1.5 text-xs font-semibold text-white bg-[#131936] rounded-lg hover:bg-[#1c244b]">
             Close
           </button>
         </div>
 
-        <!-- Tree List Table -->
-        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs min-w-[1300px]">
-              <thead>
-                <tr class="bg-rose-100 text-rose-950 font-bold border-b border-rose-200 text-[11px] uppercase">
-                  <th class="py-2.5 px-3 border-r border-rose-200">Item</th>
-                  <th class="py-2.5 px-3 border-r border-rose-200">Day</th>
-                  <th class="py-2.5 px-3 border-r border-rose-200">Status</th>
-                  <th class="py-2.5 px-3 border-r border-rose-200">Section</th>
-                  <th class="py-2.5 px-3 border-r border-rose-200">Date request</th>
-                  <th class="py-2.5 px-3 border-r border-rose-200">Date return</th>
-                  <th class="py-2.5 px-3 border-r border-rose-200">Part name (Item Name)</th>
-                  <th class="py-2.5 px-3 border-r border-rose-200">Spec (Maker Spec)</th>
-                  <th class="py-2.5 px-3 border-r border-rose-200">Position</th>
-                  <th class="py-2.5 px-3 border-r border-rose-200">Maker Name</th>
-                  <th class="py-2.5 px-3 border-r border-rose-200">QTY.</th>
-                  <th class="py-2.5 px-3 border-r border-rose-200">Unit</th>
-                  <th class="py-2.5 px-3 border-r border-rose-200">Vendor 1</th>
-                  <th class="py-2.5 px-3">Unit price 1</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100 text-[11px]">
-                
-                <!-- Category 1: Completed -->
-                <tr class="bg-slate-50 font-bold text-slate-700">
-                  <td class="py-2 px-3 text-center">503</td>
-                  <td class="py-2 px-3">-</td>
-                  <td colspan="12" class="py-2 px-3 text-blue-700 flex items-center gap-1.5 cursor-pointer hover:underline">
-                    <span>▶</span> Completed (503)
-                  </td>
-                </tr>
-
-                <!-- Category 2: Deny by Purchase -->
-                <tr class="bg-slate-50/60 text-slate-600">
-                  <td class="py-1.5 px-3 text-center">0</td>
-                  <td class="py-1.5 px-3">-</td>
-                  <td colspan="12" class="py-1.5 px-3 text-rose-700 flex items-center gap-1.5 cursor-pointer hover:underline">
-                    <span>▶</span> Deny by Purchase : ANUSARA KUEADET
-                  </td>
-                </tr>
-                <tr class="bg-slate-50/60 text-slate-600">
-                  <td class="py-1.5 px-3 text-center">0</td>
-                  <td class="py-1.5 px-3">-</td>
-                  <td colspan="12" class="py-1.5 px-3 text-rose-700 flex items-center gap-1.5 cursor-pointer hover:underline">
-                    <span>▶</span> Deny by Purchase : CHANTHANY THAI
-                  </td>
-                </tr>
-
-                <!-- Category 3: Waiting for purchase approve (Expanded) -->
-                <tr class="bg-amber-50/50 font-bold text-amber-900 border-t border-amber-200">
-                  <td class="py-2 px-3 text-center">0</td>
-                  <td class="py-2 px-3">-</td>
-                  <td colspan="12" class="py-2 px-3 text-amber-800 flex items-center gap-1.5">
-                    <span>▼</span> Waiting for purchase approve
-                  </td>
-                </tr>
-
-                <!-- Section: M/M -->
-                <tr class="bg-blue-50/40 text-blue-950 font-bold">
-                  <td class="py-1.5 px-3 text-center"></td>
-                  <td class="py-1.5 px-3"></td>
-                  <td class="py-1.5 px-3"></td>
-                  <td colspan="11" class="py-1.5 px-3 text-blue-800 flex items-center gap-1.5 pl-6">
-                    <span>▼</span> M/M
-                  </td>
-                </tr>
-
-                <!-- Rows under M/M -->
-                <tr 
-                  *ngFor="let row of quotationList" 
-                  (click)="openDocument()"
-                  class="hover:bg-indigo-50 cursor-pointer transition-colors border-b border-slate-100"
-                  [class.bg-blue-50]="row.isCurrentDoc"
-                  [class.font-bold]="row.isCurrentDoc">
-                  <td class="py-2.5 px-3 text-center text-slate-400">#</td>
-                  <td class="py-2.5 px-3 text-center text-slate-400">-</td>
-                  <td class="py-2.5 px-3 text-amber-700">Waiting</td>
-                  <td class="py-2.5 px-3 text-slate-700 font-semibold">M/M</td>
-                  <td class="py-2.5 px-3 font-mono text-blue-700">{{ row.date }}</td>
-                  <td class="py-2.5 px-3 font-mono text-slate-400">-</td>
-                  <td class="py-2.5 px-3 text-slate-900 font-bold hover:text-indigo-600 flex items-center gap-1">
-                    <span *ngIf="row.isCurrentDoc" class="text-emerald-600">👉</span>
-                    {{ row.partName }}
-                  </td>
-                  <td class="py-2.5 px-3 font-mono text-slate-700">{{ row.spec }}</td>
-                  <td class="py-2.5 px-3 text-center text-slate-400">-</td>
-                  <td class="py-2.5 px-3 text-slate-700 font-semibold">{{ row.maker }}</td>
-                  <td class="py-2.5 px-3 text-center font-mono font-bold text-slate-900">{{ row.qty }}</td>
-                  <td class="py-2.5 px-3 text-center text-slate-500">{{ row.unit }}</td>
-                  <td class="py-2.5 px-3 text-slate-700 font-medium">{{ row.vendor1 }}</td>
-                  <td class="py-2.5 px-3 text-slate-400">-</td>
-                </tr>
-
-              </tbody>
-            </table>
-          </div>
-        </div>
-
       </div>
-
-    </main>
-  </div>
-
-  <!-- ================= PDF PREVIEW MODAL ================= -->
-  <div *ngIf="isPdfModalOpen" class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
-    <!-- Backdrop -->
-    <div (click)="closePdfModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"></div>
-
-    <!-- Modal Box -->
-    <div class="relative bg-white rounded-2xl shadow-2xl max-w-3xl w-full border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
-      
-      <!-- Modal Header -->
-      <div class="px-6 py-4 bg-[#131936] text-white flex items-center justify-between border-b border-[#1c244b]">
-        <div class="flex items-center space-x-3">
-          <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-            </svg>
-          </div>
-          <div>
-            <h3 class="text-sm font-bold text-white">{{ activePdfTitle }}</h3>
-            <p class="text-[11px] text-slate-400 font-mono">{{ activePdfName }}</p>
-          </div>
-        </div>
-        <button (click)="closePdfModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <!-- Mock Document Preview -->
-      <div class="flex-1 p-8 bg-slate-100 overflow-y-auto flex items-center justify-center">
-        <div class="bg-white shadow-md rounded-xl p-8 max-w-lg w-full border border-slate-200 text-slate-700 space-y-5">
-          <div class="flex justify-between items-start border-b pb-4">
-            <div>
-              <span class="text-xs font-bold text-indigo-600">OFFICIAL QUOTATION & SPEC</span>
-              <h2 class="text-base font-bold text-slate-900 mt-1">{{ activePdfName }}</h2>
-            </div>
-            <span class="px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded border border-emerald-200">
-              Verified Attachment
-            </span>
-          </div>
-
-          <div class="space-y-2 text-xs">
-            <div class="flex justify-between py-1 border-b border-slate-100">
-              <span class="text-slate-400">Document Type:</span>
-              <span class="font-semibold text-slate-800">Supplier Quotation / Spec Sheet</span>
-            </div>
-            <div class="flex justify-between py-1 border-b border-slate-100">
-              <span class="text-slate-400">Ref Requisition:</span>
-              <span class="font-mono text-slate-800">{{ docNumber }}</span>
-            </div>
-            <div class="flex justify-between py-1 border-b border-slate-100">
-              <span class="text-slate-400">Security:</span>
-              <span class="text-slate-800">Internal Manufacturing Confidential</span>
-            </div>
-          </div>
-
-          <div class="p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300 text-center space-y-2">
-            <svg class="w-8 h-8 text-slate-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <p class="text-xs text-slate-500 font-medium">ไฟล์จำลองการแสดงผล PDF เอกสารใบเสนอราคา</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal Footer -->
-      <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
-        <span class="text-xs text-slate-500">PDF Reader &bull; Suppier Viewer</span>
-        <button (click)="closePdfModal()" class="px-4 py-1.5 text-xs font-semibold text-white bg-[#131936] rounded-lg hover:bg-[#1c244b]">
-          Close
-        </button>
-      </div>
-
     </div>
-  </div>
 
-  <!-- ================= TOAST NOTIFICATION ================= -->
-  <div 
-    *ngIf="toastVisible" 
-    class="fixed bottom-6 right-6 z-50 bg-[#131936] text-white px-4 py-3 rounded-xl shadow-xl flex items-center space-x-3 border border-[#1c244b] animate-bounce">
-    <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
-    <span class="text-xs font-medium">{{ toastMessage }}</span>
-  </div>
+    <!-- ================= EMPLOYEE BADGE MODAL (MinebeaMitsumi ID Card) ================= -->
+    <div *ngIf="showEmployeeCardModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in"
+      (click)="closeEmployeeCard()">
 
-</div>
+      <!-- Modal Card Container (Vertically centered column) -->
+      <div (click)="$event.stopPropagation()" class="relative flex flex-col items-center max-w-2xl w-full">
+
+        <!-- 3D PERSPECTIVE CARD FLIPPER (Clicking anywhere flips card) -->
+        <div (click)="toggleCardSide()" class="card-perspective-container relative w-[520px] sm:w-[580px] h-[330px] sm:h-[370px] max-w-full select-none cursor-pointer" title="คลิกที่บัตรเพื่อพลิกหน้า/หลัง">
+          <div class="card-flipper w-full h-full relative" [class.is-flipped]="cardSide === 'back'">
+
+            <!-- ================= FRONT SIDE: REALISTIC MINEBEAMITSUMI HORIZONTAL BADGE CARD ================= -->
+            <div
+              class="card-face absolute inset-0 w-full h-full rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-300 flex flex-col justify-between">
+
+              <!-- CARD BACKGROUND ELEMENTS (Directly matching badge-oriented.png) -->
+              <!-- 1. Left Horizontal alternating white & gray stripes (เฉพาะฝั่งซ้ายของบัตร ขอบข้างรูปและใต้รูป ตามบัตรตัวอย่าง) -->
+              <div
+                class="absolute left-0 top-0 bottom-7 sm:bottom-8 w-[210px] sm:w-[240px] pointer-events-none"
+                style="background: repeating-linear-gradient(to bottom, #ffffff 0px, #ffffff 5px, #d5dde8 5px, #d5dde8 10px);
+                       opacity: 0.65;
+                       -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 140px, rgba(0,0,0,0.3) 195px, transparent 100%);
+                       mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 140px, rgba(0,0,0,0.3) 195px, transparent 100%);">
+              </div>
+
+              <!-- 2. Subtle Guilloche Security Wave Lines (เส้นคลื่นความปลอดภัยจางๆ ใต้รูปรหัสพนักงาน) -->
+              <div
+                class="absolute left-0 bottom-7 sm:bottom-8 w-72 h-36 pointer-events-none opacity-20"
+                style="background: repeating-radial-gradient(ellipse at -10% 120%, transparent 0, transparent 7px, rgba(100, 116, 139, 0.4) 8px, transparent 9px);
+                       -webkit-mask-image: linear-gradient(to top right, black 25%, transparent 75%);
+                       mask-image: linear-gradient(to top right, black 25%, transparent 75%);">
+              </div>
+
+              <!-- 3. Right Soft Blue Vertical Stripes -->
+              <!-- Stripe 1 (Left narrow stripe, shifted forward) -->
+              <div
+                class="absolute right-[72px] sm:right-[96px] top-0 bottom-7 sm:bottom-8 w-4 sm:w-[18px] bg-[#8eaedb]/40 pointer-events-none">
+              </div>
+              <!-- Stripe 2 (Right wider stripe, shifted forward and increased width) -->
+              <div
+                class="absolute right-9 sm:right-12 top-0 bottom-7 sm:bottom-8 w-7 sm:w-9 bg-[#8eaedb]/40 pointer-events-none">
+              </div>
+
+              <!-- UPPER & MIDDLE MAIN CONTENT AREA -->
+              <div class="relative p-6 sm:p-8 pb-3 flex-1 flex flex-col justify-between z-10">
+
+                <!-- Top Right Position Role (STAFF / STUDENT TRAINEE) -->
+                <div class="absolute top-3.5 sm:top-4.5 right-6 sm:right-8 text-right max-w-[280px]">
+                  <span
+                    class="text-base sm:text-lg font-black text-slate-950 tracking-wider uppercase font-sans whitespace-nowrap">
+                    {{ badgePositionRole }}
+                  </span>
+                </div>
+
+                <!-- Main Grid: Left Photo+ID | Right Information & Logo -->
+                <div class="flex items-start gap-6 sm:gap-8 mt-1">
+
+                  <!-- LEFT COLUMN: Photo + Employee Code -->
+                  <div class="flex flex-col items-center shrink-0">
+                    <!-- Portrait Photo with Blue Border -->
+                    <div
+                      class="w-[130px] h-[165px] sm:w-[155px] sm:h-[195px] border-2 border-[#1e5fa8] p-0.5 bg-white shadow-xs overflow-hidden rounded-xs">
+                      <img *ngIf="currentUser?.profilePictureUrl; else fallbackCardPhoto"
+                        [src]="currentUser?.profilePictureUrl" alt="Employee Photo" class="w-full h-full object-cover"
+                        (error)="currentUser!.profilePictureUrl = ''" />
+                      <ng-template #fallbackCardPhoto>
+                        <img src="facebook-default-avatar.png" alt="Default Avatar" class="w-full h-full object-cover" />
+                      </ng-template>
+                    </div>
+
+                    <!-- Big Bold Employee ID below Photo (Centered & Larger) -->
+                    <div
+                      class="text-3xl sm:text-4xl font-black text-slate-950 font-mono tracking-tight text-center mt-6 sm:mt-8 leading-none">
+                      {{ currentUser?.empNo || loggedInEmployeeId }}
+                    </div>
+                  </div>
+
+                  <!-- RIGHT COLUMN: Employee Information (Height matches photo box h-[165px] sm:h-[195px]) -->
+                  <div class="flex-1 h-[165px] sm:h-[195px] flex flex-col justify-between pr-2 sm:pr-4">
+
+                    <!-- Names Area: Upper English Name and MR. Name pushed up together -->
+                    <div class="space-y-0.5 sm:space-y-1 pt-1 sm:pt-1.5">
+                      <!-- Primary Employee Name (English without MR) -->
+                      <div
+                        class="text-2xl sm:text-[28px] font-black text-slate-950 leading-tight tracking-tight uppercase">
+                        {{ employeeNameWithoutPrefix }}
+                      </div>
+
+                      <!-- English Name with MR. -->
+                      <div class="text-sm sm:text-base font-black text-slate-900 tracking-tight uppercase leading-snug">
+                        {{ employeeEnglishName }}
+                      </div>
+                    </div>
+
+                    <!-- Middle Space: Section_Name (ดึงข้อมูล Section_Name มาแสดงตรงช่องว่าง) -->
+                    <div class="text-sm sm:text-base font-extrabold text-slate-900 uppercase tracking-tight leading-snug">
+                      {{ employeeSectionName }}
+                    </div>
+
+                    <!-- Lower Details: Division & Emp.Date -->
+                    <div class="space-y-1.5 sm:space-y-2">
+                      <!-- Department / Division -->
+                      <div class="text-sm sm:text-base font-extrabold text-slate-900 uppercase leading-snug">
+                        {{ currentUser?.divisionName || currentUser?.division || division || '' }}
+                      </div>
+
+                      <!-- Emp.Date (Precisely aligned with bottom edge of employee photo) -->
+                      <div
+                        class="text-sm sm:text-base font-extrabold text-slate-950 flex items-center gap-2.5 leading-none pt-0.5">
+                        <span>Emp.Date</span>
+                        <span class="font-mono font-black text-slate-950">{{ currentUser?.empDate || cardEmpDate }}</span>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <!-- Brand Logo & Slogan (Official MinebeaMitsumi Image - Aligned with 'E' of Emp.Date) -->
+              <div class="absolute left-[174px] sm:left-[216px] bottom-7 sm:bottom-8 z-20 pointer-events-none">
+                <img src="minebea-mitsumi-logo.png" alt="MinebeaMitsumi - Passion to Create Value through Difference"
+                  class="w-[330px] sm:w-[365px] max-w-[95%] h-auto object-contain select-none drop-shadow-xs" />
+              </div>
+
+              <!-- BOTTOM SOLID BLUE BAR WITH PRINT DATE (Black Text Ink) -->
+              <div class="relative shrink-0 h-7 sm:h-8 w-full bg-[#004b93] px-6 flex items-center justify-end z-10">
+                <div class="text-[10px] sm:text-[11px] font-mono font-bold text-black leading-none select-none">
+                  PrintDate: {{ cardPrintDate }}
+                </div>
+              </div>
+
+              <!-- Laminated Glossy Reflection Sheen -->
+              <div
+                class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/5 pointer-events-none rounded-2xl">
+              </div>
+
+            </div>
+
+            <!-- ================= BACK SIDE: 2026 CALENDAR & COMPANY CONTACTS (PURE HANDCRAFTED CODE) ================= -->
+            <!-- ================= BACK SIDE: 2026 CALENDAR & COMPANY CONTACTS (PURE HANDCRAFTED CODE) ================= -->
+            <!-- ================= BACK SIDE: 2026 CALENDAR & COMPANY CONTACTS (MATCHING SAMPLE 1:1) ================= -->
+            <div
+              class="card-face card-face-back absolute inset-0 w-full h-full rounded-2xl bg-[#bde64a] shadow-2xl overflow-hidden border border-slate-300 flex flex-col select-none justify-between">
+
+              <!-- 1. TOP HEADER: FULL-WIDTH LIME GREEN BANNER (Matching Sample Photo 1:1) -->
+              <div class="bg-[#bde64a] px-2.5 sm:px-3 pt-1.5 sm:pt-2 pb-1 sm:pb-1.5 flex items-center justify-between shrink-0 border-b border-[#a8d836]">
+                <!-- Left: Official MinebeaMitsumi Logo Image -->
+                <div class="flex items-center shrink-0">
+                  <img [src]="calendarLogoDataUrl" alt="MinebeaMitsumi - Passion to Create Value through Difference"
+                    class="h-7 sm:h-8.5 w-auto object-contain select-none" />
+                </div>
+
+                <!-- Center: Calendar Year Title (Stacked CALENDAR on top of 2026) -->
+                <div class="flex flex-col items-center justify-center px-2">
+                  <span class="text-[7px] sm:text-[8px] font-black tracking-widest text-[#004fa3] uppercase font-sans leading-tight">
+                    CALENDAR
+                  </span>
+                  <span class="text-sm sm:text-lg font-black text-[#004fa3] leading-none font-sans tracking-tight">
+                    2026
+                  </span>
+                </div>
+
+                <!-- Right: Summary Stat Badges (2-Row Grid matching photo 1:1) -->
+                <div class="flex flex-col gap-0.5 text-[6px] sm:text-[7px] font-bold text-slate-900 shrink-0">
+                  <!-- Row 1: 261 Working Day | 15 Traditional Holiday | 104 Total Holiday -->
+                  <div class="flex items-center gap-1 sm:gap-1.5">
+                    <div class="flex items-center gap-0.5">
+                      <span class="px-1 py-0.2 rounded-xs font-mono font-black bg-transparent text-slate-950 border border-slate-700">261</span>
+                      <span class="whitespace-nowrap font-sans font-bold">Working Day</span>
+                    </div>
+                    <div class="flex items-center gap-0.5">
+                      <span class="px-1 py-0.2 rounded-xs font-mono font-black bg-[#16a34a] text-white">15</span>
+                      <span class="whitespace-nowrap font-sans font-bold">Traditional Holiday</span>
+                    </div>
+                    <div class="flex items-center gap-0.5">
+                      <span class="px-1 py-0.2 rounded-xs font-mono font-black bg-white text-slate-950 border border-slate-600">104</span>
+                      <span class="whitespace-nowrap font-sans font-bold">Total Holiday</span>
+                    </div>
+                  </div>
+                  <!-- Row 2: 52 Holiday (sun) | 37 Holiday (sat) -->
+                  <div class="flex items-center gap-1 sm:gap-1.5">
+                    <div class="flex items-center gap-0.5">
+                      <span class="px-1 py-0.2 rounded-xs font-mono font-black bg-[#dc2626] text-white">52</span>
+                      <span class="whitespace-nowrap font-sans font-bold">Holiday (sun)</span>
+                    </div>
+                    <div class="flex items-center gap-0.5">
+                      <span class="px-1 py-0.2 rounded-xs font-mono font-black bg-[#facc15] text-slate-950">37</span>
+                      <span class="whitespace-nowrap font-sans font-bold">Holiday (sat)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. MIDDLE WHITE SHEET: 6 Months Grid + Traditional Holidays -->
+              <div class="bg-white flex-1 px-2.5 sm:px-3 py-1.5 sm:py-2 flex flex-col justify-between overflow-hidden">
+
+                <!-- Months Grid (6 Months: July - December 2026, 2 Rows x 3 Columns) -->
+                <div class="grid grid-cols-3 gap-x-2.5 sm:gap-x-3.5 gap-y-1 sm:gap-y-1.5 flex-1">
+                  <div *ngFor="let m of calendarMonths" class="flex flex-col">
+                    <!-- Month Title & Working Day Ratio -->
+                    <div class="flex items-center justify-between pb-0.5">
+                      <span class="text-[8px] sm:text-[9.5px] font-black text-[#004fa3] tracking-wide leading-none font-sans">
+                        {{ m.name }}
+                      </span>
+                      <span class="text-[5.8px] sm:text-[6.8px] font-bold text-slate-600 font-mono leading-none">
+                        W/D={{ m.wd }}
+                      </span>
+                    </div>
+
+                    <!-- Calendar Table: S M T W T F S -->
+                    <table class="w-full table-fixed border-collapse text-center">
+                      <thead>
+                        <tr class="text-[6.5px] sm:text-[7.5px] font-black leading-none">
+                          <th class="w-[14.28%] text-red-600 py-0.5 font-sans">S</th>
+                          <th class="w-[14.28%] text-slate-700 py-0.5 font-sans">M</th>
+                          <th class="w-[14.28%] text-slate-700 py-0.5 font-sans">T</th>
+                          <th class="w-[14.28%] text-slate-700 py-0.5 font-sans">W</th>
+                          <th class="w-[14.28%] text-slate-700 py-0.5 font-sans">T</th>
+                          <th class="w-[14.28%] text-slate-700 py-0.5 font-sans">F</th>
+                          <th class="w-[14.28%] py-0.5">
+                            <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#facc15] text-slate-900 inline-flex items-center justify-center text-[5.5px] sm:text-[6.5px] font-black">S</span>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let week of m.weeks" class="leading-none">
+                          <td *ngFor="let cell of week" class="p-[0.5px]">
+                            <!-- Day Cell with Color Coding -->
+                            <div *ngIf="cell.d"
+                              class="w-full h-3 sm:h-3.5 flex items-center justify-center text-[6.2px] sm:text-[7px] font-mono leading-none rounded-[1px]"
+                              [ngClass]="{
+                                'bg-[#dc2626] text-white font-black': cell.t === 'sun',
+                                'bg-[#16a34a] text-white font-black': cell.t === 'trad',
+                                'bg-[#facc15] text-slate-950 font-black': cell.t === 'sat',
+                                'text-slate-800 font-semibold': cell.t === 'work'
+                              }">
+                              {{ cell.d }}
+                            </div>
+                            <div *ngIf="!cell.d" class="w-full h-3 sm:h-3.5"></div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Traditional Holidays (3 Columns directly under Month Columns) -->
+                <div class="pt-1 border-t border-slate-200 shrink-0">
+                  <div class="grid grid-cols-3 gap-x-2.5 sm:gap-x-3.5 text-[5.8px] sm:text-[6.5px] leading-tight font-sans">
+                    <div *ngFor="let col of calendarHolidayCols" class="space-y-0.5">
+                      <div *ngIf="col.header" class="text-[6.8px] sm:text-[7.5px] font-black text-[#004fa3] tracking-wider uppercase font-sans mb-0.5">
+                        {{ col.header }}
+                      </div>
+                      <div *ngFor="let item of col.items" class="flex items-baseline gap-1 whitespace-nowrap overflow-hidden">
+                        <span class="font-bold text-slate-950 font-mono shrink-0">{{ item.date }}</span>
+                        <span class="truncate text-slate-800">{{ item.name }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- 3. BOTTOM FOOTER: LIME GREEN HOSPITAL CONTACTS BANNER (1 ROW MATCHING SAMPLE) -->
+              <div class="bg-[#bde64a] px-2.5 sm:px-3 py-1 flex items-center shrink-0 border-t border-[#a8d836]">
+                <div class="w-full grid grid-cols-3 gap-x-2.5 sm:gap-x-3.5 text-[5.8px] sm:text-[6.5px] leading-tight text-slate-950 font-sans">
+                  <div *ngFor="let h of calendarHospitals" class="flex items-baseline justify-between gap-1 overflow-hidden">
+                    <span class="truncate font-semibold">{{ h.name }}</span>
+                    <span class="font-mono font-bold shrink-0 text-slate-950">{{ h.phone }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Laminated Sheen -->
+              <div
+                class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/5 pointer-events-none rounded-2xl">
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Action Footer (Flip Button + Close Button) -->
+        <div class="mt-5 flex items-center gap-3">
+          <!-- Flip Card Button -->
+          <button type="button" (click)="toggleCardSide()"
+            class="px-6 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 rounded-xl shadow-lg border border-blue-400/30 transition-all flex items-center gap-2 cursor-pointer active:scale-95">
+            <svg *ngIf="cardSide === 'front'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            <svg *ngIf="cardSide === 'back'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            <span>{{ cardSide === 'front' ? 'ดูข้างหลังบัตร (ปฏิทิน 2026)' : 'ดูข้างหน้าบัตร (ข้อมูลพนักงาน)' }}</span>
+          </button>
+
+          <!-- Close Button -->
+          <button type="button" (click)="closeEmployeeCard()"
+            class="px-6 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 rounded-xl shadow-md border border-slate-200 transition-all cursor-pointer active:scale-95">
+            ปิด
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= TOAST NOTIFICATION ================= -->
+    <div *ngIf="toastVisible"
+      class="fixed bottom-6 right-6 z-50 bg-[#131936] text-white px-4 py-3 rounded-xl shadow-xl flex items-center space-x-3 border border-[#1c244b] animate-bounce">
+      <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
+      <span class="text-xs font-medium">{{ toastMessage }}</span>
+    </div>
+
+  </div>
