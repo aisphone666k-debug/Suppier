@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService, EmployeeUser } from './services/api.service';
@@ -57,7 +57,8 @@ export interface RequisitionItem {
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements OnInit, AfterViewInit {
+  title = 'suppier';
   // Authentication & OTP State
   isLoggedIn = false;
   otpCode = '';
@@ -188,8 +189,54 @@ export class AppComponent implements AfterViewInit {
 
   constructor(private apiService: ApiService) { }
 
+  async ngOnInit(): Promise<void> {
+    await this.restoreSessionOrInit();
+  }
+
+  async restoreSessionOrInit(): Promise<void> {
+    try {
+      const savedUserStr = localStorage.getItem('suppier_auth_user');
+      if (savedUserStr) {
+        const user: EmployeeUser = JSON.parse(savedUserStr);
+        if (user && user.empNo) {
+          console.log(`%c[Suppier Auth] 🔄 Restoring persistent login session for ${user.empNo} (${user.fullName})`, 'color: #2563eb; font-weight: bold;');
+          this.currentUser = user;
+          this.loggedInEmployeeId = user.empNo;
+          this.currentEmpNo = user.empNo;
+          this.requestBy = user.fullName || user.empNo;
+          if (user.division) this.division = user.division;
+          if (user.section) this.section = user.section;
+          if (user.sectionName) this.sectionName = user.sectionName;
+          this.isLoggedIn = true;
+
+          // Load active document from DB for this account
+          await this.loadDocumentFromDb(user.empNo);
+
+          // Silently refresh employee data in background
+          this.apiService.verifyEmployee(user.empNo).then(res => {
+            if (res && res.success && res.user) {
+              this.currentUser = res.user;
+              localStorage.setItem('suppier_auth_user', JSON.stringify(res.user));
+            }
+          }).catch(() => {});
+
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('Error reading saved session from localStorage:', err);
+      localStorage.removeItem('suppier_auth_user');
+    }
+
+    // If no saved session, start in logged out state with empty items
+    this.isLoggedIn = false;
+    this.items = [];
+  }
+
   ngAfterViewInit(): void {
-    this.focusInput();
+    if (!this.isLoggedIn) {
+      this.focusInput();
+    }
   }
 
   // Navigation & View State
@@ -260,17 +307,41 @@ export class AppComponent implements AfterViewInit {
   ];
 
   // Document Metadata & Status
+  currentEmpNo = 'PEERAPAT';
   docNumber = 'DOC-2026-0901-003';
   docDate = '06/08/2026 17:41';
   documentStatus = 'Waiting for purchase approve';
-  requestBy = 'DANUPHON SUTTHIWATTHANAK';
+  requestBy = 'PEERAPAT BUASA';
   division = 'MA';
-  section = 'M/M';
+  section = 'P/H';
   sectionName = 'MACHINE MAINTENANCE';
   priority = 'NORMAL';
   priorityReason = 'SPARE PART FOR UDI SYSTEM';
   orderType = 'Spare Part M/C';
   orderTypeDesc = 'อะไหล่ ของเครื่องจักร (ถ้าไม่มีใช้เครื่องจักรทำงานไม่ได้)';
+  sendToPurchase = 'NATTHANICHA SONTHIKESORN, PEERAPAT BUASA, TICHAGORN PROMJAREE, SIRITORN KUSOLEIAM, KUNLADA PANMAN, THEERARAT NANTHAWISIT, ANUSARA KUEADET, CHANTHANY THAI';
+  ccList = '-';
+
+  // Header Editing State
+  isEditingHeader = false;
+  headerBackup: any = null;
+
+  statusOptions = [
+    'Waiting for purchase approve',
+    'Waiting Quotation',
+    'Quoted',
+    'Approved',
+    'PO Issued',
+    'Draft',
+    'Rejected'
+  ];
+
+  priorityOptions = ['NORMAL', 'URGENT', 'HIGH'];
+  divisionOptions = ['MA', 'GM', 'PMC'];
+  sectionOptions = ['P/H', 'M/M', 'ASSY', 'MC', 'C/R', 'QA', 'ENG'];
+
+  // Table batch editing state
+  isEditingAllRows = false;
 
   // Approval Information
   isApprovalExpanded = true;
@@ -344,8 +415,6 @@ export class AppComponent implements AfterViewInit {
     { name: 'KUNLADA PANMAN', initials: 'KP', role: 'Expeditor' }
   ];
 
-  ccList = '-';
-
   // Search & Filters
   searchTerm = '';
   activeFilter: 'ALL' | 'URGENT' | 'WAITING' | 'QUOTED' = 'ALL';
@@ -357,123 +426,8 @@ export class AppComponent implements AfterViewInit {
   toastMessage = '';
   toastVisible = false;
 
-  // Items from the document screenshot
-  items: RequisitionItem[] = [
-    {
-      id: 1,
-      no: 1,
-      partName: 'CONNECT AXIS DEVEC',
-      spec: 'ST8101300',
-      position: '',
-      makerName: 'FEDEX',
-      qty: 5,
-      unit: 'PCS',
-      poRef: '2008819',
-      remark: 'Ref.Last qtt for issue pr fitst(Q-NMB240901 )',
-      isUrgent: false,
-      attachments: [],
-      machineModel: 'HGM10152N\n/ PMM F-4\n/ BROKEN',
-      machineMaker: 'BM16#34',
-      serialNo: '1231',
-      acCode: '6218-G',
-      vendor: 'LNS',
-      unitPrice: null,
-      currency: 'BT',
-      crCode: 'TX',
-      quotationNo: '260902-150926-ST8101300.pdf',
-      quotationPdf: '260902-150926-ST8101300.pdf',
-      leadTime: '20-25 DAYS',
-      vendor2: '',
-      unitPrice2: null,
-      status: 'Quoted'
-    },
-    {
-      id: 2,
-      no: 2,
-      partName: 'FILTER',
-      spec: 'FOR CLEANVY\n(FVH4-3856V2CV)',
-      position: '',
-      makerName: 'CLEANVY',
-      qty: 2,
-      unit: 'PCS',
-      poRef: '2108146/22222ZS',
-      remark: 'Ref.Last qtt for issue pr fitsy',
-      isUrgent: false,
-      attachments: [
-        { name: '20250428140628.pdf', type: 'pdf', size: '1.2 MB' }
-      ],
-      machineModel: 'HGG11166N\n/ PMM F-1\n/ DIRTY',
-      machineMaker: 'Cleanvy#02',
-      serialNo: 'A06-026',
-      acCode: '',
-      vendor: 'IPO',
-      unitPrice: null,
-      currency: '',
-      crCode: '',
-      quotationNo: 'WAIT',
-      quotationPdf: undefined,
-      leadTime: '',
-      vendor2: 'SIAM OHGITANI\n2108146',
-      unitPrice2: null,
-      status: 'Waiting Quotation'
-    },
-    {
-      id: 3,
-      no: 3,
-      partName: 'DISTILLATION COIL',
-      spec: 'COIL-200L\n(INSIDE)\n/FVH4-3856V2CV',
-      position: '',
-      makerName: 'CLEANVY',
-      qty: 3,
-      unit: 'PCS',
-      poRef: '2108146/22222ZS\n(Ref.po:G33602A)',
-      remark: 'Ref.Last price for issue pr first(27,000bt)\n(Q202410-002NMBT)',
-      isUrgent: true,
-      attachments: [],
-      machineModel: 'HGG12643N\n/ PMM F-1\n/ DEFECT',
-      machineMaker: 'Cleanvy#02',
-      serialNo: 'A06-026',
-      acCode: '',
-      vendor: 'IPO',
-      unitPrice: null,
-      currency: '',
-      crCode: '',
-      quotationNo: 'WAIT',
-      quotationPdf: undefined,
-      leadTime: '',
-      vendor2: 'SIAM OHGITANI\n2108146',
-      unitPrice2: null,
-      status: 'Waiting Quotation'
-    },
-    {
-      id: 4,
-      no: 4,
-      partName: 'DISTILLATION COIL',
-      spec: 'COIL-200L\n(OUTSIDE)\n/FVH4-3856V2CV',
-      position: '',
-      makerName: 'CLEANVY',
-      qty: 3,
-      unit: 'PCS',
-      poRef: '2108146/22222ZS\n(Ref.po:G33603A)',
-      remark: 'Ref.Last price for issue',
-      isUrgent: true,
-      attachments: [],
-      machineModel: 'HGG12644N\n/ PMM F-1\n/ DEFECT',
-      machineMaker: 'Cleanvy#02',
-      serialNo: 'A06-026',
-      acCode: '',
-      vendor: 'IPO',
-      unitPrice: null,
-      currency: '',
-      crCode: '',
-      quotationNo: 'WAIT',
-      quotationPdf: undefined,
-      leadTime: '',
-      vendor2: 'SIAM OHGITANI\n2108146',
-      unitPrice2: null,
-      status: 'Waiting Quotation'
-    }
-  ];
+  // Requisition Items (Empty by default if no data exists)
+  items: RequisitionItem[] = [];
 
   // KPIs
   get totalItems(): number {
@@ -558,6 +512,113 @@ export class AppComponent implements AfterViewInit {
     this.activePdfName = '';
   }
 
+  async loadDocumentFromDb(empNo?: string): Promise<void> {
+    const targetEmpNo = empNo || this.loggedInEmployeeId || this.currentEmpNo;
+    try {
+      let doc = null;
+      if (targetEmpNo) {
+        doc = await this.apiService.getRequisitionDocumentForAccount(targetEmpNo);
+      }
+      if (!doc) {
+        doc = await this.apiService.getRequisitionDocument(this.docNumber);
+      }
+      if (doc && doc.header) {
+        this.docNumber = doc.header.docNumber || (targetEmpNo ? `DOC-${targetEmpNo}` : this.docNumber);
+        this.currentEmpNo = doc.header.empNo || targetEmpNo || this.currentEmpNo;
+        this.docDate = doc.header.docDate || this.docDate;
+        this.documentStatus = doc.header.status || 'Waiting for purchase approve';
+        this.requestBy = doc.header.requestBy || this.requestBy;
+        this.division = doc.header.division || this.division;
+        this.section = doc.header.section || this.section;
+        this.sectionName = doc.header.sectionName || this.sectionName;
+        this.priority = doc.header.priority || 'NORMAL';
+        this.priorityReason = doc.header.priorityReason !== undefined ? doc.header.priorityReason : '';
+        this.orderType = doc.header.orderType || 'Spare Part M/C';
+        this.orderTypeDesc = doc.header.orderTypeDesc !== undefined ? doc.header.orderTypeDesc : '';
+        this.sendToPurchase = doc.header.sendToPurchase !== undefined ? doc.header.sendToPurchase : '';
+        this.ccList = doc.header.cc !== undefined ? doc.header.cc : '-';
+        this.approvalComment = doc.header.approvalComment !== undefined ? doc.header.approvalComment : '';
+      }
+      if (doc && Array.isArray(doc.items)) {
+        this.items = doc.items;
+      } else {
+        this.items = [];
+      }
+    } catch (err) {
+      console.warn('Failed to load document from DB:', err);
+      this.items = [];
+    }
+  }
+
+  editHeader(): void {
+    this.headerBackup = {
+      documentStatus: this.documentStatus,
+      requestBy: this.requestBy,
+      docDate: this.docDate,
+      division: this.division,
+      section: this.section,
+      sectionName: this.sectionName,
+      priority: this.priority,
+      priorityReason: this.priorityReason,
+      orderType: this.orderType,
+      orderTypeDesc: this.orderTypeDesc,
+      sendToPurchase: this.sendToPurchase,
+      ccList: this.ccList
+    };
+    this.isEditingHeader = true;
+    this.showToast('เริ่มแก้ไขข้อมูลหัวเอกสาร (Header)');
+  }
+
+  async saveHeader(): Promise<void> {
+    const activeEmp = this.currentEmpNo || this.loggedInEmployeeId || 'PEERAPAT';
+    const headerData = {
+      docNumber: this.docNumber,
+      empNo: activeEmp,
+      docDate: this.docDate,
+      status: this.documentStatus,
+      requestBy: this.requestBy,
+      division: this.division,
+      section: this.section,
+      sectionName: this.sectionName,
+      priority: this.priority,
+      priorityReason: this.priorityReason,
+      orderType: this.orderType,
+      orderTypeDesc: this.orderTypeDesc,
+      sendToPurchase: this.sendToPurchase,
+      cc: this.ccList,
+      approvalComment: this.approvalComment
+    };
+
+    const success = await this.apiService.saveRequisitionHeader(this.docNumber, headerData, activeEmp);
+    this.isEditingHeader = false;
+    this.headerBackup = null;
+    if (success) {
+      this.showToast(`บันทึกข้อมูลหัวเอกสารบัญชี ${activeEmp} ลงฐานข้อมูลสำเร็จ`);
+    } else {
+      this.showToast('บันทึกข้อมูลหัวเอกสารเรียบร้อยแล้ว');
+    }
+  }
+
+  cancelEditHeader(): void {
+    if (this.headerBackup) {
+      Object.assign(this, this.headerBackup);
+      this.headerBackup = null;
+    }
+    this.isEditingHeader = false;
+    this.showToast('ยกเลิกการแก้ไขข้อมูลเอกสาร');
+  }
+
+  toggleEditAllRows(): void {
+    this.isEditingAllRows = !this.isEditingAllRows;
+    this.items.forEach(item => {
+      item.isEditing = this.isEditingAllRows;
+      if (this.isEditingAllRows && !item.backupData) {
+        item.backupData = JSON.parse(JSON.stringify(item));
+      }
+    });
+    this.showToast(this.isEditingAllRows ? 'เปิดโหมดแก้ไขทุกแถว' : 'ปิดโหมดแก้ไขทุกแถว');
+  }
+
   editRow(item: RequisitionItem, event?: Event): void {
     if (event) {
       event.stopPropagation();
@@ -568,13 +629,25 @@ export class AppComponent implements AfterViewInit {
     this.showToast(`กำลังแก้ไขรายการ #${item.no}`);
   }
 
-  saveRow(item: RequisitionItem, event?: Event): void {
+  async saveRow(item: RequisitionItem, event?: Event): Promise<void> {
     if (event) {
       event.stopPropagation();
     }
     item.isEditing = false;
     delete item.backupData;
-    this.showToast(`บันทึกข้อมูลรายการ #${item.no} เรียบร้อยแล้ว`);
+
+    const activeEmp = this.currentEmpNo || this.loggedInEmployeeId || 'PEERAPAT';
+    const itemPayload = {
+      ...item,
+      docNumber: this.docNumber,
+      empNo: activeEmp
+    };
+    const success = await this.apiService.saveRequisitionItem(itemPayload);
+    if (success) {
+      this.showToast(`บันทึกข้อมูลรายการ #${item.no} ลงฐานข้อมูลสำเร็จ`);
+    } else {
+      this.showToast(`บันทึกข้อมูลรายการ #${item.no} เรียบร้อยแล้ว`);
+    }
   }
 
   cancelEditRow(item: RequisitionItem, event?: Event): void {
@@ -594,10 +667,10 @@ export class AppComponent implements AfterViewInit {
     this.addRow();
   }
 
-  addRow(): void {
+  async addRow(): Promise<void> {
     const nextNo = this.items.length + 1;
     const newItem: RequisitionItem = {
-      id: Date.now(),
+      id: 0,
       no: nextNo,
       partName: '',
       spec: '',
@@ -628,18 +701,57 @@ export class AppComponent implements AfterViewInit {
     this.showToast(`เพิ่มรายการใหม่ #${nextNo} พร้อมแก้ไข`);
   }
 
-  deleteItem(index: number, event?: Event): void {
+  async deleteItem(index: number, event?: Event): Promise<void> {
     if (event) {
       event.stopPropagation();
     }
-    const removedNo = this.items[index]?.no;
+    const itemToDelete = this.items[index];
+    const removedNo = itemToDelete?.no;
+
+    if (itemToDelete && itemToDelete.id) {
+      await this.apiService.deleteRequisitionItem(itemToDelete.id);
+    }
+
     this.items.splice(index, 1);
     this.items.forEach((item, idx) => item.no = idx + 1);
-    this.showToast(`ลบรายการ #${removedNo} แล้ว`);
+    this.showToast(`ลบรายการ #${removedNo} เรียบร้อยแล้ว`);
   }
 
-  saveEntireDocument(): void {
-    this.showToast('บันทึกข้อมูลเอกสาร Requisition ทั้งหมดสำเร็จ');
+  async saveEntireDocument(): Promise<void> {
+    const activeEmp = this.currentEmpNo || this.loggedInEmployeeId || 'PEERAPAT';
+    const headerData = {
+      docNumber: this.docNumber,
+      empNo: activeEmp,
+      docDate: this.docDate,
+      status: this.documentStatus,
+      requestBy: this.requestBy,
+      division: this.division,
+      section: this.section,
+      sectionName: this.sectionName,
+      priority: this.priority,
+      priorityReason: this.priorityReason,
+      orderType: this.orderType,
+      orderTypeDesc: this.orderTypeDesc,
+      sendToPurchase: this.sendToPurchase,
+      cc: this.ccList,
+      approvalComment: this.approvalComment
+    };
+
+    // Close all editing flags
+    this.isEditingHeader = false;
+    this.isEditingAllRows = false;
+    this.items.forEach(i => {
+      i.isEditing = false;
+      delete i.backupData;
+    });
+
+    const success = await this.apiService.saveEntireDocument(this.docNumber, headerData, this.items, activeEmp);
+    if (success) {
+      this.showToast(`บันทึกข้อมูล Requisition ของบัญชี ${activeEmp} ลงฐานข้อมูลสำเร็จ`);
+      await this.loadDocumentFromDb(activeEmp);
+    } else {
+      this.showToast('บันทึกข้อมูลเอกสาร Requisition ทั้งหมดสำเร็จ');
+    }
   }
 
   exportData(): void {
@@ -725,6 +837,13 @@ export class AppComponent implements AfterViewInit {
         if (user.section) this.section = user.section;
         if (user.sectionName) this.sectionName = user.sectionName;
 
+        // Persist session to localStorage so reloading the page doesn't require re-login
+        try {
+          localStorage.setItem('suppier_auth_user', JSON.stringify(user));
+        } catch (storageErr) {
+          console.warn('Could not persist auth session to localStorage:', storageErr);
+        }
+
         // Progress smoothly through the animations
         setTimeout(() => {
           this.loginPhase = 'converging';
@@ -739,10 +858,12 @@ export class AppComponent implements AfterViewInit {
           this.loginPhase = 'success';
         }, 3300);
 
-        setTimeout(() => {
+        setTimeout(async () => {
           this.isLoggedIn = true;
           this.loginPhase = 'input';
           this.downloadPercent = 0;
+          this.currentEmpNo = user.empNo;
+          await this.loadDocumentFromDb(user.empNo);
           this.showToast(`Login successful. Welcome, ${this.requestBy} (${this.loggedInEmployeeId})`);
         }, 3900);
 
@@ -791,12 +912,15 @@ export class AppComponent implements AfterViewInit {
 
   logout(): void {
     console.log(`%c[Suppier Auth] 🚪 User ${this.loggedInEmployeeId} logged out.`, 'color: #64748b;');
+    try {
+      localStorage.removeItem('suppier_auth_user');
+    } catch (e) {}
     this.isLoggedIn = false;
     this.otpCode = '';
     this.loggedInEmployeeId = '';
+    this.currentEmpNo = '';
     this.currentUser = null;
-    this.requestBy = '';
-    this.sectionName = '';
+    this.items = [];
     this.loginPhase = 'input';
     this.downloadPercent = 0;
     this.showEmployeeCardModal = false;

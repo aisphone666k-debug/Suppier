@@ -507,14 +507,58 @@
               <!-- ================= REQUISITION DETAILS ================= -->
               <div class="space-y-3.5 sm:space-y-4 text-sm sm:text-base font-sans">
 
+                <!-- Header Actions Bar: Edit Header / Save / Cancel -->
+                <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-block w-2.5 h-2.5 rounded-full" [class.bg-emerald-500]="!isEditingHeader" [class.bg-amber-500]="isEditingHeader"></span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                      {{ isEditingHeader ? 'โหมดแก้ไขข้อมูลเอกสาร (Edit Header Mode)' : 'ข้อมูลเอกสารขอซื้อ (Requisition Info)' }}
+                    </span>
+                  </div>
+
+                  <!-- Edit button when in view mode -->
+                  <div *ngIf="!isEditingHeader">
+                    <button type="button" (click)="editHeader()"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer shadow-2xs hover:shadow-xs">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                      <span>Edit Header (แก้ไข)</span>
+                    </button>
+                  </div>
+
+                  <!-- Save / Cancel buttons when in edit mode -->
+                  <div *ngIf="isEditingHeader" class="flex items-center gap-2">
+                    <button type="button" (click)="saveHeader()"
+                      class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all cursor-pointer shadow-xs">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Save Header (บันทึก)</span>
+                    </button>
+                    <button type="button" (click)="cancelEditHeader()"
+                      class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer">
+                      <span>Cancel (ยกเลิก)</span>
+                    </button>
+                  </div>
+                </div>
+
                 <!-- 0. Status -->
                 <div class="flex flex-col sm:flex-row sm:items-baseline">
                   <div class="sm:w-48 shrink-0 font-bold text-[#131936] text-sm sm:text-base flex justify-between pr-3">
                     <span>Status</span>
                     <span>:</span>
                   </div>
-                  <div class="flex-1 font-bold text-red-600 text-sm sm:text-base">
+                  <!-- View Mode -->
+                  <div *ngIf="!isEditingHeader" class="flex-1 font-bold text-red-600 text-sm sm:text-base">
                     {{ documentStatus }}
+                  </div>
+                  <!-- Edit Mode -->
+                  <div *ngIf="isEditingHeader" class="flex-1">
+                    <select [(ngModel)]="documentStatus"
+                      class="px-3 py-1 text-sm font-bold text-red-600 bg-white border border-blue-400 focus:border-blue-600 rounded-lg outline-none shadow-2xs">
+                      <option *ngFor="let st of statusOptions" [value]="st">{{ st }}</option>
+                    </select>
                   </div>
                 </div>
 
@@ -524,12 +568,20 @@
                     <span>Request by</span>
                     <span>:</span>
                   </div>
-                  <div
+                  <!-- View Mode -->
+                  <div *ngIf="!isEditingHeader"
                     class="flex-1 font-bold text-emerald-800 text-sm sm:text-base flex flex-wrap items-baseline gap-x-3">
                     <span class="tracking-tight">{{ requestBy }}</span>
                     <span class="font-mono font-medium text-xs sm:text-sm text-emerald-700">
                       {{ docDate }}
                     </span>
+                  </div>
+                  <!-- Edit Mode -->
+                  <div *ngIf="isEditingHeader" class="flex-1 flex flex-wrap items-center gap-2">
+                    <input type="text" [(ngModel)]="requestBy" placeholder="ชื่อผู้ขอซื้อ (Request By)"
+                      class="px-2.5 py-1 text-sm font-bold text-emerald-800 bg-white border border-blue-400 focus:border-blue-600 rounded-lg outline-none w-64 shadow-2xs" />
+                    <input type="text" [(ngModel)]="docDate" placeholder="วันที่และเวลา (DD/MM/YYYY HH:mm)"
+                      class="px-2.5 py-1 text-xs font-mono font-medium text-emerald-700 bg-white border border-blue-400 focus:border-blue-600 rounded-lg outline-none w-44 shadow-2xs" />
                   </div>
                 </div>
 
@@ -539,8 +591,21 @@
                     <span>Division</span>
                     <span>:</span>
                   </div>
-                  <div class="flex-1 font-bold text-emerald-800 text-sm sm:text-base">
+                  <!-- View Mode -->
+                  <div *ngIf="!isEditingHeader" class="flex-1 font-bold text-emerald-800 text-sm sm:text-base">
                     {{ division }}
+                  </div>
+                  <!-- Edit Mode -->
+                  <div *ngIf="isEditingHeader" class="flex-1 flex items-center gap-2">
+                    <input type="text" [(ngModel)]="division" placeholder="Division"
+                      class="px-2.5 py-1 text-sm font-bold text-emerald-800 bg-white border border-blue-400 focus:border-blue-600 rounded-lg outline-none w-32 shadow-2xs uppercase" />
+                    <div class="flex items-center gap-1">
+                      <button *ngFor="let d of divisionOptions" type="button" (click)="division = d"
+                        [class.bg-emerald-100]="division === d" [class.text-emerald-800]="division === d"
+                        class="px-2 py-0.5 text-xs rounded border border-slate-200 text-slate-600 hover:bg-slate-100 cursor-pointer">
+                        {{ d }}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -550,8 +615,21 @@
                     <span>Section</span>
                     <span>:</span>
                   </div>
-                  <div class="flex-1 font-bold text-emerald-800 text-sm sm:text-base">
+                  <!-- View Mode -->
+                  <div *ngIf="!isEditingHeader" class="flex-1 font-bold text-emerald-800 text-sm sm:text-base">
                     {{ section }}
+                  </div>
+                  <!-- Edit Mode -->
+                  <div *ngIf="isEditingHeader" class="flex-1 flex items-center gap-2">
+                    <input type="text" [(ngModel)]="section" placeholder="Section"
+                      class="px-2.5 py-1 text-sm font-bold text-emerald-800 bg-white border border-blue-400 focus:border-blue-600 rounded-lg outline-none w-32 shadow-2xs uppercase" />
+                    <div class="flex items-center gap-1">
+                      <button *ngFor="let s of sectionOptions" type="button" (click)="section = s"
+                        [class.bg-emerald-100]="section === s" [class.text-emerald-800]="section === s"
+                        class="px-2 py-0.5 text-xs rounded border border-slate-200 text-slate-600 hover:bg-slate-100 cursor-pointer">
+                        {{ s }}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -562,12 +640,27 @@
                     <span>Priority check</span>
                     <span>:</span>
                   </div>
-                  <div class="flex-1 space-y-1.5">
+                  <!-- View Mode -->
+                  <div *ngIf="!isEditingHeader" class="flex-1 space-y-1.5">
                     <div class="font-black text-rose-600 text-sm sm:text-base tracking-wide">
                       {{ priority }}
                     </div>
                     <div class="font-bold text-rose-600 text-sm sm:text-base font-mono tracking-tight">
                       Reason : {{ priorityReason }}
+                    </div>
+                  </div>
+                  <!-- Edit Mode -->
+                  <div *ngIf="isEditingHeader" class="flex-1 space-y-2">
+                    <div class="flex items-center gap-2">
+                      <select [(ngModel)]="priority"
+                        class="px-2.5 py-1 text-sm font-black text-rose-600 bg-white border border-blue-400 focus:border-blue-600 rounded-lg outline-none shadow-2xs">
+                        <option *ngFor="let p of priorityOptions" [value]="p">{{ p }}</option>
+                      </select>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-mono font-bold text-rose-600 shrink-0">Reason :</span>
+                      <input type="text" [(ngModel)]="priorityReason" placeholder="Priority Reason"
+                        class="px-2.5 py-1 text-sm font-bold text-rose-600 font-mono bg-white border border-blue-400 focus:border-blue-600 rounded-lg outline-none flex-1 max-w-md shadow-2xs uppercase" />
                     </div>
                   </div>
                 </div>
@@ -578,9 +671,17 @@
                     <span>Order Type</span>
                     <span>:</span>
                   </div>
-                  <div class="flex-1 font-bold text-emerald-800 text-sm sm:text-base">
+                  <!-- View Mode -->
+                  <div *ngIf="!isEditingHeader" class="flex-1 font-bold text-emerald-800 text-sm sm:text-base">
                     <span>{{ orderType }}</span>
                     <span class="font-normal text-xs sm:text-sm text-slate-600 ml-1.5">({{ orderTypeDesc }})</span>
+                  </div>
+                  <!-- Edit Mode -->
+                  <div *ngIf="isEditingHeader" class="flex-1 flex flex-col sm:flex-row gap-2">
+                    <input type="text" [(ngModel)]="orderType" placeholder="Order Type"
+                      class="px-2.5 py-1 text-sm font-bold text-emerald-800 bg-white border border-blue-400 focus:border-blue-600 rounded-lg outline-none w-48 shadow-2xs" />
+                    <input type="text" [(ngModel)]="orderTypeDesc" placeholder="คำอธิบาย Order Type"
+                      class="px-2.5 py-1 text-xs text-slate-700 bg-white border border-blue-400 focus:border-blue-600 rounded-lg outline-none flex-1 max-w-md shadow-2xs" />
                   </div>
                 </div>
 
@@ -591,9 +692,14 @@
                     <span>Send to Purchase</span>
                     <span>:</span>
                   </div>
-                  <div class="flex-1 font-bold text-emerald-800 text-xs sm:text-sm leading-relaxed">
-                    NATTHANICHA SONTHIKESORN, PEERAPAT BUASA, TICHAGORN PROMJAREE, SIRITORN KUSOLEIAM, KUNLADA PANMAN,
-                    THEERARAT NANTHAWISIT, ANUSARA KUEADET, CHANTHANY THAI
+                  <!-- View Mode -->
+                  <div *ngIf="!isEditingHeader" class="flex-1 font-bold text-emerald-800 text-xs sm:text-sm leading-relaxed">
+                    {{ sendToPurchase }}
+                  </div>
+                  <!-- Edit Mode -->
+                  <div *ngIf="isEditingHeader" class="flex-1">
+                    <textarea rows="2" [(ngModel)]="sendToPurchase" placeholder="List purchasers separated by commas"
+                      class="w-full max-w-2xl px-2.5 py-1 text-xs font-bold text-emerald-800 bg-white border border-blue-400 focus:border-blue-600 rounded-lg outline-none shadow-2xs resize-y"></textarea>
                   </div>
                 </div>
 
@@ -603,8 +709,14 @@
                     <span>CC</span>
                     <span>:</span>
                   </div>
-                  <div class="flex-1 text-slate-400 font-medium text-sm sm:text-base">
+                  <!-- View Mode -->
+                  <div *ngIf="!isEditingHeader" class="flex-1 text-slate-400 font-medium text-sm sm:text-base">
                     {{ ccList }}
+                  </div>
+                  <!-- Edit Mode -->
+                  <div *ngIf="isEditingHeader" class="flex-1">
+                    <input type="text" [(ngModel)]="ccList" placeholder="CC List"
+                      class="px-2.5 py-1 text-sm text-slate-600 bg-white border border-blue-400 focus:border-blue-600 rounded-lg outline-none w-48 shadow-2xs" />
                   </div>
                 </div>
 
@@ -615,6 +727,49 @@
 
           <!-- ================= MAIN DATA TABLE ================= -->
           <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+            <!-- Table Action Bar -->
+            <div class="px-5 py-3 bg-slate-50/90 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <span class="w-3 h-3 rounded-full bg-blue-600 shadow-2xs"></span>
+                <h3 class="font-extrabold text-slate-900 text-sm">รายการอะไหล่และอุปกรณ์ (Requisition Items)</h3>
+                <span class="px-2.5 py-0.5 text-xs font-bold bg-blue-100/80 text-blue-800 rounded-full border border-blue-200/60 shadow-2xs">
+                  {{ items.length }} รายการ
+                </span>
+              </div>
+
+              <div class="flex items-center gap-2 flex-wrap">
+                <!-- Edit All Rows Toggle -->
+                <button type="button" (click)="toggleEditAllRows()"
+                  [class]="isEditingAllRows 
+                    ? 'bg-amber-500 hover:bg-amber-600 text-white border-amber-600 shadow-xs' 
+                    : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300 shadow-2xs'"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  <span>{{ isEditingAllRows ? 'Done Editing All (เสร็จสิ้น)' : 'Edit All Rows (แก้ไขทุกแถว)' }}</span>
+                </button>
+
+                <!-- Add New Row Button -->
+                <button type="button" (click)="addRow()"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 transition-all cursor-pointer shadow-2xs">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>+ Add Row (เพิ่มแถว)</span>
+                </button>
+
+                <!-- Save All To Database Button -->
+                <button type="button" (click)="saveEntireDocument()"
+                  class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all cursor-pointer shadow-xs">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                  </svg>
+                  <span>Save All to Database (บันทึกทั้งหมด)</span>
+                </button>
+              </div>
+            </div>
+
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse min-w-[1700px]">
 
@@ -803,6 +958,24 @@
 
                 <!-- TABLE BODY (Pen icon triggered edit mode) -->
                 <tbody class="text-xs divide-y divide-slate-200">
+                  <!-- Empty State Row when account has no items -->
+                  <tr *ngIf="items.length === 0">
+                    <td colspan="28" class="py-12 text-center bg-slate-50/60">
+                      <div class="flex flex-col items-center justify-center gap-2 max-w-md mx-auto">
+                        <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 shadow-2xs">
+                          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                              d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                          </svg>
+                        </div>
+                        <div class="text-sm font-bold text-slate-700">ไม่มีรายการอะไหล่และอุปกรณ์ (No items found)</div>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                          ยังไม่มีข้อมูลรายการสำหรับบัญชีนี้ คลิกปุ่ม <span class="font-bold text-blue-600">+ เพิ่มรายการ (Add Row)</span> ด้านล่างเพื่อเริ่มกรอกข้อมูล
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+
                   <tr *ngFor="let item of items; let i = index"
                     [class]="item.isEditing 
                     ? 'bg-blue-50/50 ring-1 ring-blue-300 transition-colors' 
@@ -840,10 +1013,18 @@
                           </button>
                           <!-- Cancel Button ✕ -->
                           <button type="button" (click)="cancelEditRow(item, $event)" title="ยกเลิกการแก้ไข (Cancel)"
-                            class="bg-slate-200 hover:bg-rose-600 hover:text-white text-slate-600 p-1 rounded shadow-2xs transition-colors cursor-pointer">
+                            class="bg-slate-200 hover:bg-slate-300 text-slate-600 p-1 rounded shadow-2xs transition-colors cursor-pointer">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
                                 d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                          <!-- Delete Button 🗑️ -->
+                          <button type="button" (click)="deleteItem(i, $event)" title="ลบรายการนี้ (Delete)"
+                            class="bg-rose-100 hover:bg-rose-600 hover:text-white text-rose-600 p-1 rounded shadow-2xs transition-colors cursor-pointer">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                           </button>
                         </div>
