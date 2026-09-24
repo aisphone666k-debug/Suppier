@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService, EmployeeUser } from './services/api.service';
@@ -173,7 +173,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     { value: '261', label: 'Working Day', boxClass: 'border border-emerald-600 text-emerald-800 bg-emerald-50' },
     { value: '15', label: 'Traditional Holiday', boxClass: 'bg-[#22c55e] text-white' },
     { value: '52', label: 'Holiday (sun)', boxClass: 'bg-red-500 text-white' },
-    { value: '37', label: 'Holiday (sat)', boxClass: 'bg-[#facc15] text-slate-900' },
+    { value: '37', label: 'Holiday (sat)', boxClass: 'bg-[#FFF600] text-slate-900' },
     { value: '104', label: 'Total Holiday', boxClass: 'border border-slate-400 text-slate-800 bg-white' }
   ];
 
@@ -258,8 +258,8 @@ export class AppComponent implements OnInit, AfterViewInit {
       weeks: [
         [{ d: null, t: 'none' }, { d: 1, t: 'trad' }, { d: 2, t: 'sat' }, { d: 3, t: 'trad' }, { d: 4, t: 'work' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }],
         [{ d: 7, t: 'sun' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'work' }, { d: 13, t: 'work' }],
-        [{ d: 14, t: 'sun' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }],
-        [{ d: 21, t: 'sun' }, { d: 22, t: 'work' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'work' }, { d: 27, t: 'work' }],
+        [{ d: 14, t: 'sun' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'work' }, { d: 20, t: 'sat' }],
+        [{ d: 21, t: 'sun' }, { d: 22, t: 'work' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'work' }, { d: 27, t: 'sat' }],
         [{ d: 28, t: 'sun' }, { d: 29, t: 'work' }, { d: 30, t: 'work' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }],
       ]
     },
@@ -1140,6 +1140,17 @@ export class AppComponent implements OnInit, AfterViewInit {
     return (this.currentUser?.sectionName || this.sectionName || '').toUpperCase().trim();
   }
 
+  get employeeProcessName(): string {
+    const proc = (
+      this.currentUser?.process ||
+      this.currentUser?.processName ||
+      this.currentUser?.process_name ||
+      ''
+    ).trim();
+    if (proc) return proc.toUpperCase();
+    return this.employeeEnglishName;
+  }
+
   get employeeThaiName(): string {
     if (this.currentUser?.thaiName) return this.currentUser.thaiName;
     const empNo = (this.currentUser?.empNo || this.loggedInEmployeeId || '').toUpperCase();
@@ -1159,13 +1170,27 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   get employeeNameWithoutPrefix(): string {
-    const raw = (this.currentUser?.fullName || this.currentUser?.rawName || this.requestBy || '').trim();
+    const raw = (this.currentUser?.fullName || this.currentUser?.titleName || this.currentUser?.rawName || this.requestBy || '').trim();
     if (!raw) return '';
     return raw
-      .replace(/^(MR\.|MISS|MRS\.|MS\.)\s+/i, '')
+      .replace(/^(MR\.|MISS|MRS\.|MS\.|นาย|นางสาว|นาง|น\.ส\.)\s*/i, '')
       .replace(/\s+/g, ' ')
       .trim()
       .toUpperCase();
+  }
+
+  get employeeFirstName(): string {
+    const name = this.employeeNameWithoutPrefix;
+    if (!name) return '';
+    const parts = name.split(' ');
+    return parts[0] || '';
+  }
+
+  get employeeLastName(): string {
+    const name = this.employeeNameWithoutPrefix;
+    if (!name) return '';
+    const parts = name.split(' ');
+    return parts.slice(1).join(' ') || '';
   }
 
   get employeeEnglishName(): string {
@@ -1233,6 +1258,13 @@ export class AppComponent implements OnInit, AfterViewInit {
       };
     }
     this.showEmployeeCardModal = true;
+  }
+
+  @HostListener('window:keydown.escape')
+  handleEscapeKey(): void {
+    if (this.showEmployeeCardModal) {
+      this.closeEmployeeCard();
+    }
   }
 
   closeEmployeeCard(): void {

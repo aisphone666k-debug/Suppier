@@ -272,7 +272,7 @@
             <div class="text-left">
               <div
                 class="text-sm sm:text-base font-black text-[#131936] group-hover:text-blue-700 leading-none tracking-tight transition-colors">
-                รหัส: <span class="font-mono text-blue-700">{{ loggedInEmployeeId || '12345' }}</span>
+                <span class="font-mono text-blue-700">{{ loggedInEmployeeId || '12345' }}</span>
               </div>
             </div>
           </div>
@@ -1643,42 +1643,37 @@
                   </div>
 
                   <!-- RIGHT COLUMN: Employee Information (Height matches photo box h-[165px] sm:h-[195px]) -->
-                  <div class="flex-1 h-[165px] sm:h-[195px] flex flex-col justify-between pr-2 sm:pr-4">
+                  <div class="flex-1 h-[165px] sm:h-[195px] flex flex-col justify-between pr-2 sm:pr-4 py-0.5">
 
-                    <!-- Names Area: Upper English Name and MR. Name pushed up together -->
-                    <div class="space-y-0.5 sm:space-y-1 pt-1 sm:pt-1.5">
-                      <!-- Primary Employee Name (English without MR) -->
-                      <div
-                        class="text-2xl sm:text-[28px] font-black text-slate-950 leading-tight tracking-tight uppercase">
-                        {{ employeeNameWithoutPrefix }}
-                      </div>
-
-                      <!-- English Name with MR. -->
-                      <div class="text-sm sm:text-base font-black text-slate-900 tracking-tight uppercase leading-snug">
-                        {{ employeeEnglishName }}
-                      </div>
+                    <!-- 1. Primary Employee Name (First Name & Last Name separated) -->
+                    <div
+                      class="text-xl sm:text-[25px] font-black text-slate-950 leading-[1.05] tracking-tight uppercase flex flex-col">
+                      <span>{{ employeeFirstName }}</span>
+                      <span *ngIf="employeeLastName">{{ employeeLastName }}</span>
                     </div>
 
-                    <!-- Middle Space: Section_Name (ดึงข้อมูล Section_Name มาแสดงตรงช่องว่าง) -->
+                    <!-- 2. Process_Name (ดึง Process_Name มาแสดงแทนชื่อ MR.) -->
+                    <div class="text-sm sm:text-base font-black text-slate-900 tracking-tight uppercase leading-none">
+                      {{ employeeProcessName }}
+                    </div>
+
+                    <!-- 3. Section_Name -->
                     <div
-                      class="text-sm sm:text-base font-extrabold text-slate-900 uppercase tracking-tight leading-snug">
+                      class="text-sm sm:text-base font-extrabold text-slate-900 uppercase tracking-tight leading-none">
                       {{ employeeSectionName }}
                     </div>
 
-                    <!-- Lower Details: Division & Emp.Date -->
-                    <div class="space-y-1.5 sm:space-y-2">
-                      <!-- Department / Division -->
-                      <div class="text-sm sm:text-base font-extrabold text-slate-900 uppercase leading-snug">
-                        {{ currentUser?.divisionName || currentUser?.division || division || '' }}
-                      </div>
+                    <!-- 4. Department / Division -->
+                    <div class="text-sm sm:text-base font-extrabold text-slate-900 uppercase leading-none">
+                      {{ currentUser?.divisionName || currentUser?.division || division || '' }}
+                    </div>
 
-                      <!-- Emp.Date (Precisely aligned with bottom edge of employee photo) -->
-                      <div
-                        class="text-sm sm:text-base font-extrabold text-slate-950 flex items-center gap-2.5 leading-none pt-0.5">
-                        <span>Emp.Date</span>
-                        <span class="font-mono font-black text-slate-950">{{ currentUser?.empDate || cardEmpDate
-                          }}</span>
-                      </div>
+                    <!-- 5. Emp.Date (Precisely aligned with bottom edge of employee photo) -->
+                    <div
+                      class="text-sm sm:text-base font-extrabold text-slate-950 flex items-center gap-2.5 leading-none">
+                      <span>Emp.Date</span>
+                      <span class="font-mono font-black text-slate-950">{{ currentUser?.empDate || cardEmpDate
+                        }}</span>
                     </div>
 
                   </div>
@@ -1725,12 +1720,12 @@
                 <!-- Right Group: CALENDAR 2026 + Stat Badges placed close together -->
                 <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                   <!-- Calendar Year Title (Stacked CALENDAR on top of 2026) -->
-                  <div class="flex flex-col items-center justify-center shrink-0">
+                  <div class="flex flex-col items-center justify-end shrink-0 translate-y-[3.5px] sm:translate-y-[5px]">
                     <span
-                      class="text-[7.5px] sm:text-[8.5px] font-black tracking-widest text-[#004fa3] uppercase font-sans leading-tight">
+                      class="text-[7.5px] sm:text-[8.5px] font-black tracking-widest text-[#004fa3] uppercase font-sans leading-none translate-y-[1px] sm:translate-y-[1.5px]">
                       CALENDAR
                     </span>
-                    <span class="text-sm sm:text-lg font-black text-[#004fa3] leading-none font-sans tracking-tight">
+                    <span class="text-base sm:text-[21px] font-black text-[#004fa3] leading-none font-sans tracking-tight">
                       2026
                     </span>
                   </div>
@@ -1761,7 +1756,7 @@
                       </div>
                       <div class="flex items-center gap-1 shrink-0">
                         <span
-                          class="min-w-[20px] sm:min-w-[22px] h-3.5 sm:h-4 rounded-xs font-mono font-black flex items-center justify-center bg-[#facc15] text-slate-950 leading-none">37</span>
+                          class="min-w-[20px] sm:min-w-[22px] h-3.5 sm:h-4 rounded-xs font-mono font-black flex items-center justify-center bg-[#FFF600] text-slate-950 leading-none">37</span>
                         <span class="whitespace-nowrap font-sans font-bold">Holiday (sat)</span>
                       </div>
                       <div class="flex items-center gap-1 shrink-0">
@@ -1805,7 +1800,7 @@
                         <div class="flex items-center justify-center py-0.5 text-black font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">F</div>
                         <div class="flex items-center justify-center py-0.5">
                           <span
-                            class="w-[11px] h-[11px] sm:w-[13px] sm:h-[13px] rounded-full bg-[#facc15] text-black inline-flex items-center justify-center text-[5.8px] sm:text-[6.8px] font-sans font-black leading-none">S</span>
+                            class="w-[11px] h-[11px] sm:w-[13px] sm:h-[13px] rounded-full bg-[#FFF600] text-black inline-flex items-center justify-center text-[5.8px] sm:text-[6.8px] font-sans font-black leading-none">S</span>
                         </div>
                       </div>
 
@@ -1841,7 +1836,7 @@
                               [ngClass]="{
                                 'bg-[#dc2626]': cell.t === 'sun',
                                 'bg-[#16a34a]': cell.t === 'trad',
-                                'bg-[#facc15]': cell.t === 'sat'
+                                'bg-[#FFF600]': cell.t === 'sat'
                               }"
                               [style.color]="cell.t === 'sun' ? '#ffffff' : '#000000'"
                               [style.fontWeight]="cell.t !== 'work' ? '900' : '700'">
@@ -1899,17 +1894,6 @@
             </div>
 
           </div>
-        </div>
-
-        <!-- Action Footer (Only Close Button) -->
-        <div class="mt-5 flex items-center justify-center">
-          <button type="button" (click)="closeEmployeeCard()"
-            class="px-8 py-2.5 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 rounded-xl shadow-md border border-slate-200 transition-all cursor-pointer active:scale-95 flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-            <span>CLOSE</span>
-          </button>
         </div>
 
       </div>

@@ -11,6 +11,8 @@ export interface EmployeeUser {
   section: string;
   sectionName?: string;
   process?: string;
+  processName?: string;
+  process_name?: string;
   positionGroup?: string;
   shiftGroup?: string;
   profilePictureUrl?: string;
