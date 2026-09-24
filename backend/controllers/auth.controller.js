@@ -184,6 +184,8 @@ exports.verifyEmployee = async (req, res) => {
             section: section,
             sectionName: emp.Section_Name || '',
             process: emp.Process_Name || '',
+            processName: emp.Process_Name || '',
+            process_name: emp.Process_Name || '',
             positionGroup: positionGroup,
             shiftGroup: emp.ShiftGroup_Code || '',
             profilePictureUrl: emp.Profile_Picture_Url || '',
