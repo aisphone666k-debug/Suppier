@@ -301,4 +301,22 @@ export class ApiService {
       return false;
     }
   }
+
+  /**
+   * Get all quotation requests submitted by users (for PURCHASE section view)
+   */
+  async getAllQuotationRequests(): Promise<Array<{ header: any; items: any[] }>> {
+    console.log(`%c[Suppier API] 📡 Fetching all user quotation requests...`, 'color: #2563eb;');
+    try {
+      const response = await fetch(`${this.baseUrl}/requisition/all-requests`);
+      const res = await response.json();
+      if (res.success && Array.isArray(res.data)) {
+        console.log(`%c[Suppier API] 📥 Loaded ${res.data.length} quotation requests:`, 'color: #059669;', res.data);
+        return res.data;
+      }
+    } catch (err) {
+      console.warn('%c[Suppier API] ⚠️ Failed to fetch all requests from backend:', 'color: #d97706;', err);
+    }
+    return [];
+  }
 }

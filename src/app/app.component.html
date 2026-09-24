@@ -277,6 +277,13 @@
             </div>
           </div>
 
+          <!-- Purchase Quick Access Header Button -->
+          <button *ngIf="isPurchaseSection" (click)="openPurchaseQuotationView()"
+            class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black text-cyan-950 bg-gradient-to-r from-cyan-300 via-sky-300 to-cyan-400 hover:from-cyan-200 hover:to-sky-200 border border-cyan-500 shadow-xs hover:shadow-sm transition-all cursor-pointer">
+            <span>✉️</span>
+            <span>Purchase Quotation Requests</span>
+          </button>
+
           <button (click)="logout()" title="ออกจากระบบ"
             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -370,6 +377,41 @@
               <span class="truncate">{{ menu.label }}</span>
             </button>
           </nav>
+        </div>
+
+        <!-- Group 3: PURCHASE EXCLUSIVE MENU (Active when Section_Name is PURCHASE) -->
+        <div *ngIf="isPurchaseSection" class="space-y-2 pt-3 border-t-2 border-cyan-400 bg-gradient-to-b from-cyan-50/80 to-blue-50/40 p-3 rounded-2xl border border-cyan-200/80 shadow-xs">
+          <div class="flex items-center justify-between pb-1 border-b border-cyan-200/80">
+            <h2 class="text-xs font-black text-cyan-950 uppercase tracking-wider flex items-center gap-1.5">
+              <span>🛒</span> PURCHASE SECTION
+            </h2>
+            <span class="bg-cyan-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full shadow-2xs">ACTIVE</span>
+          </div>
+
+          <nav class="space-y-1">
+            <button (click)="openPurchaseQuotationView()" [class]="activeView === 'purchase-quotation' 
+              ? 'bg-gradient-to-r from-cyan-600 to-blue-700 text-white shadow-xs font-black ring-1 ring-cyan-300' 
+              : 'text-cyan-900 hover:bg-cyan-100 font-bold'"
+              class="w-full text-left px-2.5 py-2 rounded-xl text-xs sm:text-[13px] transition-all flex items-center justify-between group cursor-pointer">
+              <div class="flex items-center gap-2 truncate">
+                <span class="text-sm select-none">✉️</span>
+                <span class="truncate">User Quotation Requests</span>
+              </div>
+              <span class="bg-amber-400 text-amber-950 font-black text-[9px] px-1.5 py-0.5 rounded-md shadow-2xs">EMAIL</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- Testing / Demo Toggle for Purchase Section Mode -->
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 px-1">
+          <span class="font-medium flex items-center gap-1">
+            <span>🛡️</span> Purchase Mode:
+          </span>
+          <button (click)="togglePurchaseTestMode()" [class]="isPurchaseSection ? 'bg-cyan-600 text-white ring-1 ring-cyan-400 font-black' : 'bg-slate-200 text-slate-600 hover:bg-slate-300 font-bold'"
+            class="px-2 py-0.5 rounded-md text-[10px] transition-all cursor-pointer shadow-2xs"
+            title="คลิกเพื่อเปิด/ปิดโหมดจำลองแผนก PURCHASE สำหรับทดสอบได้ทุกบัญชี">
+            {{ isPurchaseSection ? 'ON' : 'OFF' }}
+          </button>
         </div>
 
       </aside>
@@ -1478,6 +1520,710 @@
                 </tbody>
               </table>
             </div>
+          </div>
+
+        </div>
+
+        <!-- ================= VIEW 3: PURCHASE QUOTATION REQUESTS & EMAIL GENERATOR ================= -->
+        <div *ngIf="activeView === 'purchase-quotation'" class="space-y-6">
+
+          <!-- Top Navigation Header Bar -->
+          <div
+            class="bg-gradient-to-r from-[#0d1636] via-[#131936] to-[#0f244a] text-white p-4 sm:p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-lg border border-cyan-500/30">
+            <div class="flex items-center space-x-3.5">
+              <div
+                class="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-xl shadow-md ring-2 ring-cyan-300/40 shrink-0">
+                ✉️
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
+                    Purchase: User Quotation Requests & Email Generator
+                  </h2>
+                  <span
+                    class="bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    PURCHASE SECTION
+                  </span>
+                </div>
+                <p class="text-xs text-slate-300 mt-0.5">
+                  รายการขอใบเสนอราคาจากผู้ใช้งานแผนกต่างๆ & คัดลอกแบบฟอร์มเพื่อส่งอีเมลขอราคาจาก Supplier ได้ทันที
+                </p>
+              </div>
+            </div>
+
+            <!-- Top Actions -->
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <button (click)="copyEmailQuotationToClipboard()"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-black text-slate-950 bg-gradient-to-r from-cyan-400 via-sky-300 to-cyan-300 hover:from-cyan-300 hover:to-sky-200 shadow-md hover:shadow-lg transition-all cursor-pointer transform active:scale-95">
+                <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                    d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                </svg>
+                <span>Copy for Email</span>
+              </button>
+
+              <button (click)="copyTableOnlyToClipboard()"
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-600 shadow-xs transition-colors cursor-pointer">
+                <span>📋</span>
+                <span>Copy Table</span>
+              </button>
+
+              <button (click)="openInEmailClient()"
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-cyan-200 bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-700/60 transition-colors cursor-pointer">
+                <span>📨</span>
+                <span>Open in Mail</span>
+              </button>
+
+              <button (click)="closePurchaseQuotationView()"
+                class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-rose-300 hover:text-white hover:bg-rose-900/40 border border-rose-500/40 transition-colors cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>Close</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Success Alert Banner when Copied -->
+          <div *ngIf="copyFeedbackText"
+            class="bg-emerald-50 border-2 border-emerald-500 text-emerald-950 px-4 py-3 rounded-2xl shadow-sm flex items-center justify-between gap-3 animate-pulse">
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">🎉</span>
+              <div>
+                <span class="font-black text-sm">{{ copyFeedbackText }}</span>
+                <p class="text-xs text-emerald-800">
+                  เปิด Outlook หรือ Gmail แล้วกด <kbd
+                    class="bg-white border border-emerald-400 font-mono px-1.5 py-0.5 rounded-md font-bold text-emerald-900">Ctrl
+                    + V</kbd> จะได้ทั้งหัวข้อ ข้อความ และตาราง Cyan ตามมาตรฐานเป๊ะ!
+                </p>
+              </div>
+            </div>
+            <button (click)="copyFeedbackText = ''" class="text-emerald-700 hover:text-emerald-950 font-bold text-sm">
+              ✕
+            </button>
+          </div>
+
+          <!-- Section 1: Filter Bar & Quotation Requests Table -->
+          <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 space-y-4">
+            
+            <!-- Top Header & 5 Filters Only: Division, Section, Priority check, Order Type, Send to Purchase -->
+            <div class="space-y-3.5 pb-3 border-b border-slate-100">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm sm:text-base font-black text-slate-900 flex items-center gap-1.5">
+                    <span class="text-lg">📑</span> คำขอใบเสนอราคา (Quotation Requests)
+                  </span>
+                  <span class="bg-blue-100 text-blue-800 font-black text-xs px-2.5 py-0.5 rounded-full">
+                    {{ filteredQuotationRequests.length }} / {{ allQuotationRequests.length }} รายการ
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <button (click)="resetAllFilters()"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors cursor-pointer">
+                    <span>✕</span>
+                    <span>Reset Filters</span>
+                  </button>
+                  <button (click)="loadAllQuotationRequests()" title="รีเฟรชข้อมูลจากระบบ"
+                    class="p-2 rounded-xl border border-slate-300 text-slate-600 hover:text-blue-700 hover:bg-slate-50 transition-colors cursor-pointer">
+                    <svg class="w-4 h-4" [class.animate-spin]="isLoadingRequests" fill="none" stroke="currentColor"
+                      viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 5 Requested Filters: Division, Section, Priority check, Order Type, Send to Purchase -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pt-1">
+                <!-- 1. Division Filter -->
+                <div class="space-y-1">
+                  <label class="text-[11px] font-black uppercase tracking-wider text-slate-600 flex items-center gap-1">
+                    <span>🏢</span> Division:
+                  </label>
+                  <select [(ngModel)]="filterDivision" (change)="onFilterChange()"
+                    class="w-full text-xs bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    <option value="ALL">All Divisions (ทุกฝ่าย)</option>
+                    <option *ngFor="let d of uniqueDivisions" [value]="d">
+                      {{ d }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- 2. Section Filter -->
+                <div class="space-y-1">
+                  <label class="text-[11px] font-black uppercase tracking-wider text-slate-600 flex items-center gap-1">
+                    <span>🏷️</span> Section:
+                  </label>
+                  <select [(ngModel)]="filterSection" (change)="onFilterChange()"
+                    class="w-full text-xs bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    <option value="ALL">All Sections (ทุกแผนก)</option>
+                    <option *ngFor="let s of uniqueSections" [value]="s">
+                      {{ s }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- 3. Priority Check Filter -->
+                <div class="space-y-1">
+                  <label class="text-[11px] font-black uppercase tracking-wider text-slate-600 flex items-center gap-1">
+                    <span>⚡</span> Priority Check:
+                  </label>
+                  <select [(ngModel)]="filterPriority" (change)="onFilterChange()"
+                    class="w-full text-xs bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    <option value="ALL">All Priorities (ทั้งหมด)</option>
+                    <option *ngFor="let p of uniquePriorities" [value]="p">
+                      {{ p }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- 4. Order Type Filter -->
+                <div class="space-y-1">
+                  <label class="text-[11px] font-black uppercase tracking-wider text-slate-600 flex items-center gap-1">
+                    <span>📦</span> Order Type:
+                  </label>
+                  <select [(ngModel)]="filterOrderType" (change)="onFilterChange()"
+                    class="w-full text-xs bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    <option value="ALL">All Order Types (ทุกประเภท)</option>
+                    <option *ngFor="let ot of uniqueOrderTypes" [value]="ot">
+                      {{ ot }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- 5. Send to Purchase Filter -->
+                <div class="space-y-1">
+                  <label class="text-[11px] font-black uppercase tracking-wider text-slate-600 flex items-center gap-1">
+                    <span>🛒</span> Send to Purchase:
+                  </label>
+                  <select [(ngModel)]="filterSendToPurchase" (change)="onFilterChange()"
+                    class="w-full text-xs bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    <option value="ALL">All Purchasers (ทุกคน)</option>
+                    <option *ngFor="let pur of uniqueSendToPurchasers" [value]="pur">
+                      {{ pur }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Table Action Toolbar: Select All Checkbox & Summary Counts -->
+            <div class="flex flex-wrap items-center justify-between gap-3 py-1">
+              <div class="flex items-center gap-3">
+                <!-- Checkbox to Select All Filtered Requests -->
+                <label class="inline-flex items-center gap-2 cursor-pointer select-none bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl transition-colors">
+                  <input type="checkbox" [checked]="isAllRequestsSelected" (change)="toggleSelectAllRequests($event)"
+                    class="w-4 h-4 text-cyan-600 rounded focus:ring-cyan-500 cursor-pointer" />
+                  <span class="text-xs font-black text-slate-800">
+                    Select All PURCHASE List (เลือกคำขอทั้งหมด)
+                  </span>
+                </label>
+
+                <span class="text-xs text-slate-500 hidden sm:inline">|</span>
+
+                <div class="text-xs text-slate-600 flex items-center gap-1.5">
+                  <span>เลือกแล้ว</span>
+                  <span class="font-black text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded-md border border-cyan-200">
+                    {{ selectedRequestsList.length }} / {{ filteredQuotationRequests.length }} คำขอ
+                  </span>
+                  <span>(รวม <strong class="text-slate-900 font-mono">{{ allItemsFromSelectedRequests.length }}</strong> รายการ)</span>
+                </div>
+              </div>
+
+              <!-- Quick Action Buttons -->
+              <div class="flex items-center gap-2 text-xs">
+                <button (click)="selectAllFilteredRequests()"
+                  class="px-2.5 py-1 rounded-lg bg-cyan-50 hover:bg-cyan-100 text-cyan-800 border border-cyan-300 font-bold transition-colors cursor-pointer">
+                  ✓ Select All
+                </button>
+                <button (click)="deselectAllRequests()"
+                  class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold transition-colors cursor-pointer">
+                  ✕ Deselect All
+                </button>
+              </div>
+            </div>
+
+            <!-- Empty Filter State -->
+            <div *ngIf="filteredQuotationRequests.length === 0"
+              class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-300 space-y-2">
+              <span class="text-3xl block">🔍</span>
+              <h4 class="text-sm font-black text-slate-800">ไม่พบคำขอใบเสนอราคาที่ตรงกับตัวกรองที่เลือก</h4>
+              <p class="text-xs text-slate-500">
+                ลองปรับเปลี่ยนค่า Division, Section, Priority, Order Type หรือ Send to Purchase
+              </p>
+              <button (click)="resetAllFilters()"
+                class="mt-2 px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold shadow-xs cursor-pointer">
+                ล้างตัวกรองทั้งหมด (Reset Filters)
+              </button>
+            </div>
+
+            <!-- Quotation Requests Table -->
+            <div *ngIf="filteredQuotationRequests.length > 0" class="overflow-x-auto rounded-xl border border-slate-200 shadow-2xs">
+              <table class="w-full text-left text-xs text-slate-800 divide-y divide-slate-200">
+                <thead class="bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 text-slate-700 font-black uppercase tracking-wider text-[11px]">
+                  <tr>
+                    <th class="p-3 text-center w-12">
+                      <input type="checkbox" [checked]="isAllRequestsSelected" (change)="toggleSelectAllRequests($event)"
+                        class="w-4 h-4 text-cyan-600 rounded focus:ring-cyan-500 cursor-pointer" title="Select All / Deselect All" />
+                    </th>
+                    <th class="p-3 text-center w-12">No.</th>
+                    <th class="p-3">Doc Number</th>
+                    <th class="p-3">Date Request</th>
+                    <th class="p-3">Request By</th>
+                    <th class="p-3 text-center">Division</th>
+                    <th class="p-3 text-center">Section</th>
+                    <th class="p-3 text-center">Priority</th>
+                    <th class="p-3">Order Type</th>
+                    <th class="p-3">Send to Purchase</th>
+                    <th class="p-3 text-center">Items</th>
+                    <th class="p-3 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 bg-white">
+                  <tr *ngFor="let req of filteredQuotationRequests; let idx = index"
+                    (click)="toggleRequestSelection(req.header?.docNumber)"
+                    [class]="isRequestSelected(req.header?.docNumber) ? 'bg-cyan-50/80 hover:bg-cyan-100/60 font-semibold' : 'hover:bg-slate-50'"
+                    class="cursor-pointer transition-colors group">
+                    <!-- Checkbox -->
+                    <td class="p-3 text-center" (click)="$event.stopPropagation()">
+                      <input type="checkbox" [checked]="isRequestSelected(req.header?.docNumber)"
+                        (change)="toggleRequestSelection(req.header?.docNumber, $event)"
+                        class="w-4 h-4 text-cyan-600 rounded focus:ring-cyan-500 cursor-pointer" />
+                    </td>
+
+                    <!-- Index -->
+                    <td class="p-3 text-center text-slate-500 font-mono">{{ idx + 1 }}</td>
+
+                    <!-- Doc Number -->
+                    <td class="p-3 font-mono font-bold text-blue-700 whitespace-nowrap">
+                      <div class="flex items-center gap-1.5">
+                        <span>{{ req.header?.docNumber }}</span>
+                        <span *ngIf="isRequestSelected(req.header?.docNumber)"
+                          class="bg-cyan-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">
+                          SELECTED
+                        </span>
+                      </div>
+                    </td>
+
+                    <!-- Date Request -->
+                    <td class="p-3 text-slate-600 font-mono whitespace-nowrap">
+                      {{ req.header?.docDate }}
+                    </td>
+
+                    <!-- Request By -->
+                    <td class="p-3 font-bold text-slate-900 whitespace-nowrap">
+                      <div class="flex items-center gap-1.5">
+                        <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-800 text-[10px] font-black flex items-center justify-center shrink-0">
+                          {{ getInitials(req.header?.requestBy || 'U') }}
+                        </span>
+                        <span>{{ req.header?.requestBy || '-' }}</span>
+                      </div>
+                    </td>
+
+                    <!-- Division -->
+                    <td class="p-3 text-center">
+                      <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold text-[11px]">
+                        {{ req.header?.division || '-' }}
+                      </span>
+                    </td>
+
+                    <!-- Section -->
+                    <td class="p-3 text-center">
+                      <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold text-[11px]" [title]="req.header?.sectionName || ''">
+                        {{ req.header?.section || '-' }}
+                      </span>
+                    </td>
+
+                    <!-- Priority -->
+                    <td class="p-3 text-center whitespace-nowrap">
+                      <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1"
+                        [class]="req.header?.priority === 'URGENT' ? 'bg-rose-100 text-rose-700 border border-rose-200' : 'bg-emerald-100 text-emerald-700 border border-emerald-200'">
+                        <span class="w-1.5 h-1.5 rounded-full" [class]="req.header?.priority === 'URGENT' ? 'bg-rose-500' : 'bg-emerald-500'"></span>
+                        {{ req.header?.priority || 'NORMAL' }}
+                      </span>
+                    </td>
+
+                    <!-- Order Type -->
+                    <td class="p-3 text-slate-700 whitespace-nowrap">
+                      <span class="font-medium">{{ req.header?.orderType || 'Spare Part M/C' }}</span>
+                    </td>
+
+                    <!-- Send to Purchase -->
+                    <td class="p-3 text-slate-600 max-w-[200px] truncate" [title]="req.header?.sendToPurchase || ''">
+                      {{ req.header?.sendToPurchase || '-' }}
+                    </td>
+
+                    <!-- Items Count -->
+                    <td class="p-3 text-center whitespace-nowrap">
+                      <span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-800 font-bold font-mono">
+                        {{ req.items?.length || 0 }} Items
+                      </span>
+                    </td>
+
+                    <!-- Status -->
+                    <td class="p-3 text-center whitespace-nowrap">
+                      <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                        {{ req.header?.status || 'Waiting' }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Section 2: Two-Column Workspace (Left: Details & Select Items, Right: Live Email Preview) -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+            <!-- ================= LEFT COLUMN: REQUEST DETAILS & ITEM SELECTOR (5 cols) ================= -->
+            <div class="lg:col-span-5 space-y-4">
+
+              <!-- Selected Requests Summary Card -->
+              <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 space-y-3.5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <h3 class="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                    <span>📋</span> คำขอที่เลือก (Selected Requests)
+                  </h3>
+                  <span class="text-xs font-mono font-bold text-cyan-700">
+                    {{ selectedRequestsList.length }} คำขอ
+                  </span>
+                </div>
+
+                <!-- Warning if no request selected -->
+                <div *ngIf="selectedRequestsList.length === 0"
+                  class="p-4 bg-amber-50 rounded-xl border border-amber-200 text-center space-y-1">
+                  <span class="text-2xl block">⚠️</span>
+                  <p class="text-xs font-bold text-amber-900">ยังไม่ได้เลือกคำขอใบเสนอราคา</p>
+                  <p class="text-[11px] text-amber-700">กรุณาทำเครื่องหมายถูกที่ตารางด้านบนเพื่อดึงรายการมาสร้างใบเสนอราคา</p>
+                </div>
+
+                <!-- Badges of selected requests -->
+                <div *ngIf="selectedRequestsList.length > 0" class="space-y-2">
+                  <p class="text-[11px] text-slate-500">
+                    คำขอที่ถูกเลือกจะถูกรวมรายการชิ้นส่วนทั้งหมดลงในตารางอีเมลด้านขวา:
+                  </p>
+                  <div class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
+                    <span *ngFor="let req of selectedRequestsList"
+                      class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-cyan-100 text-cyan-900 border border-cyan-300">
+                      <span>{{ req.header?.docNumber }}</span>
+                      <span class="text-[10px] font-sans font-normal text-cyan-700">
+                        ({{ req.header?.requestBy }} - {{ req.header?.division }}/{{ req.header?.section }})
+                      </span>
+                      <button (click)="$event.stopPropagation(); toggleRequestSelection(req.header?.docNumber)"
+                        class="text-cyan-800 hover:text-rose-600 font-bold ml-0.5 cursor-pointer" title="Remove request">
+                        ✕
+                      </button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Email Subject & Greeting Configuration Card -->
+              <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 space-y-3.5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <h3 class="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                    <span>✏️</span> ปรับแต่งหัวข้อและข้อความอีเมล (Email Content)
+                  </h3>
+                  <button (click)="copySubjectToClipboard()"
+                    class="text-[11px] font-bold text-cyan-700 hover:text-cyan-800 hover:underline flex items-center gap-1 cursor-pointer">
+                    <span>📋</span> คัดลอก Subject
+                  </button>
+                </div>
+
+                <!-- Email Subject Input -->
+                <div class="space-y-1">
+                  <label class="block text-[11px] font-black text-slate-700">
+                    หัวข้ออีเมล (Email Subject):
+                  </label>
+                  <input type="text" [(ngModel)]="quotationEmailSubject"
+                    class="w-full px-3 py-2 text-xs font-mono font-bold text-blue-900 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white" />
+                  <p class="text-[10px] text-slate-400">
+                    * รูปแบบหัวข้อตรงกับภาพ: <span class="font-mono text-slate-600">GM/MM Please Submit Quotation //TRISAK (24/9/26)</span>
+                  </p>
+                </div>
+
+                <!-- Salutation & Body Text -->
+                <div class="space-y-1">
+                  <label class="block text-[11px] font-black text-slate-700">
+                    ข้อความเนื้อหาอีเมล (Email Body Text):
+                  </label>
+                  <textarea [(ngModel)]="quotationEmailGreeting" rows="4"
+                    class="w-full px-3 py-2 text-xs text-slate-800 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white font-sans leading-relaxed"></textarea>
+                </div>
+              </div>
+
+              <!-- Items Checklist (Pick which items to include in quotation email) -->
+              <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <div>
+                    <h3 class="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                      <span>☑️</span> เลือกรายการที่ต้องการส่งขอราคา
+                    </h3>
+                    <p class="text-[11px] text-slate-500">
+                      เลือกแล้ว <span class="font-black text-cyan-700">{{ selectedQuotationItemIds.size }}</span> จาก
+                      {{ allItemsFromSelectedRequests.length }} รายการ (รวมทุกคำขอที่เลือก)
+                    </p>
+                  </div>
+
+                  <div class="flex items-center gap-1.5 text-xs">
+                    <button (click)="selectAllQuotationItems(true)"
+                      class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold text-slate-700 text-[11px] transition-colors cursor-pointer">
+                      เลือกทั้งหมด
+                    </button>
+                    <button (click)="selectAllQuotationItems(false)"
+                      class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold text-slate-700 text-[11px] transition-colors cursor-pointer">
+                      ยกเลิก
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Warning if no items available -->
+                <div *ngIf="allItemsFromSelectedRequests.length === 0"
+                  class="p-4 text-center text-xs text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                  ไม่มีรายการชิ้นส่วน (กรุณาเลือกคำขอจากตารางด้านบน)
+                </div>
+
+                <!-- Items list -->
+                <div *ngIf="allItemsFromSelectedRequests.length > 0" class="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+                  <div *ngFor="let item of allItemsFromSelectedRequests; let i = index"
+                    (click)="toggleQuotationItem(item.id || item.no)"
+                    [class]="isQuotationItemSelected(item) ? 'bg-cyan-50/70 border-cyan-300' : 'bg-slate-50/60 border-slate-200'"
+                    class="p-2.5 rounded-xl border flex items-center gap-3 transition-colors cursor-pointer hover:border-cyan-400">
+                    <input type="checkbox" [checked]="isQuotationItemSelected(item)"
+                      (click)="$event.stopPropagation(); toggleQuotationItem(item.id || item.no)"
+                      class="w-4 h-4 text-cyan-600 rounded focus:ring-cyan-500 cursor-pointer" />
+
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center justify-between gap-1">
+                        <span class="font-black text-xs text-slate-900 truncate">
+                          #{{ item.no || (i + 1) }}. {{ item.partName }}
+                        </span>
+                        <span class="font-bold text-xs font-mono text-cyan-900 shrink-0">
+                          {{ item.qty }} {{ item.unit }}
+                        </span>
+                      </div>
+                      <div class="flex items-center gap-2 text-[10px] text-slate-500 font-mono truncate mt-0.5">
+                        <span class="bg-blue-100 text-blue-900 px-1.5 py-0.2 rounded font-bold">
+                          {{ item.reqDocNumber }} ({{ item.requestBy }})
+                        </span>
+                        <span class="truncate">Spec: {{ item.spec || '-' }}</span>
+                        <span *ngIf="item.makerName" class="text-slate-600 font-bold">| Maker: {{ item.makerName }}</span>
+                      </div>
+                      <div *ngIf="item.machineModel" class="text-[10px] text-slate-500 truncate">
+                        M/C: {{ item.machineModel }} ({{ item.machineMaker || '-' }})
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- ================= RIGHT COLUMN: LIVE EMAIL PREVIEW & EXACT CYAN TABLE (7 cols) ================= -->
+            <div class="lg:col-span-7 space-y-4">
+
+              <!-- Email Client Mockup Card -->
+              <div
+                class="bg-white rounded-2xl border-2 border-slate-300 shadow-xl overflow-hidden flex flex-col">
+
+                <!-- Mockup Email Window Top Bar -->
+                <div class="bg-[#1f2937] text-white px-4 py-3 flex items-center justify-between border-b border-slate-700">
+                  <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+                    <span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span>
+                    <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                    <span class="text-xs font-mono text-slate-300 pl-2">
+                      Gmail / Outlook Email Preview
+                    </span>
+                  </div>
+
+                  <span class="text-[11px] font-bold text-cyan-300 bg-cyan-950/80 px-2 py-0.5 rounded-md border border-cyan-800">
+                    Live Formatted View
+                  </span>
+                </div>
+
+                <!-- Email Message Header (From, To, Subject) -->
+                <div class="p-4 sm:p-5 bg-slate-50/70 border-b border-slate-200 space-y-2 text-xs">
+                  <div class="text-base sm:text-lg font-black text-slate-900 leading-snug">
+                    {{ quotationEmailSubject }}
+                    <span class="ml-2 text-[10px] font-bold text-slate-500 uppercase bg-slate-200 px-1.5 py-0.5 rounded">Inbox</span>
+                  </div>
+
+                  <div class="flex items-center gap-2 pt-1 text-slate-700">
+                    <div
+                      class="w-8 h-8 rounded-full bg-blue-700 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-xs">
+                      {{ getInitials(currentUser?.fullName || requestBy || 'PB') }}
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900">
+                        {{ currentUser?.fullName || requestBy || 'Peerapat Buasa พีรพัฒน์ บัวสระ' }}
+                        <span class="font-normal text-slate-500 font-mono text-[11px]">
+                          &lt;{{ (currentUser?.empNo || loggedInEmployeeId || 'peerapat.b').toLowerCase() }}&#64;minebea.co.th&gt;
+                        </span>
+                      </div>
+                      <div class="text-[11px] text-slate-500">
+                        to Roongthip, Nopporn, Sunan, Tichagorn, Kunlada, Natthanicha, Anusara, Theerarat, me
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Email Body & The Exact Cyan Header Table (Styled for seamless copying to Outlook/Gmail) -->
+                <div class="p-4 sm:p-6 bg-white overflow-x-auto space-y-4 font-sans text-slate-900 min-w-0" id="email-preview-content">
+                  
+                  <!-- Greeting text -->
+                  <div class="text-xs sm:text-[13px] text-slate-900 whitespace-pre-line leading-relaxed font-sans">
+                    {{ quotationEmailGreeting }}
+                  </div>
+
+                  <!-- ================= THE EXACT CYAN TABLE MATCHING USER IMAGE ================= -->
+                  <div class="overflow-x-auto pt-2 pb-1">
+                    <table class="w-full border-collapse text-xs text-slate-950 font-sans"
+                      style="border: 1px solid #000000; font-family: Arial, sans-serif; font-size: 12px; min-width: 900px; width: 100%;">
+                      <thead>
+                        <!-- Level 1 Header: Cyan #00b0f0 matching user screenshot -->
+                        <tr style="background-color: #00b0f0; color: #000000; font-weight: bold; text-align: center;">
+                          <th colspan="8"
+                            style="border: 1px solid #000000; padding: 7px 10px; font-size: 13px; letter-spacing: 0.5px; background-color: #00b0f0; color: #000000;">
+                            DETAIL FOR REQUEST
+                          </th>
+                          <th colspan="3"
+                            style="border: 1px solid #000000; padding: 7px 10px; font-size: 13px; letter-spacing: 0.5px; background-color: #00b0f0; color: #000000;">
+                            Detail for M/M
+                          </th>
+                        </tr>
+
+                        <!-- Level 2 Sub-headers -->
+                        <tr style="background-color: #ffffff; color: #000000; font-weight: bold; text-align: center; font-size: 12px;">
+                          <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; width: 45px; vertical-align: middle;">
+                            NO.
+                          </th>
+                          <th rowspan="2" style="border: 1px solid #000000; padding: 6px 10px; vertical-align: middle; min-width: 140px;">
+                            Part name<br>( Item Name )
+                          </th>
+                          <th colspan="3" style="border: 1px solid #000000; padding: 6px 8px;">
+                            Detail Spec
+                          </th>
+                          <th colspan="2" style="border: 1px solid #000000; padding: 6px 8px;">
+                            Qty
+                          </th>
+                          <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: middle; min-width: 110px;">
+                            Remark<br>(Refer po , etc.)
+                          </th>
+                          <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: middle; min-width: 110px;">
+                            Machine model
+                          </th>
+                          <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: middle; min-width: 100px;">
+                            Machine maker
+                          </th>
+                          <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: middle; min-width: 85px;">
+                            Serial no.
+                          </th>
+                        </tr>
+
+                        <!-- Level 3 Nested Sub-headers -->
+                        <tr style="background-color: #ffffff; color: #000000; font-weight: bold; text-align: center; font-size: 12px;">
+                          <th style="border: 1px solid #000000; padding: 6px 8px; min-width: 110px;">
+                            Spec<br>(Maker Spec)
+                          </th>
+                          <th style="border: 1px solid #000000; padding: 6px 6px; min-width: 60px;">
+                            Position
+                          </th>
+                          <th style="border: 1px solid #000000; padding: 6px 8px; min-width: 90px;">
+                            Maker<br>Name
+                          </th>
+                          <th style="border: 1px solid #000000; padding: 6px 8px; min-width: 70px;">
+                            QTY.<br>(Number Only)
+                          </th>
+                          <th style="border: 1px solid #000000; padding: 6px 8px; min-width: 50px;">
+                            Unit
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        <!-- Empty State if no item selected -->
+                        <tr *ngIf="getSelectedQuotationItems().length === 0">
+                          <td colspan="11" style="border: 1px solid #000000; padding: 20px; text-align: center; color: #64748b;">
+                            ⚠️ ยังไม่ได้เลือกรายการใดๆ (กรุณาเลือกรายการจากแผงด้านซ้าย)
+                          </td>
+                        </tr>
+
+                        <!-- Selected Items Rows -->
+                        <tr *ngFor="let item of getSelectedQuotationItems(); let idx = index"
+                          style="background-color: #ffffff; color: #000000; font-family: Arial, sans-serif; font-size: 12px;">
+                          <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center; font-weight: bold;">
+                            {{ idx + 1 }}
+                          </td>
+                          <td style="border: 1px solid #000000; padding: 6px 8px; text-align: left; font-weight: bold;">
+                            {{ item.partName || '' }}
+                          </td>
+                          <td style="border: 1px solid #000000; padding: 6px 8px; text-align: left;">
+                            {{ item.spec || '' }}
+                          </td>
+                          <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">
+                            {{ item.position || '' }}
+                          </td>
+                          <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">
+                            {{ item.makerName || '' }}
+                          </td>
+                          <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center; font-weight: bold;">
+                            {{ item.qty }}
+                          </td>
+                          <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">
+                            {{ item.unit || '' }}
+                          </td>
+                          <td style="border: 1px solid #000000; padding: 6px 8px; text-align: left;">
+                            {{ item.remark || (item.poRef ? 'PO ' + item.poRef : '') }}
+                          </td>
+                          <td style="border: 1px solid #000000; padding: 6px 8px; text-align: left;">
+                            {{ item.machineModel || '' }}
+                          </td>
+                          <td style="border: 1px solid #000000; padding: 6px 8px; text-align: left;">
+                            {{ item.machineMaker || '' }}
+                          </td>
+                          <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">
+                            {{ item.serialNo || '' }}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="text-[11px] text-slate-400 pt-2 font-mono">
+                    -- [End of Quotation Request Table] --
+                  </div>
+                </div>
+
+                <!-- Footer Action Bar for Preview Card -->
+                <div class="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                  <div class="text-xs text-slate-600">
+                    พร้อมส่ง: <span class="font-black text-cyan-800">{{ getSelectedQuotationItems().length }} รายการ</span>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <button (click)="copyEmailQuotationToClipboard()"
+                      class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black text-slate-950 bg-gradient-to-r from-cyan-400 via-sky-300 to-cyan-300 hover:from-cyan-300 hover:to-sky-200 shadow-md hover:shadow-lg transition-all cursor-pointer transform active:scale-95">
+                      <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                          d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                      </svg>
+                      <span>Copy for Email (Rich Text)</span>
+                    </button>
+
+                    <button (click)="copyTableOnlyToClipboard()"
+                      class="inline-flex items-center gap-1 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-300 shadow-2xs transition-colors cursor-pointer">
+                      <span>📋 Copy Table Only</span>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
           </div>
 
         </div>

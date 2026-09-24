@@ -419,6 +419,9 @@ export class AppComponent implements OnInit, AfterViewInit {
 
           // Load active document from DB for this account
           await this.loadDocumentFromDb(user.empNo);
+          if (this.isPurchaseSection) {
+            this.loadAllQuotationRequests();
+          }
 
           // Silently refresh employee data in background
           this.apiService.verifyEmployee(user.empNo).then(res => {
@@ -449,7 +452,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   // Navigation & View State
   activeMenu = 'spare-part';
-  activeView: 'list' | 'edit' = 'edit';
+  activeView: 'list' | 'edit' | 'purchase-quotation' = 'edit';
 
   // Left Sidebar Menus
   documentMenus: Array<{
@@ -584,6 +587,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   selectMenu(menuId: string): void {
     this.activeMenu = menuId;
     this.activeSubMenu = '';
+    if (menuId === 'purchase-quotations') {
+      this.openPurchaseQuotationView();
+      return;
+    }
     const foundMenu = this.documentMenus.find(m => m.id === menuId);
     if (foundMenu?.subItems) {
       foundMenu.isExpanded = true;
@@ -1072,6 +1079,9 @@ export class AppComponent implements OnInit, AfterViewInit {
           this.downloadPercent = 0;
           this.currentEmpNo = user.empNo;
           await this.loadDocumentFromDb(user.empNo);
+          if (this.isPurchaseSection) {
+            await this.loadAllQuotationRequests();
+          }
           this.showToast(`Login successful. Welcome, ${this.requestBy} (${this.loggedInEmployeeId})`);
         }, 3900);
 
@@ -1134,6 +1144,29 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.showEmployeeCardModal = false;
     this.showToast('Logged out successfully.');
     this.focusInput();
+  }
+
+  // Purchase Section detection & test mode
+  isPurchaseTestMode = false;
+
+  get isPurchaseSection(): boolean {
+    if (this.isPurchaseTestMode) return true;
+    const secName = this.employeeSectionName.toUpperCase();
+    const sec = (this.currentUser?.section || this.section || '').toUpperCase();
+    return secName.includes('PURCHASE') || sec === 'P/H' || sec === 'PURCHASE';
+  }
+
+  togglePurchaseTestMode(): void {
+    this.isPurchaseTestMode = !this.isPurchaseTestMode;
+    if (this.isPurchaseTestMode) {
+      this.showToast('เปิดโหมดทดสอบแผนก PURCHASE (Purchase Mode ON)');
+      this.openPurchaseQuotationView();
+    } else {
+      this.showToast('ปิดโหมดทดสอบแผนก PURCHASE (Purchase Mode OFF)');
+      if (this.activeView === 'purchase-quotation') {
+        this.activeView = 'edit';
+      }
+    }
   }
 
   get employeeSectionName(): string {
@@ -1245,6 +1278,541 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.backFaceHalf = 'H1';
     this.isCardAnimating = false;
     this.noTransition = false;
+  }
+
+  // =========================================================================
+  // PURCHASE QUOTATION REQUESTS & EMAIL GENERATOR STATE & METHODS
+  // =========================================================================
+  allQuotationRequests: Array<{ header: any; items: RequisitionItem[] }> = [];
+  selectedRequestDocNumbers: Set<string> = new Set<string>();
+  selectedQuotationItemIds: Set<number> = new Set<number>();
+  quotationEmailSubject = '';
+  quotationEmailGreeting = `Dear Sir,
+
+Please submit quotation with details as follows :
+Thank you in advance.
+Could you please include the estimated lead time as well`;
+
+  // Requested Filters: Division, Section, Priority check, Order Type, Send to Purchase
+  filterDivision = 'ALL';
+  filterSection = 'ALL';
+  filterPriority = 'ALL';
+  filterOrderType = 'ALL';
+  filterSendToPurchase = 'ALL';
+
+  isCopyingEmail = false;
+  copyFeedbackText = '';
+  isLoadingRequests = false;
+
+  get uniqueDivisions(): string[] {
+    const set = new Set<string>();
+    this.allQuotationRequests.forEach(r => {
+      if (r.header?.division) set.add(r.header.division.trim());
+    });
+    if (set.size === 0) return ['GM', 'MA', 'PMA'];
+    return Array.from(set).sort();
+  }
+
+  get uniqueSections(): string[] {
+    const set = new Set<string>();
+    this.allQuotationRequests.forEach(r => {
+      if (r.header?.section) set.add(r.header.section.trim());
+      else if (r.header?.sectionName) set.add(r.header.sectionName.trim());
+    });
+    if (set.size === 0) return ['M/M', 'P/H', 'C/R', 'MC', 'ASSY', 'QA', 'ENG'];
+    return Array.from(set).sort();
+  }
+
+  get uniquePriorities(): string[] {
+    return ['NORMAL', 'URGENT', 'HIGH'];
+  }
+
+  get uniqueOrderTypes(): string[] {
+    const set = new Set<string>();
+    this.allQuotationRequests.forEach(r => {
+      if (r.header?.orderType) set.add(r.header.orderType.trim());
+    });
+    if (set.size === 0) return ['Spare Part M/C', 'Made to order', 'Repair', 'Store tooling', 'Project'];
+    return Array.from(set).sort();
+  }
+
+  get uniqueSendToPurchasers(): string[] {
+    const set = new Set<string>();
+    this.allQuotationRequests.forEach(r => {
+      const sendTo = r.header?.sendToPurchase || '';
+      sendTo.split(',').forEach((name: string) => {
+        const clean = name.trim();
+        if (clean && clean !== '-') set.add(clean);
+      });
+    });
+    this.purchasers.forEach(p => set.add(p.name));
+    return Array.from(set).sort();
+  }
+
+  get isAllRequestsSelected(): boolean {
+    const list = this.filteredQuotationRequests;
+    if (list.length === 0) return false;
+    return list.every(r => this.selectedRequestDocNumbers.has(r.header?.docNumber));
+  }
+
+  toggleSelectAllRequests(event?: Event): void {
+    if (event) event.stopPropagation();
+    const shouldSelectAll = !this.isAllRequestsSelected;
+    const list = this.filteredQuotationRequests;
+    if (shouldSelectAll) {
+      list.forEach(r => {
+        if (r.header?.docNumber) this.selectedRequestDocNumbers.add(r.header.docNumber);
+      });
+    } else {
+      list.forEach(r => {
+        if (r.header?.docNumber) this.selectedRequestDocNumbers.delete(r.header.docNumber);
+      });
+    }
+    this.updateSelectedItemsAndSubject();
+  }
+
+  selectAllFilteredRequests(): void {
+    this.filteredQuotationRequests.forEach(r => {
+      if (r.header?.docNumber) this.selectedRequestDocNumbers.add(r.header.docNumber);
+    });
+    this.updateSelectedItemsAndSubject();
+  }
+
+  deselectAllRequests(): void {
+    this.selectedRequestDocNumbers.clear();
+    this.updateSelectedItemsAndSubject();
+  }
+
+  toggleRequestSelection(docNumber: string, event?: Event): void {
+    if (event) event.stopPropagation();
+    if (this.selectedRequestDocNumbers.has(docNumber)) {
+      this.selectedRequestDocNumbers.delete(docNumber);
+    } else {
+      this.selectedRequestDocNumbers.add(docNumber);
+    }
+    this.updateSelectedItemsAndSubject();
+  }
+
+  isRequestSelected(docNumber: string): boolean {
+    return this.selectedRequestDocNumbers.has(docNumber);
+  }
+
+  get selectedRequestsList(): Array<{ header: any; items: RequisitionItem[] }> {
+    return this.allQuotationRequests.filter(r => this.selectedRequestDocNumbers.has(r.header?.docNumber));
+  }
+
+  get allItemsFromSelectedRequests(): Array<RequisitionItem & { requestBy?: string; reqDocNumber?: string; reqDivision?: string; reqSection?: string }> {
+    const result: Array<RequisitionItem & { requestBy?: string; reqDocNumber?: string; reqDivision?: string; reqSection?: string }> = [];
+    let currentNo = 1;
+    this.selectedRequestsList.forEach(req => {
+      if (Array.isArray(req.items)) {
+        req.items.forEach(item => {
+          result.push({
+            ...item,
+            no: currentNo++,
+            requestBy: req.header?.requestBy || '',
+            reqDocNumber: req.header?.docNumber || '',
+            reqDivision: req.header?.division || '',
+            reqSection: req.header?.section || ''
+          });
+        });
+      }
+    });
+    return result;
+  }
+
+  getSelectedQuotationItems(): RequisitionItem[] {
+    return this.allItemsFromSelectedRequests.filter(i => this.selectedQuotationItemIds.has(i.id || i.no));
+  }
+
+  onFilterChange(): void {
+    const filtered = this.filteredQuotationRequests;
+    if (filtered.length > 0) {
+      const anySelected = filtered.some(r => this.selectedRequestDocNumbers.has(r.header?.docNumber));
+      if (!anySelected) {
+        this.selectedRequestDocNumbers.add(filtered[0].header?.docNumber);
+      }
+    }
+    this.updateSelectedItemsAndSubject();
+  }
+
+  resetAllFilters(): void {
+    this.filterDivision = 'ALL';
+    this.filterSection = 'ALL';
+    this.filterPriority = 'ALL';
+    this.filterOrderType = 'ALL';
+    this.filterSendToPurchase = 'ALL';
+    this.onFilterChange();
+  }
+
+  async openPurchaseQuotationView(): Promise<void> {
+    this.activeView = 'purchase-quotation';
+    this.activeMenu = 'purchase-quotations';
+    this.activeSubMenu = '';
+    if (this.allQuotationRequests.length === 0) {
+      await this.loadAllQuotationRequests();
+    }
+  }
+
+  closePurchaseQuotationView(): void {
+    this.activeView = 'edit';
+    this.activeMenu = 'spare-part';
+  }
+
+  async loadAllQuotationRequests(): Promise<void> {
+    this.isLoadingRequests = true;
+    try {
+      const data = await this.apiService.getAllQuotationRequests();
+      if (Array.isArray(data) && data.length > 0) {
+        this.allQuotationRequests = data;
+        // Select all requests by default so user can see all quotations immediately
+        this.selectedRequestDocNumbers.clear();
+        data.forEach(r => {
+          if (r.header?.docNumber) {
+            this.selectedRequestDocNumbers.add(r.header.docNumber);
+          }
+        });
+        this.updateSelectedItemsAndSubject();
+      }
+    } catch (err) {
+      console.warn('Error loading quotation requests:', err);
+    } finally {
+      this.isLoadingRequests = false;
+    }
+  }
+
+  updateSelectedItemsAndSubject(): void {
+    const items = this.allItemsFromSelectedRequests;
+    this.selectedQuotationItemIds.clear();
+    items.forEach(item => {
+      this.selectedQuotationItemIds.add(item.id || item.no);
+    });
+
+    const selectedReqs = this.selectedRequestsList;
+    if (selectedReqs.length === 0) {
+      this.quotationEmailSubject = 'Please Submit Quotation';
+      return;
+    }
+
+    const deptSet = new Set<string>();
+    const userSet = new Set<string>();
+    let latestDate = '';
+
+    selectedReqs.forEach(r => {
+      const div = r.header?.division || '';
+      const sec = r.header?.section || '';
+      if (div && sec) deptSet.add(`${div}/${sec}`);
+      else if (div) deptSet.add(div);
+
+      const raw = (r.header?.requestBy || 'USER')
+        .replace(/^(MR\.|MISS|MRS\.|MS\.)\s+/i, '')
+        .split(' ')[0]
+        .toUpperCase();
+      if (raw) userSet.add(raw);
+      if (r.header?.docDate) latestDate = r.header.docDate;
+    });
+
+    const depts = Array.from(deptSet).join(', ') || 'GM/MM';
+    const users = Array.from(userSet).join(', ') || 'USER';
+    const dateFormatted = this.formatSubjectDate(latestDate);
+    this.quotationEmailSubject = `${depts} Please Submit Quotation //${users} (${dateFormatted})`;
+    this.copyFeedbackText = '';
+  }
+
+  formatSubjectDate(dateStr?: string): string {
+    if (!dateStr) {
+      const now = new Date();
+      return `${now.getDate()}/${now.getMonth() + 1}/${String(now.getFullYear()).slice(-2)}`;
+    }
+    const m = dateStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+    if (m) {
+      const d = parseInt(m[1], 10);
+      const mo = parseInt(m[2], 10);
+      const yr = m[3].length === 4 ? m[3].slice(-2) : m[3];
+      return `${d}/${mo}/${yr}`;
+    }
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      return `${d.getDate()}/${d.getMonth() + 1}/${String(d.getFullYear()).slice(-2)}`;
+    }
+    return dateStr.split(' ')[0] || '24/9/26';
+  }
+
+  toggleQuotationItem(itemIdentifier: number): void {
+    if (this.selectedQuotationItemIds.has(itemIdentifier)) {
+      this.selectedQuotationItemIds.delete(itemIdentifier);
+    } else {
+      this.selectedQuotationItemIds.add(itemIdentifier);
+    }
+  }
+
+  selectAllQuotationItems(all: boolean): void {
+    this.selectedQuotationItemIds.clear();
+    if (all) {
+      this.allItemsFromSelectedRequests.forEach(i => {
+        this.selectedQuotationItemIds.add(i.id || i.no);
+      });
+    }
+  }
+
+  isQuotationItemSelected(item: RequisitionItem): boolean {
+    return this.selectedQuotationItemIds.has(item.id || item.no);
+  }
+
+  get filteredQuotationRequests(): Array<{ header: any; items: RequisitionItem[] }> {
+    return this.allQuotationRequests.filter(r => {
+      // 1. Division filter
+      if (this.filterDivision !== 'ALL') {
+        const div = (r.header?.division || '').trim().toUpperCase();
+        if (div !== this.filterDivision.toUpperCase()) return false;
+      }
+
+      // 2. Section filter
+      if (this.filterSection !== 'ALL') {
+        const sec = (r.header?.section || '').trim().toUpperCase();
+        const secName = (r.header?.sectionName || '').trim().toUpperCase();
+        const target = this.filterSection.toUpperCase();
+        if (sec !== target && !secName.includes(target)) return false;
+      }
+
+      // 3. Priority check
+      if (this.filterPriority !== 'ALL') {
+        const pri = (r.header?.priority || '').trim().toUpperCase();
+        if (pri !== this.filterPriority.toUpperCase()) return false;
+      }
+
+      // 4. Order Type filter
+      if (this.filterOrderType !== 'ALL') {
+        const ord = (r.header?.orderType || '').trim().toUpperCase();
+        if (!ord.includes(this.filterOrderType.toUpperCase())) return false;
+      }
+
+      // 5. Send to Purchase filter
+      if (this.filterSendToPurchase !== 'ALL') {
+        const sendTo = (r.header?.sendToPurchase || '').trim().toUpperCase();
+        if (!sendTo.includes(this.filterSendToPurchase.toUpperCase())) return false;
+      }
+
+      return true;
+    });
+  }
+
+  buildEmailHtml(selectedItems: RequisitionItem[]): string {
+    const greetingHtml = this.quotationEmailGreeting
+      .split('\n')
+      .map(line => line.trim() ? `<p style="margin: 0 0 6px 0; font-size: 13px; font-family: Arial, sans-serif; color: #111;">${line}</p>` : '<br>')
+      .join('');
+
+    const rowsHtml = selectedItems.map((item, idx) => `
+      <tr style="background-color: #ffffff; color: #000000; font-family: Arial, sans-serif; font-size: 12px;">
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">${idx + 1}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: left; font-weight: bold;">${item.partName || ''}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: left;">${item.spec || ''}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">${item.position || ''}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">${item.makerName || ''}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center; font-weight: bold;">${item.qty ?? ''}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">${item.unit || ''}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: left;">${item.remark || (item.poRef ? 'PO ' + item.poRef : '')}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: left;">${item.machineModel || ''}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: left;">${item.machineMaker || ''}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">${item.serialNo || ''}</td>
+      </tr>
+    `).join('');
+
+    return `
+      <div style="font-family: Arial, sans-serif; font-size: 13px; color: #000000; line-height: 1.4;">
+        ${greetingHtml}
+        <br>
+        <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; border: 1px solid #000000; font-family: Arial, sans-serif; font-size: 12px; color: #000000; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+          <thead>
+            <tr style="background-color: #00b0f0; color: #000000; text-align: center; font-weight: bold;">
+              <th colspan="8" style="border: 1px solid #000000; padding: 8px 10px; font-size: 13px; letter-spacing: 0.5px; background-color: #00b0f0; color: #000000; text-align: center;">DETAIL FOR REQUEST</th>
+              <th colspan="3" style="border: 1px solid #000000; padding: 8px 10px; font-size: 13px; letter-spacing: 0.5px; background-color: #00b0f0; color: #000000; text-align: center;">Detail for M/M</th>
+            </tr>
+            <tr style="background-color: #ffffff; color: #000000; text-align: center; font-weight: bold; font-size: 12px;">
+              <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; width: 45px; text-align: center; vertical-align: middle;">NO.</th>
+              <th rowspan="2" style="border: 1px solid #000000; padding: 6px 10px; text-align: center; vertical-align: middle;">Part name<br>( Item Name )</th>
+              <th colspan="3" style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">Detail Spec</th>
+              <th colspan="2" style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">Qty</th>
+              <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; text-align: center; vertical-align: middle;">Remark<br>(Refer po , etc.)</th>
+              <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; text-align: center; vertical-align: middle;">Machine model</th>
+              <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; text-align: center; vertical-align: middle;">Machine maker</th>
+              <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; text-align: center; vertical-align: middle;">Serial no.</th>
+            </tr>
+            <tr style="background-color: #ffffff; color: #000000; text-align: center; font-weight: bold; font-size: 12px;">
+              <th style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">Spec<br>(Maker Spec)</th>
+              <th style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">Position</th>
+              <th style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">Maker Name</th>
+              <th style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">QTY.<br>(Number Only)</th>
+              <th style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">Unit</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  buildEmailPlainText(selectedItems: RequisitionItem[]): string {
+    const tableRows = selectedItems.map((item, idx) =>
+      `${idx + 1}\t${item.partName || ''}\t${item.spec || ''}\t${item.position || ''}\t${item.makerName || ''}\t${item.qty ?? ''}\t${item.unit || ''}\t${item.remark || ''}\t${item.machineModel || ''}\t${item.machineMaker || ''}\t${item.serialNo || ''}`
+    ).join('\n');
+
+    return `${this.quotationEmailGreeting}\n\nNO.\tPart name\tSpec\tPosition\tMaker Name\tQTY.\tUnit\tRemark\tMachine model\tMachine maker\tSerial no.\n${tableRows}`;
+  }
+
+  async copyEmailQuotationToClipboard(): Promise<void> {
+    const selectedItems = this.getSelectedQuotationItems();
+    if (selectedItems.length === 0) {
+      this.showToast('⚠️ กรุณาเลือกรายการอย่างน้อย 1 รายการเพื่อส่งขอใบเสนอราคา');
+      return;
+    }
+
+    const htmlContent = this.buildEmailHtml(selectedItems);
+    const plainText = this.buildEmailPlainText(selectedItems);
+
+    try {
+      if (navigator.clipboard && window.ClipboardItem) {
+        const textBlob = new Blob([plainText], { type: 'text/plain' });
+        const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'text/plain': textBlob,
+            'text/html': htmlBlob
+          })
+        ]);
+      } else {
+        this.fallbackCopyHtml(htmlContent);
+      }
+
+      this.isCopyingEmail = true;
+      this.copyFeedbackText = '✅ คัดลอกแบบฟอร์มขอใบเสนอราคาเรียบร้อยแล้ว! สามารถเปิด Outlook หรือ Gmail แล้วกด Ctrl+V วางได้ทันที';
+      this.showToast('📋 คัดลอกตารางขอใบเสนอราคาสำเร็จ! กด Ctrl+V ใน Email ได้ทันที');
+      setTimeout(() => {
+        this.isCopyingEmail = false;
+      }, 4000);
+    } catch (err) {
+      console.warn('Clipboard write failed, using fallback copy:', err);
+      this.fallbackCopyHtml(htmlContent);
+      this.showToast('📋 คัดลอกตารางขอใบเสนอราคาสำเร็จ (Fallback Mode)');
+    }
+  }
+
+  async copyTableOnlyToClipboard(): Promise<void> {
+    const selectedItems = this.getSelectedQuotationItems();
+    if (selectedItems.length === 0) {
+      this.showToast('⚠️ กรุณาเลือกรายการอย่างน้อย 1 รายการ');
+      return;
+    }
+
+    const rowsHtml = selectedItems.map((item, idx) => `
+      <tr style="background-color: #ffffff; color: #000000; font-family: Arial, sans-serif; font-size: 12px;">
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">${idx + 1}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: left; font-weight: bold;">${item.partName || ''}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: left;">${item.spec || ''}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">${item.position || ''}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">${item.makerName || ''}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center; font-weight: bold;">${item.qty ?? ''}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">${item.unit || ''}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: left;">${item.remark || (item.poRef ? 'PO ' + item.poRef : '')}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: left;">${item.machineModel || ''}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: left;">${item.machineMaker || ''}</td>
+        <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">${item.serialNo || ''}</td>
+      </tr>
+    `).join('');
+
+    const htmlContent = `
+      <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; border: 1px solid #000000; font-family: Arial, sans-serif; font-size: 12px; color: #000000;">
+        <thead>
+          <tr style="background-color: #00b0f0; color: #000000; text-align: center; font-weight: bold;">
+            <th colspan="8" style="border: 1px solid #000000; padding: 8px 10px; font-size: 13px; background-color: #00b0f0; color: #000000; text-align: center;">DETAIL FOR REQUEST</th>
+            <th colspan="3" style="border: 1px solid #000000; padding: 8px 10px; font-size: 13px; background-color: #00b0f0; color: #000000; text-align: center;">Detail for M/M</th>
+          </tr>
+          <tr style="background-color: #ffffff; color: #000000; text-align: center; font-weight: bold; font-size: 12px;">
+            <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; width: 45px; text-align: center;">NO.</th>
+            <th rowspan="2" style="border: 1px solid #000000; padding: 6px 10px; text-align: center;">Part name<br>( Item Name )</th>
+            <th colspan="3" style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">Detail Spec</th>
+            <th colspan="2" style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">Qty</th>
+            <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">Remark<br>(Refer po , etc.)</th>
+            <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">Machine model</th>
+            <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">Machine maker</th>
+            <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">Serial no.</th>
+          </tr>
+          <tr style="background-color: #ffffff; color: #000000; text-align: center; font-weight: bold; font-size: 12px;">
+            <th style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">Spec<br>(Maker Spec)</th>
+            <th style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">Position</th>
+            <th style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">Maker Name</th>
+            <th style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">QTY.<br>(Number Only)</th>
+            <th style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">Unit</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+    `;
+
+    try {
+      if (navigator.clipboard && window.ClipboardItem) {
+        const textBlob = new Blob([this.buildEmailPlainText(selectedItems)], { type: 'text/plain' });
+        const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'text/plain': textBlob,
+            'text/html': htmlBlob
+          })
+        ]);
+      } else {
+        this.fallbackCopyHtml(htmlContent);
+      }
+      this.showToast('📋 คัดลอกตารางอย่างเดียวสำเร็จ!');
+    } catch (e) {
+      this.fallbackCopyHtml(htmlContent);
+      this.showToast('📋 คัดลอกตารางอย่างเดียวสำเร็จ (Fallback)');
+    }
+  }
+
+  async copySubjectToClipboard(): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(this.quotationEmailSubject);
+      this.showToast(`📋 คัดลอก Subject: "${this.quotationEmailSubject}"`);
+    } catch (e) {
+      this.showToast('ไม่สามารถคัดลอกได้');
+    }
+  }
+
+  openInEmailClient(): void {
+    const selectedItems = this.getSelectedQuotationItems();
+    const plainText = this.buildEmailPlainText(selectedItems);
+    const subject = encodeURIComponent(this.quotationEmailSubject);
+    const body = encodeURIComponent(plainText);
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  }
+
+  private fallbackCopyHtml(html: string): void {
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    container.style.position = 'fixed';
+    container.style.pointerEvents = 'none';
+    container.style.opacity = '0';
+    document.body.appendChild(container);
+
+    const range = document.createRange();
+    range.selectNode(container);
+    const selection = window.getSelection();
+    if (selection) {
+      selection.removeAllRanges();
+      selection.addRange(range);
+      try {
+        document.execCommand('copy');
+      } catch (e) {
+        console.error('execCommand copy failed:', e);
+      }
+      selection.removeAllRanges();
+    }
+    document.body.removeChild(container);
   }
 
 }

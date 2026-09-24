@@ -6,6 +6,10 @@ const requisitionController = require('../controllers/requisition.controller');
 // GET /api/requisition/account/:empNo
 router.get('/account/:empNo', requisitionController.getDocumentByAccount);
 
+// All user quotation requests for Purchase section view
+// GET /api/requisition/all-requests
+router.get('/all-requests', requisitionController.getAllRequests);
+
 // Document Header & All-in-one routes
 // GET /api/requisition/document (default doc)
 router.get('/document', requisitionController.getDocument);
