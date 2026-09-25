@@ -1761,11 +1761,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   showToast(message: string): void {
-    this.toastMessage = message;
-    this.toastVisible = true;
-    setTimeout(() => {
-      this.toastVisible = false;
-    }, 3200);
+    // Disabled globally per user request - no alert popups
+    this.toastVisible = false;
   }
 
   // OTP Login Methods (Single State - Zero Double-Type Bug)
