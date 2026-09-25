@@ -34,3 +34,86 @@
   -webkit-backdrop-filter: blur(12px);
 }
 
+:root {
+  --theme-primary: #284389;
+  --theme-primary-dark: #1e3a8a;
+  --theme-light-bg: #d2e3fc;
+  --theme-secondary: #a8c7fa;
+  --theme-gradient-from: #284389;
+  --theme-gradient-to: #38bdf8;
+  --theme-header-bg: #d2e3fc;
+  --theme-header-border: #a8c7fa;
+  --theme-header-text: #041e49;
+  --theme-page-bg: #f8fafc;
+  --theme-card-bg: #ffffff;
+  --theme-text: #1e293b;
+  --theme-border: #e2e8f0;
+}
+
+/* Chrome App Dynamic Theming */
+.theme-bg-primary {
+  background-color: var(--theme-primary) !important;
+  color: #ffffff !important;
+}
+
+.theme-text-primary {
+  color: var(--theme-primary) !important;
+}
+
+.theme-border-primary {
+  border-color: var(--theme-primary) !important;
+}
+
+.theme-bg-light {
+  background-color: var(--theme-light-bg) !important;
+  color: var(--theme-primary-dark) !important;
+}
+
+/* Chrome Custom Theme Palette Split Circle Styles */
+.chrome-palette-swatch {
+  width: 54px !important;
+  height: 54px !important;
+  min-width: 54px !important;
+  min-height: 54px !important;
+  border-radius: 9999px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  display: block !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  padding: 0;
+  margin: 0;
+}
+
+.chrome-palette-swatch:hover {
+  transform: scale(1.06);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.chrome-eyedropper-swatch {
+  width: 54px !important;
+  height: 54px !important;
+  min-width: 54px !important;
+  min-height: 54px !important;
+  border-radius: 9999px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  padding: 0;
+  margin: 0;
+}
+
+.chrome-eyedropper-swatch:hover {
+  transform: scale(1.06);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+

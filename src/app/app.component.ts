@@ -87,6 +87,18 @@ export interface QuotationSearchResult {
   rank?: number;
 }
 
+export interface ThemeOption {
+  id: string;
+  name: string;
+  topColor: string;
+  bottomLeftColor: string;
+  bottomRightColor: string;
+  lightBg: string;
+  primary?: string;
+  primaryDark?: string;
+  secondary?: string;
+}
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -226,81 +238,81 @@ export class AppComponent implements OnInit, AfterViewInit {
       t: string;
     }>>;
   }> = [
-    {
-      name: 'JANUARY',
-      wd: '22/9',
-      weeks: [
-        [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'trad' }, { d: 2, t: 'sat' }, { d: 3, t: 'sat' }],
-        [{ d: 4, t: 'sun' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'sat' }],
-        [{ d: 11, t: 'sun' }, { d: 12, t: 'work' }, { d: 13, t: 'work' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }],
-        [{ d: 18, t: 'sun' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'work' }, { d: 24, t: 'sat' }],
-        [{ d: 25, t: 'sun' }, { d: 26, t: 'work' }, { d: 27, t: 'work' }, { d: 28, t: 'work' }, { d: 29, t: 'work' }, { d: 30, t: 'work' }, { d: 31, t: 'work' }],
-      ]
-    },
-    {
-      name: 'FEBRUARY',
-      wd: '22/6',
-      weeks: [
-        [{ d: 1, t: 'sun' }, { d: 2, t: 'work' }, { d: 3, t: 'work' }, { d: 4, t: 'work' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }, { d: 7, t: 'sat' }],
-        [{ d: 8, t: 'sun' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'work' }, { d: 13, t: 'work' }, { d: 14, t: 'work' }],
-        [{ d: 15, t: 'sun' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }, { d: 21, t: 'sat' }],
-        [{ d: 22, t: 'sun' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'work' }, { d: 27, t: 'work' }, { d: 28, t: 'work' }],
-        [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }],
-      ]
-    },
-    {
-      name: 'MARCH',
-      wd: '22/9',
-      weeks: [
-        [{ d: 1, t: 'sun' }, { d: 2, t: 'sat' }, { d: 3, t: 'trad' }, { d: 4, t: 'work' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }],
-        [{ d: 8, t: 'sun' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'work' }, { d: 13, t: 'work' }, { d: 14, t: 'work' }],
-        [{ d: 15, t: 'sun' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }],
-        [{ d: 22, t: 'sun' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'work' }, { d: 27, t: 'work' }, { d: 28, t: 'sat' }],
-        [{ d: 29, t: 'sun' }, { d: 30, t: 'work' }, { d: 31, t: 'work' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }],
-      ]
-    },
-    {
-      name: 'APRIL',
-      wd: '20/10',
-      weeks: [
-        [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'work' }, { d: 2, t: 'work' }, { d: 3, t: 'work' }, { d: 4, t: 'sat' }],
-        [{ d: 5, t: 'sun' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }],
-        [{ d: 12, t: 'sun' }, { d: 13, t: 'trad' }, { d: 14, t: 'trad' }, { d: 15, t: 'trad' }, { d: 16, t: 'sat' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }],
-        [{ d: 19, t: 'sun' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'sat' }],
-        [{ d: 26, t: 'sun' }, { d: 27, t: 'work' }, { d: 28, t: 'work' }, { d: 29, t: 'work' }, { d: 30, t: 'work' }, { d: null, t: 'none' }, { d: null, t: 'none' }],
-      ]
-    },
-    {
-      name: 'MAY',
-      wd: '22/9',
-      weeks: [
-        [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'trad' }, { d: 2, t: 'sat' }],
-        [{ d: 3, t: 'sun' }, { d: 4, t: 'work' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }],
-        [{ d: 10, t: 'sun' }, { d: 11, t: 'work' }, { d: 12, t: 'work' }, { d: 13, t: 'work' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }, { d: 16, t: 'sat' }],
-        [{ d: 17, t: 'sun' }, { d: 18, t: 'work' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'sat' }],
-        [
-          { d: '24/31', d1: 24, d2: 31, split: true, t: 'sun' },
-          { d: 25, t: 'work' },
-          { d: 26, t: 'work' },
-          { d: 27, t: 'work' },
-          { d: 28, t: 'work' },
-          { d: 29, t: 'work' },
-          { d: 30, t: 'work' }
-        ],
-      ]
-    },
-    {
-      name: 'JUNE',
-      wd: '21/9',
-      weeks: [
-        [{ d: null, t: 'none' }, { d: 1, t: 'trad' }, { d: 2, t: 'sat' }, { d: 3, t: 'trad' }, { d: 4, t: 'work' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }],
-        [{ d: 7, t: 'sun' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'work' }, { d: 13, t: 'work' }],
-        [{ d: 14, t: 'sun' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'work' }, { d: 20, t: 'sat' }],
-        [{ d: 21, t: 'sun' }, { d: 22, t: 'work' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'work' }, { d: 27, t: 'sat' }],
-        [{ d: 28, t: 'sun' }, { d: 29, t: 'work' }, { d: 30, t: 'work' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }],
-      ]
-    },
-  ];
+      {
+        name: 'JANUARY',
+        wd: '22/9',
+        weeks: [
+          [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'trad' }, { d: 2, t: 'sat' }, { d: 3, t: 'sat' }],
+          [{ d: 4, t: 'sun' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'sat' }],
+          [{ d: 11, t: 'sun' }, { d: 12, t: 'work' }, { d: 13, t: 'work' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }],
+          [{ d: 18, t: 'sun' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'work' }, { d: 24, t: 'sat' }],
+          [{ d: 25, t: 'sun' }, { d: 26, t: 'work' }, { d: 27, t: 'work' }, { d: 28, t: 'work' }, { d: 29, t: 'work' }, { d: 30, t: 'work' }, { d: 31, t: 'work' }],
+        ]
+      },
+      {
+        name: 'FEBRUARY',
+        wd: '22/6',
+        weeks: [
+          [{ d: 1, t: 'sun' }, { d: 2, t: 'work' }, { d: 3, t: 'work' }, { d: 4, t: 'work' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }, { d: 7, t: 'sat' }],
+          [{ d: 8, t: 'sun' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'work' }, { d: 13, t: 'work' }, { d: 14, t: 'work' }],
+          [{ d: 15, t: 'sun' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }, { d: 21, t: 'sat' }],
+          [{ d: 22, t: 'sun' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'work' }, { d: 27, t: 'work' }, { d: 28, t: 'work' }],
+          [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }],
+        ]
+      },
+      {
+        name: 'MARCH',
+        wd: '22/9',
+        weeks: [
+          [{ d: 1, t: 'sun' }, { d: 2, t: 'sat' }, { d: 3, t: 'trad' }, { d: 4, t: 'work' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }],
+          [{ d: 8, t: 'sun' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'work' }, { d: 13, t: 'work' }, { d: 14, t: 'work' }],
+          [{ d: 15, t: 'sun' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }],
+          [{ d: 22, t: 'sun' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'work' }, { d: 27, t: 'work' }, { d: 28, t: 'sat' }],
+          [{ d: 29, t: 'sun' }, { d: 30, t: 'work' }, { d: 31, t: 'work' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }],
+        ]
+      },
+      {
+        name: 'APRIL',
+        wd: '20/10',
+        weeks: [
+          [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'work' }, { d: 2, t: 'work' }, { d: 3, t: 'work' }, { d: 4, t: 'sat' }],
+          [{ d: 5, t: 'sun' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }],
+          [{ d: 12, t: 'sun' }, { d: 13, t: 'trad' }, { d: 14, t: 'trad' }, { d: 15, t: 'trad' }, { d: 16, t: 'sat' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }],
+          [{ d: 19, t: 'sun' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'sat' }],
+          [{ d: 26, t: 'sun' }, { d: 27, t: 'work' }, { d: 28, t: 'work' }, { d: 29, t: 'work' }, { d: 30, t: 'work' }, { d: null, t: 'none' }, { d: null, t: 'none' }],
+        ]
+      },
+      {
+        name: 'MAY',
+        wd: '22/9',
+        weeks: [
+          [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'trad' }, { d: 2, t: 'sat' }],
+          [{ d: 3, t: 'sun' }, { d: 4, t: 'work' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }],
+          [{ d: 10, t: 'sun' }, { d: 11, t: 'work' }, { d: 12, t: 'work' }, { d: 13, t: 'work' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }, { d: 16, t: 'sat' }],
+          [{ d: 17, t: 'sun' }, { d: 18, t: 'work' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'sat' }],
+          [
+            { d: '24/31', d1: 24, d2: 31, split: true, t: 'sun' },
+            { d: 25, t: 'work' },
+            { d: 26, t: 'work' },
+            { d: 27, t: 'work' },
+            { d: 28, t: 'work' },
+            { d: 29, t: 'work' },
+            { d: 30, t: 'work' }
+          ],
+        ]
+      },
+      {
+        name: 'JUNE',
+        wd: '21/9',
+        weeks: [
+          [{ d: null, t: 'none' }, { d: 1, t: 'trad' }, { d: 2, t: 'sat' }, { d: 3, t: 'trad' }, { d: 4, t: 'work' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }],
+          [{ d: 7, t: 'sun' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'work' }, { d: 13, t: 'work' }],
+          [{ d: 14, t: 'sun' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'work' }, { d: 20, t: 'sat' }],
+          [{ d: 21, t: 'sun' }, { d: 22, t: 'work' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'work' }, { d: 27, t: 'sat' }],
+          [{ d: 28, t: 'sun' }, { d: 29, t: 'work' }, { d: 30, t: 'work' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }],
+        ]
+      },
+    ];
 
   calendarMonthsH2: Array<{
     name: string;
@@ -313,81 +325,81 @@ export class AppComponent implements OnInit, AfterViewInit {
       t: string;
     }>>;
   }> = [
-    {
-      name: 'JULY',
-      wd: '22/9',
-      weeks: [
-        [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'work' }, { d: 2, t: 'work' }, { d: 3, t: 'work' }, { d: 4, t: 'work' }],
-        [{ d: 5, t: 'sun' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'sat' }],
-        [{ d: 12, t: 'sun' }, { d: 13, t: 'work' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'sat' }],
-        [{ d: 19, t: 'sun' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }],
-        [{ d: 26, t: 'sun' }, { d: 27, t: 'sat' }, { d: 28, t: 'trad' }, { d: 29, t: 'trad' }, { d: 30, t: 'work' }, { d: 31, t: 'work' }, { d: null, t: 'none' }],
-      ]
-    },
-    {
-      name: 'AUGUST',
-      wd: '22/9',
-      weeks: [
-        [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'work' }],
-        [{ d: 2, t: 'sun' }, { d: 3, t: 'work' }, { d: 4, t: 'work' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }, { d: 8, t: 'sat' }],
-        [{ d: 9, t: 'sun' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'trad' }, { d: 13, t: 'work' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }],
-        [{ d: 16, t: 'sun' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }, { d: 22, t: 'sat' }],
-        [
-          { d: '23/30', d1: 23, d2: 30, split: true, t: 'sun' },
-          { d: '24/31', d1: 24, d2: 31, split: true, t: 'work' },
-          { d: 25, t: 'work' },
-          { d: 26, t: 'work' },
-          { d: 27, t: 'work' },
-          { d: 28, t: 'work' },
-          { d: 29, t: 'sat' }
-        ],
-      ]
-    },
-    {
-      name: 'SEPTEMBER',
-      wd: '22/8',
-      weeks: [
-        [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'work' }, { d: 2, t: 'work' }, { d: 3, t: 'work' }, { d: 4, t: 'work' }, { d: 5, t: 'sat' }],
-        [{ d: 6, t: 'sun' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'sat' }],
-        [{ d: 13, t: 'sun' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'sat' }],
-        [{ d: 20, t: 'sun' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'sat' }],
-        [{ d: 27, t: 'sun' }, { d: 28, t: 'work' }, { d: 29, t: 'work' }, { d: 30, t: 'work' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }],
-      ]
-    },
-    {
-      name: 'OCTOBER',
-      wd: '21/10',
-      weeks: [
-        [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'work' }, { d: 2, t: 'work' }, { d: 3, t: 'sat' }],
-        [{ d: 4, t: 'sun' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }],
-        [{ d: 11, t: 'sun' }, { d: 12, t: 'sat' }, { d: 13, t: 'trad' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }],
-        [{ d: 18, t: 'sun' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'trad' }, { d: 24, t: 'sat' }],
-        [{ d: 25, t: 'sun' }, { d: 26, t: 'work' }, { d: 27, t: 'work' }, { d: 28, t: 'work' }, { d: 29, t: 'work' }, { d: 30, t: 'work' }, { d: 31, t: 'sat' }],
-      ]
-    },
-    {
-      name: 'NOVEMBER',
-      wd: '23/7',
-      weeks: [
-        [{ d: 1, t: 'sun' }, { d: 2, t: 'work' }, { d: 3, t: 'work' }, { d: 4, t: 'work' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }],
-        [{ d: 8, t: 'sun' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'work' }, { d: 13, t: 'work' }, { d: 14, t: 'sat' }],
-        [{ d: 15, t: 'sun' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }],
-        [{ d: 22, t: 'sun' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'work' }, { d: 27, t: 'work' }, { d: 28, t: 'sat' }],
-        [{ d: 29, t: 'sun' }, { d: 30, t: 'work' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }],
-      ]
-    },
-    {
-      name: 'DECEMBER',
-      wd: '22/9',
-      weeks: [
-        [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'work' }, { d: 2, t: 'work' }, { d: 3, t: 'work' }, { d: 4, t: 'work' }, { d: 5, t: 'trad' }],
-        [{ d: 6, t: 'sun' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'work' }],
-        [{ d: 13, t: 'sun' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'sat' }],
-        [{ d: 20, t: 'sun' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'sat' }],
-        [{ d: 27, t: 'sun' }, { d: 28, t: 'work' }, { d: 29, t: 'work' }, { d: 30, t: 'sat' }, { d: 31, t: 'trad' }, { d: 1, t: 'trad' }, { d: 2, t: 'sat' }],
-      ]
-    },
-  ];
+      {
+        name: 'JULY',
+        wd: '22/9',
+        weeks: [
+          [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'work' }, { d: 2, t: 'work' }, { d: 3, t: 'work' }, { d: 4, t: 'work' }],
+          [{ d: 5, t: 'sun' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'sat' }],
+          [{ d: 12, t: 'sun' }, { d: 13, t: 'work' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'sat' }],
+          [{ d: 19, t: 'sun' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }],
+          [{ d: 26, t: 'sun' }, { d: 27, t: 'sat' }, { d: 28, t: 'trad' }, { d: 29, t: 'trad' }, { d: 30, t: 'work' }, { d: 31, t: 'work' }, { d: null, t: 'none' }],
+        ]
+      },
+      {
+        name: 'AUGUST',
+        wd: '22/9',
+        weeks: [
+          [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'work' }],
+          [{ d: 2, t: 'sun' }, { d: 3, t: 'work' }, { d: 4, t: 'work' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }, { d: 8, t: 'sat' }],
+          [{ d: 9, t: 'sun' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'trad' }, { d: 13, t: 'work' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }],
+          [{ d: 16, t: 'sun' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }, { d: 22, t: 'sat' }],
+          [
+            { d: '23/30', d1: 23, d2: 30, split: true, t: 'sun' },
+            { d: '24/31', d1: 24, d2: 31, split: true, t: 'work' },
+            { d: 25, t: 'work' },
+            { d: 26, t: 'work' },
+            { d: 27, t: 'work' },
+            { d: 28, t: 'work' },
+            { d: 29, t: 'sat' }
+          ],
+        ]
+      },
+      {
+        name: 'SEPTEMBER',
+        wd: '22/8',
+        weeks: [
+          [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'work' }, { d: 2, t: 'work' }, { d: 3, t: 'work' }, { d: 4, t: 'work' }, { d: 5, t: 'sat' }],
+          [{ d: 6, t: 'sun' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'sat' }],
+          [{ d: 13, t: 'sun' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'sat' }],
+          [{ d: 20, t: 'sun' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'sat' }],
+          [{ d: 27, t: 'sun' }, { d: 28, t: 'work' }, { d: 29, t: 'work' }, { d: 30, t: 'work' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }],
+        ]
+      },
+      {
+        name: 'OCTOBER',
+        wd: '21/10',
+        weeks: [
+          [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'work' }, { d: 2, t: 'work' }, { d: 3, t: 'sat' }],
+          [{ d: 4, t: 'sun' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }],
+          [{ d: 11, t: 'sun' }, { d: 12, t: 'sat' }, { d: 13, t: 'trad' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }],
+          [{ d: 18, t: 'sun' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'trad' }, { d: 24, t: 'sat' }],
+          [{ d: 25, t: 'sun' }, { d: 26, t: 'work' }, { d: 27, t: 'work' }, { d: 28, t: 'work' }, { d: 29, t: 'work' }, { d: 30, t: 'work' }, { d: 31, t: 'sat' }],
+        ]
+      },
+      {
+        name: 'NOVEMBER',
+        wd: '23/7',
+        weeks: [
+          [{ d: 1, t: 'sun' }, { d: 2, t: 'work' }, { d: 3, t: 'work' }, { d: 4, t: 'work' }, { d: 5, t: 'work' }, { d: 6, t: 'work' }, { d: 7, t: 'work' }],
+          [{ d: 8, t: 'sun' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'work' }, { d: 13, t: 'work' }, { d: 14, t: 'sat' }],
+          [{ d: 15, t: 'sun' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'work' }, { d: 20, t: 'work' }, { d: 21, t: 'work' }],
+          [{ d: 22, t: 'sun' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'work' }, { d: 27, t: 'work' }, { d: 28, t: 'sat' }],
+          [{ d: 29, t: 'sun' }, { d: 30, t: 'work' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }, { d: null, t: 'none' }],
+        ]
+      },
+      {
+        name: 'DECEMBER',
+        wd: '22/9',
+        weeks: [
+          [{ d: null, t: 'none' }, { d: null, t: 'none' }, { d: 1, t: 'work' }, { d: 2, t: 'work' }, { d: 3, t: 'work' }, { d: 4, t: 'work' }, { d: 5, t: 'trad' }],
+          [{ d: 6, t: 'sun' }, { d: 7, t: 'work' }, { d: 8, t: 'work' }, { d: 9, t: 'work' }, { d: 10, t: 'work' }, { d: 11, t: 'work' }, { d: 12, t: 'work' }],
+          [{ d: 13, t: 'sun' }, { d: 14, t: 'work' }, { d: 15, t: 'work' }, { d: 16, t: 'work' }, { d: 17, t: 'work' }, { d: 18, t: 'work' }, { d: 19, t: 'sat' }],
+          [{ d: 20, t: 'sun' }, { d: 21, t: 'work' }, { d: 22, t: 'work' }, { d: 23, t: 'work' }, { d: 24, t: 'work' }, { d: 25, t: 'work' }, { d: 26, t: 'sat' }],
+          [{ d: 27, t: 'sun' }, { d: 28, t: 'work' }, { d: 29, t: 'work' }, { d: 30, t: 'sat' }, { d: 31, t: 'trad' }, { d: 1, t: 'trad' }, { d: 2, t: 'sat' }],
+        ]
+      },
+    ];
 
   get calendarMonths() {
     return this.calendarHalf === 'H1' ? this.calendarMonthsH1 : this.calendarMonthsH2;
@@ -435,6 +447,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   constructor(private apiService: ApiService) { }
 
   async ngOnInit(): Promise<void> {
+    this.loadThemePreference();
     await this.restoreSessionOrInit();
   }
 
@@ -468,7 +481,7 @@ export class AppComponent implements OnInit, AfterViewInit {
               this.currentUser = res.user;
               localStorage.setItem('suppier_auth_user', JSON.stringify(res.user));
             }
-          }).catch(() => {});
+          }).catch(() => { });
 
           return;
         }
@@ -492,6 +505,11 @@ export class AppComponent implements OnInit, AfterViewInit {
   // Navigation & View State
   activeMenu = 'spare-part';
   activeView: 'list' | 'edit' | 'purchase-quotation' | 'quotation-search' = 'edit';
+  isSidebarCollapsed = false;
+
+  toggleSidebar() {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
+  }
 
   // Google Quotation Search Engine State
   searchEngineMode: 'home' | 'results' = 'home';
@@ -509,6 +527,265 @@ export class AppComponent implements OnInit, AfterViewInit {
   searchExecutionTime = '0.24';
   selectedKnowledgeResult: QuotationSearchResult | null = null;
   showGoogleAppsMenu = false;
+
+  // Customize Chrome Theme State (Authentic Google Chrome Side Panel)
+  isThemeDrawerOpen = false;
+  themeMode: 'light' | 'dark' | 'device' = 'light';
+  selectedThemeId = 'default-chrome';
+  customColorValue = '#a8c7fa';
+
+  themeColors: ThemeOption[] = [
+    // Row 1
+    {
+      id: 'classic-blue',
+      name: 'Classic Blue',
+      topColor: '#d3e3fd',
+      bottomLeftColor: '#0b57d0',
+      bottomRightColor: '#bfc8d2',
+      lightBg: '#f0f4f9',
+      primary: '#0b57d0',
+      primaryDark: '#0842a0'
+    },
+    {
+      id: 'white-blue',
+      name: 'White & Blue',
+      topColor: '#e9eef6',
+      bottomLeftColor: '#0b57d0',
+      bottomRightColor: '#c4c7c5',
+      lightBg: '#ffffff',
+      primary: '#0b57d0',
+      primaryDark: '#0842a0'
+    },
+    {
+      id: 'default-chrome',
+      name: 'Default Chrome',
+      topColor: '#d3e3fd',
+      bottomLeftColor: '#27477d',
+      bottomRightColor: '#a8c7fa',
+      lightBg: '#eff6ff',
+      primary: '#27477d',
+      primaryDark: '#1a3258'
+    },
+    {
+      id: 'steel-grey',
+      name: 'Steel Grey',
+      topColor: '#dbeafe',
+      bottomLeftColor: '#334155',
+      bottomRightColor: '#94a3b8',
+      lightBg: '#f1f5f9',
+      primary: '#334155',
+      primaryDark: '#1e293b'
+    },
+
+    // Row 2
+    {
+      id: 'slate-neutral',
+      name: 'Slate Neutral',
+      topColor: '#e2e8f0',
+      bottomLeftColor: '#475569',
+      bottomRightColor: '#cbd5e1',
+      lightBg: '#f8fafc',
+      primary: '#475569',
+      primaryDark: '#334155'
+    },
+    {
+      id: 'ocean-teal',
+      name: 'Ocean Teal',
+      topColor: '#a7f3d0',
+      bottomLeftColor: '#007a78',
+      bottomRightColor: '#5eead4',
+      lightBg: '#f0fdfa',
+      primary: '#007a78',
+      primaryDark: '#005b59'
+    },
+    {
+      id: 'fresh-green',
+      name: 'Fresh Green',
+      topColor: '#bbf7d0',
+      bottomLeftColor: '#2e7d32',
+      bottomRightColor: '#86efac',
+      lightBg: '#f0fdf4',
+      primary: '#2e7d32',
+      primaryDark: '#1b5e20'
+    },
+    {
+      id: 'moss-olive',
+      name: 'Moss Olive',
+      topColor: '#e2e8d0',
+      bottomLeftColor: '#4d5d3b',
+      bottomRightColor: '#a3b18a',
+      lightBg: '#f7f9f2',
+      primary: '#4d5d3b',
+      primaryDark: '#364229'
+    },
+
+    // Row 3
+    {
+      id: 'sunny-amber',
+      name: 'Sunny Amber',
+      topColor: '#fef08a',
+      bottomLeftColor: '#854d0e',
+      bottomRightColor: '#facc15',
+      lightBg: '#fffbeb',
+      primary: '#854d0e',
+      primaryDark: '#713f12'
+    },
+    {
+      id: 'sunset-orange',
+      name: 'Sunset Orange',
+      topColor: '#fed7aa',
+      bottomLeftColor: '#9a3412',
+      bottomRightColor: '#fb923c',
+      lightBg: '#fff7ed',
+      primary: '#9a3412',
+      primaryDark: '#7c2d12'
+    },
+    {
+      id: 'warm-sand',
+      name: 'Warm Sand',
+      topColor: '#ffedd5',
+      bottomLeftColor: '#6c4a38',
+      bottomRightColor: '#d7b9a5',
+      lightBg: '#fbf8f5',
+      primary: '#6c4a38',
+      primaryDark: '#503527'
+    },
+    {
+      id: 'coral-rose',
+      name: 'Coral Rose',
+      topColor: '#fce7f3',
+      bottomLeftColor: '#831843',
+      bottomRightColor: '#f472b6',
+      lightBg: '#fff1f2',
+      primary: '#831843',
+      primaryDark: '#500724'
+    },
+
+    // Row 4
+    {
+      id: 'blush-mauve',
+      name: 'Blush Mauve',
+      topColor: '#fee2e2',
+      bottomLeftColor: '#5c3d46',
+      bottomRightColor: '#d4a5b0',
+      lightBg: '#fff5f5',
+      primary: '#5c3d46',
+      primaryDark: '#422a31'
+    },
+    {
+      id: 'orchid-purple',
+      name: 'Orchid Purple',
+      topColor: '#fbcfe8',
+      bottomLeftColor: '#701a75',
+      bottomRightColor: '#e879f9',
+      lightBg: '#fdf4ff',
+      primary: '#701a75',
+      primaryDark: '#4a044e'
+    },
+    {
+      id: 'lavender-violet',
+      name: 'Lavender Violet',
+      topColor: '#ede9fe',
+      bottomLeftColor: '#5b21b6',
+      bottomRightColor: '#c4b5fd',
+      lightBg: '#faf5ff',
+      primary: '#5b21b6',
+      primaryDark: '#4c1d95'
+    }
+  ];
+
+  get currentTheme(): ThemeOption {
+    if (this.selectedThemeId === 'custom' && this.customColorValue) {
+      return {
+        id: 'custom',
+        name: 'Custom Theme',
+        topColor: this.customColorValue,
+        bottomLeftColor: this.customColorValue,
+        bottomRightColor: this.customColorValue,
+        lightBg: this.customColorValue,
+        primary: this.customColorValue,
+        primaryDark: this.customColorValue
+      };
+    }
+    return this.themeColors.find(t => t.id === this.selectedThemeId) || this.themeColors[2];
+  }
+
+  get isDarkThemeActive(): boolean {
+    if (this.themeMode === 'dark') return true;
+    if (this.themeMode === 'device') {
+      return typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  }
+
+  toggleThemeDrawer(): void {
+    this.isThemeDrawerOpen = !this.isThemeDrawerOpen;
+  }
+
+  closeThemeDrawer(): void {
+    this.isThemeDrawerOpen = false;
+  }
+
+  selectTheme(id: string): void {
+    this.selectedThemeId = id;
+    this.saveThemePreference();
+  }
+
+  setThemeMode(mode: 'light' | 'dark' | 'device'): void {
+    this.themeMode = mode;
+    this.saveThemePreference();
+  }
+
+  resetThemeToDefault(): void {
+    this.selectedThemeId = 'default-chrome';
+    this.themeMode = 'light';
+    this.saveThemePreference();
+  }
+
+  onCustomColorChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input || !input.value) return;
+    this.customColorValue = input.value;
+    this.selectedThemeId = 'custom';
+    this.saveThemePreference();
+  }
+
+  saveThemePreference(): void {
+    try {
+      localStorage.setItem('suppier_search_theme', JSON.stringify({
+        selectedThemeId: this.selectedThemeId,
+        themeMode: this.themeMode,
+        customColorValue: this.customColorValue
+      }));
+    } catch (e) {}
+  }
+
+  loadThemePreference(): void {
+    try {
+      const saved = localStorage.getItem('suppier_search_theme');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.selectedThemeId) {
+          this.selectedThemeId = parsed.selectedThemeId;
+        }
+        if (parsed.themeMode) {
+          this.themeMode = parsed.themeMode;
+        }
+        if (parsed.customColorValue) {
+          this.customColorValue = parsed.customColorValue;
+        }
+      }
+    } catch (e) {}
+  }
+
+  // Image Search State
+  imageSearchModalOpen = false;
+  imageSearchPreviewUrl: string | null = null;
+  imageSearchFileName = '';
+  imageSearchIsPdf = false;
+  imageSearchAnalyzing = false;
+  imageSearchExtractedQuery = '';
+  imageSearchUrlInput = '';
 
   // Shopee PC View State
   resultViewLayout: 'shopee' | 'google' = 'shopee';
@@ -1594,7 +1871,6 @@ export class AppComponent implements OnInit, AfterViewInit {
           if (this.isPurchaseSection) {
             await this.loadAllQuotationRequests();
           }
-          this.showToast(`Login successful. Welcome, ${this.requestBy} (${this.loggedInEmployeeId})`);
         }, 3900);
 
       } else {
@@ -1644,7 +1920,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     console.log(`%c[Suppier Auth] User ${this.loggedInEmployeeId} logged out.`, 'color: #64748b;');
     try {
       localStorage.removeItem('suppier_auth_user');
-    } catch (e) {}
+    } catch (e) { }
     this.isLoggedIn = false;
     this.otpCode = '';
     this.loggedInEmployeeId = '';
@@ -2010,6 +2286,7 @@ Could you please include the estimated lead time as well`;
   }
 
   executeQuotationSearch(query?: string): void {
+    this.isThemeDrawerOpen = false;
     if (query !== undefined) {
       this.quotationSearchQuery = query;
     }
@@ -2064,6 +2341,9 @@ Could you please include the estimated lead time as well`;
     this.isSearchCollapsing = false;
     this.searchAnimStage = 'idle';
     this.searchEngineMode = mode;
+    if (mode === 'results') {
+      this.isThemeDrawerOpen = false;
+    }
   }
 
   clearSearchQuery(): void {
@@ -2091,6 +2371,111 @@ Could you please include the estimated lead time as well`;
       this.selectedKnowledgeResult = luckyItem;
       this.showToast(`ค้นพบใบเสนอราคา: ${luckyItem.partName} (${luckyItem.quotationNo})`);
       this.executeQuotationSearch();
+    }
+  }
+
+  onImageSearchFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+
+    this.imageSearchFileName = file.name;
+    this.imageSearchIsPdf = file.type === 'application/pdf';
+    this.imageSearchExtractedQuery = '';
+    this.imageSearchPreviewUrl = null;
+    this.imageSearchAnalyzing = true;
+    this.imageSearchModalOpen = true;
+
+    // Show preview for images
+    if (!this.imageSearchIsPdf) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.imageSearchPreviewUrl = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Simulate OCR / keyword extraction from filename & type (1.2s delay)
+    setTimeout(() => {
+      const namePart = file.name
+        .replace(/\.[^/.]+$/, '')           // remove extension
+        .replace(/[-_\.]/g, ' ')            // replace separators with space
+        .replace(/\b(drawing|dwg|spec|pdf|img|photo|scan|rev\d*|v\d+)\b/gi, '') // remove generic words
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      // Try to match known part/maker patterns from the dataset
+      const knownMakers = ['Omron', 'Siemens', 'Mitsubishi', 'Yaskawa', 'Fuji', 'ABB', 'SMC', 'THK', 'NSK', 'FAG', 'SKF'];
+      const makerMatch = knownMakers.find(m => file.name.toLowerCase().includes(m.toLowerCase()));
+
+      this.imageSearchExtractedQuery = makerMatch ? `${namePart} ${makerMatch}`.trim() : namePart || 'อะไหล่';
+      this.imageSearchAnalyzing = false;
+    }, 1200);
+
+    // Reset the input value so the same file can be selected again
+    input.value = '';
+  }
+
+  openImageSearchModal(): void {
+    this.imageSearchModalOpen = true;
+    this.imageSearchPreviewUrl = null;
+    this.imageSearchFileName = '';
+    this.imageSearchIsPdf = false;
+    this.imageSearchAnalyzing = false;
+    this.imageSearchExtractedQuery = '';
+    this.imageSearchUrlInput = '';
+  }
+
+  closeImageSearchModal(): void {
+    this.imageSearchModalOpen = false;
+    this.imageSearchPreviewUrl = null;
+    this.imageSearchFileName = '';
+    this.imageSearchIsPdf = false;
+    this.imageSearchAnalyzing = false;
+    this.imageSearchExtractedQuery = '';
+    this.imageSearchUrlInput = '';
+  }
+
+  confirmImageSearch(): void {
+    const q = this.imageSearchExtractedQuery.trim();
+    if (!q) return;
+    this.quotationSearchQuery = q;
+    this.closeImageSearchModal();
+    this.executeQuotationSearch(q);
+    this.showToast(`ค้นหาด้วยรูปภาพ: "${q}"`);
+  }
+
+  onImageSearchDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      // Simulate a change event with the dropped file
+      const fakeEvent = { target: { files, value: '' } } as any;
+      this.onImageSearchFileSelected(fakeEvent);
+    }
+  }
+
+  searchByImageUrl(): void {
+    const url = this.imageSearchUrlInput.trim();
+    if (!url) return;
+    // Extract filename from URL as keyword seed
+    const urlFileName = url.split('/').pop()?.split('?')[0] ?? '';
+    const namePart = urlFileName
+      .replace(/\.[^/.]+$/, '')
+      .replace(/[-_]/g, ' ')
+      .trim();
+
+    this.imageSearchPreviewUrl = url;
+    this.imageSearchIsPdf = url.toLowerCase().endsWith('.pdf');
+    this.imageSearchExtractedQuery = namePart || 'อะไหล่';
+    this.imageSearchUrlInput = '';
+
+    if (namePart) {
+      this.closeImageSearchModal();
+      this.quotationSearchQuery = this.imageSearchExtractedQuery;
+      this.executeQuotationSearch(this.imageSearchExtractedQuery);
+      this.showToast(`ค้นหาด้วยลิงก์รูปภาพ: "${this.imageSearchExtractedQuery}"`);
     }
   }
 

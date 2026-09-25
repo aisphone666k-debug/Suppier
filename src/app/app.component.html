@@ -1,5 +1,150 @@
 <div class="font-sans antialiased text-slate-800">
 
+  <!-- ========== IMAGE SEARCH MODAL (Google Lens Style) ========== -->
+  <div *ngIf="imageSearchModalOpen"
+    class="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center sm:p-4 bg-black/40 backdrop-blur-[2px]"
+    (click)="closeImageSearchModal()">
+
+    <div
+      class="relative w-full sm:max-w-[600px] bg-white sm:rounded-2xl rounded-t-3xl shadow-2xl overflow-hidden animate-fadeInFast"
+      (click)="$event.stopPropagation()">
+
+      <!-- Top drag handle (mobile) -->
+      <div class="flex justify-center pt-3 pb-1 sm:hidden">
+        <div class="w-10 h-1 rounded-full bg-slate-200"></div>
+      </div>
+
+      <!-- Header bar -->
+      <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-100/80">
+        <div class="flex items-center gap-3">
+          <!-- SUP Logo mini -->
+          <img src="/sp-logo-emblem.png" alt="SUP" class="h-6 w-auto object-contain opacity-80" />
+          <span class="text-[15px] font-semibold text-slate-700 tracking-tight">ค้นหาด้วยรูปภาพ</span>
+        </div>
+        <button (click)="closeImageSearchModal()"
+          class="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="px-5 py-5 space-y-4">
+
+        <!-- === DRAG & DROP ZONE === -->
+        <div *ngIf="!imageSearchPreviewUrl && !imageSearchIsPdf"
+          class="image-drop-zone group relative rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/60 hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer"
+          (click)="imageSearchInput2.click()" (dragover)="$event.preventDefault(); $event.stopPropagation()"
+          (dragleave)="$event.stopPropagation()" (drop)="onImageSearchDrop($event)">
+
+          <input #imageSearchInput2 type="file" accept="image/*,.pdf" class="hidden"
+            (change)="onImageSearchFileSelected($event)" />
+
+          <div class="flex flex-col items-center justify-center gap-3 py-10 px-6 select-none">
+            <!-- Image icon -->
+            <div class="relative">
+              <div
+                class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <svg class="w-9 h-9 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div
+                class="absolute -bottom-1.5 -right-1.5 w-6 h-6 bg-white border border-slate-200 rounded-lg flex items-center justify-center shadow-xs">
+                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="text-center">
+              <p class="text-sm text-slate-600">
+                ลากรูปมาวางที่นี่ หรือ
+                <span class="text-blue-600 font-semibold underline underline-offset-2 cursor-pointer">อัปโหลดไฟล์</span>
+              </p>
+              <p class="text-xs text-slate-400 mt-1">รูปภาพ (JPG, PNG, WEBP) หรือ PDF Technical Drawing</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- === IMAGE PREVIEW (after file selected) === -->
+        <div *ngIf="imageSearchPreviewUrl || imageSearchIsPdf"
+          class="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+          <img *ngIf="imageSearchPreviewUrl && !imageSearchIsPdf" [src]="imageSearchPreviewUrl" alt="Preview"
+            class="w-full max-h-56 object-contain p-3" />
+          <div *ngIf="imageSearchIsPdf" class="flex flex-col items-center justify-center gap-2 py-8">
+            <svg class="w-12 h-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            <div class="text-sm font-medium text-slate-600">{{ imageSearchFileName }}</div>
+          </div>
+          <!-- Change file button -->
+          <button (click)="imageSearchInput3.click()"
+            class="absolute top-2 right-2 text-xs px-2.5 py-1 bg-white/90 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 cursor-pointer font-medium shadow-xs">
+            เปลี่ยนรูป
+          </button>
+          <input #imageSearchInput3 type="file" accept="image/*,.pdf" class="hidden"
+            (change)="onImageSearchFileSelected($event)" />
+          <!-- Analyzing overlay -->
+          <div *ngIf="imageSearchAnalyzing"
+            class="absolute inset-0 bg-white/80 flex flex-col items-center justify-center gap-2 backdrop-blur-xs">
+            <div class="w-7 h-7 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <div class="text-xs font-medium text-slate-500">วิเคราะห์รูปภาพ...</div>
+          </div>
+        </div>
+
+        <!-- Extracted keyword (shows after analysis) -->
+        <div *ngIf="(imageSearchPreviewUrl || imageSearchIsPdf) && !imageSearchAnalyzing" class="space-y-1">
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-widest">คำค้นหาที่ตรวจพบ</label>
+          <input [(ngModel)]="imageSearchExtractedQuery" type="text" placeholder="แก้ไขคำค้นหา..."
+            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100/60 transition-all" />
+        </div>
+
+        <!-- OR divider -->
+        <div class="flex items-center gap-3">
+          <div class="flex-1 h-px bg-slate-200"></div>
+          <span class="text-xs font-semibold text-slate-400 tracking-widest uppercase">หรือ</span>
+          <div class="flex-1 h-px bg-slate-200"></div>
+        </div>
+
+        <!-- Paste image URL row -->
+        <div class="flex items-center gap-2">
+          <input [(ngModel)]="imageSearchUrlInput" type="url" placeholder="วางลิงก์รูปภาพ (URL)..."
+            (keydown.enter)="searchByImageUrl()"
+            class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100/60 transition-all" />
+          <button (click)="searchByImageUrl()" [disabled]="!imageSearchUrlInput.trim()"
+            class="px-5 py-2.5 rounded-xl bg-[#1a73e8] hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-sm font-semibold transition-all cursor-pointer shrink-0">
+            ค้นหา
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Footer action (when file selected) -->
+      <div *ngIf="(imageSearchPreviewUrl || imageSearchIsPdf) && !imageSearchAnalyzing"
+        class="flex items-center gap-3 px-5 pb-5 pt-1">
+        <button (click)="closeImageSearchModal()"
+          class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors cursor-pointer">
+          ยกเลิก
+        </button>
+        <button (click)="confirmImageSearch()" [disabled]="!imageSearchExtractedQuery.trim()"
+          class="flex-1 py-2.5 rounded-xl bg-[#1a73e8] hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2 shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          ค้นหาด้วยรูปนี้
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
   <!-- ================= 1. LOGIN SCREEN (CLEAN WHITE TONE 5-DIGIT OTP STYLE) ================= -->
   <div *ngIf="!isLoggedIn"
     class="min-h-screen bg-gradient-to-b from-slate-50 via-slate-100/80 to-slate-200/60 flex items-center justify-center p-4 relative overflow-hidden">
@@ -173,34 +318,28 @@
 
         </div>
 
-        <!-- STEP C: FUSED INTO A SINGLE SQUARE (Clean Modern) -->
-        <div *ngIf="loginPhase === 'downloading'" class="flex flex-col items-center justify-center space-y-3">
-          <!-- The Single Merged Square Box (Clean Pure White) -->
-          <div
-            class="relative w-28 h-28 rounded-2xl bg-white border-2 border-blue-600 shadow-xl shadow-slate-200/90 flex items-center justify-center merged-square-box">
+        <!-- STEP C: CIRCULAR DOWNLOAD PROGRESS (Clean Modern) -->
+        <div *ngIf="loginPhase === 'downloading'" class="flex flex-col items-center justify-center space-y-4 py-2">
+          <!-- Clean Circular Download Progress without square border -->
+          <div class="relative w-24 h-24 flex items-center justify-center download-circle-box">
+            <svg class="w-24 h-24 -rotate-90" viewBox="0 0 72 72">
+              <!-- Clean background ring -->
+              <circle cx="36" cy="36" r="30" stroke="#f1f5f9" stroke-width="4.5" fill="none" />
+              <!-- Clean blue progress ring -->
+              <circle cx="36" cy="36" r="30" stroke="#2563eb" stroke-width="4.5" fill="none" stroke-linecap="round"
+                stroke-dasharray="188.5" [style.strokeDashoffset]="188.5 - (188.5 * downloadPercent / 100)"
+                class="transition-all duration-120 ease-out" />
+            </svg>
 
-            <!-- Clean Circular Download Progress inside the single square -->
-            <div class="relative w-20 h-20 flex items-center justify-center">
-              <svg class="w-20 h-20 -rotate-90" viewBox="0 0 72 72">
-                <!-- Clean background ring -->
-                <circle cx="36" cy="36" r="30" stroke="#f1f5f9" stroke-width="4" fill="none" />
-                <!-- Clean blue progress ring -->
-                <circle cx="36" cy="36" r="30" stroke="#2563eb" stroke-width="4" fill="none" stroke-linecap="round"
-                  stroke-dasharray="188.5" [style.strokeDashoffset]="188.5 - (188.5 * downloadPercent / 100)"
-                  class="transition-all duration-120 ease-out" />
+            <!-- Center Download Arrow & Percent -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <svg class="w-6 h-6 text-blue-600 download-arrow-gentle" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-
-              <!-- Center Download Arrow & Percent -->
-              <div class="absolute inset-0 flex flex-col items-center justify-center">
-                <svg class="w-5 h-5 text-blue-600 download-arrow-gentle" fill="none" stroke="currentColor"
-                  viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                <span class="text-xs otp-box-char font-extrabold text-slate-700 mt-0.5">{{ downloadPercent }}%</span>
-              </div>
+              <span class="text-sm otp-box-char font-extrabold text-slate-700 mt-0.5">{{ downloadPercent }}%</span>
             </div>
-
           </div>
 
           <!-- Loading details -->
@@ -211,22 +350,17 @@
           </div>
         </div>
 
-        <!-- STEP D: SUCCESS IN THE SINGLE SQUARE -->
-        <div *ngIf="loginPhase === 'success'" class="flex flex-col items-center justify-center space-y-3">
+        <!-- STEP D: SUCCESS -->
+        <div *ngIf="loginPhase === 'success'" class="flex flex-col items-center justify-center space-y-3 py-2">
           <div
-            class="w-28 h-28 rounded-2xl bg-white border-2 border-emerald-500 shadow-xl shadow-slate-200/90 flex flex-col items-center justify-center success-pop">
-            <div
-              class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shadow-xs">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <span class="text-[10px] font-black tracking-wider text-emerald-600 mt-1.5">VERIFIED</span>
+            class="w-20 h-20 rounded-full bg-emerald-50 text-emerald-600 border-2 border-emerald-500 shadow-lg shadow-emerald-200/60 flex items-center justify-center success-pop">
+            <svg class="w-9 h-9 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+            </svg>
           </div>
           <div class="text-center space-y-0.5">
             <div class="text-sm font-bold text-emerald-600">Login Successful</div>
-            <div class="text-xs text-slate-400 otp-box-char font-medium tracking-wide">Welcome, Employee ID: {{ otpCode
-              }}</div>
+            <div class="text-xs text-slate-400 otp-box-char font-medium tracking-wide">Welcome, Employee ID: {{ otpCode }}</div>
           </div>
         </div>
 
@@ -239,18 +373,42 @@
   <div *ngIf="isLoggedIn" class="h-screen bg-slate-50 text-slate-800 flex flex-col font-sans overflow-hidden">
 
     <!-- ================= TOP SYSTEM BANNER ================= -->
-    <header class="bg-white border-b border-slate-200 py-2.5 px-6 shadow-2xs shrink-0 z-10">
-      <div class="max-w-[1800px] mx-auto flex items-center justify-between gap-4">
+    <header class="bg-white border-b border-slate-200 py-2.5 px-4 sm:px-6 shadow-2xs shrink-0 z-10">
+      <div class="w-full flex items-center justify-between gap-3 sm:gap-4">
 
-        <!-- App Brand Logo (Original Emblem + Logo Wordmark) -->
+        <!-- App Brand Logo -->
         <div class="flex items-center shrink-0">
-          <img src="/sp-logo-horizontal.png" alt="Suppier Logo" class="h-9 sm:h-10 w-auto object-contain filter drop-shadow-xs" />
+          <img src="/sp-logo-horizontal.png" alt="Suppier Logo"
+            class="h-8 sm:h-9.5 w-auto object-contain filter drop-shadow-xs" />
         </div>
 
-        <div class="flex-1 text-center">
-          <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-blue-700 tracking-tight">
-            Request quotation to Purchase GM1 - MA - PMA
+        <!-- Header Center: Prominent Stylish Typography Title -->
+        <div class="flex-1 text-center py-0.5 select-none flex flex-col items-center justify-center">
+          <h1
+            class="inline-flex items-center justify-center flex-wrap gap-x-2 sm:gap-x-2.5 gap-y-1 text-lg sm:text-xl lg:text-2xl xl:text-[26px] font-black tracking-tight leading-none">
+            <!-- Request quotation -->
+            <span class="text-[#131936] drop-shadow-2xs">Request quotation</span>
+            <!-- to -->
+            <span class="text-slate-400 font-semibold text-base sm:text-lg lg:text-xl">to</span>
+            <!-- Purchase -->
+            <span
+              class="bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500 bg-clip-text text-transparent drop-shadow-2xs">Purchase</span>
+            <!-- Divider -->
+            <span class="text-slate-300 font-light mx-1 hidden sm:inline text-xl sm:text-2xl">|</span>
+            <!-- GM1 - MA - PMA -->
+            <span
+              class="font-mono text-base sm:text-lg lg:text-xl xl:text-[22px] font-black tracking-wider inline-flex items-center gap-1.5">
+              <span class="text-blue-700">GM1</span>
+              <span class="text-slate-300 font-light">&ndash;</span>
+              <span class="text-indigo-600">MA</span>
+              <span class="text-slate-300 font-light">&ndash;</span>
+              <span class="text-cyan-600">PMA</span>
+            </span>
           </h1>
+          <!-- Sleek Brand Gradient Accent Line -->
+          <div
+            class="h-[2px] w-28 sm:w-44 lg:w-60 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full mt-1.5 opacity-70">
+          </div>
         </div>
 
         <!-- Logged in employee info & Logout button -->
@@ -291,17 +449,21 @@
           <!-- Purchase Quick Access Header Button -->
           <button *ngIf="isPurchaseSection" (click)="openPurchaseQuotationView()"
             class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black text-cyan-950 bg-gradient-to-r from-cyan-300 via-sky-300 to-cyan-400 hover:from-cyan-200 hover:to-sky-200 border border-cyan-500 shadow-xs hover:shadow-sm transition-all cursor-pointer">
-            <svg class="w-3.5 h-3.5 text-cyan-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <svg class="w-3.5 h-3.5 text-cyan-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
             <span>Purchase Quotation Requests</span>
           </button>
 
-          <button (click)="logout()" title="ออกจากระบบ"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            <span class="hidden sm:inline">Logout</span>
+          <!-- From Uiverse.io by vinodjangid07: Animated Logout Button -->
+          <button (click)="logout()" class="Btn" title="ออกจากระบบ (Logout)">
+            <div class="sign">
+              <svg viewBox="0 0 512 512">
+                <path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"></path>
+              </svg>
+            </div>
+            <div class="text">Logout</div>
           </button>
         </div>
 
@@ -309,28 +471,53 @@
     </header>
 
     <!-- ================= MAIN LAYOUT WITH FIXED LEFT SIDEBAR ================= -->
-    <div class="max-w-[1850px] w-full mx-auto flex flex-1 overflow-hidden min-h-0">
+    <div class="w-full flex flex-1 overflow-hidden min-h-0">
 
       <!-- ================= LEFT SIDEBAR NAVIGATION (FIXED / STICKY) ================= -->
-      <aside
-        class="w-72 sm:w-[285px] lg:w-[290px] xl:w-[295px] bg-white border-r border-slate-200 shrink-0 p-4 sm:p-4.5 flex flex-col justify-between shadow-xs h-full overflow-y-auto select-none">
+      <aside [class.w-16]="isSidebarCollapsed" [class.p-2]="isSidebarCollapsed" [class.w-60]="!isSidebarCollapsed"
+        [class.xl:w-64]="!isSidebarCollapsed" [class.p-3]="!isSidebarCollapsed" [class.sm:p-3.5]="!isSidebarCollapsed"
+        class="bg-white border-r border-slate-200 shrink-0 flex flex-col justify-between shadow-xs h-full overflow-y-auto select-none transition-all duration-300">
 
-        <div class="space-y-5">
+        <div class="space-y-4">
 
           <!-- Group 1: ALL DOCUMENT -->
           <div class="space-y-1.5">
-            <div class="flex items-center justify-between px-2 pb-1">
+            <!-- Header when expanded -->
+            <div *ngIf="!isSidebarCollapsed" class="flex items-center justify-between px-2 pb-1">
               <span class="text-[11.5px] font-bold text-slate-400 uppercase tracking-wider">All Document</span>
-              <span class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md font-mono">{{ documentMenus.length }}</span>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md font-mono">{{
+                  documentMenus.length }}</span>
+                <button (click)="toggleSidebar()" title="ย่อแถบเมนู (Collapse Sidebar)"
+                  class="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Header button when collapsed -->
+            <div *ngIf="isSidebarCollapsed" class="flex items-center justify-center pb-2 border-b border-slate-100">
+              <button (click)="toggleSidebar()" title="ขยายแถบเมนู (Expand Sidebar)"
+                class="p-1.5 rounded-xl text-slate-400 hover:text-blue-700 hover:bg-blue-50 cursor-pointer transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                </svg>
+              </button>
             </div>
 
             <nav class="space-y-1">
               <div *ngFor="let menu of documentMenus" class="space-y-1">
-                <!-- Parent Menu Item (Balanced Medium: 14px text-sm, 20px icon, py-2.5) -->
+                <!-- Parent Menu Item (Balanced: 13.5px text, py-2) -->
                 <button (click)="selectMenu(menu.id)" [class]="(activeMenu === menu.id && !activeSubMenu) 
                   ? 'bg-[#131936] text-white shadow-sm font-bold' 
-                  : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 font-semibold'"
-                  class="w-full text-left px-3.5 py-2.5 rounded-xl text-sm transition-all flex items-center justify-between group cursor-pointer">
+                  : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 font-semibold'" [class.w-full]="true"
+                  [class.text-left]="!isSidebarCollapsed" [class.px-3]="!isSidebarCollapsed"
+                  [class.py-2]="!isSidebarCollapsed" [class.justify-between]="!isSidebarCollapsed"
+                  [class.p-2]="isSidebarCollapsed" [class.justify-center]="isSidebarCollapsed"
+                  class="rounded-xl text-sm transition-all flex items-center group cursor-pointer" [title]="menu.label">
 
                   <div class="flex items-center gap-3 truncate">
                     <!-- Clean Vector Icon per Category (20px) -->
@@ -339,8 +526,8 @@
                       <svg *ngSwitchCase="'kzw'" class="w-5 h-5 shrink-0 transition-colors"
                         [class.text-blue-300]="activeMenu === 'kzw' && !activeSubMenu"
                         [class.text-slate-400]="activeMenu !== 'kzw' || activeSubMenu"
-                        [class.group-hover:text-slate-600]="activeMenu !== 'kzw' || activeSubMenu"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        [class.group-hover:text-slate-600]="activeMenu !== 'kzw' || activeSubMenu" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
@@ -348,8 +535,8 @@
                       <svg *ngSwitchCase="'made-to-order'" class="w-5 h-5 shrink-0 transition-colors"
                         [class.text-blue-300]="activeMenu === 'made-to-order' && !activeSubMenu"
                         [class.text-slate-400]="activeMenu !== 'made-to-order' || activeSubMenu"
-                        [class.group-hover:text-slate-600]="activeMenu !== 'made-to-order' || activeSubMenu"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        [class.group-hover:text-slate-600]="activeMenu !== 'made-to-order' || activeSubMenu" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                           d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                       </svg>
@@ -357,8 +544,8 @@
                       <svg *ngSwitchCase="'repair'" class="w-5 h-5 shrink-0 transition-colors"
                         [class.text-blue-300]="activeMenu === 'repair' && !activeSubMenu"
                         [class.text-slate-400]="activeMenu !== 'repair' || activeSubMenu"
-                        [class.group-hover:text-slate-600]="activeMenu !== 'repair' || activeSubMenu"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        [class.group-hover:text-slate-600]="activeMenu !== 'repair' || activeSubMenu" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                           d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                       </svg>
@@ -366,8 +553,8 @@
                       <svg *ngSwitchCase="'spare-part'" class="w-5 h-5 shrink-0 transition-colors"
                         [class.text-blue-300]="activeMenu === 'spare-part'"
                         [class.text-slate-400]="activeMenu !== 'spare-part'"
-                        [class.group-hover:text-slate-600]="activeMenu !== 'spare-part'"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        [class.group-hover:text-slate-600]="activeMenu !== 'spare-part'" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                           d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                       </svg>
@@ -375,8 +562,8 @@
                       <svg *ngSwitchCase="'made-to-maker'" class="w-5 h-5 shrink-0 transition-colors"
                         [class.text-blue-300]="activeMenu === 'made-to-maker'"
                         [class.text-slate-400]="activeMenu !== 'made-to-maker'"
-                        [class.group-hover:text-slate-600]="activeMenu !== 'made-to-maker'"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        [class.group-hover:text-slate-600]="activeMenu !== 'made-to-maker'" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                           d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                       </svg>
@@ -384,8 +571,8 @@
                       <svg *ngSwitchCase="'store-tooling'" class="w-5 h-5 shrink-0 transition-colors"
                         [class.text-blue-300]="activeMenu === 'store-tooling'"
                         [class.text-slate-400]="activeMenu !== 'store-tooling'"
-                        [class.group-hover:text-slate-600]="activeMenu !== 'store-tooling'"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        [class.group-hover:text-slate-600]="activeMenu !== 'store-tooling'" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                           d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                       </svg>
@@ -393,8 +580,8 @@
                       <svg *ngSwitchCase="'project'" class="w-5 h-5 shrink-0 transition-colors"
                         [class.text-blue-300]="activeMenu === 'project'"
                         [class.text-slate-400]="activeMenu !== 'project'"
-                        [class.group-hover:text-slate-600]="activeMenu !== 'project'"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        [class.group-hover:text-slate-600]="activeMenu !== 'project'" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                           d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                       </svg>
@@ -402,37 +589,39 @@
                       <svg *ngSwitchCase="'maker-misumi'" class="w-5 h-5 shrink-0 transition-colors"
                         [class.text-blue-300]="activeMenu === 'maker-misumi'"
                         [class.text-slate-400]="activeMenu !== 'maker-misumi'"
-                        [class.group-hover:text-slate-600]="activeMenu !== 'maker-misumi'"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        [class.group-hover:text-slate-600]="activeMenu !== 'maker-misumi'" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                           d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                       </svg>
                       <!-- Fallback default icon -->
-                      <svg *ngSwitchDefault class="w-5 h-5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                      <svg *ngSwitchDefault class="w-5 h-5 text-slate-400 shrink-0" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                          d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                       </svg>
                     </ng-container>
 
-                    <span class="truncate font-semibold">{{ menu.label }}</span>
+                    <span *ngIf="!isSidebarCollapsed" class="truncate font-semibold">{{ menu.label }}</span>
                   </div>
 
                   <!-- Chevron indicator if has sub-items (Medium) -->
-                  <span *ngIf="menu.subItems" (click)="toggleMenu(menu, $event)"
+                  <span *ngIf="menu.subItems && !isSidebarCollapsed" (click)="toggleMenu(menu, $event)"
                     class="p-1 rounded cursor-pointer transition-colors"
                     [class.text-slate-300]="activeMenu === menu.id && !activeSubMenu"
                     [class.text-slate-400]="activeMenu !== menu.id || activeSubMenu"
                     [class.hover:text-slate-600]="activeMenu !== menu.id || activeSubMenu">
-                    <svg class="w-4 h-4 transform transition-transform" [class.rotate-90]="menu.isExpanded"
-                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 transform transition-transform" [class.rotate-90]="menu.isExpanded" fill="none"
+                      stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                   </span>
                 </button>
 
                 <!-- Sub-Items (GM1, MA, PMA) - Medium Balanced (13px text, py-1.5 sm:py-2) -->
-                <div *ngIf="menu.subItems && menu.isExpanded" class="ml-5 pl-3.5 border-l-2 border-slate-200/90 space-y-1 py-1 my-1">
-                  <button *ngFor="let sub of menu.subItems" (click)="selectSubMenu(menu, sub, $event)"
-                    [class]="activeSubMenu === sub.id 
+                <div *ngIf="menu.subItems && menu.isExpanded && !isSidebarCollapsed"
+                  class="ml-4 pl-3 border-l-2 border-slate-200/90 space-y-1 py-1 my-1">
+                  <button *ngFor="let sub of menu.subItems" (click)="selectSubMenu(menu, sub, $event)" [class]="activeSubMenu === sub.id 
                       ? 'bg-blue-50 text-blue-700 font-bold ring-1 ring-blue-200/80 shadow-2xs' 
                       : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100/70 font-medium'"
                     class="w-full text-left px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-[13px] transition-all flex items-center justify-between cursor-pointer">
@@ -442,7 +631,8 @@
                         [class.bg-slate-300]="activeSubMenu !== sub.id"></span>
                       <span class="truncate">{{ sub.label }}</span>
                     </div>
-                    <span *ngIf="activeSubMenu === sub.id" class="text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">Active</span>
+                    <span *ngIf="activeSubMenu === sub.id"
+                      class="text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">Active</span>
                   </button>
                 </div>
               </div>
@@ -450,26 +640,29 @@
           </div>
 
           <!-- Group 2: MASTER (Balanced Medium Minimal Style) -->
-          <div class="space-y-1.5 pt-4 border-t border-slate-100">
-            <div class="flex items-center justify-between px-2 pb-1">
+          <div class="space-y-1.5 pt-3 border-t border-slate-100">
+            <div *ngIf="!isSidebarCollapsed" class="flex items-center justify-between px-2 pb-1">
               <span class="text-[11.5px] font-bold text-slate-400 uppercase tracking-wider">Master Data</span>
-              <span class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md font-mono">{{ masterMenus.length }}</span>
+              <span class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md font-mono">{{
+                masterMenus.length }}</span>
             </div>
 
             <nav class="space-y-1">
-              <button *ngFor="let menu of masterMenus" (click)="selectMenu(menu.id)"
-                [class]="activeMenu === menu.id 
+              <button *ngFor="let menu of masterMenus" (click)="selectMenu(menu.id)" [class]="activeMenu === menu.id 
                   ? 'bg-[#131936] text-white shadow-sm font-bold' 
-                  : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 font-semibold'"
-                class="w-full text-left px-3.5 py-2.5 rounded-xl text-sm transition-all flex items-center gap-3 group cursor-pointer">
+                  : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 font-semibold'" [class.w-full]="true"
+                [class.text-left]="!isSidebarCollapsed" [class.px-3]="!isSidebarCollapsed"
+                [class.py-2]="!isSidebarCollapsed" [class.gap-2.5]="!isSidebarCollapsed"
+                [class.p-2]="isSidebarCollapsed" [class.justify-center]="isSidebarCollapsed"
+                class="rounded-xl text-sm transition-all flex items-center group cursor-pointer" [title]="menu.label">
 
                 <ng-container [ngSwitch]="menu.id">
                   <!-- Master Section -->
                   <svg *ngSwitchCase="'master-section'" class="w-5 h-5 shrink-0 transition-colors"
                     [class.text-blue-300]="activeMenu === 'master-section'"
                     [class.text-slate-400]="activeMenu !== 'master-section'"
-                    [class.group-hover:text-slate-600]="activeMenu !== 'master-section'"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    [class.group-hover:text-slate-600]="activeMenu !== 'master-section'" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                       d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                   </svg>
@@ -477,8 +670,8 @@
                   <svg *ngSwitchCase="'master-unit'" class="w-5 h-5 shrink-0 transition-colors"
                     [class.text-blue-300]="activeMenu === 'master-unit'"
                     [class.text-slate-400]="activeMenu !== 'master-unit'"
-                    [class.group-hover:text-slate-600]="activeMenu !== 'master-unit'"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    [class.group-hover:text-slate-600]="activeMenu !== 'master-unit'" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                       d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
                   </svg>
@@ -486,8 +679,8 @@
                   <svg *ngSwitchCase="'master-order-type'" class="w-5 h-5 shrink-0 transition-colors"
                     [class.text-blue-300]="activeMenu === 'master-order-type'"
                     [class.text-slate-400]="activeMenu !== 'master-order-type'"
-                    [class.group-hover:text-slate-600]="activeMenu !== 'master-order-type'"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    [class.group-hover:text-slate-600]="activeMenu !== 'master-order-type'" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                       d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
@@ -495,8 +688,8 @@
                   <svg *ngSwitchCase="'master-purchase'" class="w-5 h-5 shrink-0 transition-colors"
                     [class.text-blue-300]="activeMenu === 'master-purchase'"
                     [class.text-slate-400]="activeMenu !== 'master-purchase'"
-                    [class.group-hover:text-slate-600]="activeMenu !== 'master-purchase'"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    [class.group-hover:text-slate-600]="activeMenu !== 'master-purchase'" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                       d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
@@ -504,22 +697,23 @@
                   <svg *ngSwitchCase="'master-access'" class="w-5 h-5 shrink-0 transition-colors"
                     [class.text-blue-300]="activeMenu === 'master-access'"
                     [class.text-slate-400]="activeMenu !== 'master-access'"
-                    [class.group-hover:text-slate-600]="activeMenu !== 'master-access'"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    [class.group-hover:text-slate-600]="activeMenu !== 'master-access'" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                       d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                   </svg>
                 </ng-container>
 
-                <span class="truncate font-semibold">{{ menu.label }}</span>
+                <span *ngIf="!isSidebarCollapsed" class="truncate font-semibold">{{ menu.label }}</span>
               </button>
             </nav>
           </div>
 
           <!-- Group 3: PURCHASE EXCLUSIVE MENU (Active when Section_Name is PURCHASE) -->
-          <div *ngIf="isPurchaseSection" class="pt-3 border-t border-slate-100">
-            <div class="bg-cyan-50/70 border border-cyan-200/80 p-2.5 rounded-xl space-y-1.5">
-              <div class="flex items-center justify-between px-1">
+          <div *ngIf="isPurchaseSection" class="pt-2 border-t border-slate-100">
+            <div class="bg-cyan-50/70 border border-cyan-200/80 rounded-xl space-y-1" [class.p-2]="!isSidebarCollapsed"
+              [class.p-1]="isSidebarCollapsed">
+              <div *ngIf="!isSidebarCollapsed" class="flex items-center justify-between px-1">
                 <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-900 flex items-center gap-1.5">
                   <svg class="w-3.5 h-3.5 text-cyan-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -531,14 +725,16 @@
               </div>
               <button (click)="openPurchaseQuotationView()" [class]="activeView === 'purchase-quotation' 
                 ? 'bg-cyan-700 text-white shadow-xs font-bold' 
-                : 'text-cyan-900 hover:bg-cyan-100 font-semibold'"
-                class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-all flex items-center justify-between group cursor-pointer">
-                <div class="flex items-center gap-2 truncate">
+                : 'text-cyan-900 hover:bg-cyan-100 font-semibold'" [class.justify-center]="isSidebarCollapsed"
+                [class.px-2]="!isSidebarCollapsed" [class.py-1.5]="true"
+                class="w-full text-left rounded-lg text-xs transition-all flex items-center justify-between group cursor-pointer"
+                title="Purchase Quotation Requests">
+                <div class="flex items-center gap-2 truncate" [class.justify-center]="isSidebarCollapsed">
                   <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                  <span class="truncate">User Quotation Requests</span>
+                  <span *ngIf="!isSidebarCollapsed" class="truncate">User Quotation Requests</span>
                 </div>
               </button>
             </div>
@@ -547,8 +743,9 @@
         </div>
 
         <!-- Testing / Demo Toggle for Purchase Section Mode -->
-        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 px-1">
-          <span class="font-medium flex items-center gap-1.5 text-[11px] text-slate-400">
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 px-1"
+          [class.justify-center]="isSidebarCollapsed">
+          <span *ngIf="!isSidebarCollapsed" class="font-medium flex items-center gap-1.5 text-[11px] text-slate-400">
             <span class="w-2 h-2 rounded-full" [class.bg-emerald-500]="isPurchaseSection"
               [class.bg-slate-300]="!isPurchaseSection"></span>
             Purchase Mode
@@ -564,7 +761,11 @@
       </aside>
 
       <!-- ================= RIGHT MAIN CONTENT AREA ================= -->
-      <main class="flex-1 h-full overflow-y-auto p-4 sm:p-6 bg-slate-100/60">
+      <main class="flex-1 h-full overflow-y-auto transition-colors duration-300"
+        [style.backgroundColor]="isDarkThemeActive ? '#0f172a' : (activeView === 'quotation-search' && searchEngineMode === 'home' ? currentTheme.lightBg : '#f1f5f9')"
+        [ngClass]="(activeView === 'quotation-search' && searchEngineMode === 'home') 
+          ? 'p-0' 
+          : 'p-2 sm:p-3.5'">
 
         <!-- ================= VIEW 1: EDIT DOCUMENT VIEW ================= -->
         <div *ngIf="activeView === 'edit'" class="space-y-6">
@@ -1565,7 +1766,10 @@
           <div
             class="bg-[#131936] text-white h-11 px-4 rounded-xl flex items-center justify-between shadow-sm border border-[#1c244b]">
             <div class="flex items-center space-x-2">
-              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
               <span class="text-sm font-bold tracking-wide">New Quotation</span>
             </div>
 
@@ -1661,7 +1865,8 @@
                     <td class="py-2.5 px-3 font-mono text-blue-700">{{ row.date }}</td>
                     <td class="py-2.5 px-3 font-mono text-slate-400">-</td>
                     <td class="py-2.5 px-3 text-slate-900 font-bold hover:text-indigo-600 flex items-center gap-1">
-                      <span *ngIf="row.isCurrentDoc" class="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block mr-1"></span>
+                      <span *ngIf="row.isCurrentDoc"
+                        class="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block mr-1"></span>
                       {{ row.partName }}
                     </td>
                     <td class="py-2.5 px-3 font-mono text-slate-700">{{ row.spec }}</td>
@@ -1684,11 +1889,14 @@
         <div *ngIf="activeView === 'purchase-quotation'" class="space-y-5">
 
           <!-- Top Navigation Header Bar (Minimalist) -->
-          <div class="bg-white border border-slate-200/90 p-4 sm:p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-2xs">
+          <div
+            class="bg-white border border-slate-200/90 p-4 sm:p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-2xs">
             <div class="flex items-center space-x-3.5">
-              <div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200/80 flex items-center justify-center text-slate-700 shrink-0">
+              <div
+                class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200/80 flex items-center justify-center text-slate-700 shrink-0">
                 <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
               <div>
@@ -1696,7 +1904,8 @@
                   <h2 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
                     Purchase: User Quotation Requests & Email Generator
                   </h2>
-                  <span class="bg-slate-100 text-slate-600 border border-slate-200 text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider">
+                  <span
+                    class="bg-slate-100 text-slate-600 border border-slate-200 text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider">
                     Purchase Section
                   </span>
                 </div>
@@ -1720,7 +1929,8 @@
               <button (click)="copyTableOnlyToClipboard()"
                 class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-colors cursor-pointer">
                 <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                 </svg>
                 <span>Copy Table</span>
               </button>
@@ -1728,7 +1938,8 @@
               <button (click)="openInEmailClient()"
                 class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium text-blue-700 bg-blue-50/70 hover:bg-blue-100/70 border border-blue-200/80 transition-colors cursor-pointer">
                 <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                 </svg>
                 <span>Open in Mail</span>
               </button>
@@ -1753,7 +1964,9 @@
               <div>
                 <span class="font-bold text-xs text-emerald-900">{{ copyFeedbackText }}</span>
                 <p class="text-[11px] text-emerald-700 mt-0.5">
-                  เปิด Outlook หรือ Gmail แล้วกด <kbd class="bg-white border border-emerald-300 font-mono px-1.5 py-0.2 rounded text-[10px] font-semibold text-emerald-900">Ctrl + V</kbd> เพื่อวางข้อมูลลงในอีเมล
+                  เปิด Outlook หรือ Gmail แล้วกด <kbd
+                    class="bg-white border border-emerald-300 font-mono px-1.5 py-0.2 rounded text-[10px] font-semibold text-emerald-900">Ctrl
+                    + V</kbd> เพื่อวางข้อมูลลงในอีเมล
                 </p>
               </div>
             </div>
@@ -1771,7 +1984,8 @@
                 <div class="flex items-center gap-2">
                   <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
                     <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     <span>คำขอใบเสนอราคา (Quotation Requests)</span>
                   </h3>
@@ -1783,14 +1997,18 @@
                 <div class="flex items-center gap-2 text-xs">
                   <button (click)="resetAllFilters()"
                     class="text-xs text-slate-500 hover:text-rose-600 font-medium transition-colors cursor-pointer flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                     <span>Reset Filters</span>
                   </button>
                   <span class="text-slate-200">|</span>
                   <button (click)="loadAllQuotationRequests()" title="รีเฟรชข้อมูลจากระบบ"
                     class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">
-                    <svg class="w-3.5 h-3.5" [class.animate-spin]="isLoadingRequests" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    <svg class="w-3.5 h-3.5" [class.animate-spin]="isLoadingRequests" fill="none" stroke="currentColor"
+                      viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                   </button>
                 </div>
@@ -1860,13 +2078,16 @@
                 </label>
                 <span class="text-slate-300">|</span>
                 <span class="text-slate-500">
-                  เลือกแล้ว <strong class="text-slate-900 font-bold">{{ selectedRequestsList.length }}</strong> / {{ filteredQuotationRequests.length }} คำขอ
-                  <span class="text-slate-400 font-mono text-[11px]">(รวม {{ allItemsFromSelectedRequests.length }} รายการ)</span>
+                  เลือกแล้ว <strong class="text-slate-900 font-bold">{{ selectedRequestsList.length }}</strong> / {{
+                  filteredQuotationRequests.length }} คำขอ
+                  <span class="text-slate-400 font-mono text-[11px]">(รวม {{ allItemsFromSelectedRequests.length }}
+                    รายการ)</span>
                 </span>
               </div>
 
               <div class="flex items-center gap-2 text-xs">
-                <button (click)="selectAllFilteredRequests()" class="text-blue-600 hover:text-blue-800 font-medium hover:underline cursor-pointer">
+                <button (click)="selectAllFilteredRequests()"
+                  class="text-blue-600 hover:text-blue-800 font-medium hover:underline cursor-pointer">
                   เลือกทั้งหมด
                 </button>
                 <span class="text-slate-300">&bull;</span>
@@ -1880,7 +2101,8 @@
             <div *ngIf="filteredQuotationRequests.length === 0"
               class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-2">
               <svg class="w-10 h-10 mx-auto text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <h4 class="text-sm font-semibold text-slate-800">ไม่พบคำขอใบเสนอราคาที่ตรงกับตัวกรองที่เลือก</h4>
               <p class="text-xs text-slate-400">
@@ -1896,7 +2118,8 @@
             <div *ngIf="filteredQuotationRequests.length > 0"
               class="overflow-x-auto rounded-xl border border-slate-200/80 shadow-2xs">
               <table class="w-full text-left text-xs text-slate-700 border-collapse">
-                <thead class="bg-slate-50/75 border-b border-slate-200/80 text-slate-500 font-semibold text-[11px] uppercase tracking-wider">
+                <thead
+                  class="bg-slate-50/75 border-b border-slate-200/80 text-slate-500 font-semibold text-[11px] uppercase tracking-wider">
                   <tr>
                     <th class="py-2.5 px-3 text-center w-10">
                       <input type="checkbox" [checked]="isAllRequestsSelected"
@@ -1945,7 +2168,8 @@
                     <!-- Request By -->
                     <td class="py-2.5 px-3 text-slate-800 whitespace-nowrap">
                       <div class="flex items-center gap-1.5">
-                        <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold flex items-center justify-center shrink-0">
+                        <span
+                          class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold flex items-center justify-center shrink-0">
                           {{ getInitials(req.header?.requestBy || 'U') }}
                         </span>
                         <span class="font-medium">{{ req.header?.requestBy || '-' }}</span>
@@ -1958,7 +2182,8 @@
                     </td>
 
                     <!-- Section -->
-                    <td class="py-2.5 px-3 text-center text-slate-600 text-[11px]" [title]="req.header?.sectionName || ''">
+                    <td class="py-2.5 px-3 text-center text-slate-600 text-[11px]"
+                      [title]="req.header?.sectionName || ''">
                       {{ req.header?.section || '-' }}
                     </td>
 
@@ -1982,7 +2207,8 @@
                     </td>
 
                     <!-- Send to Purchase -->
-                    <td class="py-2.5 px-3 text-slate-600 text-[11px] max-w-[180px] truncate" [title]="req.header?.sendToPurchase || ''">
+                    <td class="py-2.5 px-3 text-slate-600 text-[11px] max-w-[180px] truncate"
+                      [title]="req.header?.sendToPurchase || ''">
                       {{ req.header?.sendToPurchase || '-' }}
                     </td>
 
@@ -1993,7 +2219,8 @@
 
                     <!-- Status -->
                     <td class="py-2.5 px-3 text-center whitespace-nowrap">
-                      <span class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-amber-50 text-amber-800 border border-amber-200/80">
+                      <span
+                        class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-amber-50 text-amber-800 border border-amber-200/80">
                         {{ req.header?.status || 'Waiting' }}
                       </span>
                     </td>
@@ -2013,7 +2240,10 @@
               <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-4 sm:p-5 space-y-3">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
                   <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
                     <span>คำขอที่เลือก (Selected Requests)</span>
                   </h3>
                   <span class="text-xs font-mono font-medium text-slate-500">
@@ -2056,12 +2286,18 @@
               <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-4 sm:p-5 space-y-3.5">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
                   <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
                     <span>ปรับแต่งหัวข้อและข้อความอีเมล (Email Content)</span>
                   </h3>
                   <button (click)="copySubjectToClipboard()"
                     class="text-[11px] font-medium text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 cursor-pointer">
-                    <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                    <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                    </svg>
                     <span>คัดลอก Subject</span>
                   </button>
                 </div>
@@ -2074,7 +2310,8 @@
                   <input type="text" [(ngModel)]="quotationEmailSubject"
                     class="w-full px-3 py-2 text-xs font-mono font-medium text-slate-800 bg-slate-50/60 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white" />
                   <p class="text-[10px] text-slate-400">
-                    * รูปแบบหัวข้อ: <span class="font-mono text-slate-500">GM/MM Please Submit Quotation //TRISAK (24/9/26)</span>
+                    * รูปแบบหัวข้อ: <span class="font-mono text-slate-500">GM/MM Please Submit Quotation //TRISAK
+                      (24/9/26)</span>
                   </p>
                 </div>
 
@@ -2093,7 +2330,10 @@
                 <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
                   <div>
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                      <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                      <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
                       <span>เลือกรายการที่ต้องการส่งขอราคา</span>
                     </h3>
                     <p class="text-[11px] text-slate-400">
@@ -2164,7 +2404,8 @@
               <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden flex flex-col">
 
                 <!-- Mockup Email Window Top Bar -->
-                <div class="bg-slate-900 text-white px-4 py-2.5 flex items-center justify-between border-b border-slate-800">
+                <div
+                  class="bg-slate-900 text-white px-4 py-2.5 flex items-center justify-between border-b border-slate-800">
                   <div class="flex items-center space-x-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block"></span>
                     <span class="w-2.5 h-2.5 rounded-full bg-amber-400/80 inline-block"></span>
@@ -2174,16 +2415,19 @@
                     </span>
                   </div>
 
-                  <span class="text-[10px] font-medium text-slate-300 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                  <span
+                    class="text-[10px] font-medium text-slate-300 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
                     Live Formatted View
                   </span>
                 </div>
 
                 <!-- Email Message Header Area -->
-                <div class="p-4 bg-slate-50/70 border-b border-slate-200/80 space-y-1.5 text-xs text-slate-600 font-sans">
+                <div
+                  class="p-4 bg-slate-50/70 border-b border-slate-200/80 space-y-1.5 text-xs text-slate-600 font-sans">
                   <div><strong class="text-slate-800">Subject:</strong> {{ quotationEmailSubject }}</div>
                   <div><strong class="text-slate-800">To:</strong> [Supplier Sales / Procurement Contact]</div>
-                  <div><strong class="text-slate-800">From:</strong> Purchase Department ({{ requestBy || 'Buyer' }})</div>
+                  <div><strong class="text-slate-800">From:</strong> Purchase Department ({{ requestBy || 'Buyer' }})
+                  </div>
                 </div>
 
                 <!-- Email Body & Clean Table Preview Area -->
@@ -2196,7 +2440,8 @@
 
                   <!-- The Quotation Table Preview -->
                   <div class="overflow-x-auto">
-                    <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px;">
+                    <table
+                      style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px;">
                       <thead>
                         <tr style="background-color: #00ffff; color: #000000; font-weight: bold; text-align: center;">
                           <th style="border: 1px solid #000000; padding: 6px 8px; width: 35px;">Item</th>
@@ -2215,7 +2460,8 @@
                       <tbody>
                         <!-- Empty State if no item selected -->
                         <tr *ngIf="getSelectedQuotationItems().length === 0">
-                          <td colspan="11" style="border: 1px solid #000000; padding: 20px; text-align: center; color: #64748b;">
+                          <td colspan="11"
+                            style="border: 1px solid #000000; padding: 20px; text-align: center; color: #64748b;">
                             ยังไม่ได้เลือกรายการใดๆ (กรุณาเลือกรายการจากแผงด้านซ้าย)
                           </td>
                         </tr>
@@ -2223,7 +2469,8 @@
                         <!-- Selected Items Rows -->
                         <tr *ngFor="let item of getSelectedQuotationItems(); let idx = index"
                           style="background-color: #ffffff; color: #000000; font-family: Arial, sans-serif; font-size: 11px;">
-                          <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center; font-weight: bold;">
+                          <td
+                            style="border: 1px solid #000000; padding: 6px 8px; text-align: center; font-weight: bold;">
                             {{ idx + 1 }}
                           </td>
                           <td style="border: 1px solid #000000; padding: 6px 8px; text-align: left; font-weight: bold;">
@@ -2238,7 +2485,8 @@
                           <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">
                             {{ item.makerName || '' }}
                           </td>
-                          <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center; font-weight: bold;">
+                          <td
+                            style="border: 1px solid #000000; padding: 6px 8px; text-align: center; font-weight: bold;">
                             {{ item.qty }}
                           </td>
                           <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center;">
@@ -2267,9 +2515,11 @@
                 </div>
 
                 <!-- Footer Action Bar for Preview Card -->
-                <div class="p-4 sm:p-5 bg-slate-50/75 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
+                <div
+                  class="p-4 sm:p-5 bg-slate-50/75 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
                   <div class="text-xs text-slate-500">
-                    พร้อมส่ง: <strong class="text-slate-900 font-semibold">{{ getSelectedQuotationItems().length }} รายการ</strong>
+                    พร้อมส่ง: <strong class="text-slate-900 font-semibold">{{ getSelectedQuotationItems().length }}
+                      รายการ</strong>
                   </div>
 
                   <div class="flex items-center gap-2">
@@ -2285,7 +2535,8 @@
                     <button (click)="copyTableOnlyToClipboard()"
                       class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-colors cursor-pointer">
                       <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                       </svg>
                       <span>Copy Table Only</span>
                     </button>
@@ -2301,22 +2552,26 @@
         </div>
 
         <!-- ================= VIEW 4: GOOGLE-STYLE QUOTATION SEARCH ENGINE ================= -->
-        <div *ngIf="activeView === 'quotation-search'" class="min-h-full flex flex-col space-y-4">
+        <div *ngIf="activeView === 'quotation-search'" class="h-full flex flex-col"
+          [class.space-y-4]="searchEngineMode === 'results'">
 
           <!-- ------------------------------------------------------------- -->
           <!-- MODE A: GOOGLE HOME SEARCH VIEW (Iconic Large Centered Look) -->
           <!-- ------------------------------------------------------------- -->
           <div *ngIf="searchEngineMode === 'home'"
-            class="min-h-[calc(100vh-140px)] bg-white rounded-3xl border border-slate-200/90 shadow-sm flex flex-col justify-between p-6 sm:p-10 relative overflow-hidden">
+            [style.backgroundColor]="isDarkThemeActive ? '#0f172a' : currentTheme.lightBg"
+            class="h-full w-full flex flex-col justify-between p-4 sm:p-6 sm:px-8 relative overflow-hidden transition-colors duration-300">
 
-            <!-- Ambient subtle gradient glow -->
-            <div class="absolute -top-40 -left-40 w-96 h-96 bg-blue-100/40 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-amber-100/30 rounded-full blur-3xl pointer-events-none"></div>
+            <!-- Ambient subtle gradient glow (shown on color themes, hidden on pure white) -->
+            <div *ngIf="currentTheme.lightBg !== '#ffffff' && !isDarkThemeActive" class="absolute -top-40 -left-40 w-96 h-96 bg-blue-100/40 rounded-full blur-3xl pointer-events-none">
+            </div>
+            <div *ngIf="currentTheme.lightBg !== '#ffffff' && !isDarkThemeActive"
+              class="absolute -bottom-40 -right-40 w-96 h-96 bg-amber-100/30 rounded-full blur-3xl pointer-events-none">
+            </div>
 
             <!-- Google Top Bar (Internal Corporate Style - Fades out smoothly when searching) -->
             <div class="flex items-center justify-between z-10 transition-all duration-500"
-              [class.opacity-0]="isSearchCollapsing"
-              [class.-translate-y-3]="isSearchCollapsing"
+              [class.opacity-0]="isSearchCollapsing" [class.-translate-y-3]="isSearchCollapsing"
               [class.pointer-events-none]="isSearchCollapsing">
               <!-- Top Left: MinebeaMitsumi Brand Logo -->
               <div class="flex items-center">
@@ -2336,56 +2591,92 @@
                   <button (click)="showGoogleAppsMenu = !showGoogleAppsMenu" title="แอปพลิเคชันจัดซื้อ & อะไหล่"
                     class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors cursor-pointer">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM6 4c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                      <path
+                        d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM6 4c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
                     </svg>
                   </button>
 
                   <!-- Google Apps Dropdown -->
                   <div *ngIf="showGoogleAppsMenu"
                     class="absolute right-0 top-12 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
-                    <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 pb-2">Suppier Corporate Apps</div>
+                    <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 pb-2">Suppier
+                      Corporate Apps</div>
                     <div class="grid grid-cols-3 gap-2 text-center text-xs">
                       <div (click)="activeView = 'edit'; showGoogleAppsMenu = false"
                         class="p-2.5 rounded-xl hover:bg-blue-50/80 cursor-pointer transition-colors group">
-                        <div class="w-10 h-10 mx-auto rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform"><svg class="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+                        <div
+                          class="w-10 h-10 mx-auto rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform">
+                          <svg class="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg></div>
                         <div class="font-bold text-slate-700 text-[11px]">Requisition</div>
                       </div>
                       <div (click)="openPurchaseQuotationView(); showGoogleAppsMenu = false"
                         class="p-2.5 rounded-xl hover:bg-cyan-50/80 cursor-pointer transition-colors group">
-                        <div class="w-10 h-10 mx-auto rounded-xl bg-cyan-100 text-cyan-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
+                        <div
+                          class="w-10 h-10 mx-auto rounded-xl bg-cyan-100 text-cyan-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform">
+                          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg></div>
                         <div class="font-bold text-slate-700 text-[11px]">Purchase</div>
                       </div>
                       <div (click)="openEmployeeCard(); showGoogleAppsMenu = false"
                         class="p-2.5 rounded-xl hover:bg-emerald-50/80 cursor-pointer transition-colors group">
-                        <div class="w-10 h-10 mx-auto rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform"><svg class="w-5 h-5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/></svg></div>
+                        <div
+                          class="w-10 h-10 mx-auto rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform">
+                          <svg class="w-5 h-5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                          </svg></div>
                         <div class="font-bold text-slate-700 text-[11px]">Emp Badge</div>
                       </div>
                       <div (click)="executeQuotationSearch('MISUMI'); showGoogleAppsMenu = false"
                         class="p-2.5 rounded-xl hover:bg-amber-50/80 cursor-pointer transition-colors group">
-                        <div class="w-10 h-10 mx-auto rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform"><svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg></div>
+                        <div
+                          class="w-10 h-10 mx-auto rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform">
+                          <svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                          </svg></div>
                         <div class="font-bold text-slate-700 text-[11px]">Misumi</div>
                       </div>
                       <div (click)="setSearchFilterTab('pdf'); executeQuotationSearch(); showGoogleAppsMenu = false"
                         class="p-2.5 rounded-xl hover:bg-rose-50/80 cursor-pointer transition-colors group">
-                        <div class="w-10 h-10 mx-auto rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform"><svg class="w-5 h-5 text-rose-700" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg></div>
+                        <div
+                          class="w-10 h-10 mx-auto rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform">
+                          <svg class="w-5 h-5 text-rose-700" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                              d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
+                              clip-rule="evenodd" />
+                          </svg></div>
                         <div class="font-bold text-slate-700 text-[11px]">PDF Archive</div>
                       </div>
                       <div (click)="exportData(); showGoogleAppsMenu = false"
                         class="p-2.5 rounded-xl hover:bg-teal-50/80 cursor-pointer transition-colors group">
-                        <div class="w-10 h-10 mx-auto rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform"><svg class="w-5 h-5 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+                        <div
+                          class="w-10 h-10 mx-auto rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform">
+                          <svg class="w-5 h-5 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg></div>
                         <div class="font-bold text-slate-700 text-[11px]">Excel Export</div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <!-- User Avatar / Badge in Search Header -->
+                <!-- User Avatar in Search Header (Circular Photo Only) -->
                 <div (click)="openEmployeeCard()"
-                  class="flex items-center gap-2 pl-2 pr-3 py-1 rounded-full bg-slate-100/90 hover:bg-blue-50 border border-slate-200 cursor-pointer transition-colors">
-                  <div class="w-6 h-6 rounded-full bg-blue-600 text-white font-mono font-bold text-[10px] flex items-center justify-center">
-                    {{ loggedInEmployeeId.charAt(0) || 'U' }}
-                  </div>
-                  <span class="text-xs font-mono font-bold text-slate-700">{{ loggedInEmployeeId || '12345' }}</span>
+                  [title]="'ข้อมูลพนักงาน: ' + (currentUser?.fullName || loggedInEmployeeId || 'Employee')"
+                  class="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border border-slate-300/80 hover:ring-2 hover:ring-blue-400 hover:border-blue-400 shadow-2xs hover:shadow-xs transition-all cursor-pointer shrink-0 bg-slate-100 flex items-center justify-center">
+                  <img *ngIf="currentUser?.profilePictureUrl; else fallbackSearchAvatar"
+                    [src]="currentUser!.profilePictureUrl" (error)="currentUser!.profilePictureUrl = ''" alt="Profile"
+                    class="w-full h-full object-cover" />
+                  <ng-template #fallbackSearchAvatar>
+                    <img src="facebook-default-avatar.png" alt="Avatar" class="w-full h-full object-cover" />
+                  </ng-template>
                 </div>
               </div>
             </div>
@@ -2395,31 +2686,25 @@
 
               <!-- Suppier Project Branded Quotation Search Logo (Fades out smoothly when searching) -->
               <div class="flex flex-col items-center justify-center select-none py-1 transition-all duration-500"
-                [class.opacity-0]="isSearchCollapsing"
-                [class.-translate-y-4]="isSearchCollapsing"
+                [class.opacity-0]="isSearchCollapsing" [class.-translate-y-4]="isSearchCollapsing"
                 [class.pointer-events-none]="isSearchCollapsing">
-                <div class="flex items-center justify-center gap-3 sm:gap-4.5">
-                  <!-- Suppier 3D Metallic Emblem -->
-                  <img src="/sp-logo-emblem.png" alt="Suppier Emblem"
-                    class="h-14 sm:h-16 md:h-20 w-auto object-contain filter drop-shadow-md hover:scale-105 transition-transform" />
+                <div class="flex items-center justify-center">
                   <div class="inline-flex items-baseline text-4xl sm:text-5xl md:text-6xl font-black tracking-tight">
                     <span class="text-[#131936] font-black">Quotation</span>
-                    <span class="ml-2.5 bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500 bg-clip-text text-transparent font-black">Search</span>
+                    <span
+                      class="ml-2.5 bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500 bg-clip-text text-transparent font-black">Search</span>
                   </div>
                 </div>
               </div>
 
               <!-- Google Rounded Search Pill Input Bar Container -->
-              <div class="relative w-full max-w-2xl mx-auto h-[54px] flex items-center justify-center">
-                <div
-                  class="search-pill-box"
-                  [class.expanding]="searchAnimStage === 'expanding'"
+              <div class="relative w-full max-w-2xl sm:max-w-3xl mx-auto h-[54px] flex items-center justify-center">
+                <div class="search-pill-box" [class.expanding]="searchAnimStage === 'expanding'"
                   [class.collapsing]="searchAnimStage === 'collapsing' || searchAnimStage === 'loading'"
                   [class.is-loading]="searchAnimStage === 'loading'">
-                  
+
                   <!-- Phase 1: Inner Search Elements (Fades out when collapsing starts) -->
-                  <div class="search-pill-content"
-                    [class.hidden-content]="searchAnimStage !== 'idle'">
+                  <div class="search-pill-content" [class.hidden-content]="searchAnimStage !== 'idle'">
 
                     <!-- Left: Google Search Icon (Magnifying Glass) -->
                     <svg class="w-5 h-5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2428,8 +2713,7 @@
                     </svg>
 
                     <!-- Native Text Input -->
-                    <input type="text" [(ngModel)]="quotationSearchQuery"
-                      [disabled]="searchAnimStage !== 'idle'"
+                    <input type="text" [(ngModel)]="quotationSearchQuery" [disabled]="searchAnimStage !== 'idle'"
                       (keydown.enter)="executeQuotationSearch()"
                       placeholder="ค้นหาด้วย Part Name, Spec, Maker, Vendor, Quotation No, Requisition No..."
                       class="w-full bg-transparent text-sm sm:text-base text-slate-800 placeholder-slate-400 focus:outline-none leading-normal font-sans" />
@@ -2438,7 +2722,8 @@
                     <button *ngIf="quotationSearchQuery" (click)="clearSearchQuery()" title="ล้างคำค้นหา"
                       class="p-1 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 cursor-pointer shrink-0">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     </button>
 
@@ -2447,18 +2732,19 @@
                       title="ค้นหาด้วยเสียง"
                       class="p-1 text-slate-500 hover:text-blue-600 rounded-full hover:bg-blue-50 cursor-pointer transition-colors shrink-0">
                       <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                        <path
+                          d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
                       </svg>
                     </button>
 
-                    <!-- Google Lens / Camera Icon ("ค้นหาด้วยไฟล์ PDF / รูปวาดแบบ Drawing") -->
-                    <button (click)="showToast('Google Lens: ค้นหาอะไหล่ด้วย Drawing หรือรูปถ่ายชิ้นงาน')"
-                      title="ค้นหาด้วยรูปภาพ / Technical Drawing"
-                      class="p-1 text-slate-500 hover:text-amber-600 rounded-full hover:bg-amber-50 cursor-pointer transition-colors shrink-0">
+                    <!-- Image Search: Camera button trigger (opens Google Lens modal) -->
+                    <button (click)="openImageSearchModal()" title="ค้นหาด้วยรูปภาพ / Technical Drawing / PDF"
+                      class="p-1 text-slate-500 hover:text-blue-600 rounded-full hover:bg-blue-50 cursor-pointer transition-colors shrink-0">
                       <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/>
-                        <path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/>
+                        <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                        <path
+                          d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
                       </svg>
                     </button>
 
@@ -2475,14 +2761,29 @@
 
                   <!-- Phase 2: Quantum Holographic Gyroscope Loader (Activates ONLY once it finishes shortening into circle!) -->
                   <div *ngIf="searchAnimStage === 'loading'" class="quantum-loader-stage">
-                    
-                    <!-- 1. Ambient Energy Bloom Aura -->
+
+                    <!-- 1. Ambient Energy Bloom Aura (double-layer radial glow) -->
                     <div class="quantum-bloom"></div>
+                    <div class="quantum-bloom quantum-bloom-2"></div>
 
-                    <!-- 2. Shockwave Expanding Ripple -->
+                    <!-- 2. Shockwave Expanding Ripples (staggered timing) -->
                     <div class="quantum-shockwave"></div>
+                    <div class="quantum-shockwave quantum-shockwave-2"></div>
 
-                    <!-- 3. Outer Orbital Gyro Ring (Clockwise) with Comet Particle -->
+                    <!-- 3. Wide Halo Ring — slowest, outermost, ethereal -->
+                    <svg class="quantum-ring quantum-ring-halo" viewBox="0 0 100 100">
+                      <defs>
+                        <linearGradient id="qGradHalo" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.6" />
+                          <stop offset="40%" stop-color="#818cf8" stop-opacity="0.4" />
+                          <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0" />
+                        </linearGradient>
+                      </defs>
+                      <circle cx="50" cy="50" r="46" stroke="url(#qGradHalo)" stroke-width="1.2" fill="none"
+                        stroke-linecap="round" stroke-dasharray="30 12 10 18 50 20" />
+                    </svg>
+
+                    <!-- 4. Outer Orbital Gyro Ring (Clockwise) with Cyan Comet -->
                     <svg class="quantum-ring quantum-ring-outer" viewBox="0 0 100 100">
                       <defs>
                         <linearGradient id="quantumOrbitGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -2491,33 +2792,53 @@
                           <stop offset="100%" stop-color="#131936" stop-opacity="0" />
                         </linearGradient>
                       </defs>
-                      <circle cx="50" cy="50" r="42" stroke="url(#quantumOrbitGrad1)" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-dasharray="175 95" />
-                      <!-- Comet Head Particle -->
-                      <circle cx="50" cy="8" r="3.5" fill="#00f2fe" class="satellite-glow" />
+                      <circle cx="50" cy="50" r="40" stroke="url(#quantumOrbitGrad1)" stroke-width="3.5" fill="none"
+                        stroke-linecap="round" stroke-dasharray="175 95" />
+                      <circle cx="50" cy="10" r="4.5" fill="#00f2fe" class="satellite-glow" />
                     </svg>
 
-                    <!-- 4. Inner Counter-Rotating Tech Ring (Counter-Clockwise) -->
+                    <!-- 5. Inner Counter-Rotating Violet Ring with Purple Comet -->
                     <svg class="quantum-ring quantum-ring-inner" viewBox="0 0 100 100">
                       <defs>
                         <linearGradient id="quantumOrbitGrad2" x1="100%" y1="100%" x2="0%" y2="0%">
-                          <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.95" />
-                          <stop offset="60%" stop-color="#3b82f6" stop-opacity="0.6" />
-                          <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.1" />
+                          <stop offset="0%" stop-color="#c084fc" stop-opacity="0.95" />
+                          <stop offset="55%" stop-color="#3b82f6" stop-opacity="0.6" />
+                          <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0" />
                         </linearGradient>
                       </defs>
-                      <circle cx="50" cy="50" r="33" stroke="url(#quantumOrbitGrad2)" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-dasharray="12 8 20 8" />
+                      <circle cx="50" cy="50" r="31" stroke="url(#quantumOrbitGrad2)" stroke-width="2.5" fill="none"
+                        stroke-linecap="round" stroke-dasharray="14 6 28 6" />
+                      <circle cx="50" cy="19" r="2.5" fill="#a855f7" class="satellite-glow-2" />
                     </svg>
 
-                    <!-- 5. Deep Space Core with Floating Metallic 3D Emblem -->
+                    <!-- 6. Plasma Core — arc reactor style with scan-line -->
                     <div class="quantum-core">
                       <div class="quantum-core-glow"></div>
-                      <img src="/sp-logo-emblem.png" alt="Suppier" class="quantum-emblem" />
+                      <div class="quantum-scanline"></div>
+                      <svg class="quantum-emblem-svg" viewBox="0 0 56 56">
+                        <defs>
+                          <linearGradient id="supTextGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#00f2fe" />
+                            <stop offset="50%" stop-color="#38bdf8" />
+                            <stop offset="100%" stop-color="#818cf8" />
+                          </linearGradient>
+                          <filter id="supGlow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="1.8" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                          </filter>
+                        </defs>
+                        <text x="28" y="35" font-family="'Outfit', 'Plus Jakarta Sans', monospace" font-size="17"
+                          font-weight="900" letter-spacing="1.5" fill="url(#supTextGrad)" text-anchor="middle"
+                          filter="url(#supGlow)">SUP</text>
+                      </svg>
                     </div>
 
-                    <!-- 6. Floating Energy Sparkles -->
+                    <!-- 7. Floating Energy Sparkles (5 varied, with colors) -->
                     <div class="quantum-sparkle sparkle-1"></div>
                     <div class="quantum-sparkle sparkle-2"></div>
                     <div class="quantum-sparkle sparkle-3"></div>
+                    <div class="quantum-sparkle sparkle-4"></div>
+                    <div class="quantum-sparkle sparkle-5"></div>
 
                   </div>
 
@@ -2526,8 +2847,7 @@
 
               <!-- Google Action Buttons Under Search Bar (Gradually fades away when search begins) -->
               <div class="flex items-center justify-center gap-3 flex-wrap pt-1 transition-all duration-500"
-                [class.opacity-0]="isSearchCollapsing"
-                [class.translate-y-3]="isSearchCollapsing"
+                [class.opacity-0]="isSearchCollapsing" [class.translate-y-3]="isSearchCollapsing"
                 [class.pointer-events-none]="isSearchCollapsing">
                 <button (click)="executeQuotationSearch()"
                   class="px-5 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs sm:text-sm font-semibold border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all cursor-pointer">
@@ -2547,22 +2867,24 @@
 
               <!-- Languages Offered (Gradually fades away when search begins) -->
               <div class="text-xs text-slate-500 pt-1 transition-all duration-500"
-                [class.opacity-0]="isSearchCollapsing"
-                [class.pointer-events-none]="isSearchCollapsing">
+                [class.opacity-0]="isSearchCollapsing" [class.pointer-events-none]="isSearchCollapsing">
                 <span>Quotation Search มีให้บริการใน:</span>
                 <span class="ml-2 space-x-2">
-                  <a href="javascript:void(0)" (click)="showToast('ภาษาไทย (ค่าเริ่มต้น)')" class="text-blue-700 hover:underline">ภาษาไทย</a>
-                  <a href="javascript:void(0)" (click)="showToast('English interface')" class="text-blue-700 hover:underline">English</a>
-                  <a href="javascript:void(0)" (click)="showToast('日本語インターフェース')" class="text-blue-700 hover:underline">日本語</a>
+                  <a href="javascript:void(0)" (click)="showToast('ภาษาไทย (ค่าเริ่มต้น)')"
+                    class="text-blue-700 hover:underline">ภาษาไทย</a>
+                  <a href="javascript:void(0)" (click)="showToast('English interface')"
+                    class="text-blue-700 hover:underline">English</a>
+                  <a href="javascript:void(0)" (click)="showToast('日本語インターフェース')"
+                    class="text-blue-700 hover:underline">日本語</a>
                 </span>
               </div>
 
               <!-- Popular / Trending Search Chips (Gradually fades away when search begins) -->
               <div class="pt-4 border-t border-slate-100 transition-all duration-500"
-                [class.opacity-0]="isSearchCollapsing"
-                [class.translate-y-3]="isSearchCollapsing"
+                [class.opacity-0]="isSearchCollapsing" [class.translate-y-3]="isSearchCollapsing"
                 [class.pointer-events-none]="isSearchCollapsing">
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5 flex items-center justify-center gap-1.5">
+                <div
+                  class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5 flex items-center justify-center gap-1.5">
                   <span>คำค้นยอดนิยมสำหรับอะไหล่ & ใบเสนอราคา</span>
                 </div>
                 <div class="flex items-center justify-center gap-2 flex-wrap">
@@ -2575,17 +2897,17 @@
 
             </div>
 
-            <!-- Google Footer (Gradually fades away when search begins) -->
-            <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 z-10 transition-all duration-500"
-              [class.opacity-0]="isSearchCollapsing"
-              [class.translate-y-3]="isSearchCollapsing"
-              [class.pointer-events-none]="isSearchCollapsing">
-              <div></div>
-              <div class="flex items-center gap-4">
-                <a href="javascript:void(0)" (click)="showToast('คู่มือการใช้งานระบบค้นหาใบเสนอราคา')" class="hover:underline">คู่มือการค้นหา</a>
-                <a href="javascript:void(0)" (click)="showToast('ส่งข้อเสนอแนะเกี่ยวกับ Search Engine')" class="hover:underline">ส่งข้อเสนอแนะ</a>
-                <a href="javascript:void(0)" (click)="switchSearchMode('results')" class="text-blue-700 font-semibold hover:underline">ดูหน้าแสดงผลการค้นหา &rarr;</a>
-              </div>
+            <!-- Floating Chrome Customize Button (Exclusively inside Home search view, never rendered on results) -->
+            <div class="fixed sm:absolute bottom-4 right-4 sm:bottom-6 sm:right-6 z-30 transition-all duration-300"
+              [class.opacity-0]="isSearchCollapsing" [class.pointer-events-none]="isSearchCollapsing">
+              <button (click)="toggleThemeDrawer()"
+                title="ปรับแต่งธีม (Customize Chrome)"
+                class="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 text-xs sm:text-sm font-semibold cursor-pointer select-none group border bg-white hover:bg-slate-50 text-slate-800 border-slate-200 hover:border-slate-300">
+                <svg class="w-4 h-4 text-blue-600 group-hover:rotate-12 transition-transform duration-200" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                </svg>
+                <span>Customize Chrome</span>
+              </button>
             </div>
 
           </div>
@@ -2598,25 +2920,23 @@
             <!-- Top Header & Search Bar (Suppier Corporate Style) -->
             <div class="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-xs space-y-3">
               <div class="flex flex-wrap items-center justify-between gap-4">
-                
-                <!-- Left: Logo (Clicking returns to Home) -->
+
+                <!-- Left: Title / Back to Home (Clicking returns to Home) -->
                 <div (click)="switchSearchMode('home')" title="กลับหน้าแรก Search"
-                  class="flex items-center gap-2.5 cursor-pointer group shrink-0 select-none">
-                  <img src="/sp-logo-emblem.png" alt="Suppier"
-                    class="h-7 sm:h-8 w-auto object-contain group-hover:scale-105 transition-transform" />
-                  <div class="inline-flex items-baseline text-xl sm:text-2xl font-black tracking-tight">
+                  class="flex items-center cursor-pointer group shrink-0 select-none">
+                  <div
+                    class="inline-flex items-baseline text-xl sm:text-2xl font-black tracking-tight group-hover:opacity-90 transition-opacity">
                     <span class="text-[#131936]">Quotation</span>
-                    <span class="ml-1 bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500 bg-clip-text text-transparent">Search</span>
+                    <span
+                      class="ml-1 bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500 bg-clip-text text-transparent">Search</span>
                   </div>
-                  <span class="bg-blue-100 text-blue-800 text-[10px] font-black px-2 py-0.5 rounded-full font-mono">PRO</span>
                 </div>
 
                 <!-- Center: Compact Pill Search Bar (Consistent Suppier Style) -->
                 <div class="flex-1 max-w-2xl min-w-[280px]">
                   <div
                     class="google-search-bar bg-white border border-slate-300 rounded-full px-4 py-2 sm:py-2.5 flex items-center gap-2.5 transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
-                    <input type="text" [(ngModel)]="quotationSearchQuery"
-                      (keydown.enter)="executeQuotationSearch()"
+                    <input type="text" [(ngModel)]="quotationSearchQuery" (keydown.enter)="executeQuotationSearch()"
                       placeholder="ค้นหา Part Name, Spec, Maker, Vendor, Quotation No..."
                       class="w-full bg-transparent text-sm text-slate-800 placeholder-slate-400 focus:outline-none leading-normal font-sans" />
 
@@ -2624,7 +2944,18 @@
                     <button *ngIf="quotationSearchQuery" (click)="clearSearchQuery()"
                       class="p-1 text-slate-400 hover:text-slate-700 cursor-pointer">
                       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+
+                    <!-- Camera icon in results search bar -->
+                    <button (click)="openImageSearchModal()" title="ค้นหาด้วยรูปภาพ"
+                      class="p-1 text-slate-400 hover:text-blue-600 rounded-full hover:bg-blue-50 cursor-pointer transition-colors shrink-0">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                        <path
+                          d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
                       </svg>
                     </button>
 
@@ -2643,7 +2974,10 @@
                 <div class="flex items-center gap-2">
                   <button (click)="switchSearchMode('home')" title="กลับหน้าแรก Search"
                     class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-[#131936] border border-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer">
-                    <svg class="w-3.5 h-3.5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    <svg class="w-3.5 h-3.5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
                     <span class="hidden sm:inline">หน้าแรก</span>
                   </button>
                 </div>
@@ -2651,7 +2985,8 @@
               </div>
 
               <!-- Quick Maker Filter Chips (Website Themed) -->
-              <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-3 flex-wrap text-xs select-none">
+              <div
+                class="pt-2 border-t border-slate-100 flex items-center justify-between gap-3 flex-wrap text-xs select-none">
                 <div class="flex items-center gap-1.5 flex-wrap">
                   <span class="text-slate-400 font-semibold text-[11px] mr-1">ผู้ผลิต:</span>
                   <button (click)="setShopeeMaker('ALL')"
@@ -2665,7 +3000,8 @@
 
                     <span>TOP 5 ตรงที่สุด</span>
                   </button>
-                  <button *ngFor="let mkr of ['SMC', 'MISUMI', 'KEYENCE', 'AIRTAC', 'ULVAC', 'IAI', 'MITSUBISHI', 'OMRON']"
+                  <button
+                    *ngFor="let mkr of ['SMC', 'MISUMI', 'KEYENCE', 'AIRTAC', 'ULVAC', 'IAI', 'MITSUBISHI', 'OMRON']"
                     (click)="setShopeeMaker(mkr)"
                     [class]="shopeeSelectedMaker === mkr ? 'bg-blue-600 text-white font-bold' : 'bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700'"
                     class="px-2.5 py-1 rounded-lg text-xs transition-colors cursor-pointer font-medium">
@@ -2681,20 +3017,28 @@
 
                 <!-- Result Count -->
                 <div class="text-xs text-slate-500 font-medium">
-                  พบ <span class="font-bold text-blue-700 font-mono">{{ shopeeFilteredResults.length }}</span> ใบเสนอราคา
+                  พบ <span class="font-bold text-blue-700 font-mono">{{ shopeeFilteredResults.length }}</span>
+                  ใบเสนอราคา
                 </div>
               </div>
             </div>
 
             <!-- Clean Minimalist Top 5 Ranking Strip -->
-            <div class="bg-white rounded-2xl border border-slate-200/90 px-4 py-2.5 shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div
+              class="bg-white rounded-2xl border border-slate-200/90 px-4 py-2.5 shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs">
               <div class="flex items-center gap-2.5 flex-wrap">
-                <div class="w-6 h-6 rounded-lg bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center text-xs font-bold shrink-0"><svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
+                <div
+                  class="w-6 h-6 rounded-lg bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center text-xs font-bold shrink-0">
+                  <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
+                      d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                  </svg></div>
                 <div class="flex items-center gap-2 flex-wrap">
                   <span class="font-bold text-[#131936] text-xs sm:text-sm">
                     TOP 5 อันดับที่ตรงกับคำค้นหามากที่สุด
                   </span>
-                  <span *ngIf="quotationSearchQuery" class="bg-blue-50 text-blue-700 border border-blue-200 text-[10.5px] font-mono px-2 py-0.5 rounded-md font-bold">
+                  <span *ngIf="quotationSearchQuery"
+                    class="bg-blue-50 text-blue-700 border border-blue-200 text-[10.5px] font-mono px-2 py-0.5 rounded-md font-bold">
                     "{{ quotationSearchQuery }}"
                   </span>
                   <span class="hidden sm:inline text-slate-400 text-[11px]">
@@ -2722,7 +3066,8 @@
             <div *ngIf="shopeeFilteredResults.length === 0"
               class="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3 shadow-xs">
               <svg class="w-12 h-12 mx-auto text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <div class="text-base font-bold text-slate-800">
                 ไม่พบใบเสนอราคาที่ตรงกับคำค้นหา
@@ -2741,120 +3086,159 @@
               class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4">
 
               <!-- Quotation Card (กรอบของใบเสนอราคา) -->
-              <div *ngFor="let item of shopeeFilteredResults"
-                (click)="openShopeeQuickView(item)"
-                [class.ring-2]="item.rank === 1"
-                [class.ring-amber-400]="item.rank === 1"
+              <div *ngFor="let item of shopeeFilteredResults" (click)="openShopeeQuickView(item)"
+                [class.ring-2]="item.rank === 1" [class.ring-amber-400]="item.rank === 1"
                 [class.shadow-md]="item.rank === 1"
                 class="bg-white rounded-2xl border border-slate-200/90 hover:border-blue-600 hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between overflow-hidden group cursor-pointer relative shadow-xs">
 
                 <!-- 1. Technical Drawing Frame (Top Box) -->
-                <div class="aspect-[4/3] bg-gradient-to-b from-slate-50 via-blue-50/20 to-slate-100/60 relative flex items-center justify-center p-4 overflow-hidden select-none border-b border-slate-100">
-                  
+                <div
+                  class="aspect-[4/3] bg-gradient-to-b from-slate-50 via-blue-50/20 to-slate-100/60 relative flex items-center justify-center p-4 overflow-hidden select-none border-b border-slate-100">
+
                   <!-- Subtle CAD Blueprint Grid Pattern -->
-                  <div class="absolute inset-0 opacity-15 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:10px_10px] pointer-events-none"></div>
+                  <div
+                    class="absolute inset-0 opacity-15 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:10px_10px] pointer-events-none">
+                  </div>
 
                   <!-- Technical CAD SVG Diagram -->
                   <!-- Cylinder -->
-                  <svg *ngIf="item.partType === 'cylinder'" class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200" viewBox="0 0 100 100" fill="none">
-                    <rect x="18" y="32" width="54" height="36" rx="4" fill="#2563eb" fill-opacity="0.1" stroke="#2563eb" stroke-width="2.5" />
-                    <rect x="72" y="44" width="20" height="12" rx="2" fill="#94a3b8" stroke="#475569" stroke-width="2" />
+                  <svg *ngIf="item.partType === 'cylinder'"
+                    class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200"
+                    viewBox="0 0 100 100" fill="none">
+                    <rect x="18" y="32" width="54" height="36" rx="4" fill="#2563eb" fill-opacity="0.1" stroke="#2563eb"
+                      stroke-width="2.5" />
+                    <rect x="72" y="44" width="20" height="12" rx="2" fill="#94a3b8" stroke="#475569"
+                      stroke-width="2" />
                     <line x1="18" y1="50" x2="8" y2="50" stroke="#2563eb" stroke-width="3" stroke-linecap="round" />
                     <circle cx="32" cy="38" r="3" fill="#2563eb" />
                     <circle cx="58" cy="38" r="3" fill="#2563eb" />
                     <line x1="28" y1="40" x2="28" y2="60" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="2 2" />
-                    <text x="45" y="54" font-size="8" font-family="monospace" fill="#131936" text-anchor="middle" font-weight="bold">CYLINDER</text>
+                    <text x="45" y="54" font-size="8" font-family="monospace" fill="#131936" text-anchor="middle"
+                      font-weight="bold">CYLINDER</text>
                   </svg>
 
                   <!-- Vacuum -->
-                  <svg *ngIf="item.partType === 'vacuum'" class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200" viewBox="0 0 100 100" fill="none">
-                    <rect x="22" y="34" width="50" height="34" rx="6" fill="#0284c7" fill-opacity="0.1" stroke="#0284c7" stroke-width="2.5" />
+                  <svg *ngIf="item.partType === 'vacuum'"
+                    class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200"
+                    viewBox="0 0 100 100" fill="none">
+                    <rect x="22" y="34" width="50" height="34" rx="6" fill="#0284c7" fill-opacity="0.1" stroke="#0284c7"
+                      stroke-width="2.5" />
                     <circle cx="47" cy="51" r="11" fill="#f0f9ff" stroke="#0369a1" stroke-width="2" />
                     <path d="M47 43v16M39 51h16" stroke="#0284c7" stroke-width="2" stroke-linecap="round" />
-                    <rect x="10" y="44" width="12" height="14" rx="2" fill="#94a3b8" stroke="#475569" stroke-width="2" />
-                    <rect x="72" y="38" width="16" height="24" rx="2" fill="#64748b" stroke="#334155" stroke-width="2" />
-                    <text x="47" y="78" font-size="7.5" font-family="monospace" fill="#0369a1" text-anchor="middle" font-weight="bold">VACUUM</text>
+                    <rect x="10" y="44" width="12" height="14" rx="2" fill="#94a3b8" stroke="#475569"
+                      stroke-width="2" />
+                    <rect x="72" y="38" width="16" height="24" rx="2" fill="#64748b" stroke="#334155"
+                      stroke-width="2" />
+                    <text x="47" y="78" font-size="7.5" font-family="monospace" fill="#0369a1" text-anchor="middle"
+                      font-weight="bold">VACUUM</text>
                   </svg>
 
                   <!-- Linear -->
-                  <svg *ngIf="item.partType === 'linear'" class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200" viewBox="0 0 100 100" fill="none">
-                    <rect x="10" y="46" width="80" height="12" rx="2" fill="#cbd5e1" stroke="#64748b" stroke-width="2" />
-                    <rect x="32" y="32" width="36" height="36" rx="3" fill="#ffffff" stroke="#131936" stroke-width="2.5" />
+                  <svg *ngIf="item.partType === 'linear'"
+                    class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200"
+                    viewBox="0 0 100 100" fill="none">
+                    <rect x="10" y="46" width="80" height="12" rx="2" fill="#cbd5e1" stroke="#64748b"
+                      stroke-width="2" />
+                    <rect x="32" y="32" width="36" height="36" rx="3" fill="#ffffff" stroke="#131936"
+                      stroke-width="2.5" />
                     <circle cx="40" cy="42" r="2.5" fill="#2563eb" />
                     <circle cx="60" cy="42" r="2.5" fill="#2563eb" />
                     <circle cx="40" cy="58" r="2.5" fill="#2563eb" />
                     <circle cx="60" cy="58" r="2.5" fill="#2563eb" />
-                    <text x="50" y="52" font-size="7" font-family="monospace" fill="#131936" text-anchor="middle" font-weight="bold">GUIDE</text>
+                    <text x="50" y="52" font-size="7" font-family="monospace" fill="#131936" text-anchor="middle"
+                      font-weight="bold">GUIDE</text>
                   </svg>
 
                   <!-- Sensor -->
-                  <svg *ngIf="item.partType === 'sensor'" class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200" viewBox="0 0 100 100" fill="none">
-                    <rect x="28" y="34" width="22" height="34" rx="3" fill="#1e293b" stroke="#0f172a" stroke-width="2.5" />
+                  <svg *ngIf="item.partType === 'sensor'"
+                    class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200"
+                    viewBox="0 0 100 100" fill="none">
+                    <rect x="28" y="34" width="22" height="34" rx="3" fill="#1e293b" stroke="#0f172a"
+                      stroke-width="2.5" />
                     <circle cx="39" cy="45" r="4.5" fill="#ef4444" />
                     <circle cx="39" cy="45" r="2" fill="#fee2e2" />
                     <line x1="50" y1="45" x2="88" y2="45" stroke="#ef4444" stroke-width="2" stroke-dasharray="3 2" />
                     <path d="M14 51h14" stroke="#64748b" stroke-width="3" stroke-linecap="round" />
-                    <text x="39" y="80" font-size="7.5" font-family="monospace" fill="#dc2626" text-anchor="middle" font-weight="bold">SENSOR</text>
+                    <text x="39" y="80" font-size="7.5" font-family="monospace" fill="#dc2626" text-anchor="middle"
+                      font-weight="bold">SENSOR</text>
                   </svg>
 
                   <!-- Motor -->
-                  <svg *ngIf="item.partType === 'motor'" class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200" viewBox="0 0 100 100" fill="none">
-                    <rect x="22" y="28" width="46" height="44" rx="4" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
+                  <svg *ngIf="item.partType === 'motor'"
+                    class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200"
+                    viewBox="0 0 100 100" fill="none">
+                    <rect x="22" y="28" width="46" height="44" rx="4" fill="#334155" stroke="#0f172a"
+                      stroke-width="2.5" />
                     <line x1="28" y1="28" x2="28" y2="72" stroke="#64748b" stroke-width="1.5" />
                     <line x1="36" y1="28" x2="36" y2="72" stroke="#64748b" stroke-width="1.5" />
                     <line x1="44" y1="28" x2="44" y2="72" stroke="#64748b" stroke-width="1.5" />
                     <line x1="52" y1="28" x2="52" y2="72" stroke="#64748b" stroke-width="1.5" />
-                    <rect x="68" y="44" width="18" height="12" rx="1" fill="#94a3b8" stroke="#475569" stroke-width="2" />
+                    <rect x="68" y="44" width="18" height="12" rx="1" fill="#94a3b8" stroke="#475569"
+                      stroke-width="2" />
                     <circle cx="16" cy="50" r="5" fill="#38bdf8" stroke="#0284c7" stroke-width="1.5" />
-                    <text x="45" y="84" font-size="7.5" font-family="monospace" fill="#0f172a" text-anchor="middle" font-weight="bold">SERVO</text>
+                    <text x="45" y="84" font-size="7.5" font-family="monospace" fill="#0f172a" text-anchor="middle"
+                      font-weight="bold">SERVO</text>
                   </svg>
 
                   <!-- Filter -->
-                  <svg *ngIf="item.partType === 'filter'" class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200" viewBox="0 0 100 100" fill="none">
-                    <rect x="34" y="20" width="32" height="58" rx="4" fill="#f8fafc" stroke="#2563eb" stroke-width="2.5" />
+                  <svg *ngIf="item.partType === 'filter'"
+                    class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200"
+                    viewBox="0 0 100 100" fill="none">
+                    <rect x="34" y="20" width="32" height="58" rx="4" fill="#f8fafc" stroke="#2563eb"
+                      stroke-width="2.5" />
                     <line x1="34" y1="32" x2="66" y2="32" stroke="#93c5fd" stroke-width="1.5" />
                     <line x1="34" y1="42" x2="66" y2="42" stroke="#93c5fd" stroke-width="1.5" />
                     <line x1="34" y1="52" x2="66" y2="52" stroke="#93c5fd" stroke-width="1.5" />
                     <line x1="34" y1="62" x2="66" y2="62" stroke="#93c5fd" stroke-width="1.5" />
-                    <text x="50" y="88" font-size="7.5" font-family="monospace" fill="#2563eb" text-anchor="middle" font-weight="bold">FILTER</text>
+                    <text x="50" y="88" font-size="7.5" font-family="monospace" fill="#2563eb" text-anchor="middle"
+                      font-weight="bold">FILTER</text>
                   </svg>
 
                   <!-- Valve -->
-                  <svg *ngIf="item.partType === 'valve'" class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200" viewBox="0 0 100 100" fill="none">
-                    <rect x="25" y="32" width="50" height="36" rx="4" fill="#0f172a" stroke="#334155" stroke-width="2.5" />
-                    <rect x="32" y="24" width="16" height="8" rx="2" fill="#2563eb" stroke="#1d4ed8" stroke-width="1.5" />
+                  <svg *ngIf="item.partType === 'valve'"
+                    class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200"
+                    viewBox="0 0 100 100" fill="none">
+                    <rect x="25" y="32" width="50" height="36" rx="4" fill="#0f172a" stroke="#334155"
+                      stroke-width="2.5" />
+                    <rect x="32" y="24" width="16" height="8" rx="2" fill="#2563eb" stroke="#1d4ed8"
+                      stroke-width="1.5" />
                     <circle cx="36" cy="45" r="3" fill="#22c55e" />
                     <circle cx="50" cy="45" r="3" fill="#e2e8f0" />
                     <circle cx="64" cy="45" r="3" fill="#e2e8f0" />
                     <circle cx="43" cy="57" r="3" fill="#e2e8f0" />
                     <circle cx="57" cy="57" r="3" fill="#e2e8f0" />
-                    <text x="50" y="80" font-size="7.5" font-family="monospace" fill="#0284c7" text-anchor="middle" font-weight="bold">VALVE</text>
+                    <text x="50" y="80" font-size="7.5" font-family="monospace" fill="#0284c7" text-anchor="middle"
+                      font-weight="bold">VALVE</text>
                   </svg>
 
                   <!-- Fallback -->
-                  <svg *ngIf="!item.partType" class="w-16 h-16 text-slate-300 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <svg *ngIf="!item.partType"
+                    class="w-16 h-16 text-slate-300 group-hover:scale-105 transition-transform" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
 
                   <!-- Top-Left Badges: Quotation No & Rank Tag -->
                   <div class="absolute top-0 left-0 z-10 flex items-center flex-wrap gap-1">
-                    <span class="bg-[#131936] text-white font-mono font-bold text-[10px] px-2.5 py-1 rounded-br-xl shadow-xs leading-none">
+                    <span
+                      class="bg-[#131936] text-white font-mono font-bold text-[10px] px-2.5 py-1 rounded-br-xl shadow-xs leading-none">
                       {{ item.quotationNo }}
                     </span>
 
                     <!-- Rank Medal Tag for Top 5 -->
-                    <span *ngIf="item.rank && item.rank <= 5"
-                      [ngClass]="{
+                    <span *ngIf="item.rank && item.rank <= 5" [ngClass]="{
                         'bg-amber-400 text-slate-950 font-black ring-1 ring-amber-300 shadow-2xs': item.rank === 1,
                         'bg-slate-200 text-slate-800 font-bold border border-slate-300': item.rank === 2,
                         'bg-amber-100 text-amber-900 font-bold border border-amber-300': item.rank === 3,
                         'bg-blue-50 text-blue-800 font-bold border border-blue-200': item.rank === 4,
                         'bg-slate-100 text-slate-700 font-medium border border-slate-200': item.rank === 5
-                      }"
-                      class="text-[9px] px-2 py-0.5 rounded-full shadow-2xs flex items-center gap-0.5 leading-none">
+                      }" class="text-[9px] px-2 py-0.5 rounded-full shadow-2xs flex items-center gap-0.5 leading-none">
                       <span class="font-black">#{{ item.rank }}</span>
-                      <span *ngIf="item.matchScore" class="font-mono text-[8.5px] opacity-90">({{ item.matchScore }}%)</span>
+                      <span *ngIf="item.matchScore" class="font-mono text-[8.5px] opacity-90">({{ item.matchScore
+                        }}%)</span>
                     </span>
                   </div>
 
@@ -2877,19 +3261,22 @@
                   </div>
 
                   <!-- Bottom Overlay Bar on Drawing -->
-                  <div class="absolute bottom-0 inset-x-0 bg-slate-900/65 backdrop-blur-2xs text-white text-[10px] font-medium py-1 px-3 flex items-center justify-between z-10">
+                  <div
+                    class="absolute bottom-0 inset-x-0 bg-slate-900/65 backdrop-blur-2xs text-white text-[10px] font-medium py-1 px-3 flex items-center justify-between z-10">
                     <span class="truncate">ส่งมอบ: {{ item.leadTime }}</span>
-                    <span class="font-bold text-cyan-300 uppercase tracking-wider text-[9px]">{{ item.makerName }}</span>
+                    <span class="font-bold text-cyan-300 uppercase tracking-wider text-[9px]">{{ item.makerName
+                      }}</span>
                   </div>
 
                 </div>
 
                 <!-- 2. Quotation Information Content -->
                 <div class="p-3.5 flex-1 flex flex-col justify-between space-y-2">
-                  
+
                   <!-- Part Name & Spec -->
                   <div class="space-y-1">
-                    <h3 class="text-sm font-bold text-[#131936] group-hover:text-blue-600 transition-colors line-clamp-1 leading-snug">
+                    <h3
+                      class="text-sm font-bold text-[#131936] group-hover:text-blue-600 transition-colors line-clamp-1 leading-snug">
                       {{ item.partName }}
                     </h3>
                     <div class="text-[11px] font-mono text-slate-500 truncate">
@@ -2902,8 +3289,7 @@
                     <span class="text-slate-400 flex items-center gap-1">
                       <span>ตรงการค้นหา</span>
                     </span>
-                    <span class="font-mono font-bold px-1.5 py-0.2 rounded"
-                      [ngClass]="{
+                    <span class="font-mono font-bold px-1.5 py-0.2 rounded" [ngClass]="{
                         'bg-amber-100 text-amber-800': item.rank === 1,
                         'bg-blue-50 text-blue-700': item.rank !== 1 && item.matchScore >= 90,
                         'bg-slate-100 text-slate-600': item.matchScore < 90
@@ -2922,7 +3308,8 @@
                   <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
                     <div class="flex items-baseline gap-1">
                       <span class="text-xs font-bold text-blue-700">฿</span>
-                      <span class="text-lg font-black text-[#131936] font-mono tracking-tight">{{ item.unitPrice | number }}</span>
+                      <span class="text-lg font-black text-[#131936] font-mono tracking-tight">{{ item.unitPrice |
+                        number }}</span>
                       <span class="text-[10px] font-semibold text-slate-500">{{ item.currency }}</span>
                     </div>
                     <span class="text-[10px] text-slate-400 font-mono">Doc: {{ item.docNumber }}</span>
@@ -2931,7 +3318,8 @@
                   <!-- Requester & Machine Info -->
                   <div class="text-[10.5px] text-slate-400 flex items-center justify-between pt-0.5">
                     <span class="truncate">ผู้ขอ: {{ item.requesterName.split(' ')[0] }} ({{ item.division }})</span>
-                    <span *ngIf="item.machineModel" class="font-mono text-[9.5px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                    <span *ngIf="item.machineModel"
+                      class="font-mono text-[9.5px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
                       {{ item.machineModel }}
                     </span>
                   </div>
@@ -2944,7 +3332,9 @@
                     (click)="openPdfPreview(item.quotationPdf, 'Quotation: ' + item.quotationNo, $event)"
                     class="flex-1 py-1.5 px-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer">
                     <svg class="w-3.5 h-3.5 text-rose-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                      <path fill-rule="evenodd"
+                        d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
+                        clip-rule="evenodd" />
                     </svg>
                     <span>ดู PDF</span>
                   </button>
@@ -2962,14 +3352,16 @@
             <!-- Quotation Detail Modal (Suppier Navy/Blue Theme) -->
             <div *ngIf="showShopeeQuickView && selectedShopeeItemModal"
               class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
-              
+
               <!-- Backdrop -->
               <div (click)="closeShopeeQuickView()"
-                class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"></div>
+                class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200">
+              </div>
 
               <!-- Modal Box -->
-              <div class="relative bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl z-10 space-y-5 overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200">
-                
+              <div
+                class="relative bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl z-10 space-y-5 overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200">
+
                 <!-- Close Button -->
                 <button (click)="closeShopeeQuickView()"
                   class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm transition-colors cursor-pointer">
@@ -2977,50 +3369,67 @@
                 </button>
 
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-                  
+
                   <!-- Left: CAD Schematic Preview -->
                   <div class="md:col-span-5 space-y-3">
-                    <div class="aspect-square rounded-2xl bg-gradient-to-br from-[#131936] to-blue-950 text-white p-5 flex flex-col justify-between relative overflow-hidden shadow-inner">
+                    <div
+                      class="aspect-square rounded-2xl bg-gradient-to-br from-[#131936] to-blue-950 text-white p-5 flex flex-col justify-between relative overflow-hidden shadow-inner">
                       <!-- Grid lines -->
-                      <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:12px_12px] pointer-events-none"></div>
+                      <div
+                        class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:12px_12px] pointer-events-none">
+                      </div>
 
                       <div class="flex items-center justify-between z-10">
-                        <span class="font-mono text-xs text-cyan-300 font-bold">{{ selectedShopeeItemModal.quotationNo }}</span>
-                        <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-md font-mono">{{ selectedShopeeItemModal.quotationDate }}</span>
+                        <span class="font-mono text-xs text-cyan-300 font-bold">{{ selectedShopeeItemModal.quotationNo
+                          }}</span>
+                        <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-md font-mono">{{
+                          selectedShopeeItemModal.quotationDate }}</span>
                       </div>
 
                       <div class="my-auto text-center z-10 space-y-1">
-                        <svg class="w-16 h-16 mx-auto text-cyan-300/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <svg class="w-16 h-16 mx-auto text-cyan-300/80" fill="none" stroke="currentColor"
+                          viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        <div class="text-xs uppercase font-bold tracking-widest text-cyan-200 font-mono">{{ selectedShopeeItemModal.makerName }}</div>
+                        <div class="text-xs uppercase font-bold tracking-widest text-cyan-200 font-mono">{{
+                          selectedShopeeItemModal.makerName }}</div>
                       </div>
 
                       <div class="flex items-center justify-between z-10 text-xs">
                         <span class="text-slate-300 truncate max-w-[150px]">{{ selectedShopeeItemModal.vendor }}</span>
-                        <span class="font-bold text-amber-300 font-mono text-sm">฿{{ selectedShopeeItemModal.unitPrice | number }}</span>
+                        <span class="font-bold text-amber-300 font-mono text-sm">฿{{ selectedShopeeItemModal.unitPrice |
+                          number }}</span>
                       </div>
                     </div>
                   </div>
 
                   <!-- Right: Technical Details -->
                   <div class="md:col-span-7 space-y-4">
-                    
+
                     <div class="space-y-1">
                       <div class="flex items-center gap-2 flex-wrap">
-                        <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full font-mono">{{ selectedShopeeItemModal.quotationNo }}</span>
+                        <span
+                          class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full font-mono">{{
+                          selectedShopeeItemModal.quotationNo }}</span>
                         <!-- Top 5 Rank Tag in Modal -->
                         <span *ngIf="selectedShopeeItemModal.rank && selectedShopeeItemModal.rank <= 5"
                           class="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
 
-                          <span>อันดับที่ {{ selectedShopeeItemModal.rank }} (ตรง {{ selectedShopeeItemModal.matchScore }}%)</span>
+                          <span>อันดับที่ {{ selectedShopeeItemModal.rank }} (ตรง {{ selectedShopeeItemModal.matchScore
+                            }}%)</span>
                         </span>
-                        <span [ngSwitch]="selectedShopeeItemModal.status" class="text-[10px] font-bold px-2 py-0.5 rounded-full border">
-                          <span *ngSwitchCase="'Approved'" class="text-emerald-700 bg-emerald-50 border-emerald-200">Approved</span>
+                        <span [ngSwitch]="selectedShopeeItemModal.status"
+                          class="text-[10px] font-bold px-2 py-0.5 rounded-full border">
+                          <span *ngSwitchCase="'Approved'"
+                            class="text-emerald-700 bg-emerald-50 border-emerald-200">Approved</span>
                           <span *ngSwitchCase="'Quoted'" class="text-sky-700 bg-sky-50 border-sky-200">Quoted</span>
-                          <span *ngSwitchCase="'Waiting Quotation'" class="text-amber-700 bg-amber-50 border-amber-200">Waiting</span>
-                          <span *ngSwitchCase="'PO Issued'" class="text-indigo-700 bg-indigo-50 border-indigo-200">PO Issued</span>
+                          <span *ngSwitchCase="'Waiting Quotation'"
+                            class="text-amber-700 bg-amber-50 border-amber-200">Waiting</span>
+                          <span *ngSwitchCase="'PO Issued'" class="text-indigo-700 bg-indigo-50 border-indigo-200">PO
+                            Issued</span>
                         </span>
                       </div>
                       <h2 class="text-lg font-bold text-slate-900 leading-snug">
@@ -3035,11 +3444,13 @@
                     <div class="space-y-2 text-xs pt-2 border-t border-slate-100">
                       <div class="flex items-center justify-between py-1 border-b border-slate-100">
                         <span class="text-slate-500">ราคาต่อหน่วย (Unit Price):</span>
-                        <span class="font-bold text-blue-700 font-mono text-sm">฿{{ selectedShopeeItemModal.unitPrice | number }} {{ selectedShopeeItemModal.currency }}</span>
+                        <span class="font-bold text-blue-700 font-mono text-sm">฿{{ selectedShopeeItemModal.unitPrice |
+                          number }} {{ selectedShopeeItemModal.currency }}</span>
                       </div>
                       <div class="flex items-center justify-between py-1 border-b border-slate-100">
                         <span class="text-slate-500">ผู้จำหน่าย (Vendor):</span>
-                        <span class="font-bold text-slate-800">{{ selectedShopeeItemModal.vendor }} ({{ selectedShopeeItemModal.location }})</span>
+                        <span class="font-bold text-slate-800">{{ selectedShopeeItemModal.vendor }} ({{
+                          selectedShopeeItemModal.location }})</span>
                       </div>
                       <div class="flex items-center justify-between py-1 border-b border-slate-100">
                         <span class="text-slate-500">ระยะเวลาส่งมอบ (Lead Time):</span>
@@ -3051,11 +3462,13 @@
                       </div>
                       <div class="flex items-center justify-between py-1 border-b border-slate-100">
                         <span class="text-slate-500">เครื่องจักร (Machine Model):</span>
-                        <span class="font-mono text-slate-700">{{ selectedShopeeItemModal.machineModel || 'Universal' }}</span>
+                        <span class="font-mono text-slate-700">{{ selectedShopeeItemModal.machineModel || 'Universal'
+                          }}</span>
                       </div>
                       <div class="flex items-center justify-between py-1 border-b border-slate-100">
                         <span class="text-slate-500">ผู้ขอ (Requester):</span>
-                        <span class="text-slate-700">{{ selectedShopeeItemModal.requesterName }} ({{ selectedShopeeItemModal.division }}/{{ selectedShopeeItemModal.section }})</span>
+                        <span class="text-slate-700">{{ selectedShopeeItemModal.requesterName }} ({{
+                          selectedShopeeItemModal.division }}/{{ selectedShopeeItemModal.section }})</span>
                       </div>
                     </div>
 
@@ -3065,7 +3478,8 @@
                         (click)="openPdfPreview(selectedShopeeItemModal.quotationPdf, 'Quotation: ' + selectedShopeeItemModal.quotationNo, $event)"
                         class="flex-1 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer">
                         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                         <span>เปิดดูเอกสาร PDF</span>
                       </button>
@@ -3515,6 +3929,233 @@
 
       </div>
     </div>
+
+    <!-- ================= CHROME-STYLE CUSTOMIZE SIDE DRAWER (1:1 PIXEL PERFECT) ================= -->
+    <div *ngIf="isThemeDrawerOpen" (click)="closeThemeDrawer()"
+      class="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-50 transition-opacity">
+    </div>
+
+    <aside *ngIf="isThemeDrawerOpen"
+      class="fixed top-0 right-0 h-full w-[340px] sm:w-[360px] bg-white shadow-2xl z-50 flex flex-col border-l border-slate-200 animate-in slide-in-from-right duration-250 select-none">
+      
+      <!-- Top Title Bar -->
+      <div class="px-5 py-3.5 flex items-center justify-between border-b border-slate-100">
+        <h2 class="text-[15px] font-semibold text-[#1f1f1f]">Customize Chrome</h2>
+        <button (click)="closeThemeDrawer()"
+          title="Close"
+          class="w-7 h-7 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800 transition-colors cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Drawer Content (Scrollable) -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+
+        <!-- Outer Appearance Card Container -->
+        <div class="bg-[#f0f4f9] rounded-[24px] p-3.5 sm:p-4 space-y-3.5 border border-[#e1e7ef]">
+          
+          <!-- Section Title -->
+          <h3 class="text-sm font-semibold text-[#1f1f1f]">Appearance</h3>
+
+          <!-- Mini Browser Mockup Card (Dynamically reactive to selected theme) -->
+          <div class="rounded-2xl p-3.5 flex flex-col items-center justify-center shadow-2xs transition-colors duration-300"
+            [style.backgroundColor]="isDarkThemeActive ? '#1e293b' : currentTheme.topColor">
+            
+            <!-- Miniature Chrome Browser Window -->
+            <div class="w-full bg-white rounded-xl shadow-xs border border-slate-200/80 overflow-hidden transition-colors duration-300">
+              
+              <!-- Tab Bar Strip -->
+              <div class="h-6.5 flex items-end px-2 pt-1 gap-1 border-b transition-colors duration-300"
+                [style.backgroundColor]="isDarkThemeActive ? '#0f172a' : currentTheme.topColor"
+                [style.borderColor]="isDarkThemeActive ? '#334155' : (currentTheme.bottomRightColor || '#e2e8f0')">
+                <div class="h-5.5 px-2 rounded-t-md flex items-center gap-1.5 shadow-2xs transition-colors duration-300"
+                  [style.backgroundColor]="isDarkThemeActive ? '#1e293b' : '#ffffff'">
+                  <!-- Chevron Icon -->
+                  <svg class="w-2.5 h-2.5 transition-colors duration-300" [style.color]="currentTheme.bottomLeftColor || '#0b57d0'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/>
+                  </svg>
+                  <!-- Mini Chrome Emblem -->
+                  <svg class="w-3.5 h-3.5 transition-colors duration-300" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" [attr.fill]="currentTheme.bottomLeftColor || '#0b57d0'"/>
+                    <circle cx="12" cy="12" r="4" fill="#ffffff"/>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Navigation Bar Strip -->
+              <div class="h-7 px-2.5 flex items-center gap-2 border-b text-slate-500 transition-colors duration-300"
+                [style.backgroundColor]="isDarkThemeActive ? '#1e293b' : '#ffffff'"
+                [style.borderColor]="isDarkThemeActive ? '#334155' : '#f1f5f9'">
+                <!-- Back Arrow -->
+                <svg class="w-3 h-3 hover:text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                <!-- Forward Arrow -->
+                <svg class="w-3 h-3 hover:text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+                <!-- Reload -->
+                <svg class="w-3 h-3 hover:text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <!-- Address Pill (Omnibox) -->
+                <div class="flex-1 h-4 rounded-full transition-colors duration-300"
+                  [style.backgroundColor]="isDarkThemeActive ? '#0f172a' : (currentTheme.lightBg !== '#ffffff' ? currentTheme.lightBg : '#e9eef6')"></div>
+              </div>
+
+              <!-- Viewport Page Body Preview -->
+              <div class="h-7 transition-colors duration-300"
+                [style.backgroundColor]="isDarkThemeActive ? '#0f172a' : currentTheme.lightBg"></div>
+            </div>
+
+            <!-- Current Theme Label -->
+            <div class="text-[12px] font-medium text-center mt-3 mb-2 transition-colors duration-300"
+              [style.color]="isDarkThemeActive ? '#f8fafc' : (currentTheme.primaryDark || '#1f1f1f')">
+              {{ currentTheme.name }}
+            </div>
+
+            <!-- Change theme Button -->
+            <button (click)="resetThemeToDefault()"
+              title="Reset to Default Chrome"
+              class="w-full py-2 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer border"
+              [style.backgroundColor]="isDarkThemeActive ? '#334155' : currentTheme.topColor"
+              [style.color]="isDarkThemeActive ? '#f8fafc' : (currentTheme.bottomLeftColor || '#041e49')"
+              [style.borderColor]="isDarkThemeActive ? '#475569' : (currentTheme.bottomRightColor || '#b2d1fd')">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
+                <path d="M21 15l-5-5L5 21" stroke-width="2"/>
+              </svg>
+              <span>Change theme</span>
+            </button>
+          </div>
+
+          <!-- Divider -->
+          <div class="h-px bg-slate-200/80 my-1"></div>
+
+          <!-- Segmented Mode Pill Switcher (Light / Dark / Device) -->
+          <div class="rounded-full border border-slate-300/80 bg-white p-1 grid grid-cols-3 gap-1 shadow-2xs">
+            <!-- Light Button -->
+            <button (click)="setThemeMode('light')"
+              class="flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-full text-xs font-semibold transition-all cursor-pointer"
+              [class.bg-[#0b57d0]]="themeMode === 'light'"
+              [class.text-white]="themeMode === 'light'"
+              [class.shadow-xs]="themeMode === 'light'"
+              [class.text-slate-600]="themeMode !== 'light'"
+              [class.hover:bg-slate-50]="themeMode !== 'light'">
+              <svg *ngIf="themeMode === 'light'" class="w-3.5 h-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <span>Light</span>
+            </button>
+
+            <!-- Dark Button -->
+            <button (click)="setThemeMode('dark')"
+              class="flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-full text-xs font-semibold transition-all cursor-pointer"
+              [class.bg-[#0b57d0]]="themeMode === 'dark'"
+              [class.text-white]="themeMode === 'dark'"
+              [class.shadow-xs]="themeMode === 'dark'"
+              [class.text-slate-600]="themeMode !== 'dark'"
+              [class.hover:bg-slate-50]="themeMode !== 'dark'">
+              <svg *ngIf="themeMode === 'dark'" class="w-3.5 h-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <svg *ngIf="themeMode !== 'dark'" class="w-3.5 h-3.5 text-slate-600" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/>
+              </svg>
+              <span>Dark</span>
+            </button>
+
+            <!-- Device Button -->
+            <button (click)="setThemeMode('device')"
+              class="flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-full text-xs font-semibold transition-all cursor-pointer"
+              [class.bg-[#0b57d0]]="themeMode === 'device'"
+              [class.text-white]="themeMode === 'device'"
+              [class.shadow-xs]="themeMode === 'device'"
+              [class.text-slate-600]="themeMode !== 'device'"
+              [class.hover:bg-slate-50]="themeMode !== 'device'">
+              <svg *ngIf="themeMode === 'device'" class="w-3.5 h-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <svg *ngIf="themeMode !== 'device'" class="w-3.5 h-3.5 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="4" width="20" height="12" rx="2"/>
+                <path d="M6 20h12M12 16v4"/>
+              </svg>
+              <span>Device</span>
+            </button>
+          </div>
+
+          <!-- Theme Color Swatches (Exact 4 x 4 Grid) -->
+          <div class="grid grid-cols-4 gap-2 pt-1">
+            
+            <!-- 15 Palette Themes -->
+            <button *ngFor="let theme of themeColors"
+              (click)="selectTheme(theme.id)"
+              [title]="theme.name"
+              class="aspect-square rounded-2xl bg-white hover:bg-slate-50 flex items-center justify-center p-1.5 transition-all cursor-pointer relative shadow-2xs border"
+              [class.border-slate-300]="selectedThemeId === theme.id"
+              [class.ring-2]="selectedThemeId === theme.id"
+              [class.ring-blue-500]="selectedThemeId === theme.id"
+              [class.border-transparent]="selectedThemeId !== theme.id"
+              [class.hover:border-slate-200]="selectedThemeId !== theme.id">
+
+              <!-- 3-Part Wedge Swatch Circle -->
+              <div class="w-11 h-11 rounded-full relative overflow-hidden shadow-2xs border border-black/10">
+                <!-- Top Half (50% height) -->
+                <div class="absolute top-0 left-0 right-0 h-1/2" [style.backgroundColor]="theme.topColor"></div>
+                <!-- Bottom Left Quarter (50% height x 50% width) -->
+                <div class="absolute bottom-0 left-0 w-1/2 h-1/2" [style.backgroundColor]="theme.bottomLeftColor"></div>
+                <!-- Bottom Right Quarter (50% height x 50% width) -->
+                <div class="absolute bottom-0 right-0 w-1/2 h-1/2" [style.backgroundColor]="theme.bottomRightColor"></div>
+              </div>
+
+              <!-- Top-right Checkmark Badge (As seen in Row 1 Col 3 of screenshot) -->
+              <div *ngIf="selectedThemeId === theme.id"
+                class="absolute top-1 right-1 w-4 h-4 rounded-full text-white flex items-center justify-center shadow-xs transition-colors duration-200"
+                [style.backgroundColor]="theme.bottomLeftColor || '#0b57d0'">
+                <svg class="w-2.5 h-2.5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+            </button>
+
+            <!-- 16th Swatch: Custom Color Eyedropper Button -->
+            <label title="Custom color picker"
+              class="aspect-square rounded-2xl bg-white hover:bg-slate-50 flex items-center justify-center p-1.5 transition-all cursor-pointer relative shadow-2xs border"
+              [class.border-slate-300]="selectedThemeId === 'custom'"
+              [class.ring-2]="selectedThemeId === 'custom'"
+              [class.ring-blue-500]="selectedThemeId === 'custom'"
+              [class.border-transparent]="selectedThemeId !== 'custom'"
+              [class.hover:border-slate-200]="selectedThemeId !== 'custom'">
+              
+              <!-- Eyedropper Circle -->
+              <div class="w-11 h-11 rounded-full bg-[#a8c7fa] hover:bg-[#96bef8] text-[#041e49] flex items-center justify-center shadow-2xs transition-colors">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20.71 5.63l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-3.12 3.12-1.93-1.91-1.41 1.41 1.42 1.42L3 16.25V21h4.75l8.92-8.92 1.42 1.42 1.41-1.41-1.92-1.92 3.13-3.13c.39-.39.39-1.03 0-1.41zM6.92 19L5 17.08l8.06-8.06 1.92 1.92L6.92 19z"/>
+                </svg>
+              </div>
+
+              <!-- Top-right Checkmark Badge if custom is selected -->
+              <div *ngIf="selectedThemeId === 'custom'"
+                class="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#0b57d0] text-white flex items-center justify-center shadow-xs">
+                <svg class="w-2.5 h-2.5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+
+              <!-- Invisible Native Color Input -->
+              <input type="color" [value]="customColorValue" (change)="onCustomColorChange($event)" class="sr-only" />
+            </label>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </aside>
 
     <!-- ================= TOAST NOTIFICATION ================= -->
     <div *ngIf="toastVisible"
