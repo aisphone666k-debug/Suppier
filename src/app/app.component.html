@@ -14,7 +14,7 @@
       <!-- App Brand Logo (Pure Logo, No Background Box) -->
       <div class="mx-auto flex items-center justify-center py-1">
         <img src="/sp-logo.png" alt="Suppier Logo"
-          class="h-16 sm:h-20 w-auto object-contain filter drop-shadow-sm select-none" />
+          class="h-20 sm:h-24 w-auto object-contain filter drop-shadow-sm select-none" />
       </div>
 
       <!-- Header Title -->
@@ -242,10 +242,9 @@
     <header class="bg-white border-b border-slate-200 py-2.5 px-6 shadow-2xs shrink-0 z-10">
       <div class="max-w-[1800px] mx-auto flex items-center justify-between gap-4">
 
-        <!-- App Brand Logo -->
-        <div class="flex items-center gap-3 shrink-0">
-          <img src="/sp-logo.png" alt="Suppier Logo" class="h-8 w-auto object-contain filter drop-shadow-xs" />
-          <span class="text-base font-extrabold text-slate-800 tracking-tight hidden md:inline">Suppier</span>
+        <!-- App Brand Logo (Original Emblem + Logo Wordmark) -->
+        <div class="flex items-center shrink-0">
+          <img src="/sp-logo-horizontal.png" alt="Suppier Logo" class="h-9 sm:h-10 w-auto object-contain filter drop-shadow-xs" />
         </div>
 
         <div class="flex-1 text-center">
@@ -277,10 +276,22 @@
             </div>
           </div>
 
+          <!-- Quotation Search Quick Access -->
+          <button (click)="openQuotationSearchView()"
+            [class]="activeView === 'quotation-search' 
+              ? 'bg-[#131936] text-white ring-2 ring-blue-400 shadow-sm font-bold' 
+              : 'bg-white hover:bg-blue-50/70 text-slate-700 hover:text-blue-700 border border-slate-300/80 shadow-2xs font-semibold'"
+            class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer">
+            <img src="/sp-logo-emblem.png" alt="Suppier" class="w-4 h-4 object-contain shrink-0" />
+            <span>Quotation Search</span>
+            <span class="text-[10px] font-black px-1.5 py-0.5 rounded-md"
+              [class]="activeView === 'quotation-search' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800'">SEARCH</span>
+          </button>
+
           <!-- Purchase Quick Access Header Button -->
           <button *ngIf="isPurchaseSection" (click)="openPurchaseQuotationView()"
             class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black text-cyan-950 bg-gradient-to-r from-cyan-300 via-sky-300 to-cyan-400 hover:from-cyan-200 hover:to-sky-200 border border-cyan-500 shadow-xs hover:shadow-sm transition-all cursor-pointer">
-            <span>✉️</span>
+            <svg class="w-3.5 h-3.5 text-cyan-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
             <span>Purchase Quotation Requests</span>
           </button>
 
@@ -302,112 +313,248 @@
 
       <!-- ================= LEFT SIDEBAR NAVIGATION (FIXED / STICKY) ================= -->
       <aside
-        class="w-64 sm:w-72 bg-white border-r border-slate-200 shrink-0 p-4 sm:p-5 flex flex-col space-y-6 shadow-xs h-full overflow-y-auto">
+        class="w-72 sm:w-[285px] lg:w-[290px] xl:w-[295px] bg-white border-r border-slate-200 shrink-0 p-4 sm:p-4.5 flex flex-col justify-between shadow-xs h-full overflow-y-auto select-none">
 
-        <!-- Group 1: ALL DOCUMENT -->
-        <div class="space-y-3">
-          <h2
-            class="text-base font-black text-purple-900 uppercase tracking-wide pb-1.5 border-b-2 border-purple-200 flex items-center gap-2">
-            <svg class="w-4 h-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            ALL DOCUMENT
-          </h2>
+        <div class="space-y-5">
 
-          <nav class="space-y-1">
-            <div *ngFor="let menu of documentMenus" class="space-y-0.5">
-              <!-- Parent Menu Item -->
-              <button (click)="selectMenu(menu.id)" [class]="(activeMenu === menu.id && !activeSubMenu) 
-                ? 'bg-[#131936] text-white shadow-xs font-bold' 
-                : 'text-blue-700 hover:bg-blue-50/50 font-bold'"
-                class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs sm:text-[13px] transition-all flex items-center justify-between group">
-
-                <div class="flex items-center gap-2 truncate">
-                  <!-- Pushpin icon -->
-                  <span class="text-sm select-none">📌</span>
-                  <span class="truncate">{{ menu.label }}</span>
-                </div>
-
-                <!-- Chevron indicator if has sub-items -->
-                <span *ngIf="menu.subItems" (click)="toggleMenu(menu, $event)"
-                  class="text-slate-400 hover:text-slate-600 p-0.5 rounded">
-                  <svg class="w-3.5 h-3.5 transform transition-transform" [class.rotate-90]="menu.isExpanded"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </span>
-              </button>
-
-              <!-- Sub-Items (GM1, MA, PMA) matching user screenshot -->
-              <div *ngIf="menu.subItems && menu.isExpanded" class="pl-7 space-y-0.5 py-0.5">
-                <button *ngFor="let sub of menu.subItems" (click)="selectSubMenu(menu, sub, $event)" [class]="activeSubMenu === sub.id 
-                  ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-300 font-black shadow-2xs' 
-                  : 'text-emerald-600 hover:bg-emerald-50/60 font-bold'"
-                  class="w-full text-left px-2 py-1 rounded-md text-xs sm:text-[13px] transition-all flex items-center gap-2">
-                  <!-- Gray Folder Icon -->
-                  <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-                  </svg>
-                  <span>{{ sub.label }}</span>
-                </button>
-              </div>
+          <!-- Group 1: ALL DOCUMENT -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between px-2 pb-1">
+              <span class="text-[11.5px] font-bold text-slate-400 uppercase tracking-wider">All Document</span>
+              <span class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md font-mono">{{ documentMenus.length }}</span>
             </div>
-          </nav>
-        </div>
 
-        <!-- Group 2: MASTER -->
-        <div class="space-y-2 pt-2 border-t border-slate-100">
-          <h2
-            class="text-sm font-black text-purple-800 uppercase tracking-wider pb-1 border-b border-purple-100 flex items-center gap-2">
-            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            </svg>
-            MASTER
-          </h2>
+            <nav class="space-y-1">
+              <div *ngFor="let menu of documentMenus" class="space-y-1">
+                <!-- Parent Menu Item (Balanced Medium: 14px text-sm, 20px icon, py-2.5) -->
+                <button (click)="selectMenu(menu.id)" [class]="(activeMenu === menu.id && !activeSubMenu) 
+                  ? 'bg-[#131936] text-white shadow-sm font-bold' 
+                  : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 font-semibold'"
+                  class="w-full text-left px-3.5 py-2.5 rounded-xl text-sm transition-all flex items-center justify-between group cursor-pointer">
 
-          <nav class="space-y-1">
-            <button *ngFor="let menu of masterMenus" (click)="selectMenu(menu.id)" [class]="activeMenu === menu.id 
-              ? 'bg-[#131936] text-white shadow-xs font-bold' 
-              : 'text-red-700 hover:bg-slate-100 font-semibold'"
-              class="w-full text-left px-3 py-1.5 rounded-lg text-xs sm:text-sm transition-all flex items-center gap-2.5 group">
+                  <div class="flex items-center gap-3 truncate">
+                    <!-- Clean Vector Icon per Category (20px) -->
+                    <ng-container [ngSwitch]="menu.id">
+                      <!-- KZW -->
+                      <svg *ngSwitchCase="'kzw'" class="w-5 h-5 shrink-0 transition-colors"
+                        [class.text-blue-300]="activeMenu === 'kzw' && !activeSubMenu"
+                        [class.text-slate-400]="activeMenu !== 'kzw' || activeSubMenu"
+                        [class.group-hover:text-slate-600]="activeMenu !== 'kzw' || activeSubMenu"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <!-- Made to order -->
+                      <svg *ngSwitchCase="'made-to-order'" class="w-5 h-5 shrink-0 transition-colors"
+                        [class.text-blue-300]="activeMenu === 'made-to-order' && !activeSubMenu"
+                        [class.text-slate-400]="activeMenu !== 'made-to-order' || activeSubMenu"
+                        [class.group-hover:text-slate-600]="activeMenu !== 'made-to-order' || activeSubMenu"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                      <!-- Repair -->
+                      <svg *ngSwitchCase="'repair'" class="w-5 h-5 shrink-0 transition-colors"
+                        [class.text-blue-300]="activeMenu === 'repair' && !activeSubMenu"
+                        [class.text-slate-400]="activeMenu !== 'repair' || activeSubMenu"
+                        [class.group-hover:text-slate-600]="activeMenu !== 'repair' || activeSubMenu"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      </svg>
+                      <!-- Spare part (Oversea & Local) -->
+                      <svg *ngSwitchCase="'spare-part'" class="w-5 h-5 shrink-0 transition-colors"
+                        [class.text-blue-300]="activeMenu === 'spare-part'"
+                        [class.text-slate-400]="activeMenu !== 'spare-part'"
+                        [class.group-hover:text-slate-600]="activeMenu !== 'spare-part'"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                          d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                      </svg>
+                      <!-- Made to maker -->
+                      <svg *ngSwitchCase="'made-to-maker'" class="w-5 h-5 shrink-0 transition-colors"
+                        [class.text-blue-300]="activeMenu === 'made-to-maker'"
+                        [class.text-slate-400]="activeMenu !== 'made-to-maker'"
+                        [class.group-hover:text-slate-600]="activeMenu !== 'made-to-maker'"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                      <!-- Store tooling -->
+                      <svg *ngSwitchCase="'store-tooling'" class="w-5 h-5 shrink-0 transition-colors"
+                        [class.text-blue-300]="activeMenu === 'store-tooling'"
+                        [class.text-slate-400]="activeMenu !== 'store-tooling'"
+                        [class.group-hover:text-slate-600]="activeMenu !== 'store-tooling'"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                          d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                      </svg>
+                      <!-- Project -->
+                      <svg *ngSwitchCase="'project'" class="w-5 h-5 shrink-0 transition-colors"
+                        [class.text-blue-300]="activeMenu === 'project'"
+                        [class.text-slate-400]="activeMenu !== 'project'"
+                        [class.group-hover:text-slate-600]="activeMenu !== 'project'"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                      <!-- Maker Misumi -->
+                      <svg *ngSwitchCase="'maker-misumi'" class="w-5 h-5 shrink-0 transition-colors"
+                        [class.text-blue-300]="activeMenu === 'maker-misumi'"
+                        [class.text-slate-400]="activeMenu !== 'maker-misumi'"
+                        [class.group-hover:text-slate-600]="activeMenu !== 'maker-misumi'"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                          d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                      </svg>
+                      <!-- Fallback default icon -->
+                      <svg *ngSwitchDefault class="w-5 h-5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                      </svg>
+                    </ng-container>
 
-              <span class="text-red-600 text-xs">♦</span>
-              <span class="truncate">{{ menu.label }}</span>
-            </button>
-          </nav>
-        </div>
+                    <span class="truncate font-semibold">{{ menu.label }}</span>
+                  </div>
 
-        <!-- Group 3: PURCHASE EXCLUSIVE MENU (Active when Section_Name is PURCHASE) -->
-        <div *ngIf="isPurchaseSection" class="space-y-2 pt-3 border-t-2 border-cyan-400 bg-gradient-to-b from-cyan-50/80 to-blue-50/40 p-3 rounded-2xl border border-cyan-200/80 shadow-xs">
-          <div class="flex items-center justify-between pb-1 border-b border-cyan-200/80">
-            <h2 class="text-xs font-black text-cyan-950 uppercase tracking-wider flex items-center gap-1.5">
-              <span>🛒</span> PURCHASE SECTION
-            </h2>
-            <span class="bg-cyan-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full shadow-2xs">ACTIVE</span>
+                  <!-- Chevron indicator if has sub-items (Medium) -->
+                  <span *ngIf="menu.subItems" (click)="toggleMenu(menu, $event)"
+                    class="p-1 rounded cursor-pointer transition-colors"
+                    [class.text-slate-300]="activeMenu === menu.id && !activeSubMenu"
+                    [class.text-slate-400]="activeMenu !== menu.id || activeSubMenu"
+                    [class.hover:text-slate-600]="activeMenu !== menu.id || activeSubMenu">
+                    <svg class="w-4 h-4 transform transition-transform" [class.rotate-90]="menu.isExpanded"
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </button>
+
+                <!-- Sub-Items (GM1, MA, PMA) - Medium Balanced (13px text, py-1.5 sm:py-2) -->
+                <div *ngIf="menu.subItems && menu.isExpanded" class="ml-5 pl-3.5 border-l-2 border-slate-200/90 space-y-1 py-1 my-1">
+                  <button *ngFor="let sub of menu.subItems" (click)="selectSubMenu(menu, sub, $event)"
+                    [class]="activeSubMenu === sub.id 
+                      ? 'bg-blue-50 text-blue-700 font-bold ring-1 ring-blue-200/80 shadow-2xs' 
+                      : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100/70 font-medium'"
+                    class="w-full text-left px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-[13px] transition-all flex items-center justify-between cursor-pointer">
+                    <div class="flex items-center gap-2.5 truncate">
+                      <span class="w-2 h-2 rounded-full transition-colors shrink-0"
+                        [class.bg-blue-600]="activeSubMenu === sub.id"
+                        [class.bg-slate-300]="activeSubMenu !== sub.id"></span>
+                      <span class="truncate">{{ sub.label }}</span>
+                    </div>
+                    <span *ngIf="activeSubMenu === sub.id" class="text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">Active</span>
+                  </button>
+                </div>
+              </div>
+            </nav>
           </div>
 
-          <nav class="space-y-1">
-            <button (click)="openPurchaseQuotationView()" [class]="activeView === 'purchase-quotation' 
-              ? 'bg-gradient-to-r from-cyan-600 to-blue-700 text-white shadow-xs font-black ring-1 ring-cyan-300' 
-              : 'text-cyan-900 hover:bg-cyan-100 font-bold'"
-              class="w-full text-left px-2.5 py-2 rounded-xl text-xs sm:text-[13px] transition-all flex items-center justify-between group cursor-pointer">
-              <div class="flex items-center gap-2 truncate">
-                <span class="text-sm select-none">✉️</span>
-                <span class="truncate">User Quotation Requests</span>
+          <!-- Group 2: MASTER (Balanced Medium Minimal Style) -->
+          <div class="space-y-1.5 pt-4 border-t border-slate-100">
+            <div class="flex items-center justify-between px-2 pb-1">
+              <span class="text-[11.5px] font-bold text-slate-400 uppercase tracking-wider">Master Data</span>
+              <span class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md font-mono">{{ masterMenus.length }}</span>
+            </div>
+
+            <nav class="space-y-1">
+              <button *ngFor="let menu of masterMenus" (click)="selectMenu(menu.id)"
+                [class]="activeMenu === menu.id 
+                  ? 'bg-[#131936] text-white shadow-sm font-bold' 
+                  : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 font-semibold'"
+                class="w-full text-left px-3.5 py-2.5 rounded-xl text-sm transition-all flex items-center gap-3 group cursor-pointer">
+
+                <ng-container [ngSwitch]="menu.id">
+                  <!-- Master Section -->
+                  <svg *ngSwitchCase="'master-section'" class="w-5 h-5 shrink-0 transition-colors"
+                    [class.text-blue-300]="activeMenu === 'master-section'"
+                    [class.text-slate-400]="activeMenu !== 'master-section'"
+                    [class.group-hover:text-slate-600]="activeMenu !== 'master-section'"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                  <!-- Master Unit -->
+                  <svg *ngSwitchCase="'master-unit'" class="w-5 h-5 shrink-0 transition-colors"
+                    [class.text-blue-300]="activeMenu === 'master-unit'"
+                    [class.text-slate-400]="activeMenu !== 'master-unit'"
+                    [class.group-hover:text-slate-600]="activeMenu !== 'master-unit'"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                      d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                  </svg>
+                  <!-- Master Order Type -->
+                  <svg *ngSwitchCase="'master-order-type'" class="w-5 h-5 shrink-0 transition-colors"
+                    [class.text-blue-300]="activeMenu === 'master-order-type'"
+                    [class.text-slate-400]="activeMenu !== 'master-order-type'"
+                    [class.group-hover:text-slate-600]="activeMenu !== 'master-order-type'"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  <!-- Master Purchase -->
+                  <svg *ngSwitchCase="'master-purchase'" class="w-5 h-5 shrink-0 transition-colors"
+                    [class.text-blue-300]="activeMenu === 'master-purchase'"
+                    [class.text-slate-400]="activeMenu !== 'master-purchase'"
+                    [class.group-hover:text-slate-600]="activeMenu !== 'master-purchase'"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <!-- Master Access -->
+                  <svg *ngSwitchCase="'master-access'" class="w-5 h-5 shrink-0 transition-colors"
+                    [class.text-blue-300]="activeMenu === 'master-access'"
+                    [class.text-slate-400]="activeMenu !== 'master-access'"
+                    [class.group-hover:text-slate-600]="activeMenu !== 'master-access'"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                      d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                  </svg>
+                </ng-container>
+
+                <span class="truncate font-semibold">{{ menu.label }}</span>
+              </button>
+            </nav>
+          </div>
+
+          <!-- Group 3: PURCHASE EXCLUSIVE MENU (Active when Section_Name is PURCHASE) -->
+          <div *ngIf="isPurchaseSection" class="pt-3 border-t border-slate-100">
+            <div class="bg-cyan-50/70 border border-cyan-200/80 p-2.5 rounded-xl space-y-1.5">
+              <div class="flex items-center justify-between px-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-900 flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-cyan-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  Purchase Section
+                </span>
+                <span class="bg-cyan-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">ACTIVE</span>
               </div>
-              <span class="bg-amber-400 text-amber-950 font-black text-[9px] px-1.5 py-0.5 rounded-md shadow-2xs">EMAIL</span>
-            </button>
-          </nav>
+              <button (click)="openPurchaseQuotationView()" [class]="activeView === 'purchase-quotation' 
+                ? 'bg-cyan-700 text-white shadow-xs font-bold' 
+                : 'text-cyan-900 hover:bg-cyan-100 font-semibold'"
+                class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-all flex items-center justify-between group cursor-pointer">
+                <div class="flex items-center gap-2 truncate">
+                  <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  <span class="truncate">User Quotation Requests</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
         </div>
 
         <!-- Testing / Demo Toggle for Purchase Section Mode -->
-        <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 px-1">
-          <span class="font-medium flex items-center gap-1">
-            <span>🛡️</span> Purchase Mode:
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 px-1">
+          <span class="font-medium flex items-center gap-1.5 text-[11px] text-slate-400">
+            <span class="w-2 h-2 rounded-full" [class.bg-emerald-500]="isPurchaseSection"
+              [class.bg-slate-300]="!isPurchaseSection"></span>
+            Purchase Mode
           </span>
-          <button (click)="togglePurchaseTestMode()" [class]="isPurchaseSection ? 'bg-cyan-600 text-white ring-1 ring-cyan-400 font-black' : 'bg-slate-200 text-slate-600 hover:bg-slate-300 font-bold'"
+          <button (click)="togglePurchaseTestMode()"
+            [class]="isPurchaseSection ? 'bg-cyan-600 text-white font-black' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-bold'"
             class="px-2 py-0.5 rounded-md text-[10px] transition-all cursor-pointer shadow-2xs"
             title="คลิกเพื่อเปิด/ปิดโหมดจำลองแผนก PURCHASE สำหรับทดสอบได้ทุกบัญชี">
             {{ isPurchaseSection ? 'ON' : 'OFF' }}
@@ -552,9 +699,11 @@
                 <!-- Header Actions Bar: Edit Header / Save / Cancel -->
                 <div class="flex items-center justify-between pb-2 border-b border-slate-100">
                   <div class="flex items-center gap-2">
-                    <span class="inline-block w-2.5 h-2.5 rounded-full" [class.bg-emerald-500]="!isEditingHeader" [class.bg-amber-500]="isEditingHeader"></span>
+                    <span class="inline-block w-2.5 h-2.5 rounded-full" [class.bg-emerald-500]="!isEditingHeader"
+                      [class.bg-amber-500]="isEditingHeader"></span>
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-500">
-                      {{ isEditingHeader ? 'โหมดแก้ไขข้อมูลเอกสาร (Edit Header Mode)' : 'ข้อมูลเอกสารขอซื้อ (Requisition Info)' }}
+                      {{ isEditingHeader ? 'โหมดแก้ไขข้อมูลเอกสาร (Edit Header Mode)' : 'ข้อมูลเอกสารขอซื้อ (Requisition
+                      Info)' }}
                     </span>
                   </div>
 
@@ -563,7 +712,8 @@
                     <button type="button" (click)="editHeader()"
                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer shadow-2xs hover:shadow-xs">
                       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                       </svg>
                       <span>Edit Header (แก้ไข)</span>
                     </button>
@@ -735,7 +885,8 @@
                     <span>:</span>
                   </div>
                   <!-- View Mode -->
-                  <div *ngIf="!isEditingHeader" class="flex-1 font-bold text-emerald-800 text-xs sm:text-sm leading-relaxed">
+                  <div *ngIf="!isEditingHeader"
+                    class="flex-1 font-bold text-emerald-800 text-xs sm:text-sm leading-relaxed">
                     {{ sendToPurchase }}
                   </div>
                   <!-- Edit Mode -->
@@ -770,24 +921,26 @@
           <!-- ================= MAIN DATA TABLE ================= -->
           <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
             <!-- Table Action Bar -->
-            <div class="px-5 py-3 bg-slate-50/90 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+            <div
+              class="px-5 py-3 bg-slate-50/90 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
               <div class="flex items-center gap-2.5">
                 <span class="w-3 h-3 rounded-full bg-blue-600 shadow-2xs"></span>
                 <h3 class="font-extrabold text-slate-900 text-sm">รายการอะไหล่และอุปกรณ์ (Requisition Items)</h3>
-                <span class="px-2.5 py-0.5 text-xs font-bold bg-blue-100/80 text-blue-800 rounded-full border border-blue-200/60 shadow-2xs">
+                <span
+                  class="px-2.5 py-0.5 text-xs font-bold bg-blue-100/80 text-blue-800 rounded-full border border-blue-200/60 shadow-2xs">
                   {{ items.length }} รายการ
                 </span>
               </div>
 
               <div class="flex items-center gap-2 flex-wrap">
                 <!-- Edit All Rows Toggle -->
-                <button type="button" (click)="toggleEditAllRows()"
-                  [class]="isEditingAllRows 
+                <button type="button" (click)="toggleEditAllRows()" [class]="isEditingAllRows 
                     ? 'bg-amber-500 hover:bg-amber-600 text-white border-amber-600 shadow-xs' 
                     : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300 shadow-2xs'"
                   class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                   <span>{{ isEditingAllRows ? 'Done Editing All (เสร็จสิ้น)' : 'Edit All Rows (แก้ไขทุกแถว)' }}</span>
                 </button>
@@ -805,7 +958,8 @@
                 <button type="button" (click)="saveEntireDocument()"
                   class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all cursor-pointer shadow-xs">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                   </svg>
                   <span>Save All to Database (บันทึกทั้งหมด)</span>
                 </button>
@@ -1004,7 +1158,8 @@
                   <tr *ngIf="items.length === 0">
                     <td colspan="28" class="py-12 text-center bg-slate-50/60">
                       <div class="flex flex-col items-center justify-center gap-2 max-w-md mx-auto">
-                        <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 shadow-2xs">
+                        <div
+                          class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 shadow-2xs">
                           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                               d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
@@ -1012,7 +1167,8 @@
                         </div>
                         <div class="text-sm font-bold text-slate-700">ไม่มีรายการอะไหล่และอุปกรณ์ (No items found)</div>
                         <p class="text-xs text-slate-500 leading-relaxed">
-                          ยังไม่มีข้อมูลรายการสำหรับบัญชีนี้ คลิกปุ่ม <span class="font-bold text-blue-600">+ เพิ่มรายการ (Add Row)</span> ด้านล่างเพื่อเริ่มกรอกข้อมูล
+                          ยังไม่มีข้อมูลรายการสำหรับบัญชีนี้ คลิกปุ่ม <span class="font-bold text-blue-600">+
+                            เพิ่มรายการ (Add Row)</span> ด้านล่างเพื่อเริ่มกรอกข้อมูล
                         </p>
                       </div>
                     </td>
@@ -1026,7 +1182,7 @@
                     <!-- 1. No. (With Pen Icon in View Mode, and Save/Cancel in Edit Mode) -->
                     <td class="px-2 py-2.5 text-center font-bold text-slate-800 border-r border-slate-200 min-w-[75px]"
                       [class.border-l-4]="item.isUrgent" [class.border-l-red-500]="item.isUrgent">
-                      <!-- View Mode: No. + Pen Icon ✏️ -->
+                      <!-- View Mode: No. + Pen Icon -->
                       <div *ngIf="!item.isEditing" class="flex items-center justify-center gap-1">
                         <span *ngIf="item.isUrgent" class="w-2 h-2 rounded-full bg-red-600 animate-pulse shrink-0"
                           title="ด่วน (Urgent)"></span>
@@ -1061,7 +1217,7 @@
                                 d="M6 18L18 6M6 6l12 12" />
                             </svg>
                           </button>
-                          <!-- Delete Button 🗑️ -->
+                          <!-- Delete Button -->
                           <button type="button" (click)="deleteItem(i, $event)" title="ลบรายการนี้ (Delete)"
                             class="bg-rose-100 hover:bg-rose-600 hover:text-white text-rose-600 p-1 rounded shadow-2xs transition-colors cursor-pointer">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1409,7 +1565,7 @@
           <div
             class="bg-[#131936] text-white h-11 px-4 rounded-xl flex items-center justify-between shadow-sm border border-[#1c244b]">
             <div class="flex items-center space-x-2">
-              <span class="text-amber-400">📝</span>
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
               <span class="text-sm font-bold tracking-wide">New Quotation</span>
             </div>
 
@@ -1505,7 +1661,7 @@
                     <td class="py-2.5 px-3 font-mono text-blue-700">{{ row.date }}</td>
                     <td class="py-2.5 px-3 font-mono text-slate-400">-</td>
                     <td class="py-2.5 px-3 text-slate-900 font-bold hover:text-indigo-600 flex items-center gap-1">
-                      <span *ngIf="row.isCurrentDoc" class="text-emerald-600">👉</span>
+                      <span *ngIf="row.isCurrentDoc" class="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block mr-1"></span>
                       {{ row.partName }}
                     </td>
                     <td class="py-2.5 px-3 font-mono text-slate-700">{{ row.spec }}</td>
@@ -1525,58 +1681,61 @@
         </div>
 
         <!-- ================= VIEW 3: PURCHASE QUOTATION REQUESTS & EMAIL GENERATOR ================= -->
-        <div *ngIf="activeView === 'purchase-quotation'" class="space-y-6">
+        <div *ngIf="activeView === 'purchase-quotation'" class="space-y-5">
 
-          <!-- Top Navigation Header Bar -->
-          <div
-            class="bg-gradient-to-r from-[#0d1636] via-[#131936] to-[#0f244a] text-white p-4 sm:p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-lg border border-cyan-500/30">
+          <!-- Top Navigation Header Bar (Minimalist) -->
+          <div class="bg-white border border-slate-200/90 p-4 sm:p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-2xs">
             <div class="flex items-center space-x-3.5">
-              <div
-                class="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-xl shadow-md ring-2 ring-cyan-300/40 shrink-0">
-                ✉️
+              <div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200/80 flex items-center justify-center text-slate-700 shrink-0">
+                <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
               </div>
               <div>
                 <div class="flex items-center gap-2">
-                  <h2 class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
+                  <h2 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
                     Purchase: User Quotation Requests & Email Generator
                   </h2>
-                  <span
-                    class="bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
-                    PURCHASE SECTION
+                  <span class="bg-slate-100 text-slate-600 border border-slate-200 text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider">
+                    Purchase Section
                   </span>
                 </div>
-                <p class="text-xs text-slate-300 mt-0.5">
+                <p class="text-xs text-slate-500 mt-0.5">
                   รายการขอใบเสนอราคาจากผู้ใช้งานแผนกต่างๆ & คัดลอกแบบฟอร์มเพื่อส่งอีเมลขอราคาจาก Supplier ได้ทันที
                 </p>
               </div>
             </div>
 
             <!-- Top Actions -->
-            <div class="flex items-center gap-2.5 flex-wrap">
+            <div class="flex items-center gap-2 flex-wrap">
               <button (click)="copyEmailQuotationToClipboard()"
-                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-black text-slate-950 bg-gradient-to-r from-cyan-400 via-sky-300 to-cyan-300 hover:from-cyan-300 hover:to-sky-200 shadow-md hover:shadow-lg transition-all cursor-pointer transform active:scale-95">
-                <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 shadow-xs transition-colors cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                 </svg>
                 <span>Copy for Email</span>
               </button>
 
               <button (click)="copyTableOnlyToClipboard()"
-                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-600 shadow-xs transition-colors cursor-pointer">
-                <span>📋</span>
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-colors cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                </svg>
                 <span>Copy Table</span>
               </button>
 
               <button (click)="openInEmailClient()"
-                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-cyan-200 bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-700/60 transition-colors cursor-pointer">
-                <span>📨</span>
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium text-blue-700 bg-blue-50/70 hover:bg-blue-100/70 border border-blue-200/80 transition-colors cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                </svg>
                 <span>Open in Mail</span>
               </button>
 
               <button (click)="closePurchaseQuotationView()"
-                class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-rose-300 hover:text-white hover:bg-rose-900/40 border border-rose-500/40 transition-colors cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer">
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
                 <span>Close</span>
@@ -1586,285 +1745,255 @@
 
           <!-- Success Alert Banner when Copied -->
           <div *ngIf="copyFeedbackText"
-            class="bg-emerald-50 border-2 border-emerald-500 text-emerald-950 px-4 py-3 rounded-2xl shadow-sm flex items-center justify-between gap-3 animate-pulse">
+            class="bg-emerald-50/80 border border-emerald-200 text-emerald-950 px-4 py-3 rounded-xl shadow-2xs flex items-center justify-between gap-3">
             <div class="flex items-center gap-2.5">
-              <span class="text-xl">🎉</span>
+              <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
               <div>
-                <span class="font-black text-sm">{{ copyFeedbackText }}</span>
-                <p class="text-xs text-emerald-800">
-                  เปิด Outlook หรือ Gmail แล้วกด <kbd
-                    class="bg-white border border-emerald-400 font-mono px-1.5 py-0.5 rounded-md font-bold text-emerald-900">Ctrl
-                    + V</kbd> จะได้ทั้งหัวข้อ ข้อความ และตาราง Cyan ตามมาตรฐานเป๊ะ!
+                <span class="font-bold text-xs text-emerald-900">{{ copyFeedbackText }}</span>
+                <p class="text-[11px] text-emerald-700 mt-0.5">
+                  เปิด Outlook หรือ Gmail แล้วกด <kbd class="bg-white border border-emerald-300 font-mono px-1.5 py-0.2 rounded text-[10px] font-semibold text-emerald-900">Ctrl + V</kbd> เพื่อวางข้อมูลลงในอีเมล
                 </p>
               </div>
             </div>
-            <button (click)="copyFeedbackText = ''" class="text-emerald-700 hover:text-emerald-950 font-bold text-sm">
+            <button (click)="copyFeedbackText = ''" class="text-emerald-600 hover:text-emerald-950 p-1 text-xs">
               ✕
             </button>
           </div>
 
           <!-- Section 1: Filter Bar & Quotation Requests Table -->
-          <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 space-y-4">
-            
-            <!-- Top Header & 5 Filters Only: Division, Section, Priority check, Order Type, Send to Purchase -->
-            <div class="space-y-3.5 pb-3 border-b border-slate-100">
+          <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-4 sm:p-5 space-y-4">
+
+            <!-- Card Header: Title & Quick Reset -->
+            <div class="space-y-3 pb-3 border-b border-slate-100">
               <div class="flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-2">
-                  <span class="text-sm sm:text-base font-black text-slate-900 flex items-center gap-1.5">
-                    <span class="text-lg">📑</span> คำขอใบเสนอราคา (Quotation Requests)
-                  </span>
-                  <span class="bg-blue-100 text-blue-800 font-black text-xs px-2.5 py-0.5 rounded-full">
-                    {{ filteredQuotationRequests.length }} / {{ allQuotationRequests.length }} รายการ
+                  <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span>คำขอใบเสนอราคา (Quotation Requests)</span>
+                  </h3>
+                  <span class="text-xs text-slate-400 font-medium">
+                    &bull; {{ filteredQuotationRequests.length }} / {{ allQuotationRequests.length }} รายการ
                   </span>
                 </div>
 
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 text-xs">
                   <button (click)="resetAllFilters()"
-                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors cursor-pointer">
-                    <span>✕</span>
+                    class="text-xs text-slate-500 hover:text-rose-600 font-medium transition-colors cursor-pointer flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     <span>Reset Filters</span>
                   </button>
+                  <span class="text-slate-200">|</span>
                   <button (click)="loadAllQuotationRequests()" title="รีเฟรชข้อมูลจากระบบ"
-                    class="p-2 rounded-xl border border-slate-300 text-slate-600 hover:text-blue-700 hover:bg-slate-50 transition-colors cursor-pointer">
-                    <svg class="w-4 h-4" [class.animate-spin]="isLoadingRequests" fill="none" stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">
+                    <svg class="w-3.5 h-3.5" [class.animate-spin]="isLoadingRequests" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                   </button>
                 </div>
               </div>
 
-              <!-- 5 Requested Filters: Division, Section, Priority check, Order Type, Send to Purchase -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pt-1">
-                <!-- 1. Division Filter -->
+              <!-- 5 Minimal Filters -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 pt-0.5">
+                <!-- 1. Division -->
                 <div class="space-y-1">
-                  <label class="text-[11px] font-black uppercase tracking-wider text-slate-600 flex items-center gap-1">
-                    <span>🏢</span> Division:
-                  </label>
+                  <label class="text-[11px] font-medium text-slate-500">Division</label>
                   <select [(ngModel)]="filterDivision" (change)="onFilterChange()"
-                    class="w-full text-xs bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    class="w-full text-xs bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer">
                     <option value="ALL">All Divisions (ทุกฝ่าย)</option>
-                    <option *ngFor="let d of uniqueDivisions" [value]="d">
-                      {{ d }}
-                    </option>
+                    <option *ngFor="let d of uniqueDivisions" [value]="d">{{ d }}</option>
                   </select>
                 </div>
 
-                <!-- 2. Section Filter -->
+                <!-- 2. Section -->
                 <div class="space-y-1">
-                  <label class="text-[11px] font-black uppercase tracking-wider text-slate-600 flex items-center gap-1">
-                    <span>🏷️</span> Section:
-                  </label>
+                  <label class="text-[11px] font-medium text-slate-500">Section</label>
                   <select [(ngModel)]="filterSection" (change)="onFilterChange()"
-                    class="w-full text-xs bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    class="w-full text-xs bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer">
                     <option value="ALL">All Sections (ทุกแผนก)</option>
-                    <option *ngFor="let s of uniqueSections" [value]="s">
-                      {{ s }}
-                    </option>
+                    <option *ngFor="let s of uniqueSections" [value]="s">{{ s }}</option>
                   </select>
                 </div>
 
-                <!-- 3. Priority Check Filter -->
+                <!-- 3. Priority Check -->
                 <div class="space-y-1">
-                  <label class="text-[11px] font-black uppercase tracking-wider text-slate-600 flex items-center gap-1">
-                    <span>⚡</span> Priority Check:
-                  </label>
+                  <label class="text-[11px] font-medium text-slate-500">Priority</label>
                   <select [(ngModel)]="filterPriority" (change)="onFilterChange()"
-                    class="w-full text-xs bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    class="w-full text-xs bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer">
                     <option value="ALL">All Priorities (ทั้งหมด)</option>
-                    <option *ngFor="let p of uniquePriorities" [value]="p">
-                      {{ p }}
-                    </option>
+                    <option *ngFor="let p of uniquePriorities" [value]="p">{{ p }}</option>
                   </select>
                 </div>
 
-                <!-- 4. Order Type Filter -->
+                <!-- 4. Order Type -->
                 <div class="space-y-1">
-                  <label class="text-[11px] font-black uppercase tracking-wider text-slate-600 flex items-center gap-1">
-                    <span>📦</span> Order Type:
-                  </label>
+                  <label class="text-[11px] font-medium text-slate-500">Order Type</label>
                   <select [(ngModel)]="filterOrderType" (change)="onFilterChange()"
-                    class="w-full text-xs bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    class="w-full text-xs bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer">
                     <option value="ALL">All Order Types (ทุกประเภท)</option>
-                    <option *ngFor="let ot of uniqueOrderTypes" [value]="ot">
-                      {{ ot }}
-                    </option>
+                    <option *ngFor="let ot of uniqueOrderTypes" [value]="ot">{{ ot }}</option>
                   </select>
                 </div>
 
-                <!-- 5. Send to Purchase Filter -->
+                <!-- 5. Send to Purchase -->
                 <div class="space-y-1">
-                  <label class="text-[11px] font-black uppercase tracking-wider text-slate-600 flex items-center gap-1">
-                    <span>🛒</span> Send to Purchase:
-                  </label>
+                  <label class="text-[11px] font-medium text-slate-500">Purchaser</label>
                   <select [(ngModel)]="filterSendToPurchase" (change)="onFilterChange()"
-                    class="w-full text-xs bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    class="w-full text-xs bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer">
                     <option value="ALL">All Purchasers (ทุกคน)</option>
-                    <option *ngFor="let pur of uniqueSendToPurchasers" [value]="pur">
-                      {{ pur }}
-                    </option>
+                    <option *ngFor="let pur of uniqueSendToPurchasers" [value]="pur">{{ pur }}</option>
                   </select>
                 </div>
               </div>
             </div>
 
-            <!-- Table Action Toolbar: Select All Checkbox & Summary Counts -->
-            <div class="flex flex-wrap items-center justify-between gap-3 py-1">
+            <!-- Toolbar: Selection Status & Minimal Actions -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-1 text-xs">
               <div class="flex items-center gap-3">
-                <!-- Checkbox to Select All Filtered Requests -->
-                <label class="inline-flex items-center gap-2 cursor-pointer select-none bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl transition-colors">
+                <label class="inline-flex items-center gap-2 cursor-pointer select-none text-slate-700 font-medium">
                   <input type="checkbox" [checked]="isAllRequestsSelected" (change)="toggleSelectAllRequests($event)"
-                    class="w-4 h-4 text-cyan-600 rounded focus:ring-cyan-500 cursor-pointer" />
-                  <span class="text-xs font-black text-slate-800">
-                    Select All PURCHASE List (เลือกคำขอทั้งหมด)
-                  </span>
+                    class="w-3.5 h-3.5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer" />
+                  <span>เลือกคำขอทั้งหมด (Select All)</span>
                 </label>
-
-                <span class="text-xs text-slate-500 hidden sm:inline">|</span>
-
-                <div class="text-xs text-slate-600 flex items-center gap-1.5">
-                  <span>เลือกแล้ว</span>
-                  <span class="font-black text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded-md border border-cyan-200">
-                    {{ selectedRequestsList.length }} / {{ filteredQuotationRequests.length }} คำขอ
-                  </span>
-                  <span>(รวม <strong class="text-slate-900 font-mono">{{ allItemsFromSelectedRequests.length }}</strong> รายการ)</span>
-                </div>
+                <span class="text-slate-300">|</span>
+                <span class="text-slate-500">
+                  เลือกแล้ว <strong class="text-slate-900 font-bold">{{ selectedRequestsList.length }}</strong> / {{ filteredQuotationRequests.length }} คำขอ
+                  <span class="text-slate-400 font-mono text-[11px]">(รวม {{ allItemsFromSelectedRequests.length }} รายการ)</span>
+                </span>
               </div>
 
-              <!-- Quick Action Buttons -->
               <div class="flex items-center gap-2 text-xs">
-                <button (click)="selectAllFilteredRequests()"
-                  class="px-2.5 py-1 rounded-lg bg-cyan-50 hover:bg-cyan-100 text-cyan-800 border border-cyan-300 font-bold transition-colors cursor-pointer">
-                  ✓ Select All
+                <button (click)="selectAllFilteredRequests()" class="text-blue-600 hover:text-blue-800 font-medium hover:underline cursor-pointer">
+                  เลือกทั้งหมด
                 </button>
-                <button (click)="deselectAllRequests()"
-                  class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold transition-colors cursor-pointer">
-                  ✕ Deselect All
+                <span class="text-slate-300">&bull;</span>
+                <button (click)="deselectAllRequests()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+                  ยกเลิกการเลือก
                 </button>
               </div>
             </div>
 
             <!-- Empty Filter State -->
             <div *ngIf="filteredQuotationRequests.length === 0"
-              class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-300 space-y-2">
-              <span class="text-3xl block">🔍</span>
-              <h4 class="text-sm font-black text-slate-800">ไม่พบคำขอใบเสนอราคาที่ตรงกับตัวกรองที่เลือก</h4>
-              <p class="text-xs text-slate-500">
-                ลองปรับเปลี่ยนค่า Division, Section, Priority, Order Type หรือ Send to Purchase
+              class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-2">
+              <svg class="w-10 h-10 mx-auto text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              <h4 class="text-sm font-semibold text-slate-800">ไม่พบคำขอใบเสนอราคาที่ตรงกับตัวกรองที่เลือก</h4>
+              <p class="text-xs text-slate-400">
+                ลองปรับเปลี่ยนค่า Division, Section, Priority, Order Type หรือ Purchaser
               </p>
               <button (click)="resetAllFilters()"
-                class="mt-2 px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold shadow-xs cursor-pointer">
+                class="mt-2 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium shadow-2xs cursor-pointer">
                 ล้างตัวกรองทั้งหมด (Reset Filters)
               </button>
             </div>
 
-            <!-- Quotation Requests Table -->
-            <div *ngIf="filteredQuotationRequests.length > 0" class="overflow-x-auto rounded-xl border border-slate-200 shadow-2xs">
-              <table class="w-full text-left text-xs text-slate-800 divide-y divide-slate-200">
-                <thead class="bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 text-slate-700 font-black uppercase tracking-wider text-[11px]">
+            <!-- Quotation Requests Table (Minimalist) -->
+            <div *ngIf="filteredQuotationRequests.length > 0"
+              class="overflow-x-auto rounded-xl border border-slate-200/80 shadow-2xs">
+              <table class="w-full text-left text-xs text-slate-700 border-collapse">
+                <thead class="bg-slate-50/75 border-b border-slate-200/80 text-slate-500 font-semibold text-[11px] uppercase tracking-wider">
                   <tr>
-                    <th class="p-3 text-center w-12">
-                      <input type="checkbox" [checked]="isAllRequestsSelected" (change)="toggleSelectAllRequests($event)"
-                        class="w-4 h-4 text-cyan-600 rounded focus:ring-cyan-500 cursor-pointer" title="Select All / Deselect All" />
+                    <th class="py-2.5 px-3 text-center w-10">
+                      <input type="checkbox" [checked]="isAllRequestsSelected"
+                        (change)="toggleSelectAllRequests($event)"
+                        class="w-3.5 h-3.5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
+                        title="Select All / Deselect All" />
                     </th>
-                    <th class="p-3 text-center w-12">No.</th>
-                    <th class="p-3">Doc Number</th>
-                    <th class="p-3">Date Request</th>
-                    <th class="p-3">Request By</th>
-                    <th class="p-3 text-center">Division</th>
-                    <th class="p-3 text-center">Section</th>
-                    <th class="p-3 text-center">Priority</th>
-                    <th class="p-3">Order Type</th>
-                    <th class="p-3">Send to Purchase</th>
-                    <th class="p-3 text-center">Items</th>
-                    <th class="p-3 text-center">Status</th>
+                    <th class="py-2.5 px-3 text-center w-10">No.</th>
+                    <th class="py-2.5 px-3">Doc Number</th>
+                    <th class="py-2.5 px-3">Date Request</th>
+                    <th class="py-2.5 px-3">Request By</th>
+                    <th class="py-2.5 px-3 text-center">Division</th>
+                    <th class="py-2.5 px-3 text-center">Section</th>
+                    <th class="py-2.5 px-3 text-center">Priority</th>
+                    <th class="py-2.5 px-3">Order Type</th>
+                    <th class="py-2.5 px-3">Send to Purchase</th>
+                    <th class="py-2.5 px-3 text-center">Items</th>
+                    <th class="py-2.5 px-3 text-center">Status</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 bg-white">
                   <tr *ngFor="let req of filteredQuotationRequests; let idx = index"
                     (click)="toggleRequestSelection(req.header?.docNumber)"
-                    [class]="isRequestSelected(req.header?.docNumber) ? 'bg-cyan-50/80 hover:bg-cyan-100/60 font-semibold' : 'hover:bg-slate-50'"
+                    [class]="isRequestSelected(req.header?.docNumber) ? 'bg-blue-50/40 hover:bg-blue-50/70 font-medium' : 'hover:bg-slate-50/70'"
                     class="cursor-pointer transition-colors group">
                     <!-- Checkbox -->
-                    <td class="p-3 text-center" (click)="$event.stopPropagation()">
+                    <td class="py-2.5 px-3 text-center" (click)="$event.stopPropagation()">
                       <input type="checkbox" [checked]="isRequestSelected(req.header?.docNumber)"
                         (change)="toggleRequestSelection(req.header?.docNumber, $event)"
-                        class="w-4 h-4 text-cyan-600 rounded focus:ring-cyan-500 cursor-pointer" />
+                        class="w-3.5 h-3.5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer" />
                     </td>
 
                     <!-- Index -->
-                    <td class="p-3 text-center text-slate-500 font-mono">{{ idx + 1 }}</td>
+                    <td class="py-2.5 px-3 text-center text-slate-400 font-mono text-[11px]">{{ idx + 1 }}</td>
 
                     <!-- Doc Number -->
-                    <td class="p-3 font-mono font-bold text-blue-700 whitespace-nowrap">
-                      <div class="flex items-center gap-1.5">
-                        <span>{{ req.header?.docNumber }}</span>
-                        <span *ngIf="isRequestSelected(req.header?.docNumber)"
-                          class="bg-cyan-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">
-                          SELECTED
-                        </span>
-                      </div>
+                    <td class="py-2.5 px-3 font-mono font-medium text-blue-700 whitespace-nowrap">
+                      {{ req.header?.docNumber }}
                     </td>
 
                     <!-- Date Request -->
-                    <td class="p-3 text-slate-600 font-mono whitespace-nowrap">
+                    <td class="py-2.5 px-3 text-slate-500 font-mono text-[11px] whitespace-nowrap">
                       {{ req.header?.docDate }}
                     </td>
 
                     <!-- Request By -->
-                    <td class="p-3 font-bold text-slate-900 whitespace-nowrap">
+                    <td class="py-2.5 px-3 text-slate-800 whitespace-nowrap">
                       <div class="flex items-center gap-1.5">
-                        <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-800 text-[10px] font-black flex items-center justify-center shrink-0">
+                        <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold flex items-center justify-center shrink-0">
                           {{ getInitials(req.header?.requestBy || 'U') }}
                         </span>
-                        <span>{{ req.header?.requestBy || '-' }}</span>
+                        <span class="font-medium">{{ req.header?.requestBy || '-' }}</span>
                       </div>
                     </td>
 
                     <!-- Division -->
-                    <td class="p-3 text-center">
-                      <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold text-[11px]">
-                        {{ req.header?.division || '-' }}
-                      </span>
+                    <td class="py-2.5 px-3 text-center text-slate-600 text-[11px]">
+                      {{ req.header?.division || '-' }}
                     </td>
 
                     <!-- Section -->
-                    <td class="p-3 text-center">
-                      <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold text-[11px]" [title]="req.header?.sectionName || ''">
-                        {{ req.header?.section || '-' }}
-                      </span>
+                    <td class="py-2.5 px-3 text-center text-slate-600 text-[11px]" [title]="req.header?.sectionName || ''">
+                      {{ req.header?.section || '-' }}
                     </td>
 
                     <!-- Priority -->
-                    <td class="p-3 text-center whitespace-nowrap">
-                      <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1"
-                        [class]="req.header?.priority === 'URGENT' ? 'bg-rose-100 text-rose-700 border border-rose-200' : 'bg-emerald-100 text-emerald-700 border border-emerald-200'">
-                        <span class="w-1.5 h-1.5 rounded-full" [class]="req.header?.priority === 'URGENT' ? 'bg-rose-500' : 'bg-emerald-500'"></span>
-                        {{ req.header?.priority || 'NORMAL' }}
+                    <td class="py-2.5 px-3 text-center whitespace-nowrap">
+                      <span *ngIf="req.header?.priority === 'URGENT'"
+                        class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-rose-600">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                        Urgent
+                      </span>
+                      <span *ngIf="req.header?.priority !== 'URGENT'"
+                        class="inline-flex items-center gap-1.5 text-[11px] font-normal text-slate-500">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                        Normal
                       </span>
                     </td>
 
                     <!-- Order Type -->
-                    <td class="p-3 text-slate-700 whitespace-nowrap">
-                      <span class="font-medium">{{ req.header?.orderType || 'Spare Part M/C' }}</span>
+                    <td class="py-2.5 px-3 text-slate-600 text-[11px] whitespace-nowrap">
+                      {{ req.header?.orderType || 'Spare Part M/C' }}
                     </td>
 
                     <!-- Send to Purchase -->
-                    <td class="p-3 text-slate-600 max-w-[200px] truncate" [title]="req.header?.sendToPurchase || ''">
+                    <td class="py-2.5 px-3 text-slate-600 text-[11px] max-w-[180px] truncate" [title]="req.header?.sendToPurchase || ''">
                       {{ req.header?.sendToPurchase || '-' }}
                     </td>
 
                     <!-- Items Count -->
-                    <td class="p-3 text-center whitespace-nowrap">
-                      <span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-800 font-bold font-mono">
-                        {{ req.items?.length || 0 }} Items
-                      </span>
+                    <td class="py-2.5 px-3 text-center whitespace-nowrap font-mono text-[11px] text-slate-600">
+                      {{ req.items?.length || 0 }} items
                     </td>
 
                     <!-- Status -->
-                    <td class="p-3 text-center whitespace-nowrap">
-                      <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                    <td class="py-2.5 px-3 text-center whitespace-nowrap">
+                      <span class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-amber-50 text-amber-800 border border-amber-200/80">
                         {{ req.header?.status || 'Waiting' }}
                       </span>
                     </td>
@@ -1875,44 +2004,47 @@
           </div>
 
           <!-- Section 2: Two-Column Workspace (Left: Details & Select Items, Right: Live Email Preview) -->
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
             <!-- ================= LEFT COLUMN: REQUEST DETAILS & ITEM SELECTOR (5 cols) ================= -->
             <div class="lg:col-span-5 space-y-4">
 
               <!-- Selected Requests Summary Card -->
-              <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 space-y-3.5">
+              <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-4 sm:p-5 space-y-3">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                  <h3 class="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-                    <span>📋</span> คำขอที่เลือก (Selected Requests)
+                  <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    <span>คำขอที่เลือก (Selected Requests)</span>
                   </h3>
-                  <span class="text-xs font-mono font-bold text-cyan-700">
+                  <span class="text-xs font-mono font-medium text-slate-500">
                     {{ selectedRequestsList.length }} คำขอ
                   </span>
                 </div>
 
                 <!-- Warning if no request selected -->
                 <div *ngIf="selectedRequestsList.length === 0"
-                  class="p-4 bg-amber-50 rounded-xl border border-amber-200 text-center space-y-1">
-                  <span class="text-2xl block">⚠️</span>
-                  <p class="text-xs font-bold text-amber-900">ยังไม่ได้เลือกคำขอใบเสนอราคา</p>
-                  <p class="text-[11px] text-amber-700">กรุณาทำเครื่องหมายถูกที่ตารางด้านบนเพื่อดึงรายการมาสร้างใบเสนอราคา</p>
+                  class="p-4 bg-slate-50 rounded-xl border border-slate-200/80 text-center space-y-1">
+                  <p class="text-xs font-medium text-slate-700">ยังไม่ได้เลือกคำขอใบเสนอราคา</p>
+                  <p class="text-[11px] text-slate-400">
+                    กรุณาทำเครื่องหมายถูกที่ตารางด้านบนเพื่อดึงรายการมาสร้างใบเสนอราคา
+                  </p>
                 </div>
 
                 <!-- Badges of selected requests -->
                 <div *ngIf="selectedRequestsList.length > 0" class="space-y-2">
-                  <p class="text-[11px] text-slate-500">
+                  <p class="text-[11px] text-slate-400">
                     คำขอที่ถูกเลือกจะถูกรวมรายการชิ้นส่วนทั้งหมดลงในตารางอีเมลด้านขวา:
                   </p>
                   <div class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
                     <span *ngFor="let req of selectedRequestsList"
-                      class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-cyan-100 text-cyan-900 border border-cyan-300">
+                      class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-medium bg-slate-100 text-slate-700 border border-slate-200">
                       <span>{{ req.header?.docNumber }}</span>
-                      <span class="text-[10px] font-sans font-normal text-cyan-700">
+                      <span class="text-[10px] font-sans text-slate-500">
                         ({{ req.header?.requestBy }} - {{ req.header?.division }}/{{ req.header?.section }})
                       </span>
                       <button (click)="$event.stopPropagation(); toggleRequestSelection(req.header?.docNumber)"
-                        class="text-cyan-800 hover:text-rose-600 font-bold ml-0.5 cursor-pointer" title="Remove request">
+                        class="text-slate-400 hover:text-rose-600 font-bold ml-0.5 cursor-pointer"
+                        title="Remove request">
                         ✕
                       </button>
                     </span>
@@ -1921,59 +2053,62 @@
               </div>
 
               <!-- Email Subject & Greeting Configuration Card -->
-              <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 space-y-3.5">
+              <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-4 sm:p-5 space-y-3.5">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                  <h3 class="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-                    <span>✏️</span> ปรับแต่งหัวข้อและข้อความอีเมล (Email Content)
+                  <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    <span>ปรับแต่งหัวข้อและข้อความอีเมล (Email Content)</span>
                   </h3>
                   <button (click)="copySubjectToClipboard()"
-                    class="text-[11px] font-bold text-cyan-700 hover:text-cyan-800 hover:underline flex items-center gap-1 cursor-pointer">
-                    <span>📋</span> คัดลอก Subject
+                    class="text-[11px] font-medium text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 cursor-pointer">
+                    <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                    <span>คัดลอก Subject</span>
                   </button>
                 </div>
 
                 <!-- Email Subject Input -->
                 <div class="space-y-1">
-                  <label class="block text-[11px] font-black text-slate-700">
+                  <label class="block text-[11px] font-medium text-slate-600">
                     หัวข้ออีเมล (Email Subject):
                   </label>
                   <input type="text" [(ngModel)]="quotationEmailSubject"
-                    class="w-full px-3 py-2 text-xs font-mono font-bold text-blue-900 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white" />
+                    class="w-full px-3 py-2 text-xs font-mono font-medium text-slate-800 bg-slate-50/60 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white" />
                   <p class="text-[10px] text-slate-400">
-                    * รูปแบบหัวข้อตรงกับภาพ: <span class="font-mono text-slate-600">GM/MM Please Submit Quotation //TRISAK (24/9/26)</span>
+                    * รูปแบบหัวข้อ: <span class="font-mono text-slate-500">GM/MM Please Submit Quotation //TRISAK (24/9/26)</span>
                   </p>
                 </div>
 
                 <!-- Salutation & Body Text -->
                 <div class="space-y-1">
-                  <label class="block text-[11px] font-black text-slate-700">
+                  <label class="block text-[11px] font-medium text-slate-600">
                     ข้อความเนื้อหาอีเมล (Email Body Text):
                   </label>
                   <textarea [(ngModel)]="quotationEmailGreeting" rows="4"
-                    class="w-full px-3 py-2 text-xs text-slate-800 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white font-sans leading-relaxed"></textarea>
+                    class="w-full px-3 py-2 text-xs text-slate-800 bg-slate-50/60 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white font-sans leading-relaxed"></textarea>
                 </div>
               </div>
 
               <!-- Items Checklist (Pick which items to include in quotation email) -->
-              <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 space-y-3">
+              <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-4 sm:p-5 space-y-3">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
                   <div>
-                    <h3 class="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-                      <span>☑️</span> เลือกรายการที่ต้องการส่งขอราคา
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                      <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                      <span>เลือกรายการที่ต้องการส่งขอราคา</span>
                     </h3>
-                    <p class="text-[11px] text-slate-500">
-                      เลือกแล้ว <span class="font-black text-cyan-700">{{ selectedQuotationItemIds.size }}</span> จาก
-                      {{ allItemsFromSelectedRequests.length }} รายการ (รวมทุกคำขอที่เลือก)
+                    <p class="text-[11px] text-slate-400">
+                      เลือกแล้ว <span class="font-bold text-slate-800">{{ selectedQuotationItemIds.size }}</span> จาก
+                      {{ allItemsFromSelectedRequests.length }} รายการ
                     </p>
                   </div>
 
                   <div class="flex items-center gap-1.5 text-xs">
                     <button (click)="selectAllQuotationItems(true)"
-                      class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold text-slate-700 text-[11px] transition-colors cursor-pointer">
+                      class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 font-medium text-slate-700 text-[11px] transition-colors cursor-pointer">
                       เลือกทั้งหมด
                     </button>
                     <button (click)="selectAllQuotationItems(false)"
-                      class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold text-slate-700 text-[11px] transition-colors cursor-pointer">
+                      class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 font-medium text-slate-700 text-[11px] transition-colors cursor-pointer">
                       ยกเลิก
                     </button>
                   </div>
@@ -1986,32 +2121,33 @@
                 </div>
 
                 <!-- Items list -->
-                <div *ngIf="allItemsFromSelectedRequests.length > 0" class="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+                <div *ngIf="allItemsFromSelectedRequests.length > 0"
+                  class="space-y-2 max-h-[380px] overflow-y-auto pr-1">
                   <div *ngFor="let item of allItemsFromSelectedRequests; let i = index"
                     (click)="toggleQuotationItem(item.id || item.no)"
-                    [class]="isQuotationItemSelected(item) ? 'bg-cyan-50/70 border-cyan-300' : 'bg-slate-50/60 border-slate-200'"
-                    class="p-2.5 rounded-xl border flex items-center gap-3 transition-colors cursor-pointer hover:border-cyan-400">
+                    [class]="isQuotationItemSelected(item) ? 'bg-blue-50/40 border-blue-200' : 'bg-slate-50/50 border-slate-200/80'"
+                    class="p-2.5 rounded-xl border flex items-center gap-3 transition-colors cursor-pointer hover:border-slate-300">
                     <input type="checkbox" [checked]="isQuotationItemSelected(item)"
                       (click)="$event.stopPropagation(); toggleQuotationItem(item.id || item.no)"
-                      class="w-4 h-4 text-cyan-600 rounded focus:ring-cyan-500 cursor-pointer" />
+                      class="w-3.5 h-3.5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer" />
 
                     <div class="flex-1 min-w-0">
                       <div class="flex items-center justify-between gap-1">
-                        <span class="font-black text-xs text-slate-900 truncate">
+                        <span class="font-medium text-xs text-slate-900 truncate">
                           #{{ item.no || (i + 1) }}. {{ item.partName }}
                         </span>
-                        <span class="font-bold text-xs font-mono text-cyan-900 shrink-0">
+                        <span class="font-mono text-xs font-semibold text-slate-700 shrink-0">
                           {{ item.qty }} {{ item.unit }}
                         </span>
                       </div>
                       <div class="flex items-center gap-2 text-[10px] text-slate-500 font-mono truncate mt-0.5">
-                        <span class="bg-blue-100 text-blue-900 px-1.5 py-0.2 rounded font-bold">
+                        <span class="bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded font-medium">
                           {{ item.reqDocNumber }} ({{ item.requestBy }})
                         </span>
                         <span class="truncate">Spec: {{ item.spec || '-' }}</span>
-                        <span *ngIf="item.makerName" class="text-slate-600 font-bold">| Maker: {{ item.makerName }}</span>
+                        <span *ngIf="item.makerName" class="text-slate-600">| Maker: {{ item.makerName }}</span>
                       </div>
-                      <div *ngIf="item.machineModel" class="text-[10px] text-slate-500 truncate">
+                      <div *ngIf="item.machineModel" class="text-[10px] text-slate-400 truncate">
                         M/C: {{ item.machineModel }} ({{ item.machineMaker || '-' }})
                       </div>
                     </div>
@@ -2021,139 +2157,72 @@
 
             </div>
 
-            <!-- ================= RIGHT COLUMN: LIVE EMAIL PREVIEW & EXACT CYAN TABLE (7 cols) ================= -->
+            <!-- ================= RIGHT COLUMN: LIVE EMAIL PREVIEW & CYAN TABLE (7 cols) ================= -->
             <div class="lg:col-span-7 space-y-4">
 
               <!-- Email Client Mockup Card -->
-              <div
-                class="bg-white rounded-2xl border-2 border-slate-300 shadow-xl overflow-hidden flex flex-col">
+              <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden flex flex-col">
 
                 <!-- Mockup Email Window Top Bar -->
-                <div class="bg-[#1f2937] text-white px-4 py-3 flex items-center justify-between border-b border-slate-700">
+                <div class="bg-slate-900 text-white px-4 py-2.5 flex items-center justify-between border-b border-slate-800">
                   <div class="flex items-center space-x-2">
-                    <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
-                    <span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span>
-                    <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400/80 inline-block"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block"></span>
                     <span class="text-xs font-mono text-slate-300 pl-2">
                       Gmail / Outlook Email Preview
                     </span>
                   </div>
 
-                  <span class="text-[11px] font-bold text-cyan-300 bg-cyan-950/80 px-2 py-0.5 rounded-md border border-cyan-800">
+                  <span class="text-[10px] font-medium text-slate-300 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
                     Live Formatted View
                   </span>
                 </div>
 
-                <!-- Email Message Header (From, To, Subject) -->
-                <div class="p-4 sm:p-5 bg-slate-50/70 border-b border-slate-200 space-y-2 text-xs">
-                  <div class="text-base sm:text-lg font-black text-slate-900 leading-snug">
-                    {{ quotationEmailSubject }}
-                    <span class="ml-2 text-[10px] font-bold text-slate-500 uppercase bg-slate-200 px-1.5 py-0.5 rounded">Inbox</span>
-                  </div>
-
-                  <div class="flex items-center gap-2 pt-1 text-slate-700">
-                    <div
-                      class="w-8 h-8 rounded-full bg-blue-700 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-xs">
-                      {{ getInitials(currentUser?.fullName || requestBy || 'PB') }}
-                    </div>
-                    <div>
-                      <div class="font-bold text-slate-900">
-                        {{ currentUser?.fullName || requestBy || 'Peerapat Buasa พีรพัฒน์ บัวสระ' }}
-                        <span class="font-normal text-slate-500 font-mono text-[11px]">
-                          &lt;{{ (currentUser?.empNo || loggedInEmployeeId || 'peerapat.b').toLowerCase() }}&#64;minebea.co.th&gt;
-                        </span>
-                      </div>
-                      <div class="text-[11px] text-slate-500">
-                        to Roongthip, Nopporn, Sunan, Tichagorn, Kunlada, Natthanicha, Anusara, Theerarat, me
-                      </div>
-                    </div>
-                  </div>
+                <!-- Email Message Header Area -->
+                <div class="p-4 bg-slate-50/70 border-b border-slate-200/80 space-y-1.5 text-xs text-slate-600 font-sans">
+                  <div><strong class="text-slate-800">Subject:</strong> {{ quotationEmailSubject }}</div>
+                  <div><strong class="text-slate-800">To:</strong> [Supplier Sales / Procurement Contact]</div>
+                  <div><strong class="text-slate-800">From:</strong> Purchase Department ({{ requestBy || 'Buyer' }})</div>
                 </div>
 
-                <!-- Email Body & The Exact Cyan Header Table (Styled for seamless copying to Outlook/Gmail) -->
-                <div class="p-4 sm:p-6 bg-white overflow-x-auto space-y-4 font-sans text-slate-900 min-w-0" id="email-preview-content">
-                  
-                  <!-- Greeting text -->
-                  <div class="text-xs sm:text-[13px] text-slate-900 whitespace-pre-line leading-relaxed font-sans">
+                <!-- Email Body & Clean Table Preview Area -->
+                <div class="p-5 overflow-x-auto space-y-4 bg-white min-h-[380px]">
+
+                  <!-- Greeting Paragraph -->
+                  <div class="text-xs text-slate-800 whitespace-pre-line font-sans leading-relaxed">
                     {{ quotationEmailGreeting }}
                   </div>
 
-                  <!-- ================= THE EXACT CYAN TABLE MATCHING USER IMAGE ================= -->
-                  <div class="overflow-x-auto pt-2 pb-1">
-                    <table class="w-full border-collapse text-xs text-slate-950 font-sans"
-                      style="border: 1px solid #000000; font-family: Arial, sans-serif; font-size: 12px; min-width: 900px; width: 100%;">
+                  <!-- The Quotation Table Preview -->
+                  <div class="overflow-x-auto">
+                    <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px;">
                       <thead>
-                        <!-- Level 1 Header: Cyan #00b0f0 matching user screenshot -->
-                        <tr style="background-color: #00b0f0; color: #000000; font-weight: bold; text-align: center;">
-                          <th colspan="8"
-                            style="border: 1px solid #000000; padding: 7px 10px; font-size: 13px; letter-spacing: 0.5px; background-color: #00b0f0; color: #000000;">
-                            DETAIL FOR REQUEST
-                          </th>
-                          <th colspan="3"
-                            style="border: 1px solid #000000; padding: 7px 10px; font-size: 13px; letter-spacing: 0.5px; background-color: #00b0f0; color: #000000;">
-                            Detail for M/M
-                          </th>
-                        </tr>
-
-                        <!-- Level 2 Sub-headers -->
-                        <tr style="background-color: #ffffff; color: #000000; font-weight: bold; text-align: center; font-size: 12px;">
-                          <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; width: 45px; vertical-align: middle;">
-                            NO.
-                          </th>
-                          <th rowspan="2" style="border: 1px solid #000000; padding: 6px 10px; vertical-align: middle; min-width: 140px;">
-                            Part name<br>( Item Name )
-                          </th>
-                          <th colspan="3" style="border: 1px solid #000000; padding: 6px 8px;">
-                            Detail Spec
-                          </th>
-                          <th colspan="2" style="border: 1px solid #000000; padding: 6px 8px;">
-                            Qty
-                          </th>
-                          <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: middle; min-width: 110px;">
-                            Remark<br>(Refer po , etc.)
-                          </th>
-                          <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: middle; min-width: 110px;">
-                            Machine model
-                          </th>
-                          <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: middle; min-width: 100px;">
-                            Machine maker
-                          </th>
-                          <th rowspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: middle; min-width: 85px;">
-                            Serial no.
-                          </th>
-                        </tr>
-
-                        <!-- Level 3 Nested Sub-headers -->
-                        <tr style="background-color: #ffffff; color: #000000; font-weight: bold; text-align: center; font-size: 12px;">
-                          <th style="border: 1px solid #000000; padding: 6px 8px; min-width: 110px;">
-                            Spec<br>(Maker Spec)
-                          </th>
-                          <th style="border: 1px solid #000000; padding: 6px 6px; min-width: 60px;">
-                            Position
-                          </th>
-                          <th style="border: 1px solid #000000; padding: 6px 8px; min-width: 90px;">
-                            Maker<br>Name
-                          </th>
-                          <th style="border: 1px solid #000000; padding: 6px 8px; min-width: 70px;">
-                            QTY.<br>(Number Only)
-                          </th>
-                          <th style="border: 1px solid #000000; padding: 6px 8px; min-width: 50px;">
-                            Unit
-                          </th>
+                        <tr style="background-color: #00ffff; color: #000000; font-weight: bold; text-align: center;">
+                          <th style="border: 1px solid #000000; padding: 6px 8px; width: 35px;">Item</th>
+                          <th style="border: 1px solid #000000; padding: 6px 8px; text-align: left;">Part Name</th>
+                          <th style="border: 1px solid #000000; padding: 6px 8px; text-align: left;">Spec</th>
+                          <th style="border: 1px solid #000000; padding: 6px 8px;">Position</th>
+                          <th style="border: 1px solid #000000; padding: 6px 8px;">Maker</th>
+                          <th style="border: 1px solid #000000; padding: 6px 8px; width: 45px;">QTY</th>
+                          <th style="border: 1px solid #000000; padding: 6px 8px; width: 45px;">Unit</th>
+                          <th style="border: 1px solid #000000; padding: 6px 8px; text-align: left;">Remark</th>
+                          <th style="border: 1px solid #000000; padding: 6px 8px; text-align: left;">Machine Model</th>
+                          <th style="border: 1px solid #000000; padding: 6px 8px; text-align: left;">Machine Maker</th>
+                          <th style="border: 1px solid #000000; padding: 6px 8px;">Serial No</th>
                         </tr>
                       </thead>
-
                       <tbody>
                         <!-- Empty State if no item selected -->
                         <tr *ngIf="getSelectedQuotationItems().length === 0">
                           <td colspan="11" style="border: 1px solid #000000; padding: 20px; text-align: center; color: #64748b;">
-                            ⚠️ ยังไม่ได้เลือกรายการใดๆ (กรุณาเลือกรายการจากแผงด้านซ้าย)
+                            ยังไม่ได้เลือกรายการใดๆ (กรุณาเลือกรายการจากแผงด้านซ้าย)
                           </td>
                         </tr>
 
                         <!-- Selected Items Rows -->
                         <tr *ngFor="let item of getSelectedQuotationItems(); let idx = index"
-                          style="background-color: #ffffff; color: #000000; font-family: Arial, sans-serif; font-size: 12px;">
+                          style="background-color: #ffffff; color: #000000; font-family: Arial, sans-serif; font-size: 11px;">
                           <td style="border: 1px solid #000000; padding: 6px 8px; text-align: center; font-weight: bold;">
                             {{ idx + 1 }}
                           </td>
@@ -2198,24 +2267,27 @@
                 </div>
 
                 <!-- Footer Action Bar for Preview Card -->
-                <div class="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
-                  <div class="text-xs text-slate-600">
-                    พร้อมส่ง: <span class="font-black text-cyan-800">{{ getSelectedQuotationItems().length }} รายการ</span>
+                <div class="p-4 sm:p-5 bg-slate-50/75 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
+                  <div class="text-xs text-slate-500">
+                    พร้อมส่ง: <strong class="text-slate-900 font-semibold">{{ getSelectedQuotationItems().length }} รายการ</strong>
                   </div>
 
                   <div class="flex items-center gap-2">
                     <button (click)="copyEmailQuotationToClipboard()"
-                      class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black text-slate-950 bg-gradient-to-r from-cyan-400 via-sky-300 to-cyan-300 hover:from-cyan-300 hover:to-sky-200 shadow-md hover:shadow-lg transition-all cursor-pointer transform active:scale-95">
-                      <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                      class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 shadow-xs transition-colors cursor-pointer">
+                      <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                       </svg>
                       <span>Copy for Email (Rich Text)</span>
                     </button>
 
                     <button (click)="copyTableOnlyToClipboard()"
-                      class="inline-flex items-center gap-1 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-300 shadow-2xs transition-colors cursor-pointer">
-                      <span>📋 Copy Table Only</span>
+                      class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-colors cursor-pointer">
+                      <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                      </svg>
+                      <span>Copy Table Only</span>
                     </button>
                   </div>
                 </div>
@@ -2226,6 +2298,793 @@
 
           </div>
 
+        </div>
+
+        <!-- ================= VIEW 4: GOOGLE-STYLE QUOTATION SEARCH ENGINE ================= -->
+        <div *ngIf="activeView === 'quotation-search'" class="min-h-full flex flex-col space-y-4">
+
+          <!-- ------------------------------------------------------------- -->
+          <!-- MODE A: GOOGLE HOME SEARCH VIEW (Iconic Large Centered Look) -->
+          <!-- ------------------------------------------------------------- -->
+          <div *ngIf="searchEngineMode === 'home'"
+            class="min-h-[calc(100vh-140px)] bg-white rounded-3xl border border-slate-200/90 shadow-sm flex flex-col justify-between p-6 sm:p-10 relative overflow-hidden">
+
+            <!-- Ambient subtle gradient glow -->
+            <div class="absolute -top-40 -left-40 w-96 h-96 bg-blue-100/40 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-amber-100/30 rounded-full blur-3xl pointer-events-none"></div>
+
+            <!-- Google Top Bar (Internal Corporate Style - Fades out smoothly when searching) -->
+            <div class="flex items-center justify-between z-10 transition-all duration-500"
+              [class.opacity-0]="isSearchCollapsing"
+              [class.-translate-y-3]="isSearchCollapsing"
+              [class.pointer-events-none]="isSearchCollapsing">
+              <!-- Top Left: MinebeaMitsumi Brand Logo -->
+              <div class="flex items-center">
+                <img src="/minebea-transparent-logo.png" alt="MinebeaMitsumi"
+                  class="h-6 sm:h-7.5 w-auto object-contain select-none filter drop-shadow-2xs" />
+              </div>
+
+              <!-- Top Right Controls (Google Apps & Switch to Results) -->
+              <div class="flex items-center gap-3">
+                <button (click)="executeQuotationSearch('')"
+                  class="text-xs text-slate-600 hover:text-blue-700 font-semibold hover:underline hidden sm:inline cursor-pointer">
+                  ดูรายการใบเสนอราคาทั้งหมด
+                </button>
+
+                <!-- Google 9-Dots Waffle Menu Icon -->
+                <div class="relative">
+                  <button (click)="showGoogleAppsMenu = !showGoogleAppsMenu" title="แอปพลิเคชันจัดซื้อ & อะไหล่"
+                    class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors cursor-pointer">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM6 4c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                    </svg>
+                  </button>
+
+                  <!-- Google Apps Dropdown -->
+                  <div *ngIf="showGoogleAppsMenu"
+                    class="absolute right-0 top-12 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
+                    <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 pb-2">Suppier Corporate Apps</div>
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                      <div (click)="activeView = 'edit'; showGoogleAppsMenu = false"
+                        class="p-2.5 rounded-xl hover:bg-blue-50/80 cursor-pointer transition-colors group">
+                        <div class="w-10 h-10 mx-auto rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform"><svg class="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+                        <div class="font-bold text-slate-700 text-[11px]">Requisition</div>
+                      </div>
+                      <div (click)="openPurchaseQuotationView(); showGoogleAppsMenu = false"
+                        class="p-2.5 rounded-xl hover:bg-cyan-50/80 cursor-pointer transition-colors group">
+                        <div class="w-10 h-10 mx-auto rounded-xl bg-cyan-100 text-cyan-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
+                        <div class="font-bold text-slate-700 text-[11px]">Purchase</div>
+                      </div>
+                      <div (click)="openEmployeeCard(); showGoogleAppsMenu = false"
+                        class="p-2.5 rounded-xl hover:bg-emerald-50/80 cursor-pointer transition-colors group">
+                        <div class="w-10 h-10 mx-auto rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform"><svg class="w-5 h-5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/></svg></div>
+                        <div class="font-bold text-slate-700 text-[11px]">Emp Badge</div>
+                      </div>
+                      <div (click)="executeQuotationSearch('MISUMI'); showGoogleAppsMenu = false"
+                        class="p-2.5 rounded-xl hover:bg-amber-50/80 cursor-pointer transition-colors group">
+                        <div class="w-10 h-10 mx-auto rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform"><svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg></div>
+                        <div class="font-bold text-slate-700 text-[11px]">Misumi</div>
+                      </div>
+                      <div (click)="setSearchFilterTab('pdf'); executeQuotationSearch(); showGoogleAppsMenu = false"
+                        class="p-2.5 rounded-xl hover:bg-rose-50/80 cursor-pointer transition-colors group">
+                        <div class="w-10 h-10 mx-auto rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform"><svg class="w-5 h-5 text-rose-700" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg></div>
+                        <div class="font-bold text-slate-700 text-[11px]">PDF Archive</div>
+                      </div>
+                      <div (click)="exportData(); showGoogleAppsMenu = false"
+                        class="p-2.5 rounded-xl hover:bg-teal-50/80 cursor-pointer transition-colors group">
+                        <div class="w-10 h-10 mx-auto rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform"><svg class="w-5 h-5 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+                        <div class="font-bold text-slate-700 text-[11px]">Excel Export</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- User Avatar / Badge in Search Header -->
+                <div (click)="openEmployeeCard()"
+                  class="flex items-center gap-2 pl-2 pr-3 py-1 rounded-full bg-slate-100/90 hover:bg-blue-50 border border-slate-200 cursor-pointer transition-colors">
+                  <div class="w-6 h-6 rounded-full bg-blue-600 text-white font-mono font-bold text-[10px] flex items-center justify-center">
+                    {{ loggedInEmployeeId.charAt(0) || 'U' }}
+                  </div>
+                  <span class="text-xs font-mono font-bold text-slate-700">{{ loggedInEmployeeId || '12345' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Google Hero Center Section -->
+            <div class="max-w-3xl w-full mx-auto my-auto text-center space-y-7 py-8 z-10">
+
+              <!-- Suppier Project Branded Quotation Search Logo (Fades out smoothly when searching) -->
+              <div class="flex flex-col items-center justify-center select-none py-1 transition-all duration-500"
+                [class.opacity-0]="isSearchCollapsing"
+                [class.-translate-y-4]="isSearchCollapsing"
+                [class.pointer-events-none]="isSearchCollapsing">
+                <div class="flex items-center justify-center gap-3 sm:gap-4.5">
+                  <!-- Suppier 3D Metallic Emblem -->
+                  <img src="/sp-logo-emblem.png" alt="Suppier Emblem"
+                    class="h-14 sm:h-16 md:h-20 w-auto object-contain filter drop-shadow-md hover:scale-105 transition-transform" />
+                  <div class="inline-flex items-baseline text-4xl sm:text-5xl md:text-6xl font-black tracking-tight">
+                    <span class="text-[#131936] font-black">Quotation</span>
+                    <span class="ml-2.5 bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500 bg-clip-text text-transparent font-black">Search</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Google Rounded Search Pill Input Bar Container -->
+              <div class="relative w-full max-w-2xl mx-auto h-[54px] flex items-center justify-center">
+                <div
+                  class="search-pill-box"
+                  [class.expanding]="searchAnimStage === 'expanding'"
+                  [class.collapsing]="searchAnimStage === 'collapsing' || searchAnimStage === 'loading'"
+                  [class.is-loading]="searchAnimStage === 'loading'">
+                  
+                  <!-- Phase 1: Inner Search Elements (Fades out when collapsing starts) -->
+                  <div class="search-pill-content"
+                    [class.hidden-content]="searchAnimStage !== 'idle'">
+
+                    <!-- Left: Google Search Icon (Magnifying Glass) -->
+                    <svg class="w-5 h-5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+
+                    <!-- Native Text Input -->
+                    <input type="text" [(ngModel)]="quotationSearchQuery"
+                      [disabled]="searchAnimStage !== 'idle'"
+                      (keydown.enter)="executeQuotationSearch()"
+                      placeholder="ค้นหาด้วย Part Name, Spec, Maker, Vendor, Quotation No, Requisition No..."
+                      class="w-full bg-transparent text-sm sm:text-base text-slate-800 placeholder-slate-400 focus:outline-none leading-normal font-sans" />
+
+                    <!-- Clear Button '✕' when text entered -->
+                    <button *ngIf="quotationSearchQuery" (click)="clearSearchQuery()" title="ล้างคำค้นหา"
+                      class="p-1 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 cursor-pointer shrink-0">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+
+                    <!-- Google Voice Mic Icon (Interactive Mockup) -->
+                    <button (click)="showToast('ฟังก์ชันค้นหาด้วยเสียง (Voice Search) กำลังเปิดใช้งานในรุ่นถัดไป')"
+                      title="ค้นหาด้วยเสียง"
+                      class="p-1 text-slate-500 hover:text-blue-600 rounded-full hover:bg-blue-50 cursor-pointer transition-colors shrink-0">
+                      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                      </svg>
+                    </button>
+
+                    <!-- Google Lens / Camera Icon ("ค้นหาด้วยไฟล์ PDF / รูปวาดแบบ Drawing") -->
+                    <button (click)="showToast('Google Lens: ค้นหาอะไหล่ด้วย Drawing หรือรูปถ่ายชิ้นงาน')"
+                      title="ค้นหาด้วยรูปภาพ / Technical Drawing"
+                      class="p-1 text-slate-500 hover:text-amber-600 rounded-full hover:bg-amber-50 cursor-pointer transition-colors shrink-0">
+                      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/>
+                        <path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/>
+                      </svg>
+                    </button>
+
+                    <!-- Blue Search Trigger Button -->
+                    <button (click)="executeQuotationSearch()" title="ค้นหา"
+                      class="ml-1 p-2 bg-[#1a73e8] hover:bg-blue-700 text-white rounded-full shadow-xs hover:shadow-sm cursor-pointer transition-all shrink-0">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </button>
+
+                  </div>
+
+                  <!-- Phase 2: Quantum Holographic Gyroscope Loader (Activates ONLY once it finishes shortening into circle!) -->
+                  <div *ngIf="searchAnimStage === 'loading'" class="quantum-loader-stage">
+                    
+                    <!-- 1. Ambient Energy Bloom Aura -->
+                    <div class="quantum-bloom"></div>
+
+                    <!-- 2. Shockwave Expanding Ripple -->
+                    <div class="quantum-shockwave"></div>
+
+                    <!-- 3. Outer Orbital Gyro Ring (Clockwise) with Comet Particle -->
+                    <svg class="quantum-ring quantum-ring-outer" viewBox="0 0 100 100">
+                      <defs>
+                        <linearGradient id="quantumOrbitGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#00f2fe" stop-opacity="1" />
+                          <stop offset="50%" stop-color="#1a73e8" stop-opacity="0.9" />
+                          <stop offset="100%" stop-color="#131936" stop-opacity="0" />
+                        </linearGradient>
+                      </defs>
+                      <circle cx="50" cy="50" r="42" stroke="url(#quantumOrbitGrad1)" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-dasharray="175 95" />
+                      <!-- Comet Head Particle -->
+                      <circle cx="50" cy="8" r="3.5" fill="#00f2fe" class="satellite-glow" />
+                    </svg>
+
+                    <!-- 4. Inner Counter-Rotating Tech Ring (Counter-Clockwise) -->
+                    <svg class="quantum-ring quantum-ring-inner" viewBox="0 0 100 100">
+                      <defs>
+                        <linearGradient id="quantumOrbitGrad2" x1="100%" y1="100%" x2="0%" y2="0%">
+                          <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.95" />
+                          <stop offset="60%" stop-color="#3b82f6" stop-opacity="0.6" />
+                          <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.1" />
+                        </linearGradient>
+                      </defs>
+                      <circle cx="50" cy="50" r="33" stroke="url(#quantumOrbitGrad2)" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-dasharray="12 8 20 8" />
+                    </svg>
+
+                    <!-- 5. Deep Space Core with Floating Metallic 3D Emblem -->
+                    <div class="quantum-core">
+                      <div class="quantum-core-glow"></div>
+                      <img src="/sp-logo-emblem.png" alt="Suppier" class="quantum-emblem" />
+                    </div>
+
+                    <!-- 6. Floating Energy Sparkles -->
+                    <div class="quantum-sparkle sparkle-1"></div>
+                    <div class="quantum-sparkle sparkle-2"></div>
+                    <div class="quantum-sparkle sparkle-3"></div>
+
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Google Action Buttons Under Search Bar (Gradually fades away when search begins) -->
+              <div class="flex items-center justify-center gap-3 flex-wrap pt-1 transition-all duration-500"
+                [class.opacity-0]="isSearchCollapsing"
+                [class.translate-y-3]="isSearchCollapsing"
+                [class.pointer-events-none]="isSearchCollapsing">
+                <button (click)="executeQuotationSearch()"
+                  class="px-5 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs sm:text-sm font-semibold border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all cursor-pointer">
+                  ค้นหาด้วย Quotation Search
+                </button>
+                <button (click)="feelingLucky()"
+                  class="px-5 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs sm:text-sm font-semibold border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all cursor-pointer flex items-center gap-1.5">
+
+                  <span>ดีใจจัง ค้นแล้วเจอเลย</span>
+                </button>
+                <button (click)="setSearchFilterTab('urgent'); executeQuotationSearch()"
+                  class="px-4 py-2.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs sm:text-sm font-bold border border-rose-200 shadow-2xs transition-all cursor-pointer flex items-center gap-1.5">
+
+                  <span>รายการด่วน (Urgent)</span>
+                </button>
+              </div>
+
+              <!-- Languages Offered (Gradually fades away when search begins) -->
+              <div class="text-xs text-slate-500 pt-1 transition-all duration-500"
+                [class.opacity-0]="isSearchCollapsing"
+                [class.pointer-events-none]="isSearchCollapsing">
+                <span>Quotation Search มีให้บริการใน:</span>
+                <span class="ml-2 space-x-2">
+                  <a href="javascript:void(0)" (click)="showToast('ภาษาไทย (ค่าเริ่มต้น)')" class="text-blue-700 hover:underline">ภาษาไทย</a>
+                  <a href="javascript:void(0)" (click)="showToast('English interface')" class="text-blue-700 hover:underline">English</a>
+                  <a href="javascript:void(0)" (click)="showToast('日本語インターフェース')" class="text-blue-700 hover:underline">日本語</a>
+                </span>
+              </div>
+
+              <!-- Popular / Trending Search Chips (Gradually fades away when search begins) -->
+              <div class="pt-4 border-t border-slate-100 transition-all duration-500"
+                [class.opacity-0]="isSearchCollapsing"
+                [class.translate-y-3]="isSearchCollapsing"
+                [class.pointer-events-none]="isSearchCollapsing">
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5 flex items-center justify-center gap-1.5">
+                  <span>คำค้นยอดนิยมสำหรับอะไหล่ & ใบเสนอราคา</span>
+                </div>
+                <div class="flex items-center justify-center gap-2 flex-wrap">
+                  <button *ngFor="let query of recentSearches" (click)="executeQuotationSearch(query)"
+                    class="px-3 py-1.5 rounded-full text-xs font-medium text-slate-700 bg-slate-100 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 border border-slate-200 transition-all cursor-pointer">
+                    {{ query }}
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Google Footer (Gradually fades away when search begins) -->
+            <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 z-10 transition-all duration-500"
+              [class.opacity-0]="isSearchCollapsing"
+              [class.translate-y-3]="isSearchCollapsing"
+              [class.pointer-events-none]="isSearchCollapsing">
+              <div></div>
+              <div class="flex items-center gap-4">
+                <a href="javascript:void(0)" (click)="showToast('คู่มือการใช้งานระบบค้นหาใบเสนอราคา')" class="hover:underline">คู่มือการค้นหา</a>
+                <a href="javascript:void(0)" (click)="showToast('ส่งข้อเสนอแนะเกี่ยวกับ Search Engine')" class="hover:underline">ส่งข้อเสนอแนะ</a>
+                <a href="javascript:void(0)" (click)="switchSearchMode('results')" class="text-blue-700 font-semibold hover:underline">ดูหน้าแสดงผลการค้นหา &rarr;</a>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ------------------------------------------------------------- -->
+          <!-- MODE B: GOOGLE SEARCH RESULTS VIEW (Authentic Google SERP UI) -->
+          <!-- ------------------------------------------------------------- -->
+          <div *ngIf="searchEngineMode === 'results'" class="space-y-4 animate-results-glide">
+
+            <!-- Top Header & Search Bar (Suppier Corporate Style) -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-xs space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-4">
+                
+                <!-- Left: Logo (Clicking returns to Home) -->
+                <div (click)="switchSearchMode('home')" title="กลับหน้าแรก Search"
+                  class="flex items-center gap-2.5 cursor-pointer group shrink-0 select-none">
+                  <img src="/sp-logo-emblem.png" alt="Suppier"
+                    class="h-7 sm:h-8 w-auto object-contain group-hover:scale-105 transition-transform" />
+                  <div class="inline-flex items-baseline text-xl sm:text-2xl font-black tracking-tight">
+                    <span class="text-[#131936]">Quotation</span>
+                    <span class="ml-1 bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500 bg-clip-text text-transparent">Search</span>
+                  </div>
+                  <span class="bg-blue-100 text-blue-800 text-[10px] font-black px-2 py-0.5 rounded-full font-mono">PRO</span>
+                </div>
+
+                <!-- Center: Compact Pill Search Bar (Consistent Suppier Style) -->
+                <div class="flex-1 max-w-2xl min-w-[280px]">
+                  <div
+                    class="google-search-bar bg-white border border-slate-300 rounded-full px-4 py-2 sm:py-2.5 flex items-center gap-2.5 transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+                    <input type="text" [(ngModel)]="quotationSearchQuery"
+                      (keydown.enter)="executeQuotationSearch()"
+                      placeholder="ค้นหา Part Name, Spec, Maker, Vendor, Quotation No..."
+                      class="w-full bg-transparent text-sm text-slate-800 placeholder-slate-400 focus:outline-none leading-normal font-sans" />
+
+                    <!-- Clear '✕' -->
+                    <button *ngIf="quotationSearchQuery" (click)="clearSearchQuery()"
+                      class="p-1 text-slate-400 hover:text-slate-700 cursor-pointer">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+
+                    <!-- Search Button (Suppier Electric Blue) -->
+                    <button (click)="executeQuotationSearch()"
+                      class="p-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full cursor-pointer transition-colors shadow-xs">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Right Action Button: Home -->
+                <div class="flex items-center gap-2">
+                  <button (click)="switchSearchMode('home')" title="กลับหน้าแรก Search"
+                    class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-[#131936] border border-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer">
+                    <svg class="w-3.5 h-3.5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    <span class="hidden sm:inline">หน้าแรก</span>
+                  </button>
+                </div>
+
+              </div>
+
+              <!-- Quick Maker Filter Chips (Website Themed) -->
+              <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-3 flex-wrap text-xs select-none">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-slate-400 font-semibold text-[11px] mr-1">ผู้ผลิต:</span>
+                  <button (click)="setShopeeMaker('ALL')"
+                    [class]="shopeeSelectedMaker === 'ALL' && !shopeeOnlyTop5 ? 'bg-[#131936] text-white font-bold' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'"
+                    class="px-2.5 py-1 rounded-lg text-xs transition-colors cursor-pointer">
+                    ทั้งหมด
+                  </button>
+                  <button (click)="toggleTop5Only()"
+                    [class]="shopeeOnlyTop5 ? 'bg-amber-400 text-slate-950 font-black ring-2 ring-amber-300 shadow-xs' : 'bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-bold'"
+                    class="px-2.5 py-1 rounded-lg text-xs transition-colors cursor-pointer flex items-center gap-1">
+
+                    <span>TOP 5 ตรงที่สุด</span>
+                  </button>
+                  <button *ngFor="let mkr of ['SMC', 'MISUMI', 'KEYENCE', 'AIRTAC', 'ULVAC', 'IAI', 'MITSUBISHI', 'OMRON']"
+                    (click)="setShopeeMaker(mkr)"
+                    [class]="shopeeSelectedMaker === mkr ? 'bg-blue-600 text-white font-bold' : 'bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700'"
+                    class="px-2.5 py-1 rounded-lg text-xs transition-colors cursor-pointer font-medium">
+                    {{ mkr }}
+                  </button>
+                  <button (click)="shopeeOnlyUrgent = !shopeeOnlyUrgent"
+                    [class]="shopeeOnlyUrgent ? 'bg-rose-600 text-white font-bold' : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'"
+                    class="px-2.5 py-1 rounded-lg text-xs transition-colors cursor-pointer font-semibold flex items-center gap-1">
+
+                    <span>ด่วน (Urgent)</span>
+                  </button>
+                </div>
+
+                <!-- Result Count -->
+                <div class="text-xs text-slate-500 font-medium">
+                  พบ <span class="font-bold text-blue-700 font-mono">{{ shopeeFilteredResults.length }}</span> ใบเสนอราคา
+                </div>
+              </div>
+            </div>
+
+            <!-- Clean Minimalist Top 5 Ranking Strip -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 px-4 py-2.5 shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <div class="w-6 h-6 rounded-lg bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center text-xs font-bold shrink-0"><svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-bold text-[#131936] text-xs sm:text-sm">
+                    TOP 5 อันดับที่ตรงกับคำค้นหามากที่สุด
+                  </span>
+                  <span *ngIf="quotationSearchQuery" class="bg-blue-50 text-blue-700 border border-blue-200 text-[10.5px] font-mono px-2 py-0.5 rounded-md font-bold">
+                    "{{ quotationSearchQuery }}"
+                  </span>
+                  <span class="hidden sm:inline text-slate-400 text-[11px]">
+                    &bull; จัดเรียงตามความตรงของ Part Name, Spec & Maker
+                  </span>
+                </div>
+              </div>
+
+              <!-- Top 5 Toggle Filter Button -->
+              <div class="flex items-center gap-2 select-none">
+                <button (click)="toggleTop5Only()"
+                  [class]="shopeeOnlyTop5 ? 'bg-[#131936] text-white font-bold shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-medium'"
+                  class="px-3 py-1.5 rounded-xl text-xs transition-colors cursor-pointer flex items-center gap-1.5">
+                  <span>{{ shopeeOnlyTop5 ? 'แสดงเฉพาะ TOP 5' : 'กรองเฉพาะ TOP 5' }}</span>
+                </button>
+                <button *ngIf="shopeeOnlyTop5" (click)="shopeeOnlyTop5 = false"
+                  class="text-xs text-slate-500 hover:text-blue-700 hover:underline transition-colors cursor-pointer">
+                  แสดงทั้งหมด
+                </button>
+              </div>
+            </div>
+
+            <!-- ================= QUOTATION CARDS GRID (PC Desktop) ================= -->
+            <!-- Empty State -->
+            <div *ngIf="shopeeFilteredResults.length === 0"
+              class="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3 shadow-xs">
+              <svg class="w-12 h-12 mx-auto text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <div class="text-base font-bold text-slate-800">
+                ไม่พบใบเสนอราคาที่ตรงกับคำค้นหา
+              </div>
+              <p class="text-xs text-slate-500 max-w-sm mx-auto">
+                ลองค้นหาด้วยคำอื่น เช่น Part Name, Maker (SMC, Airtac, Misumi), หรือกดปุ่มด้านล่างเพื่อแสดงทั้งหมด
+              </p>
+              <button (click)="clearAllShopeeFilters()"
+                class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer">
+                แสดงใบเสนอราคาทั้งหมด
+              </button>
+            </div>
+
+            <!-- 4 to 5 Columns Cards Grid on Desktop -->
+            <div *ngIf="shopeeFilteredResults.length > 0"
+              class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4">
+
+              <!-- Quotation Card (กรอบของใบเสนอราคา) -->
+              <div *ngFor="let item of shopeeFilteredResults"
+                (click)="openShopeeQuickView(item)"
+                [class.ring-2]="item.rank === 1"
+                [class.ring-amber-400]="item.rank === 1"
+                [class.shadow-md]="item.rank === 1"
+                class="bg-white rounded-2xl border border-slate-200/90 hover:border-blue-600 hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between overflow-hidden group cursor-pointer relative shadow-xs">
+
+                <!-- 1. Technical Drawing Frame (Top Box) -->
+                <div class="aspect-[4/3] bg-gradient-to-b from-slate-50 via-blue-50/20 to-slate-100/60 relative flex items-center justify-center p-4 overflow-hidden select-none border-b border-slate-100">
+                  
+                  <!-- Subtle CAD Blueprint Grid Pattern -->
+                  <div class="absolute inset-0 opacity-15 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:10px_10px] pointer-events-none"></div>
+
+                  <!-- Technical CAD SVG Diagram -->
+                  <!-- Cylinder -->
+                  <svg *ngIf="item.partType === 'cylinder'" class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200" viewBox="0 0 100 100" fill="none">
+                    <rect x="18" y="32" width="54" height="36" rx="4" fill="#2563eb" fill-opacity="0.1" stroke="#2563eb" stroke-width="2.5" />
+                    <rect x="72" y="44" width="20" height="12" rx="2" fill="#94a3b8" stroke="#475569" stroke-width="2" />
+                    <line x1="18" y1="50" x2="8" y2="50" stroke="#2563eb" stroke-width="3" stroke-linecap="round" />
+                    <circle cx="32" cy="38" r="3" fill="#2563eb" />
+                    <circle cx="58" cy="38" r="3" fill="#2563eb" />
+                    <line x1="28" y1="40" x2="28" y2="60" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="2 2" />
+                    <text x="45" y="54" font-size="8" font-family="monospace" fill="#131936" text-anchor="middle" font-weight="bold">CYLINDER</text>
+                  </svg>
+
+                  <!-- Vacuum -->
+                  <svg *ngIf="item.partType === 'vacuum'" class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200" viewBox="0 0 100 100" fill="none">
+                    <rect x="22" y="34" width="50" height="34" rx="6" fill="#0284c7" fill-opacity="0.1" stroke="#0284c7" stroke-width="2.5" />
+                    <circle cx="47" cy="51" r="11" fill="#f0f9ff" stroke="#0369a1" stroke-width="2" />
+                    <path d="M47 43v16M39 51h16" stroke="#0284c7" stroke-width="2" stroke-linecap="round" />
+                    <rect x="10" y="44" width="12" height="14" rx="2" fill="#94a3b8" stroke="#475569" stroke-width="2" />
+                    <rect x="72" y="38" width="16" height="24" rx="2" fill="#64748b" stroke="#334155" stroke-width="2" />
+                    <text x="47" y="78" font-size="7.5" font-family="monospace" fill="#0369a1" text-anchor="middle" font-weight="bold">VACUUM</text>
+                  </svg>
+
+                  <!-- Linear -->
+                  <svg *ngIf="item.partType === 'linear'" class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200" viewBox="0 0 100 100" fill="none">
+                    <rect x="10" y="46" width="80" height="12" rx="2" fill="#cbd5e1" stroke="#64748b" stroke-width="2" />
+                    <rect x="32" y="32" width="36" height="36" rx="3" fill="#ffffff" stroke="#131936" stroke-width="2.5" />
+                    <circle cx="40" cy="42" r="2.5" fill="#2563eb" />
+                    <circle cx="60" cy="42" r="2.5" fill="#2563eb" />
+                    <circle cx="40" cy="58" r="2.5" fill="#2563eb" />
+                    <circle cx="60" cy="58" r="2.5" fill="#2563eb" />
+                    <text x="50" y="52" font-size="7" font-family="monospace" fill="#131936" text-anchor="middle" font-weight="bold">GUIDE</text>
+                  </svg>
+
+                  <!-- Sensor -->
+                  <svg *ngIf="item.partType === 'sensor'" class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200" viewBox="0 0 100 100" fill="none">
+                    <rect x="28" y="34" width="22" height="34" rx="3" fill="#1e293b" stroke="#0f172a" stroke-width="2.5" />
+                    <circle cx="39" cy="45" r="4.5" fill="#ef4444" />
+                    <circle cx="39" cy="45" r="2" fill="#fee2e2" />
+                    <line x1="50" y1="45" x2="88" y2="45" stroke="#ef4444" stroke-width="2" stroke-dasharray="3 2" />
+                    <path d="M14 51h14" stroke="#64748b" stroke-width="3" stroke-linecap="round" />
+                    <text x="39" y="80" font-size="7.5" font-family="monospace" fill="#dc2626" text-anchor="middle" font-weight="bold">SENSOR</text>
+                  </svg>
+
+                  <!-- Motor -->
+                  <svg *ngIf="item.partType === 'motor'" class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200" viewBox="0 0 100 100" fill="none">
+                    <rect x="22" y="28" width="46" height="44" rx="4" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
+                    <line x1="28" y1="28" x2="28" y2="72" stroke="#64748b" stroke-width="1.5" />
+                    <line x1="36" y1="28" x2="36" y2="72" stroke="#64748b" stroke-width="1.5" />
+                    <line x1="44" y1="28" x2="44" y2="72" stroke="#64748b" stroke-width="1.5" />
+                    <line x1="52" y1="28" x2="52" y2="72" stroke="#64748b" stroke-width="1.5" />
+                    <rect x="68" y="44" width="18" height="12" rx="1" fill="#94a3b8" stroke="#475569" stroke-width="2" />
+                    <circle cx="16" cy="50" r="5" fill="#38bdf8" stroke="#0284c7" stroke-width="1.5" />
+                    <text x="45" y="84" font-size="7.5" font-family="monospace" fill="#0f172a" text-anchor="middle" font-weight="bold">SERVO</text>
+                  </svg>
+
+                  <!-- Filter -->
+                  <svg *ngIf="item.partType === 'filter'" class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200" viewBox="0 0 100 100" fill="none">
+                    <rect x="34" y="20" width="32" height="58" rx="4" fill="#f8fafc" stroke="#2563eb" stroke-width="2.5" />
+                    <line x1="34" y1="32" x2="66" y2="32" stroke="#93c5fd" stroke-width="1.5" />
+                    <line x1="34" y1="42" x2="66" y2="42" stroke="#93c5fd" stroke-width="1.5" />
+                    <line x1="34" y1="52" x2="66" y2="52" stroke="#93c5fd" stroke-width="1.5" />
+                    <line x1="34" y1="62" x2="66" y2="62" stroke="#93c5fd" stroke-width="1.5" />
+                    <text x="50" y="88" font-size="7.5" font-family="monospace" fill="#2563eb" text-anchor="middle" font-weight="bold">FILTER</text>
+                  </svg>
+
+                  <!-- Valve -->
+                  <svg *ngIf="item.partType === 'valve'" class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200" viewBox="0 0 100 100" fill="none">
+                    <rect x="25" y="32" width="50" height="36" rx="4" fill="#0f172a" stroke="#334155" stroke-width="2.5" />
+                    <rect x="32" y="24" width="16" height="8" rx="2" fill="#2563eb" stroke="#1d4ed8" stroke-width="1.5" />
+                    <circle cx="36" cy="45" r="3" fill="#22c55e" />
+                    <circle cx="50" cy="45" r="3" fill="#e2e8f0" />
+                    <circle cx="64" cy="45" r="3" fill="#e2e8f0" />
+                    <circle cx="43" cy="57" r="3" fill="#e2e8f0" />
+                    <circle cx="57" cy="57" r="3" fill="#e2e8f0" />
+                    <text x="50" y="80" font-size="7.5" font-family="monospace" fill="#0284c7" text-anchor="middle" font-weight="bold">VALVE</text>
+                  </svg>
+
+                  <!-- Fallback -->
+                  <svg *ngIf="!item.partType" class="w-16 h-16 text-slate-300 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+
+                  <!-- Top-Left Badges: Quotation No & Rank Tag -->
+                  <div class="absolute top-0 left-0 z-10 flex items-center flex-wrap gap-1">
+                    <span class="bg-[#131936] text-white font-mono font-bold text-[10px] px-2.5 py-1 rounded-br-xl shadow-xs leading-none">
+                      {{ item.quotationNo }}
+                    </span>
+
+                    <!-- Rank Medal Tag for Top 5 -->
+                    <span *ngIf="item.rank && item.rank <= 5"
+                      [ngClass]="{
+                        'bg-amber-400 text-slate-950 font-black ring-1 ring-amber-300 shadow-2xs': item.rank === 1,
+                        'bg-slate-200 text-slate-800 font-bold border border-slate-300': item.rank === 2,
+                        'bg-amber-100 text-amber-900 font-bold border border-amber-300': item.rank === 3,
+                        'bg-blue-50 text-blue-800 font-bold border border-blue-200': item.rank === 4,
+                        'bg-slate-100 text-slate-700 font-medium border border-slate-200': item.rank === 5
+                      }"
+                      class="text-[9px] px-2 py-0.5 rounded-full shadow-2xs flex items-center gap-0.5 leading-none">
+                      <span class="font-black">#{{ item.rank }}</span>
+                      <span *ngIf="item.matchScore" class="font-mono text-[8.5px] opacity-90">({{ item.matchScore }}%)</span>
+                    </span>
+                  </div>
+
+                  <!-- Top-Right Badge: Status (Emerald / Rose / Blue) -->
+                  <div class="absolute top-2.5 right-2.5 z-10">
+                    <span *ngIf="item.isUrgent"
+                      class="bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs animate-pulse">
+                      <span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
+                      <span>URGENT</span>
+                    </span>
+                    <span *ngIf="!item.isUrgent && item.status === 'Approved'"
+                      class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+
+                      <span>Approved</span>
+                    </span>
+                    <span *ngIf="!item.isUrgent && item.status !== 'Approved'"
+                      class="bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-2xs">
+                      {{ item.status }}
+                    </span>
+                  </div>
+
+                  <!-- Bottom Overlay Bar on Drawing -->
+                  <div class="absolute bottom-0 inset-x-0 bg-slate-900/65 backdrop-blur-2xs text-white text-[10px] font-medium py-1 px-3 flex items-center justify-between z-10">
+                    <span class="truncate">ส่งมอบ: {{ item.leadTime }}</span>
+                    <span class="font-bold text-cyan-300 uppercase tracking-wider text-[9px]">{{ item.makerName }}</span>
+                  </div>
+
+                </div>
+
+                <!-- 2. Quotation Information Content -->
+                <div class="p-3.5 flex-1 flex flex-col justify-between space-y-2">
+                  
+                  <!-- Part Name & Spec -->
+                  <div class="space-y-1">
+                    <h3 class="text-sm font-bold text-[#131936] group-hover:text-blue-600 transition-colors line-clamp-1 leading-snug">
+                      {{ item.partName }}
+                    </h3>
+                    <div class="text-[11px] font-mono text-slate-500 truncate">
+                      {{ item.spec }}
+                    </div>
+                  </div>
+
+                  <!-- Match Relevance Score Indicator -->
+                  <div *ngIf="item.matchScore" class="flex items-center justify-between text-[10px] pt-0.5">
+                    <span class="text-slate-400 flex items-center gap-1">
+                      <span>ตรงการค้นหา</span>
+                    </span>
+                    <span class="font-mono font-bold px-1.5 py-0.2 rounded"
+                      [ngClass]="{
+                        'bg-amber-100 text-amber-800': item.rank === 1,
+                        'bg-blue-50 text-blue-700': item.rank !== 1 && item.matchScore >= 90,
+                        'bg-slate-100 text-slate-600': item.matchScore < 90
+                      }">
+                      {{ item.matchScore }}% Match
+                    </span>
+                  </div>
+
+                  <!-- Vendor & Location -->
+                  <div class="text-xs text-slate-600 flex items-center justify-between pt-0.5">
+                    <span class="truncate font-medium">{{ item.vendor }}</span>
+                    <span class="text-[10px] text-slate-400 shrink-0 ml-1">{{ item.location }}</span>
+                  </div>
+
+                  <!-- Price Row (Suppier Electric Blue & Deep Navy #131936) -->
+                  <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
+                    <div class="flex items-baseline gap-1">
+                      <span class="text-xs font-bold text-blue-700">฿</span>
+                      <span class="text-lg font-black text-[#131936] font-mono tracking-tight">{{ item.unitPrice | number }}</span>
+                      <span class="text-[10px] font-semibold text-slate-500">{{ item.currency }}</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400 font-mono">Doc: {{ item.docNumber }}</span>
+                  </div>
+
+                  <!-- Requester & Machine Info -->
+                  <div class="text-[10.5px] text-slate-400 flex items-center justify-between pt-0.5">
+                    <span class="truncate">ผู้ขอ: {{ item.requesterName.split(' ')[0] }} ({{ item.division }})</span>
+                    <span *ngIf="item.machineModel" class="font-mono text-[9.5px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                      {{ item.machineModel }}
+                    </span>
+                  </div>
+
+                </div>
+
+                <!-- 3. Bottom Action Footer -->
+                <div class="p-2 bg-slate-50 border-t border-slate-100 flex items-center gap-1.5">
+                  <button *ngIf="item.quotationPdf"
+                    (click)="openPdfPreview(item.quotationPdf, 'Quotation: ' + item.quotationNo, $event)"
+                    class="flex-1 py-1.5 px-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer">
+                    <svg class="w-3.5 h-3.5 text-rose-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>ดู PDF</span>
+                  </button>
+
+                  <button (click)="openShopeeQuickView(item, $event)"
+                    class="py-1.5 px-3 rounded-lg bg-white hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200 flex items-center justify-center gap-1 transition-colors cursor-pointer">
+                    <span>รายละเอียด</span>
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- Quotation Detail Modal (Suppier Navy/Blue Theme) -->
+            <div *ngIf="showShopeeQuickView && selectedShopeeItemModal"
+              class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+              
+              <!-- Backdrop -->
+              <div (click)="closeShopeeQuickView()"
+                class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"></div>
+
+              <!-- Modal Box -->
+              <div class="relative bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl z-10 space-y-5 overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200">
+                
+                <!-- Close Button -->
+                <button (click)="closeShopeeQuickView()"
+                  class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm transition-colors cursor-pointer">
+                  ✕
+                </button>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                  
+                  <!-- Left: CAD Schematic Preview -->
+                  <div class="md:col-span-5 space-y-3">
+                    <div class="aspect-square rounded-2xl bg-gradient-to-br from-[#131936] to-blue-950 text-white p-5 flex flex-col justify-between relative overflow-hidden shadow-inner">
+                      <!-- Grid lines -->
+                      <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:12px_12px] pointer-events-none"></div>
+
+                      <div class="flex items-center justify-between z-10">
+                        <span class="font-mono text-xs text-cyan-300 font-bold">{{ selectedShopeeItemModal.quotationNo }}</span>
+                        <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-md font-mono">{{ selectedShopeeItemModal.quotationDate }}</span>
+                      </div>
+
+                      <div class="my-auto text-center z-10 space-y-1">
+                        <svg class="w-16 h-16 mx-auto text-cyan-300/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <div class="text-xs uppercase font-bold tracking-widest text-cyan-200 font-mono">{{ selectedShopeeItemModal.makerName }}</div>
+                      </div>
+
+                      <div class="flex items-center justify-between z-10 text-xs">
+                        <span class="text-slate-300 truncate max-w-[150px]">{{ selectedShopeeItemModal.vendor }}</span>
+                        <span class="font-bold text-amber-300 font-mono text-sm">฿{{ selectedShopeeItemModal.unitPrice | number }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Right: Technical Details -->
+                  <div class="md:col-span-7 space-y-4">
+                    
+                    <div class="space-y-1">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full font-mono">{{ selectedShopeeItemModal.quotationNo }}</span>
+                        <!-- Top 5 Rank Tag in Modal -->
+                        <span *ngIf="selectedShopeeItemModal.rank && selectedShopeeItemModal.rank <= 5"
+                          class="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+
+                          <span>อันดับที่ {{ selectedShopeeItemModal.rank }} (ตรง {{ selectedShopeeItemModal.matchScore }}%)</span>
+                        </span>
+                        <span [ngSwitch]="selectedShopeeItemModal.status" class="text-[10px] font-bold px-2 py-0.5 rounded-full border">
+                          <span *ngSwitchCase="'Approved'" class="text-emerald-700 bg-emerald-50 border-emerald-200">Approved</span>
+                          <span *ngSwitchCase="'Quoted'" class="text-sky-700 bg-sky-50 border-sky-200">Quoted</span>
+                          <span *ngSwitchCase="'Waiting Quotation'" class="text-amber-700 bg-amber-50 border-amber-200">Waiting</span>
+                          <span *ngSwitchCase="'PO Issued'" class="text-indigo-700 bg-indigo-50 border-indigo-200">PO Issued</span>
+                        </span>
+                      </div>
+                      <h2 class="text-lg font-bold text-slate-900 leading-snug">
+                        {{ selectedShopeeItemModal.partName }}
+                      </h2>
+                      <div class="text-xs font-mono text-slate-500">
+                        Spec: {{ selectedShopeeItemModal.spec }} &bull; Maker: {{ selectedShopeeItemModal.makerName }}
+                      </div>
+                    </div>
+
+                    <!-- Specs Table -->
+                    <div class="space-y-2 text-xs pt-2 border-t border-slate-100">
+                      <div class="flex items-center justify-between py-1 border-b border-slate-100">
+                        <span class="text-slate-500">ราคาต่อหน่วย (Unit Price):</span>
+                        <span class="font-bold text-blue-700 font-mono text-sm">฿{{ selectedShopeeItemModal.unitPrice | number }} {{ selectedShopeeItemModal.currency }}</span>
+                      </div>
+                      <div class="flex items-center justify-between py-1 border-b border-slate-100">
+                        <span class="text-slate-500">ผู้จำหน่าย (Vendor):</span>
+                        <span class="font-bold text-slate-800">{{ selectedShopeeItemModal.vendor }} ({{ selectedShopeeItemModal.location }})</span>
+                      </div>
+                      <div class="flex items-center justify-between py-1 border-b border-slate-100">
+                        <span class="text-slate-500">ระยะเวลาส่งมอบ (Lead Time):</span>
+                        <span class="font-bold text-slate-800">{{ selectedShopeeItemModal.leadTime }}</span>
+                      </div>
+                      <div class="flex items-center justify-between py-1 border-b border-slate-100">
+                        <span class="text-slate-500">เลขที่ขอซื้อ (Requisition No):</span>
+                        <span class="font-mono font-bold text-slate-700">{{ selectedShopeeItemModal.docNumber }}</span>
+                      </div>
+                      <div class="flex items-center justify-between py-1 border-b border-slate-100">
+                        <span class="text-slate-500">เครื่องจักร (Machine Model):</span>
+                        <span class="font-mono text-slate-700">{{ selectedShopeeItemModal.machineModel || 'Universal' }}</span>
+                      </div>
+                      <div class="flex items-center justify-between py-1 border-b border-slate-100">
+                        <span class="text-slate-500">ผู้ขอ (Requester):</span>
+                        <span class="text-slate-700">{{ selectedShopeeItemModal.requesterName }} ({{ selectedShopeeItemModal.division }}/{{ selectedShopeeItemModal.section }})</span>
+                      </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="pt-2 flex items-center gap-2.5">
+                      <button *ngIf="selectedShopeeItemModal.quotationPdf"
+                        (click)="openPdfPreview(selectedShopeeItemModal.quotationPdf, 'Quotation: ' + selectedShopeeItemModal.quotationNo, $event)"
+                        class="flex-1 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>เปิดดูเอกสาร PDF</span>
+                      </button>
+
+                      <button (click)="openDocument()"
+                        class="py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-200 transition-colors cursor-pointer">
+                        <span>เปิดใบ Requisition</span>
+                      </button>
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
         </div>
 
       </main>
@@ -2328,123 +3187,121 @@
           <div
             class="w-full h-full rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-300 flex flex-col justify-between relative">
 
-              <!-- CARD BACKGROUND ELEMENTS (Directly matching badge-oriented.png) -->
-              <!-- 1. Left Horizontal alternating white & gray stripes (เฉพาะฝั่งซ้ายของบัตร ขอบข้างรูปและใต้รูป ตามบัตรตัวอย่าง) -->
-              <div class="absolute left-0 top-0 bottom-7 sm:bottom-8 w-[210px] sm:w-[240px] pointer-events-none"
-                style="background: repeating-linear-gradient(to bottom, #ffffff 0px, #ffffff 5px, #d5dde8 5px, #d5dde8 10px);
+            <!-- CARD BACKGROUND ELEMENTS (Directly matching badge-oriented.png) -->
+            <!-- 1. Left Horizontal alternating white & gray stripes (เฉพาะฝั่งซ้ายของบัตร ขอบข้างรูปและใต้รูป ตามบัตรตัวอย่าง) -->
+            <div class="absolute left-0 top-0 bottom-7 sm:bottom-8 w-[210px] sm:w-[240px] pointer-events-none"
+              style="background: repeating-linear-gradient(to bottom, #ffffff 0px, #ffffff 5px, #d5dde8 5px, #d5dde8 10px);
                        opacity: 0.65;
                        -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 140px, rgba(0,0,0,0.3) 195px, transparent 100%);
                        mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 140px, rgba(0,0,0,0.3) 195px, transparent 100%);">
-              </div>
+            </div>
 
-              <!-- 2. Subtle Guilloche Security Wave Lines (เส้นคลื่นความปลอดภัยจางๆ ใต้รูปรหัสพนักงาน) -->
-              <div class="absolute left-0 bottom-7 sm:bottom-8 w-72 h-36 pointer-events-none opacity-20" style="background: repeating-radial-gradient(ellipse at -10% 120%, transparent 0, transparent 7px, rgba(100, 116, 139, 0.4) 8px, transparent 9px);
+            <!-- 2. Subtle Guilloche Security Wave Lines (เส้นคลื่นความปลอดภัยจางๆ ใต้รูปรหัสพนักงาน) -->
+            <div class="absolute left-0 bottom-7 sm:bottom-8 w-72 h-36 pointer-events-none opacity-20" style="background: repeating-radial-gradient(ellipse at -10% 120%, transparent 0, transparent 7px, rgba(100, 116, 139, 0.4) 8px, transparent 9px);
                        -webkit-mask-image: linear-gradient(to top right, black 25%, transparent 75%);
                        mask-image: linear-gradient(to top right, black 25%, transparent 75%);">
+            </div>
+
+            <!-- 3. Right Soft Blue Vertical Stripes -->
+            <!-- Stripe 1 (Left narrow stripe, shifted forward) -->
+            <div
+              class="absolute right-[72px] sm:right-[96px] top-0 bottom-7 sm:bottom-8 w-4 sm:w-[18px] bg-[#8eaedb]/40 pointer-events-none">
+            </div>
+            <!-- Stripe 2 (Right wider stripe, shifted forward and increased width) -->
+            <div
+              class="absolute right-9 sm:right-12 top-0 bottom-7 sm:bottom-8 w-7 sm:w-9 bg-[#8eaedb]/40 pointer-events-none">
+            </div>
+
+            <!-- UPPER & MIDDLE MAIN CONTENT AREA -->
+            <div class="relative p-6 sm:p-8 pb-3 flex-1 flex flex-col justify-between z-10">
+
+              <!-- Top Right Position Role (STAFF / STUDENT TRAINEE) -->
+              <div class="absolute top-3.5 sm:top-4.5 right-6 sm:right-8 text-right max-w-[280px]">
+                <span
+                  class="text-base sm:text-lg font-black text-slate-950 tracking-wider uppercase font-sans whitespace-nowrap">
+                  {{ badgePositionRole }}
+                </span>
               </div>
 
-              <!-- 3. Right Soft Blue Vertical Stripes -->
-              <!-- Stripe 1 (Left narrow stripe, shifted forward) -->
-              <div
-                class="absolute right-[72px] sm:right-[96px] top-0 bottom-7 sm:bottom-8 w-4 sm:w-[18px] bg-[#8eaedb]/40 pointer-events-none">
-              </div>
-              <!-- Stripe 2 (Right wider stripe, shifted forward and increased width) -->
-              <div
-                class="absolute right-9 sm:right-12 top-0 bottom-7 sm:bottom-8 w-7 sm:w-9 bg-[#8eaedb]/40 pointer-events-none">
-              </div>
+              <!-- Main Grid: Left Photo+ID | Right Information & Logo -->
+              <div class="flex items-start gap-6 sm:gap-8 mt-1">
 
-              <!-- UPPER & MIDDLE MAIN CONTENT AREA -->
-              <div class="relative p-6 sm:p-8 pb-3 flex-1 flex flex-col justify-between z-10">
-
-                <!-- Top Right Position Role (STAFF / STUDENT TRAINEE) -->
-                <div class="absolute top-3.5 sm:top-4.5 right-6 sm:right-8 text-right max-w-[280px]">
-                  <span
-                    class="text-base sm:text-lg font-black text-slate-950 tracking-wider uppercase font-sans whitespace-nowrap">
-                    {{ badgePositionRole }}
-                  </span>
-                </div>
-
-                <!-- Main Grid: Left Photo+ID | Right Information & Logo -->
-                <div class="flex items-start gap-6 sm:gap-8 mt-1">
-
-                  <!-- LEFT COLUMN: Photo + Employee Code -->
-                  <div class="flex flex-col items-center shrink-0">
-                    <!-- Portrait Photo with Blue Border -->
-                    <div
-                      class="w-[130px] h-[165px] sm:w-[155px] sm:h-[195px] border-2 border-[#1e5fa8] p-0.5 bg-white shadow-xs overflow-hidden rounded-xs">
-                      <img *ngIf="currentUser?.profilePictureUrl; else fallbackCardPhoto"
-                        [src]="currentUser?.profilePictureUrl" alt="Employee Photo" class="w-full h-full object-cover"
-                        (error)="currentUser!.profilePictureUrl = ''" />
-                      <ng-template #fallbackCardPhoto>
-                        <img src="facebook-default-avatar.png" alt="Default Avatar"
-                          class="w-full h-full object-cover" />
-                      </ng-template>
-                    </div>
-
-                    <!-- Big Bold Employee ID below Photo (Centered & Larger) -->
-                    <div
-                      class="text-3xl sm:text-4xl font-black text-slate-950 font-mono tracking-tight text-center mt-6 sm:mt-8 leading-none">
-                      {{ currentUser?.empNo || loggedInEmployeeId }}
-                    </div>
+                <!-- LEFT COLUMN: Photo + Employee Code -->
+                <div class="flex flex-col items-center shrink-0">
+                  <!-- Portrait Photo with Blue Border -->
+                  <div
+                    class="w-[130px] h-[165px] sm:w-[155px] sm:h-[195px] border-2 border-[#1e5fa8] p-0.5 bg-white shadow-xs overflow-hidden rounded-xs">
+                    <img *ngIf="currentUser?.profilePictureUrl; else fallbackCardPhoto"
+                      [src]="currentUser?.profilePictureUrl" alt="Employee Photo" class="w-full h-full object-cover"
+                      (error)="currentUser!.profilePictureUrl = ''" />
+                    <ng-template #fallbackCardPhoto>
+                      <img src="facebook-default-avatar.png" alt="Default Avatar" class="w-full h-full object-cover" />
+                    </ng-template>
                   </div>
 
-                  <!-- RIGHT COLUMN: Employee Information (Height matches photo box h-[165px] sm:h-[195px]) -->
-                  <div class="flex-1 h-[165px] sm:h-[195px] flex flex-col justify-between pr-2 sm:pr-4 py-0.5">
+                  <!-- Big Bold Employee ID below Photo (Centered & Larger) -->
+                  <div
+                    class="text-3xl sm:text-4xl font-black text-slate-950 font-mono tracking-tight text-center mt-6 sm:mt-8 leading-none">
+                    {{ currentUser?.empNo || loggedInEmployeeId }}
+                  </div>
+                </div>
 
-                    <!-- 1. Primary Employee Name (First Name & Last Name separated) -->
-                    <div
-                      class="text-xl sm:text-[25px] font-black text-slate-950 leading-[1.05] tracking-tight uppercase flex flex-col">
-                      <span>{{ employeeFirstName }}</span>
-                      <span *ngIf="employeeLastName">{{ employeeLastName }}</span>
-                    </div>
+                <!-- RIGHT COLUMN: Employee Information (Height matches photo box h-[165px] sm:h-[195px]) -->
+                <div class="flex-1 h-[165px] sm:h-[195px] flex flex-col justify-between pr-2 sm:pr-4 py-0.5">
 
-                    <!-- 2. Process_Name (ดึง Process_Name มาแสดงแทนชื่อ MR.) -->
-                    <div class="text-sm sm:text-base font-black text-slate-900 tracking-tight uppercase leading-none">
-                      {{ employeeProcessName }}
-                    </div>
+                  <!-- 1. Primary Employee Name (First Name & Last Name separated) -->
+                  <div
+                    class="text-xl sm:text-[25px] font-black text-slate-950 leading-[1.05] tracking-tight uppercase flex flex-col">
+                    <span>{{ employeeFirstName }}</span>
+                    <span *ngIf="employeeLastName">{{ employeeLastName }}</span>
+                  </div>
 
-                    <!-- 3. Section_Name -->
-                    <div
-                      class="text-sm sm:text-base font-extrabold text-slate-900 uppercase tracking-tight leading-none">
-                      {{ employeeSectionName }}
-                    </div>
+                  <!-- 2. Process_Name (ดึง Process_Name มาแสดงแทนชื่อ MR.) -->
+                  <div class="text-sm sm:text-base font-black text-slate-900 tracking-tight uppercase leading-none">
+                    {{ employeeProcessName }}
+                  </div>
 
-                    <!-- 4. Department / Division -->
-                    <div class="text-sm sm:text-base font-extrabold text-slate-900 uppercase leading-none">
-                      {{ currentUser?.divisionName || currentUser?.division || division || '' }}
-                    </div>
+                  <!-- 3. Section_Name -->
+                  <div class="text-sm sm:text-base font-extrabold text-slate-900 uppercase tracking-tight leading-none">
+                    {{ employeeSectionName }}
+                  </div>
 
-                    <!-- 5. Emp.Date (Precisely aligned with bottom edge of employee photo) -->
-                    <div
-                      class="text-sm sm:text-base font-extrabold text-slate-950 flex items-center gap-2.5 leading-none">
-                      <span>Emp.Date</span>
-                      <span class="font-mono font-black text-slate-950">{{ currentUser?.empDate || cardEmpDate
-                        }}</span>
-                    </div>
+                  <!-- 4. Department / Division -->
+                  <div class="text-sm sm:text-base font-extrabold text-slate-900 uppercase leading-none">
+                    {{ currentUser?.divisionName || currentUser?.division || division || '' }}
+                  </div>
 
+                  <!-- 5. Emp.Date (Precisely aligned with bottom edge of employee photo) -->
+                  <div
+                    class="text-sm sm:text-base font-extrabold text-slate-950 flex items-center gap-2.5 leading-none">
+                    <span>Emp.Date</span>
+                    <span class="font-mono font-black text-slate-950">{{ currentUser?.empDate || cardEmpDate
+                      }}</span>
                   </div>
 
                 </div>
 
               </div>
 
-              <!-- Brand Logo & Slogan (Official MinebeaMitsumi Image - Aligned with 'E' of Emp.Date) -->
-              <div class="absolute left-[174px] sm:left-[216px] bottom-7 sm:bottom-8 z-20 pointer-events-none">
-                <img src="minebea-mitsumi-logo.png" alt="MinebeaMitsumi - Passion to Create Value through Difference"
-                  class="w-[330px] sm:w-[365px] max-w-[95%] h-auto object-contain select-none drop-shadow-xs" />
-              </div>
+            </div>
 
-              <!-- BOTTOM SOLID BLUE BAR WITH PRINT DATE (Black Text Ink) -->
-              <div class="relative shrink-0 h-7 sm:h-8 w-full bg-[#004b93] px-6 flex items-center justify-end z-10">
-                <div class="text-[10px] sm:text-[11px] font-mono font-bold text-black leading-none select-none">
-                  PrintDate: {{ cardPrintDate }}
-                </div>
-              </div>
+            <!-- Brand Logo & Slogan (Official MinebeaMitsumi Image - Aligned with 'E' of Emp.Date) -->
+            <div class="absolute left-[174px] sm:left-[216px] bottom-7 sm:bottom-8 z-20 pointer-events-none">
+              <img src="minebea-mitsumi-logo.png" alt="MinebeaMitsumi - Passion to Create Value through Difference"
+                class="w-[330px] sm:w-[365px] max-w-[95%] h-auto object-contain select-none drop-shadow-xs" />
+            </div>
 
-              <!-- Laminated Glossy Reflection Sheen -->
-              <div
-                class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/5 pointer-events-none rounded-2xl">
+            <!-- BOTTOM SOLID BLUE BAR WITH PRINT DATE (Black Text Ink) -->
+            <div class="relative shrink-0 h-7 sm:h-8 w-full bg-[#004b93] px-6 flex items-center justify-end z-10">
+              <div class="text-[10px] sm:text-[11px] font-mono font-bold text-black leading-none select-none">
+                PrintDate: {{ cardPrintDate }}
               </div>
+            </div>
+
+            <!-- Laminated Glossy Reflection Sheen -->
+            <div
+              class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/5 pointer-events-none rounded-2xl">
+            </div>
 
           </div>
         </ng-template>
@@ -2454,159 +3311,174 @@
           <div
             class="w-full h-full rounded-2xl bg-[#8FD940] shadow-2xl overflow-hidden border border-slate-300 flex flex-col select-none justify-between relative">
 
-              <!-- 1. TOP HEADER: FULL-WIDTH LIME GREEN BANNER (Matching Sample Photo 1:1) -->
-              <div
-                class="bg-[#8FD940] px-2.5 sm:px-3 pt-1.5 sm:pt-2 pb-1 sm:pb-1.5 flex items-center justify-between shrink-0 border-b border-[#7BC935]">
-                <!-- Left: Official MinebeaMitsumi Logo Image -->
-                <div class="flex items-center shrink-0">
-                  <img [src]="calendarLogoDataUrl" alt="MinebeaMitsumi - Passion to Create Value through Difference"
-                    class="h-[28px] sm:h-[34px] w-auto object-contain select-none" />
+            <!-- 1. TOP HEADER: FULL-WIDTH LIME GREEN BANNER (Matching Sample Photo 1:1) -->
+            <div
+              class="bg-[#8FD940] px-2.5 sm:px-3 pt-1.5 sm:pt-2 pb-1 sm:pb-1.5 flex items-center justify-between shrink-0 border-b border-[#7BC935]">
+              <!-- Left: Official MinebeaMitsumi Logo Image -->
+              <div class="flex items-center shrink-0">
+                <img [src]="calendarLogoDataUrl" alt="MinebeaMitsumi - Passion to Create Value through Difference"
+                  class="h-[28px] sm:h-[34px] w-auto object-contain select-none" />
+              </div>
+
+              <!-- Right Group: CALENDAR 2026 + Stat Badges placed close together -->
+              <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                <!-- Calendar Year Title (Stacked CALENDAR on top of 2026) -->
+                <div class="flex flex-col items-center justify-end shrink-0 translate-y-[3.5px] sm:translate-y-[5px]">
+                  <span
+                    class="text-[7.5px] sm:text-[8.5px] font-black tracking-widest text-[#004fa3] uppercase font-sans leading-none translate-y-[1px] sm:translate-y-[1.5px]">
+                    CALENDAR
+                  </span>
+                  <span
+                    class="text-base sm:text-[21px] font-black text-[#004fa3] leading-none font-sans tracking-tight">
+                    2026
+                  </span>
                 </div>
 
-                <!-- Right Group: CALENDAR 2026 + Stat Badges placed close together -->
-                <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-                  <!-- Calendar Year Title (Stacked CALENDAR on top of 2026) -->
-                  <div class="flex flex-col items-center justify-end shrink-0 translate-y-[3.5px] sm:translate-y-[5px]">
-                    <span
-                      class="text-[7.5px] sm:text-[8.5px] font-black tracking-widest text-[#004fa3] uppercase font-sans leading-none translate-y-[1px] sm:translate-y-[1.5px]">
-                      CALENDAR
-                    </span>
-                    <span class="text-base sm:text-[21px] font-black text-[#004fa3] leading-none font-sans tracking-tight">
-                      2026
-                    </span>
+                <!-- Summary Stat Badges (Aligned columns with [104] pulled forward next to Holiday (sat)) -->
+                <div
+                  class="flex flex-col gap-0.5 sm:gap-1 text-[7.5px] sm:text-[8.5px] font-bold text-slate-900 shrink-0">
+                  <!-- Row 1: 261 Working Day | 15 Traditional Holiday -->
+                  <div class="flex items-center gap-1.5 sm:gap-2">
+                    <div class="w-[74px] sm:w-[84px] flex items-center gap-1 shrink-0">
+                      <span
+                        class="min-w-[20px] sm:min-w-[22px] h-3.5 sm:h-4 rounded-xs font-mono font-black flex items-center justify-center bg-transparent text-slate-950 border border-slate-700 leading-none">261</span>
+                      <span class="whitespace-nowrap font-sans font-bold">Working Day</span>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                      <span
+                        class="min-w-[20px] sm:min-w-[22px] h-3.5 sm:h-4 rounded-xs font-mono font-black flex items-center justify-center bg-[#16a34a] text-slate-950 leading-none">15</span>
+                      <span class="whitespace-nowrap font-sans font-bold">Traditional Holiday</span>
+                    </div>
                   </div>
 
-                  <!-- Summary Stat Badges (Aligned columns with [104] pulled forward next to Holiday (sat)) -->
-                  <div
-                    class="flex flex-col gap-0.5 sm:gap-1 text-[7.5px] sm:text-[8.5px] font-bold text-slate-900 shrink-0">
-                    <!-- Row 1: 261 Working Day | 15 Traditional Holiday -->
-                    <div class="flex items-center gap-1.5 sm:gap-2">
-                      <div class="w-[74px] sm:w-[84px] flex items-center gap-1 shrink-0">
-                        <span
-                          class="min-w-[20px] sm:min-w-[22px] h-3.5 sm:h-4 rounded-xs font-mono font-black flex items-center justify-center bg-transparent text-slate-950 border border-slate-700 leading-none">261</span>
-                        <span class="whitespace-nowrap font-sans font-bold">Working Day</span>
-                      </div>
-                      <div class="flex items-center gap-1 shrink-0">
-                        <span
-                          class="min-w-[20px] sm:min-w-[22px] h-3.5 sm:h-4 rounded-xs font-mono font-black flex items-center justify-center bg-[#16a34a] text-slate-950 leading-none">15</span>
-                        <span class="whitespace-nowrap font-sans font-bold">Traditional Holiday</span>
-                      </div>
+                  <!-- Row 2: 52 Holiday (sun) | 37 Holiday (sat) | 104 Total Holiday -->
+                  <div class="flex items-center gap-1.5 sm:gap-2">
+                    <div class="w-[74px] sm:w-[84px] flex items-center gap-1 shrink-0">
+                      <span
+                        class="min-w-[20px] sm:min-w-[22px] h-3.5 sm:h-4 rounded-xs font-mono font-black flex items-center justify-center bg-[#dc2626] text-white leading-none">52</span>
+                      <span class="whitespace-nowrap font-sans font-bold">Holiday (sun)</span>
                     </div>
-
-                    <!-- Row 2: 52 Holiday (sun) | 37 Holiday (sat) | 104 Total Holiday -->
-                    <div class="flex items-center gap-1.5 sm:gap-2">
-                      <div class="w-[74px] sm:w-[84px] flex items-center gap-1 shrink-0">
-                        <span
-                          class="min-w-[20px] sm:min-w-[22px] h-3.5 sm:h-4 rounded-xs font-mono font-black flex items-center justify-center bg-[#dc2626] text-white leading-none">52</span>
-                        <span class="whitespace-nowrap font-sans font-bold">Holiday (sun)</span>
-                      </div>
-                      <div class="flex items-center gap-1 shrink-0">
-                        <span
-                          class="min-w-[20px] sm:min-w-[22px] h-3.5 sm:h-4 rounded-xs font-mono font-black flex items-center justify-center bg-[#FFF600] text-slate-950 leading-none">37</span>
-                        <span class="whitespace-nowrap font-sans font-bold">Holiday (sat)</span>
-                      </div>
-                      <div class="flex items-center gap-1 shrink-0">
-                        <span
-                          class="min-w-[20px] sm:min-w-[22px] h-3.5 sm:h-4 rounded-xs font-mono font-black flex items-center justify-center bg-white text-slate-950 border border-slate-600 leading-none">104</span>
-                        <span class="whitespace-nowrap font-sans font-bold">Total Holiday</span>
-                      </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                      <span
+                        class="min-w-[20px] sm:min-w-[22px] h-3.5 sm:h-4 rounded-xs font-mono font-black flex items-center justify-center bg-[#FFF600] text-slate-950 leading-none">37</span>
+                      <span class="whitespace-nowrap font-sans font-bold">Holiday (sat)</span>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                      <span
+                        class="min-w-[20px] sm:min-w-[22px] h-3.5 sm:h-4 rounded-xs font-mono font-black flex items-center justify-center bg-white text-slate-950 border border-slate-600 leading-none">104</span>
+                      <span class="whitespace-nowrap font-sans font-bold">Total Holiday</span>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <!-- 2. MIDDLE WHITE SHEET: 6 Months Grid -->
-              <div class="bg-white flex-1 px-2.5 sm:px-3 py-2 sm:py-2.5 flex flex-col justify-center overflow-hidden">
+            <!-- 2. MIDDLE WHITE SHEET: 6 Months Grid -->
+            <div class="bg-white flex-1 px-2.5 sm:px-3 py-2 sm:py-2.5 flex flex-col justify-center overflow-hidden">
 
-                <!-- Months Grid (6 Months: 2 Rows x 3 Columns) -->
-                <div class="grid grid-cols-3 gap-x-2.5 sm:gap-x-3.5 gap-y-2 sm:gap-y-3.5 my-auto">
-                  <div *ngFor="let m of getMonthsForHalf(half)" class="flex flex-col w-full max-w-[124px] sm:max-w-[140px] mx-auto">
-                    <!-- Month Title & Working Day Ratio -->
-                    <div class="flex items-center justify-between pb-0.5 w-full">
-                      <span
-                        class="text-[8px] sm:text-[9.5px] font-black text-[#004fa3] tracking-wide leading-none font-sans">
-                        {{ m.name }}
-                      </span>
-                      <span class="text-[5.8px] sm:text-[6.8px] font-bold text-slate-600 font-mono leading-none">
-                        W/D={{ m.wd }}
-                      </span>
+              <!-- Months Grid (6 Months: 2 Rows x 3 Columns) -->
+              <div class="grid grid-cols-3 gap-x-2.5 sm:gap-x-3.5 gap-y-2 sm:gap-y-3.5 my-auto">
+                <div *ngFor="let m of getMonthsForHalf(half)"
+                  class="flex flex-col w-full max-w-[124px] sm:max-w-[140px] mx-auto">
+                  <!-- Month Title & Working Day Ratio -->
+                  <div class="flex items-center justify-between pb-0.5 w-full">
+                    <span
+                      class="text-[8px] sm:text-[9.5px] font-black text-[#004fa3] tracking-wide leading-none font-sans">
+                      {{ m.name }}
+                    </span>
+                    <span class="text-[5.8px] sm:text-[6.8px] font-bold text-slate-600 font-mono leading-none">
+                      W/D={{ m.wd }}
+                    </span>
+                  </div>
+
+                  <!-- Calendar Grid: S M T W T F S with compact spacing -->
+                  <div class="w-full select-none">
+                    <!-- Column Headers -->
+                    <div class="grid grid-cols-7 gap-[1px] sm:gap-[1.5px] text-center mb-[1px]">
+                      <div class="flex items-center justify-center py-0.5">
+                        <span
+                          class="text-[#dc2626] font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">S</span>
+                      </div>
+                      <div
+                        class="flex items-center justify-center py-0.5 text-black font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">
+                        M</div>
+                      <div
+                        class="flex items-center justify-center py-0.5 text-black font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">
+                        T</div>
+                      <div
+                        class="flex items-center justify-center py-0.5 text-black font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">
+                        W</div>
+                      <div
+                        class="flex items-center justify-center py-0.5 text-black font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">
+                        T</div>
+                      <div
+                        class="flex items-center justify-center py-0.5 text-black font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">
+                        F</div>
+                      <div class="flex items-center justify-center py-0.5">
+                        <span
+                          class="w-[11px] h-[11px] sm:w-[13px] sm:h-[13px] rounded-full bg-[#FFF600] text-black inline-flex items-center justify-center text-[5.8px] sm:text-[6.8px] font-sans font-black leading-none">S</span>
+                      </div>
                     </div>
 
-                    <!-- Calendar Grid: S M T W T F S with compact spacing -->
-                    <div class="w-full select-none">
-                      <!-- Column Headers -->
-                      <div class="grid grid-cols-7 gap-[1px] sm:gap-[1.5px] text-center mb-[1px]">
-                        <div class="flex items-center justify-center py-0.5">
-                          <span class="text-[#dc2626] font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">S</span>
-                        </div>
-                        <div class="flex items-center justify-center py-0.5 text-black font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">M</div>
-                        <div class="flex items-center justify-center py-0.5 text-black font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">T</div>
-                        <div class="flex items-center justify-center py-0.5 text-black font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">W</div>
-                        <div class="flex items-center justify-center py-0.5 text-black font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">T</div>
-                        <div class="flex items-center justify-center py-0.5 text-black font-sans font-black text-[6.8px] sm:text-[7.8px] leading-none">F</div>
-                        <div class="flex items-center justify-center py-0.5">
-                          <span
-                            class="w-[11px] h-[11px] sm:w-[13px] sm:h-[13px] rounded-full bg-[#FFF600] text-black inline-flex items-center justify-center text-[5.8px] sm:text-[6.8px] font-sans font-black leading-none">S</span>
-                        </div>
-                      </div>
-
-                      <!-- Month Weeks & Days -->
-                      <div class="flex flex-col gap-[1px] sm:gap-[1.5px]">
-                        <div *ngFor="let week of m.weeks" class="grid grid-cols-7 gap-[1px] sm:gap-[1.5px]">
-                          <div *ngFor="let cell of week" class="w-full">
-                            <!-- Split Day Cell (August 23/30 and 24/31) -->
-                            <div *ngIf="cell.split"
-                              class="relative w-full h-[12.5px] sm:h-[14.5px] overflow-hidden select-none rounded-[1px]"
-                              [ngClass]="{
+                    <!-- Month Weeks & Days -->
+                    <div class="flex flex-col gap-[1px] sm:gap-[1.5px]">
+                      <div *ngFor="let week of m.weeks" class="grid grid-cols-7 gap-[1px] sm:gap-[1.5px]">
+                        <div *ngFor="let cell of week" class="w-full">
+                          <!-- Split Day Cell (August 23/30 and 24/31) -->
+                          <div *ngIf="cell.split"
+                            class="relative w-full h-[12.5px] sm:h-[14.5px] overflow-hidden select-none rounded-[1px]"
+                            [ngClass]="{
                                 'bg-[#dc2626]': cell.t === 'sun',
                                 'bg-white': cell.t !== 'sun'
                               }">
-                              <svg class="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none" viewBox="0 0 100 100">
-                                <line x1="0" y1="100" x2="100" y2="0"
-                                  [attr.stroke]="cell.t === 'sun' ? '#ffffff' : '#000000'"
-                                  stroke-width="1.2" vector-effect="non-scaling-stroke" />
-                              </svg>
-                              <span class="absolute top-[0.5px] left-[1px] text-[5px] sm:text-[5.8px] font-sans font-black leading-none"
-                                [style.color]="cell.t === 'sun' ? '#ffffff' : '#000000'">
-                                {{ cell.d1 }}
-                              </span>
-                              <span class="absolute bottom-[0.5px] right-[1px] text-[5px] sm:text-[5.8px] font-sans font-black leading-none"
-                                [style.color]="cell.t === 'sun' ? '#ffffff' : '#000000'">
-                                {{ cell.d2 }}
-                              </span>
-                            </div>
+                            <svg class="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none"
+                              viewBox="0 0 100 100">
+                              <line x1="0" y1="100" x2="100" y2="0"
+                                [attr.stroke]="cell.t === 'sun' ? '#ffffff' : '#000000'" stroke-width="1.2"
+                                vector-effect="non-scaling-stroke" />
+                            </svg>
+                            <span
+                              class="absolute top-[0.5px] left-[1px] text-[5px] sm:text-[5.8px] font-sans font-black leading-none"
+                              [style.color]="cell.t === 'sun' ? '#ffffff' : '#000000'">
+                              {{ cell.d1 }}
+                            </span>
+                            <span
+                              class="absolute bottom-[0.5px] right-[1px] text-[5px] sm:text-[5.8px] font-sans font-black leading-none"
+                              [style.color]="cell.t === 'sun' ? '#ffffff' : '#000000'">
+                              {{ cell.d2 }}
+                            </span>
+                          </div>
 
-                            <!-- Single Day Cell -->
-                            <div *ngIf="!cell.split && cell.d"
-                              class="w-full h-[12.5px] sm:h-[14.5px] flex items-center justify-center text-[6.5px] sm:text-[7.5px] font-sans leading-none rounded-[1px]"
-                              [ngClass]="{
+                          <!-- Single Day Cell -->
+                          <div *ngIf="!cell.split && cell.d"
+                            class="w-full h-[12.5px] sm:h-[14.5px] flex items-center justify-center text-[6.5px] sm:text-[7.5px] font-sans leading-none rounded-[1px]"
+                            [ngClass]="{
                                 'bg-[#dc2626]': cell.t === 'sun',
                                 'bg-[#16a34a]': cell.t === 'trad',
                                 'bg-[#FFF600]': cell.t === 'sat'
-                              }"
-                              [style.color]="cell.t === 'sun' ? '#ffffff' : '#000000'"
-                              [style.fontWeight]="cell.t !== 'work' ? '900' : '700'">
-                              {{ cell.d }}
-                            </div>
-
-                            <!-- Empty Cell -->
-                            <div *ngIf="!cell.split && !cell.d" class="w-full h-[12.5px] sm:h-[14.5px]"></div>
+                              }" [style.color]="cell.t === 'sun' ? '#ffffff' : '#000000'"
+                            [style.fontWeight]="cell.t !== 'work' ? '900' : '700'">
+                            {{ cell.d }}
                           </div>
+
+                          <!-- Empty Cell -->
+                          <div *ngIf="!cell.split && !cell.d" class="w-full h-[12.5px] sm:h-[14.5px]"></div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-
               </div>
 
-              <!-- 3. BOTTOM FOOTER: SOLID LIME GREEN BANNER (TEXT REMOVED AS REQUESTED) -->
-              <div class="bg-[#8FD940] h-6 sm:h-7 w-full shrink-0 border-t border-[#7BC935]"></div>
+            </div>
 
-              <!-- Laminated Sheen -->
-              <div
-                class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/5 pointer-events-none rounded-2xl">
-              </div>
+            <!-- 3. BOTTOM FOOTER: SOLID LIME GREEN BANNER (TEXT REMOVED AS REQUESTED) -->
+            <div class="bg-[#8FD940] h-6 sm:h-7 w-full shrink-0 border-t border-[#7BC935]"></div>
+
+            <!-- Laminated Sheen -->
+            <div
+              class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/5 pointer-events-none rounded-2xl">
+            </div>
 
           </div>
         </ng-template>
@@ -2615,8 +3487,7 @@
         <div (click)="nextCardPage()"
           class="card-perspective-container relative w-[520px] sm:w-[580px] h-[330px] sm:h-[370px] max-w-full select-none cursor-pointer"
           title="คลิกที่บัตรเพื่อพลิกเปลี่ยนทีละหน้า (หน้าบัตร ➔ ปฏิทินครึ่งปีแรก ➔ ปฏิทินครึ่งปีหลัง)">
-          <div class="card-flipper w-full h-full relative"
-            [style.transform]="'rotateY(' + cardRotation + 'deg)'"
+          <div class="card-flipper w-full h-full relative" [style.transform]="'rotateY(' + cardRotation + 'deg)'"
             [style.transition]="noTransition ? 'none' : 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)'">
 
             <!-- Card Face 1: Front (0deg relative) -->

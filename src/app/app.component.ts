@@ -50,6 +50,43 @@ export interface RequisitionItem {
   backupData?: any;
 }
 
+export interface QuotationSearchResult {
+  id: string;
+  quotationNo: string;
+  partName: string;
+  spec: string;
+  makerName: string;
+  vendor: string;
+  vendorRating?: number;
+  unitPrice: number;
+  originalPrice?: number;
+  discountPercent?: number;
+  currency: string;
+  leadTime: string;
+  status: 'Approved' | 'Quoted' | 'Waiting Quotation' | 'PO Issued';
+  isUrgent: boolean;
+  isMall?: boolean;
+  location?: string;
+  category?: string;
+  soldCount?: string;
+  voucherText?: string;
+  stockCount?: number;
+  partType?: 'cylinder' | 'vacuum' | 'linear' | 'sensor' | 'motor' | 'filter' | 'valve';
+  docNumber: string;
+  requesterName: string;
+  division: string;
+  section: string;
+  quotationDate: string;
+  quotationPdf?: string;
+  machineModel?: string;
+  descriptionSnippet: string;
+  urlBreadcrumb: string;
+  priceHistory?: Array<{ year: string; price: number; vendor: string }>;
+  tags: string[];
+  matchScore?: number;
+  rank?: number;
+}
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -407,7 +444,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       if (savedUserStr) {
         const user: EmployeeUser = JSON.parse(savedUserStr);
         if (user && user.empNo) {
-          console.log(`%c[Suppier Auth] 🔄 Restoring persistent login session for ${user.empNo} (${user.fullName})`, 'color: #2563eb; font-weight: bold;');
+          console.log(`%c[Suppier Auth] Restoring persistent login session for ${user.empNo} (${user.fullName})`, 'color: #2563eb; font-weight: bold;');
           this.currentUser = user;
           this.loggedInEmployeeId = user.empNo;
           this.currentEmpNo = user.empNo;
@@ -416,6 +453,8 @@ export class AppComponent implements OnInit, AfterViewInit {
           if (user.section) this.section = user.section;
           if (user.sectionName) this.sectionName = user.sectionName;
           this.isLoggedIn = true;
+          this.activeMenu = 'spare-part';
+          this.activeView = 'edit';
 
           // Load active document from DB for this account
           await this.loadDocumentFromDb(user.empNo);
@@ -452,7 +491,474 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   // Navigation & View State
   activeMenu = 'spare-part';
-  activeView: 'list' | 'edit' | 'purchase-quotation' = 'edit';
+  activeView: 'list' | 'edit' | 'purchase-quotation' | 'quotation-search' = 'edit';
+
+  // Google Quotation Search Engine State
+  searchEngineMode: 'home' | 'results' = 'home';
+  quotationSearchQuery = '';
+  isSearchCollapsing = false;
+  searchAnimStage: 'idle' | 'expanding' | 'collapsing' | 'loading' = 'idle';
+  private searchAnimTimeout: any = null;
+  searchFilterTab: 'all' | 'pdf' | 'makers' | 'vendors' | 'urgent' | 'price' = 'all';
+  isSearchToolsOpen = false;
+  searchPeriodFilter = 'ALL';
+  searchCurrencyFilter = 'ALL';
+  searchStatusFilter = 'ALL';
+  searchDivisionFilter = 'ALL';
+  searchResultCount = 1420;
+  searchExecutionTime = '0.24';
+  selectedKnowledgeResult: QuotationSearchResult | null = null;
+  showGoogleAppsMenu = false;
+
+  // Shopee PC View State
+  resultViewLayout: 'shopee' | 'google' = 'shopee';
+  shopeeSortBy: 'relevance' | 'latest' | 'sold' | 'priceAsc' | 'priceDesc' = 'relevance';
+  shopeeSelectedCategory = 'ALL';
+  shopeeSelectedMaker = 'ALL';
+  shopeeSelectedLocation = 'ALL';
+  shopeeSelectedVendor = 'ALL';
+  shopeeMinPrice: number | null = null;
+  shopeeMaxPrice: number | null = null;
+  shopeeOnlyUrgent = false;
+  shopeeOnlyApproved = false;
+  shopeeOnlyMall = false;
+  shopeeOnlyPdf = false;
+  shopeeMinRating = 0;
+  shopeeCurrentPage = 1;
+  shopeeTotalPages = 3;
+  selectedShopeeItemModal: QuotationSearchResult | null = null;
+  showShopeeQuickView = false;
+  shopeeOnlyTop5 = false;
+
+  recentSearches: string[] = [
+    'AIR CYLINDER MGPL50',
+    'VACUUM PUMP SDV-30S',
+    'FILTER MP5002',
+    'MISUMI Linear Guide',
+    'CHAVANAN CO., LTD.',
+    'Urgent Parts (Lead Time < 7 Days)'
+  ];
+
+  quotationSampleList: QuotationSearchResult[] = [
+    {
+      id: 'QTR-01',
+      quotationNo: 'QT-2026-0812',
+      partName: 'AIR CYLINDER MGPL',
+      spec: 'MGPL50-150A-Y59BL (Guide Type)',
+      makerName: 'SMC',
+      vendor: 'CHAVANAN CO., LTD.',
+      vendorRating: 4.9,
+      unitPrice: 14200,
+      originalPrice: 16500,
+      discountPercent: 14,
+      currency: 'THB',
+      leadTime: '14 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'อยุธยา',
+      category: 'กระบอกลม & นิวเมติกส์',
+      soldCount: '42 ชิ้น',
+      voucherText: 'โค้ดลด ฿500',
+      stockCount: 8,
+      partType: 'cylinder',
+      docNumber: 'REQ-2026-0312',
+      requesterName: 'NATTHANICHA SONTHIKESORN',
+      division: 'GM1',
+      section: 'MA',
+      quotationDate: '21/09/2026',
+      quotationPdf: 'QT-2026-0812-SMC.pdf',
+      machineModel: 'GM1-CNC-04',
+      descriptionSnippet: 'Quotation No. <b>QT-2026-0812</b> for Requisition <b>REQ-2026-0312</b>. Compact guide air cylinder with built-in magnet, rubber bumper both ends. Official authorized quotation from Chavanon with standard warranty.',
+      urlBreadcrumb: 'suppier.corp › quotation › 2026 › QT-2026-0812 › smc-pneumatic',
+      priceHistory: [
+        { year: '2024', price: 15400, vendor: 'CHAVANAN' },
+        { year: '2025', price: 14800, vendor: 'CHAVANAN' },
+        { year: '2026', price: 14200, vendor: 'CHAVANAN' }
+      ],
+      tags: ['Pneumatics', 'Cylinder', 'SMC', 'GM1', 'Preferred Vendor']
+    },
+    {
+      id: 'QTR-02',
+      quotationNo: 'QT-2026-0744',
+      partName: 'DRY SCREW VACUUM PUMP',
+      spec: 'SDV-30S (Inlet Flange KF40)',
+      makerName: 'SHCOH SANGYO',
+      vendor: 'WORLD PUMP CO., LTD.',
+      vendorRating: 4.8,
+      unitPrice: 450000,
+      originalPrice: 490000,
+      discountPercent: 8,
+      currency: 'JPY',
+      leadTime: '30 Days',
+      status: 'PO Issued',
+      isUrgent: false,
+      isMall: false,
+      location: 'ต่างประเทศ',
+      category: 'ปั๊มสุญญากาศ & วาล์ว',
+      soldCount: '12 เครื่อง',
+      voucherText: 'ส่งฟรี ฿0',
+      stockCount: 2,
+      partType: 'vacuum',
+      docNumber: 'REQ-2026-0298',
+      requesterName: 'PEERAPAT BUASA',
+      division: 'PMA',
+      section: 'P/H',
+      quotationDate: '08/06/2026',
+      quotationPdf: 'QT-2026-0744-SHCOH.pdf',
+      machineModel: 'PMA-VAC-02',
+      descriptionSnippet: 'Heavy duty dry screw vacuum pump model <b>SDV-30S</b> directly imported from Japan. Spec: ultimate pressure 1.0 Pa, pumping speed 30 m3/h. Requisition for precision coating chamber line.',
+      urlBreadcrumb: 'suppier.corp › quotation › shcoh-sangyo › sdv-30s-pump',
+      priceHistory: [
+        { year: '2024', price: 470000, vendor: 'WORLD PUMP' },
+        { year: '2025', price: 460000, vendor: 'WORLD PUMP' },
+        { year: '2026', price: 450000, vendor: 'WORLD PUMP' }
+      ],
+      tags: ['Vacuum', 'Pump', 'Direct Import', 'Japan Maker']
+    },
+    {
+      id: 'QTR-03',
+      quotationNo: 'QT-2026-0689',
+      partName: 'COMPACT AIR CYLINDER',
+      spec: 'ACQ100x115-S-B (Double Acting)',
+      makerName: 'AIRTAC',
+      vendor: 'AIRTAC 2060080',
+      vendorRating: 4.7,
+      unitPrice: 4850,
+      originalPrice: 5600,
+      discountPercent: 13,
+      currency: 'THB',
+      leadTime: '5 Days',
+      status: 'Approved',
+      isUrgent: true,
+      isMall: true,
+      location: 'ชลบุรี',
+      category: 'กระบอกลม & นิวเมติกส์',
+      soldCount: '88 ชิ้น',
+      voucherText: 'ส่งด่วน 24ชม.',
+      stockCount: 24,
+      partType: 'cylinder',
+      docNumber: 'REQ-2026-0345',
+      requesterName: 'SUNAN SRISOD',
+      division: 'MA',
+      section: 'MA',
+      quotationDate: '25/06/2026',
+      quotationPdf: 'QT-2026-0689-AIRTAC.pdf',
+      machineModel: 'MA-PRESS-09',
+      descriptionSnippet: '<b>URGENT</b>: Urgent requisition for line breakdown replacement. Airtac compact cylinder bore 100mm, stroke 115mm with standard male thread. Express delivery guaranteed within 5 business days.',
+      urlBreadcrumb: 'suppier.corp › quotation › airtac › acq100x115-s-b',
+      priceHistory: [
+        { year: '2024', price: 5100, vendor: 'AIRTAC 2060080' },
+        { year: '2025', price: 4950, vendor: 'AIRTAC 2060080' },
+        { year: '2026', price: 4850, vendor: 'AIRTAC 2060080' }
+      ],
+      tags: ['Urgent', 'Cylinder', 'Express', 'Airtac']
+    },
+    {
+      id: 'QTR-04',
+      quotationNo: 'QT-2026-0901',
+      partName: 'LINEAR GUIDE BEARING & RAIL',
+      spec: 'LH20-300-H-N (Precision Grade)',
+      makerName: 'MISUMI',
+      vendor: 'MISUMI (THAILAND) CO., LTD.',
+      vendorRating: 5.0,
+      unitPrice: 3120,
+      originalPrice: 3800,
+      discountPercent: 18,
+      currency: 'THB',
+      leadTime: '3 Days',
+      status: 'Quoted',
+      isUrgent: false,
+      isMall: true,
+      location: 'ระยอง',
+      category: 'ลิเนียร์ไกด์ & รางสไลด์',
+      soldCount: '156 ชิ้น',
+      voucherText: 'โค้ดลด ฿200',
+      stockCount: 50,
+      partType: 'linear',
+      docNumber: 'REQ-2026-0351',
+      requesterName: 'TICHAGORN PROMJAREE',
+      division: 'GM1',
+      section: 'MTO',
+      quotationDate: '18/09/2026',
+      quotationPdf: 'QT-2026-0901-MISUMI.pdf',
+      machineModel: 'GM1-ASSY-12',
+      descriptionSnippet: 'Official Misumi WOS Web Quotation #<b>QT-2026-0901</b>. High accuracy linear guide block & rail set with retainers. In stock at Misumi Eastern Seaboard warehouse.',
+      urlBreadcrumb: 'suppier.corp › quotation › misumi › lh20-300-guide',
+      priceHistory: [
+        { year: '2025', price: 3250, vendor: 'MISUMI (THAILAND)' },
+        { year: '2026', price: 3120, vendor: 'MISUMI (THAILAND)' }
+      ],
+      tags: ['Misumi', 'Linear Motion', 'High Precision', 'Fast Delivery']
+    },
+    {
+      id: 'QTR-05',
+      quotationNo: 'QT-2026-0520',
+      partName: 'ROBO CYLINDER SLIDER',
+      spec: 'RCP2-SS7R-I-42P-12-200-P1',
+      makerName: 'IAI',
+      vendor: 'IPO 22222ZS',
+      vendorRating: 4.6,
+      unitPrice: 28500,
+      originalPrice: 32000,
+      discountPercent: 11,
+      currency: 'THB',
+      leadTime: '21 Days',
+      status: 'Waiting Quotation',
+      isUrgent: false,
+      isMall: false,
+      location: 'กรุงเทพมหานคร',
+      category: 'มอเตอร์ & ระบบขับเคลื่อน',
+      soldCount: '25 ชิ้น',
+      voucherText: 'ใบเสนอราคาใหม่',
+      stockCount: 5,
+      partType: 'motor',
+      docNumber: 'REQ-2026-0277',
+      requesterName: 'ANUSARA KUEADET',
+      division: 'GM1',
+      section: 'P/H',
+      quotationDate: '14/09/2026',
+      machineModel: 'GM1-PICK-01',
+      descriptionSnippet: 'Electric actuator rodless type slider Robo Cylinder. Motor size 42P, lead 12mm, stroke 200mm. Currently waiting for vendor quotation confirmation.',
+      urlBreadcrumb: 'suppier.corp › quotation › iai › rcp2-ss7r-robo-cylinder',
+      tags: ['Actuator', 'Electric Cylinder', 'IAI', 'Robotics']
+    },
+    {
+      id: 'QTR-06',
+      quotationNo: 'QT-2026-0915',
+      partName: 'FIBER PHOTOELECTRIC SENSOR',
+      spec: 'PR-M51N3 (NPN Output 2m Cable)',
+      makerName: 'KEYENCE',
+      vendor: 'KEYENCE (THAILAND) CO., LTD.',
+      vendorRating: 4.9,
+      unitPrice: 6200,
+      originalPrice: 7200,
+      discountPercent: 14,
+      currency: 'THB',
+      leadTime: '7 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'อยุธยา',
+      category: 'เซนเซอร์ & ตรวจจับ',
+      soldCount: '74 ชิ้น',
+      voucherText: 'รับประกัน 1 ปี',
+      stockCount: 16,
+      partType: 'sensor',
+      docNumber: 'REQ-2026-0362',
+      requesterName: 'KUNLADA PANMAN',
+      division: 'MA',
+      section: 'MA',
+      quotationDate: '19/09/2026',
+      quotationPdf: 'QT-2026-0915-KEYENCE.pdf',
+      machineModel: 'MA-INSPECT-03',
+      descriptionSnippet: 'High-speed miniature photoelectric sensor <b>PR-M51N3</b>. Rugged stainless steel housing, IP67 rating. Keyence official direct quotation with calibration sheet.',
+      urlBreadcrumb: 'suppier.corp › quotation › keyence › pr-m51n3-sensor',
+      priceHistory: [
+        { year: '2024', price: 6500, vendor: 'KEYENCE' },
+        { year: '2025', price: 6350, vendor: 'KEYENCE' },
+        { year: '2026', price: 6200, vendor: 'KEYENCE' }
+      ],
+      tags: ['Sensor', 'Keyence', 'Optics', 'Inspection']
+    },
+    {
+      id: 'QTR-07',
+      quotationNo: 'QT-2026-0411',
+      partName: 'QUICK CLAMP / REDUCER RING',
+      spec: 'KQC-16 / KF16/25 (SUS304 Fluoro)',
+      makerName: 'ULVAC',
+      vendor: 'ULVAC (THAILAND) CO., LTD.',
+      vendorRating: 4.7,
+      unitPrice: 1650,
+      originalPrice: 1950,
+      discountPercent: 15,
+      currency: 'THB',
+      leadTime: '10 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'อยุธยา',
+      category: 'ปั๊มสุญญากาศ & วาล์ว',
+      soldCount: '210 ชิ้น',
+      voucherText: 'จัดส่งฟรี ฿0',
+      stockCount: 40,
+      partType: 'vacuum',
+      docNumber: 'REQ-2026-0233',
+      requesterName: 'CHANTHANY THAI',
+      division: 'PMA',
+      section: 'PMA',
+      quotationDate: '21/09/2026',
+      quotationPdf: 'QT-2026-0411-ULVAC.pdf',
+      machineModel: 'PMA-COAT-05',
+      descriptionSnippet: 'Vacuum fitting quick clamp and reduction center ring set KF16 to KF25. Made of high grade stainless steel SUS304 with fluoro-rubber O-ring.',
+      urlBreadcrumb: 'suppier.corp › quotation › ulvac › kqc-16-clamp-reducer',
+      tags: ['Ulvac', 'Flange', 'Vacuum Fitting', 'PMA']
+    },
+    {
+      id: 'QTR-08',
+      quotationNo: 'QT-2026-0772',
+      partName: 'HIGH FLOW FILTER CARTRIDGE',
+      spec: 'MP5002-40WN-DOE (0.2UM 40")',
+      makerName: 'PEMIUM',
+      vendor: 'IPO 22222ZS',
+      vendorRating: 4.5,
+      unitPrice: 8900,
+      originalPrice: 9800,
+      discountPercent: 9,
+      currency: 'THB',
+      leadTime: '14 Days',
+      status: 'Waiting Quotation',
+      isUrgent: false,
+      isMall: false,
+      location: 'ชลบุรี',
+      category: 'ตัวกรอง & ข้อต่อ',
+      soldCount: '65 ชิ้น',
+      voucherText: 'Cleanroom Grade',
+      stockCount: 12,
+      partType: 'filter',
+      docNumber: 'REQ-2026-0305',
+      requesterName: 'PEERAPAT BUASA',
+      division: 'MA',
+      section: 'P/H',
+      quotationDate: '06/08/2026',
+      machineModel: 'MA-UDI-LINE-01',
+      descriptionSnippet: 'Precision filtration cartridge for clean room UDI wash line. Pore size 0.2 micron, length 40 inches. Double open end (DOE) design.',
+      urlBreadcrumb: 'suppier.corp › quotation › pemium › mp5002-filter-cartridge',
+      tags: ['Filter', 'Consumable', 'Cleanroom', 'UDI']
+    },
+    {
+      id: 'QTR-09',
+      quotationNo: 'QT-2026-0835',
+      partName: '5-PORT SOLENOID VALVE',
+      spec: 'SY5120-5LZD-01 (24VDC Terminal)',
+      makerName: 'SMC',
+      vendor: 'CHAVANAN CO., LTD.',
+      vendorRating: 4.9,
+      unitPrice: 2450,
+      originalPrice: 2900,
+      discountPercent: 15,
+      currency: 'THB',
+      leadTime: '5 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'อยุธยา',
+      category: 'กระบอกลม & นิวเมติกส์',
+      soldCount: '142 ชิ้น',
+      voucherText: 'โค้ดลด ฿150',
+      stockCount: 30,
+      partType: 'valve',
+      docNumber: 'REQ-2026-0320',
+      requesterName: 'SOMCHAI TANGTRONG',
+      division: 'GM1',
+      section: 'MA',
+      quotationDate: '22/09/2026',
+      quotationPdf: 'QT-2026-0835-SMC.pdf',
+      machineModel: 'GM1-VALVE-01',
+      descriptionSnippet: 'SMC 5-port single solenoid valve series SY5000. Body ported type, low power consumption 0.35W with surge voltage suppressor and light indicator.',
+      urlBreadcrumb: 'suppier.corp › quotation › smc › sy5120-solenoid',
+      tags: ['SMC', 'Valve', 'Pneumatic', 'Automation']
+    },
+    {
+      id: 'QTR-10',
+      quotationNo: 'QT-2026-0922',
+      partName: 'AC SERVO MOTOR MELSERVO-J4',
+      spec: 'HG-KR43 (400W 3000r/min Shaft)',
+      makerName: 'MITSUBISHI',
+      vendor: 'FA SYSTEMS CO., LTD.',
+      vendorRating: 4.8,
+      unitPrice: 19800,
+      originalPrice: 23500,
+      discountPercent: 16,
+      currency: 'THB',
+      leadTime: '14 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'กรุงเทพมหานคร',
+      category: 'มอเตอร์ & ระบบขับเคลื่อน',
+      soldCount: '33 ชิ้น',
+      voucherText: 'โค้ดลด ฿800',
+      stockCount: 6,
+      partType: 'motor',
+      docNumber: 'REQ-2026-0370',
+      requesterName: 'WARAWUT KLAHAN',
+      division: 'MA',
+      section: 'MTO',
+      quotationDate: '23/09/2026',
+      quotationPdf: 'QT-2026-0922-MITSUBISHI.pdf',
+      machineModel: 'MA-SERVO-05',
+      descriptionSnippet: 'Mitsubishi low inertia AC servo motor 400W model HG-KR43. Resolution 22-bit encoder (4194304 pulses/rev). IP65 protection rating.',
+      urlBreadcrumb: 'suppier.corp › quotation › mitsubishi › hg-kr43-servo',
+      tags: ['Mitsubishi', 'Servo', 'Motor', 'Motion Control']
+    },
+    {
+      id: 'QTR-11',
+      quotationNo: 'QT-2026-0790',
+      partName: 'PROXIMITY INDUCTIVE SENSOR',
+      spec: 'E2B-M12KS04-WP-B1 2M (PNP-NO)',
+      makerName: 'OMRON',
+      vendor: 'MISUMI (THAILAND) CO., LTD.',
+      vendorRating: 5.0,
+      unitPrice: 1850,
+      originalPrice: 2200,
+      discountPercent: 16,
+      currency: 'THB',
+      leadTime: '3 Days',
+      status: 'Approved',
+      isUrgent: true,
+      isMall: true,
+      location: 'ระยอง',
+      category: 'เซนเซอร์ & ตรวจจับ',
+      soldCount: '320 ชิ้น',
+      voucherText: 'ด่วน พร้อมส่ง',
+      stockCount: 80,
+      partType: 'sensor',
+      docNumber: 'REQ-2026-0382',
+      requesterName: 'ANAN JITMAN',
+      division: 'GM1',
+      section: 'MA',
+      quotationDate: '20/09/2026',
+      quotationPdf: 'QT-2026-0790-OMRON.pdf',
+      machineModel: 'GM1-LINE-08',
+      descriptionSnippet: 'Omron standard cylinder type inductive proximity sensor M12 shield type. Sensing distance 4mm, 360-degree visible indicator, IP67 waterproof.',
+      urlBreadcrumb: 'suppier.corp › quotation › omron › e2b-m12-sensor',
+      tags: ['Omron', 'Sensor', 'Proximity', 'InStock']
+    },
+    {
+      id: 'QTR-12',
+      quotationNo: 'QT-2026-0640',
+      partName: 'LM GUIDE LINEAR MOTION BLOCK',
+      spec: 'HSR25A1UU+600LP (Heavy Load)',
+      makerName: 'THK',
+      vendor: 'THK PRECISION (THAILAND)',
+      vendorRating: 4.9,
+      unitPrice: 5400,
+      originalPrice: 6200,
+      discountPercent: 13,
+      currency: 'THB',
+      leadTime: '7 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'กรุงเทพมหานคร',
+      category: 'ลิเนียร์ไกด์ & รางสไลด์',
+      soldCount: '58 ชิ้น',
+      voucherText: 'ส่งฟรี ฿0',
+      stockCount: 18,
+      partType: 'linear',
+      docNumber: 'REQ-2026-0333',
+      requesterName: 'PICHET SANGCHAN',
+      division: 'PMA',
+      section: 'PMA',
+      quotationDate: '15/09/2026',
+      quotationPdf: 'QT-2026-0640-THK.pdf',
+      machineModel: 'PMA-MILL-02',
+      descriptionSnippet: 'THK 4-way equal load linear motion guide block series HSR. Self-adjusting capability, high rigidity against heavy radial and reverse loads.',
+      urlBreadcrumb: 'suppier.corp › quotation › thk › hsr25-lm-guide',
+      tags: ['THK', 'LM Guide', 'Linear', 'Heavy Load']
+    }
+  ];
 
   // Left Sidebar Menus
   documentMenus: Array<{
@@ -587,6 +1093,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   selectMenu(menuId: string): void {
     this.activeMenu = menuId;
     this.activeSubMenu = '';
+    if (menuId === 'quotation-search') {
+      this.openQuotationSearchView();
+      return;
+    }
     if (menuId === 'purchase-quotations') {
       this.openPurchaseQuotationView();
       return;
@@ -1034,7 +1544,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     // 1. Immediately start rotating animation for instant UI feedback
     this.loginPhase = 'rotating';
-    console.log(`%c[Suppier Auth] 🚀 Initiating verification for: ${candidateCode}`, 'color: #2563eb; font-weight: bold;');
+    console.log(`%c[Suppier Auth] Initiating verification for: ${candidateCode}`, 'color: #2563eb; font-weight: bold;');
 
     try {
       // 2. Query backend API connected to [Suppier].[dbo].[Master_Employee]
@@ -1042,7 +1552,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
       if (res && res.success && res.user) {
         const user = res.user;
-        console.log(`%c[Suppier Auth] ✅ Verification SUCCESS:`, 'color: #059669; font-weight: bold;', user);
+        console.log(`%c[Suppier Auth] Verification SUCCESS:`, 'color: #059669; font-weight: bold;', user);
 
         // Store user and update document detail fields (Request by, Division, Section)
         this.currentUser = user;
@@ -1078,6 +1588,8 @@ export class AppComponent implements OnInit, AfterViewInit {
           this.loginPhase = 'input';
           this.downloadPercent = 0;
           this.currentEmpNo = user.empNo;
+          this.activeMenu = 'spare-part';
+          this.activeView = 'edit';
           await this.loadDocumentFromDb(user.empNo);
           if (this.isPurchaseSection) {
             await this.loadAllQuotationRequests();
@@ -1086,12 +1598,12 @@ export class AppComponent implements OnInit, AfterViewInit {
         }, 3900);
 
       } else {
-        console.warn(`%c[Suppier Auth] ❌ Verification FAILED for: ${candidateCode}`, 'color: #dc2626; font-weight: bold;', res);
+        console.warn(`%c[Suppier Auth] Verification FAILED for: ${candidateCode}`, 'color: #dc2626; font-weight: bold;', res);
         this.handleLoginFailure(candidateCode, res?.message || `Invalid Employee ID "${candidateCode}". Please try again.`);
       }
 
     } catch (err: any) {
-      console.error(`%c[Suppier Auth] 💥 Unexpected error during login:`, 'color: #dc2626;', err);
+      console.error(`%c[Suppier Auth] Unexpected error during login:`, 'color: #dc2626;', err);
       this.handleLoginFailure(candidateCode, 'Failed to connect to authentication service.');
     }
   }
@@ -1129,7 +1641,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   logout(): void {
-    console.log(`%c[Suppier Auth] 🚪 User ${this.loggedInEmployeeId} logged out.`, 'color: #64748b;');
+    console.log(`%c[Suppier Auth] User ${this.loggedInEmployeeId} logged out.`, 'color: #64748b;');
     try {
       localStorage.removeItem('suppier_auth_user');
     } catch (e) {}
@@ -1477,6 +1989,404 @@ Could you please include the estimated lead time as well`;
     this.onFilterChange();
   }
 
+  // =========================================================
+  // GOOGLE-STYLE QUOTATION SEARCH ENGINE CONTROLLERS
+  // =========================================================
+  openQuotationSearchView(): void {
+    this.activeView = 'quotation-search';
+    this.activeMenu = 'quotation-search';
+    this.activeSubMenu = '';
+    if (!this.selectedKnowledgeResult && this.quotationSampleList.length > 0) {
+      this.selectedKnowledgeResult = this.quotationSampleList[0];
+    }
+  }
+
+  closeQuotationSearchView(): void {
+    if (this.searchAnimTimeout) clearTimeout(this.searchAnimTimeout);
+    this.isSearchCollapsing = false;
+    this.searchAnimStage = 'idle';
+    this.activeView = 'edit';
+    this.activeMenu = 'spare-part';
+  }
+
+  executeQuotationSearch(query?: string): void {
+    if (query !== undefined) {
+      this.quotationSearchQuery = query;
+    }
+
+    // When searching from Home, animate:
+    // Phase 1: Surrounding elements fade out, search box expands larger into center (420ms)
+    // Phase 2: Search box gradually shortens inward until it becomes a circle (550ms)
+    // Phase 3: Morph into rotating loading circle (950ms)
+    // Phase 4: Display search results
+    if (this.searchEngineMode === 'home') {
+      if (this.searchAnimStage !== 'idle') return; // Prevent double trigger
+
+      this.isSearchCollapsing = true;
+      this.searchAnimStage = 'expanding';
+
+      if (this.searchAnimTimeout) clearTimeout(this.searchAnimTimeout);
+
+      // Step 1: Surrounding elements fade away, search box expands in center (420ms)
+      this.searchAnimTimeout = setTimeout(() => {
+        this.searchAnimStage = 'collapsing';
+
+        // Step 2: Search box gradually shortens down until it becomes a 54px circle (550ms)
+        this.searchAnimTimeout = setTimeout(() => {
+          this.searchAnimStage = 'loading';
+
+          // Step 3: Once it becomes a circle, spin as loading animation (950ms)
+          this.searchAnimTimeout = setTimeout(() => {
+            this.searchEngineMode = 'results';
+            this.searchAnimStage = 'idle';
+            this.isSearchCollapsing = false;
+            this.searchExecutionTime = (Math.random() * 0.18 + 0.12).toFixed(2);
+            const results = this.filteredQuotationResults;
+            if (results.length > 0) {
+              this.selectedKnowledgeResult = results[0];
+            }
+          }, 950);
+        }, 550);
+      }, 420);
+      return;
+    }
+
+    // Direct result refresh if already on results page
+    this.searchExecutionTime = (Math.random() * 0.18 + 0.12).toFixed(2);
+    const results = this.filteredQuotationResults;
+    if (results.length > 0) {
+      this.selectedKnowledgeResult = results[0];
+    }
+  }
+
+  switchSearchMode(mode: 'home' | 'results'): void {
+    if (this.searchAnimTimeout) clearTimeout(this.searchAnimTimeout);
+    this.isSearchCollapsing = false;
+    this.searchAnimStage = 'idle';
+    this.searchEngineMode = mode;
+  }
+
+  clearSearchQuery(): void {
+    this.quotationSearchQuery = '';
+  }
+
+  setSearchFilterTab(tab: 'all' | 'pdf' | 'makers' | 'vendors' | 'urgent' | 'price'): void {
+    this.searchFilterTab = tab;
+  }
+
+  toggleSearchTools(): void {
+    this.isSearchToolsOpen = !this.isSearchToolsOpen;
+  }
+
+  selectQuotationForKnowledgePanel(item: QuotationSearchResult): void {
+    this.selectedKnowledgeResult = item;
+  }
+
+  feelingLucky(): void {
+    const list = this.quotationSampleList;
+    if (list.length > 0) {
+      const luckyIndex = Math.floor(Math.random() * list.length);
+      const luckyItem = list[luckyIndex];
+      this.quotationSearchQuery = luckyItem.partName + ' ' + luckyItem.makerName;
+      this.selectedKnowledgeResult = luckyItem;
+      this.showToast(`ค้นพบใบเสนอราคา: ${luckyItem.partName} (${luckyItem.quotationNo})`);
+      this.executeQuotationSearch();
+    }
+  }
+
+  get filteredQuotationResults(): QuotationSearchResult[] {
+    let list = [...this.quotationSampleList];
+    const q = this.quotationSearchQuery.trim().toLowerCase();
+
+    if (q) {
+      list = list.filter(item =>
+        item.quotationNo.toLowerCase().includes(q) ||
+        item.partName.toLowerCase().includes(q) ||
+        item.spec.toLowerCase().includes(q) ||
+        item.makerName.toLowerCase().includes(q) ||
+        item.vendor.toLowerCase().includes(q) ||
+        item.docNumber.toLowerCase().includes(q) ||
+        item.tags.some(t => t.toLowerCase().includes(q))
+      );
+    }
+
+    if (this.searchFilterTab === 'pdf') {
+      list = list.filter(item => !!item.quotationPdf);
+    } else if (this.searchFilterTab === 'urgent') {
+      list = list.filter(item => item.isUrgent);
+    } else if (this.searchFilterTab === 'makers') {
+      list = list.filter(item => ['SMC', 'AIRTAC', 'MISUMI', 'KEYENCE', 'ULVAC', 'SHCOH SANGYO', 'IAI'].includes(item.makerName));
+    }
+
+    if (this.searchCurrencyFilter !== 'ALL') {
+      list = list.filter(item => item.currency === this.searchCurrencyFilter);
+    }
+
+    if (this.searchStatusFilter !== 'ALL') {
+      list = list.filter(item => item.status === this.searchStatusFilter);
+    }
+
+    if (this.searchDivisionFilter !== 'ALL') {
+      list = list.filter(item => item.division === this.searchDivisionFilter);
+    }
+
+    return list;
+  }
+
+  // =========================================================
+  // SHOPEE PC VIEW CONTROLLERS & GETTERS
+  // =========================================================
+  setResultViewLayout(layout: 'shopee' | 'google'): void {
+    this.resultViewLayout = layout;
+  }
+
+  setShopeeSort(sort: 'relevance' | 'latest' | 'sold' | 'priceAsc' | 'priceDesc'): void {
+    this.shopeeSortBy = sort;
+  }
+
+  setShopeeCategory(cat: string): void {
+    this.shopeeSelectedCategory = cat;
+  }
+
+  setShopeeMaker(maker: string): void {
+    this.shopeeSelectedMaker = maker;
+  }
+
+  setShopeeLocation(loc: string): void {
+    this.shopeeSelectedLocation = loc;
+  }
+
+  setShopeeRating(rating: number): void {
+    this.shopeeMinRating = this.shopeeMinRating === rating ? 0 : rating;
+  }
+
+  applyShopeePriceFilter(): void {
+    this.showToast(`ตัวกรองราคา: ฿${this.shopeeMinPrice || 0} - ฿${this.shopeeMaxPrice || 'สูงสุด'}`);
+  }
+
+  clearAllShopeeFilters(): void {
+    this.shopeeSelectedCategory = 'ALL';
+    this.shopeeSelectedMaker = 'ALL';
+    this.shopeeSelectedLocation = 'ALL';
+    this.shopeeSelectedVendor = 'ALL';
+    this.shopeeMinPrice = null;
+    this.shopeeMaxPrice = null;
+    this.shopeeOnlyUrgent = false;
+    this.shopeeOnlyApproved = false;
+    this.shopeeOnlyMall = false;
+    this.shopeeOnlyPdf = false;
+    this.shopeeMinRating = 0;
+    this.shopeeSortBy = 'relevance';
+    this.shopeeOnlyTop5 = false;
+    this.quotationSearchQuery = '';
+    this.showToast('ล้างตัวกรองทั้งหมดเรียบร้อยแล้ว');
+  }
+
+  toggleTop5Only(): void {
+    this.shopeeOnlyTop5 = !this.shopeeOnlyTop5;
+    if (this.shopeeOnlyTop5) {
+      this.showToast('แสดงเฉพาะ TOP 5 อันดับที่ตรงกับคำค้นหามากที่สุด');
+    } else {
+      this.showToast('แสดงผลการค้นหาทั้งหมด');
+    }
+  }
+
+  calculateRelevanceScore(item: QuotationSearchResult, query: string): number {
+    const q = (query || '').trim().toLowerCase();
+
+    // Default ranking when no search term is entered (Prioritize Approved & Recent)
+    if (!q) {
+      let base = 82;
+      if (item.status === 'Approved') base += 9;
+      if (item.status === 'PO Issued') base += 6;
+      if (item.quotationPdf) base += 4;
+      if (item.isUrgent) base += 3;
+      if (['SMC', 'MISUMI', 'KEYENCE'].includes(item.makerName)) base += 2;
+      return Math.min(99, Math.max(75, base));
+    }
+
+    const tokens = q.split(/\s+/).filter(t => t.length > 0);
+    let matchPoints = 0;
+
+    for (const token of tokens) {
+      // 1. Quotation No exact or partial
+      if (item.quotationNo.toLowerCase() === token) {
+        matchPoints += 55;
+      } else if (item.quotationNo.toLowerCase().includes(token)) {
+        matchPoints += 35;
+      }
+
+      // 2. Part Name
+      if (item.partName.toLowerCase().includes(token)) {
+        matchPoints += 38;
+        if (item.partName.toLowerCase() === token) matchPoints += 15;
+      }
+
+      // 3. Spec / Model
+      if (item.spec.toLowerCase().includes(token)) {
+        matchPoints += 30;
+      }
+
+      // 4. Maker
+      if (item.makerName.toLowerCase() === token) {
+        matchPoints += 35;
+      } else if (item.makerName.toLowerCase().includes(token)) {
+        matchPoints += 20;
+      }
+
+      // 5. Vendor
+      if (item.vendor.toLowerCase().includes(token)) {
+        matchPoints += 22;
+      }
+
+      // 6. Doc Number
+      if (item.docNumber.toLowerCase().includes(token)) {
+        matchPoints += 20;
+      }
+
+      // 7. Tags / Category / Location
+      if (item.tags && item.tags.some(t => t.toLowerCase().includes(token))) {
+        matchPoints += 15;
+      }
+      if (item.category && item.category.toLowerCase().includes(token)) {
+        matchPoints += 12;
+      }
+      if (item.location && item.location.toLowerCase().includes(token)) {
+        matchPoints += 8;
+      }
+    }
+
+    // Corporate quality weighting
+    if (item.status === 'Approved') matchPoints += 7;
+    if (item.quotationPdf) matchPoints += 4;
+    if (item.isUrgent) matchPoints += 3;
+
+    // Normalizing between 75% and 99%
+    const normalized = Math.min(99, Math.max(75, 75 + Math.round((matchPoints / (tokens.length * 35 || 1)) * 24)));
+    return normalized;
+  }
+
+  openShopeeQuickView(item: QuotationSearchResult, event?: MouseEvent): void {
+    if (event) event.stopPropagation();
+    this.selectedShopeeItemModal = item;
+    this.selectedKnowledgeResult = item;
+    this.showShopeeQuickView = true;
+  }
+
+  closeShopeeQuickView(): void {
+    this.showShopeeQuickView = false;
+    this.selectedShopeeItemModal = null;
+  }
+
+  addToRequisitionCart(item: QuotationSearchResult, event?: MouseEvent): void {
+    if (event) event.stopPropagation();
+    this.showToast(`เพิ่ม [${item.quotationNo}] ${item.partName} ลงในใบขอซื้อสำเร็จ!`);
+  }
+
+  get shopeeFilteredResults(): QuotationSearchResult[] {
+    let list = [...this.quotationSampleList];
+    const q = this.quotationSearchQuery.trim().toLowerCase();
+
+    // 1. Search Query
+    if (q) {
+      list = list.filter(item =>
+        item.quotationNo.toLowerCase().includes(q) ||
+        item.partName.toLowerCase().includes(q) ||
+        item.spec.toLowerCase().includes(q) ||
+        item.makerName.toLowerCase().includes(q) ||
+        item.vendor.toLowerCase().includes(q) ||
+        item.docNumber.toLowerCase().includes(q) ||
+        (item.category && item.category.toLowerCase().includes(q)) ||
+        (item.location && item.location.toLowerCase().includes(q)) ||
+        item.tags.some(t => t.toLowerCase().includes(q))
+      );
+    }
+
+    // 2. Category Filter
+    if (this.shopeeSelectedCategory !== 'ALL') {
+      list = list.filter(item => item.category === this.shopeeSelectedCategory);
+    }
+
+    // 3. Maker Filter
+    if (this.shopeeSelectedMaker !== 'ALL') {
+      list = list.filter(item => item.makerName === this.shopeeSelectedMaker);
+    }
+
+    // 4. Location Filter
+    if (this.shopeeSelectedLocation !== 'ALL') {
+      list = list.filter(item => item.location === this.shopeeSelectedLocation);
+    }
+
+    // 5. Vendor Filter
+    if (this.shopeeSelectedVendor !== 'ALL') {
+      list = list.filter(item => item.vendor === this.shopeeSelectedVendor);
+    }
+
+    // 6. Mall Filter
+    if (this.shopeeOnlyMall) {
+      list = list.filter(item => !!item.isMall);
+    }
+
+    // 7. Urgent Filter
+    if (this.shopeeOnlyUrgent) {
+      list = list.filter(item => item.isUrgent);
+    }
+
+    // 8. Approved Filter
+    if (this.shopeeOnlyApproved) {
+      list = list.filter(item => item.status === 'Approved');
+    }
+
+    // 9. PDF Filter
+    if (this.shopeeOnlyPdf) {
+      list = list.filter(item => !!item.quotationPdf);
+    }
+
+    // 10. Rating Filter
+    if (this.shopeeMinRating > 0) {
+      list = list.filter(item => (item.vendorRating || 0) >= this.shopeeMinRating);
+    }
+
+    // 11. Price Range
+    if (this.shopeeMinPrice !== null && this.shopeeMinPrice > 0) {
+      list = list.filter(item => item.unitPrice >= this.shopeeMinPrice!);
+    }
+    if (this.shopeeMaxPrice !== null && this.shopeeMaxPrice > 0) {
+      list = list.filter(item => item.unitPrice <= this.shopeeMaxPrice!);
+    }
+
+    // Calculate matchScore for all items
+    list.forEach(item => {
+      item.matchScore = this.calculateRelevanceScore(item, q);
+    });
+
+    // 12. Sorting
+    if (this.shopeeSortBy === 'priceAsc') {
+      list.sort((a, b) => a.unitPrice - b.unitPrice);
+    } else if (this.shopeeSortBy === 'priceDesc') {
+      list.sort((a, b) => b.unitPrice - a.unitPrice);
+    } else if (this.shopeeSortBy === 'latest') {
+      list.sort((a, b) => b.id.localeCompare(a.id));
+    } else if (this.shopeeSortBy === 'sold') {
+      list.sort((a, b) => (parseInt(b.soldCount || '0') || 0) - (parseInt(a.soldCount || '0') || 0));
+    } else {
+      // Default: sort by matchScore descending (Best Relevance Matches)
+      list.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+    }
+
+    // Assign rank 1..N based on relevance order
+    list.forEach((item, index) => {
+      item.rank = index + 1;
+    });
+
+    // If Top 5 only is active
+    if (this.shopeeOnlyTop5) {
+      list = list.slice(0, 5);
+    }
+
+    return list;
+  }
+
   async openPurchaseQuotationView(): Promise<void> {
     this.activeView = 'purchase-quotation';
     this.activeMenu = 'purchase-quotations';
@@ -1698,7 +2608,7 @@ Could you please include the estimated lead time as well`;
   async copyEmailQuotationToClipboard(): Promise<void> {
     const selectedItems = this.getSelectedQuotationItems();
     if (selectedItems.length === 0) {
-      this.showToast('⚠️ กรุณาเลือกรายการอย่างน้อย 1 รายการเพื่อส่งขอใบเสนอราคา');
+      this.showToast('กรุณาเลือกรายการอย่างน้อย 1 รายการเพื่อส่งขอใบเสนอราคา');
       return;
     }
 
@@ -1720,22 +2630,22 @@ Could you please include the estimated lead time as well`;
       }
 
       this.isCopyingEmail = true;
-      this.copyFeedbackText = '✅ คัดลอกแบบฟอร์มขอใบเสนอราคาเรียบร้อยแล้ว! สามารถเปิด Outlook หรือ Gmail แล้วกด Ctrl+V วางได้ทันที';
-      this.showToast('📋 คัดลอกตารางขอใบเสนอราคาสำเร็จ! กด Ctrl+V ใน Email ได้ทันที');
+      this.copyFeedbackText = 'คัดลอกแบบฟอร์มขอใบเสนอราคาเรียบร้อยแล้ว! สามารถเปิด Outlook หรือ Gmail แล้วกด Ctrl+V วางได้ทันที';
+      this.showToast('คัดลอกตารางขอใบเสนอราคาสำเร็จ! กด Ctrl+V ใน Email ได้ทันที');
       setTimeout(() => {
         this.isCopyingEmail = false;
       }, 4000);
     } catch (err) {
       console.warn('Clipboard write failed, using fallback copy:', err);
       this.fallbackCopyHtml(htmlContent);
-      this.showToast('📋 คัดลอกตารางขอใบเสนอราคาสำเร็จ (Fallback Mode)');
+      this.showToast('คัดลอกตารางขอใบเสนอราคาสำเร็จ (Fallback Mode)');
     }
   }
 
   async copyTableOnlyToClipboard(): Promise<void> {
     const selectedItems = this.getSelectedQuotationItems();
     if (selectedItems.length === 0) {
-      this.showToast('⚠️ กรุณาเลือกรายการอย่างน้อย 1 รายการ');
+      this.showToast('กรุณาเลือกรายการอย่างน้อย 1 รายการ');
       return;
     }
 
@@ -1799,17 +2709,17 @@ Could you please include the estimated lead time as well`;
       } else {
         this.fallbackCopyHtml(htmlContent);
       }
-      this.showToast('📋 คัดลอกตารางอย่างเดียวสำเร็จ!');
+      this.showToast('คัดลอกตารางอย่างเดียวสำเร็จ!');
     } catch (e) {
       this.fallbackCopyHtml(htmlContent);
-      this.showToast('📋 คัดลอกตารางอย่างเดียวสำเร็จ (Fallback)');
+      this.showToast('คัดลอกตารางอย่างเดียวสำเร็จ (Fallback)');
     }
   }
 
   async copySubjectToClipboard(): Promise<void> {
     try {
       await navigator.clipboard.writeText(this.quotationEmailSubject);
-      this.showToast(`📋 คัดลอก Subject: "${this.quotationEmailSubject}"`);
+      this.showToast(`คัดลอก Subject: "${this.quotationEmailSubject}"`);
     } catch (e) {
       this.showToast('ไม่สามารถคัดลอกได้');
     }

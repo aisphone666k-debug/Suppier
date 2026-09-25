@@ -37,7 +37,7 @@ export class ApiService {
    */
   async verifyEmployee(employeeId: string): Promise<VerifyEmployeeResponse> {
     const code = employeeId.trim().toUpperCase();
-    console.log(`%c[Suppier API] 📡 Requesting auth verification for "${code}"...`, 'color: #2563eb; font-weight: bold;');
+    console.log(`%c[Suppier API] Requesting auth verification for "${code}"...`, 'color: #2563eb; font-weight: bold;');
 
     try {
       const response = await fetch(`${this.baseUrl}/auth/verify-employee`, {
@@ -49,10 +49,10 @@ export class ApiService {
       });
 
       const result = await response.json();
-      console.log(`%c[Suppier API] 📥 Server Response:`, 'color: #059669;', result);
+      console.log(`%c[Suppier API] Server Response:`, 'color: #059669;', result);
       return result;
     } catch (err) {
-      console.warn('%c[Suppier API] ⚠️ Backend API offline or unreachable. Using fallback:', 'color: #d97706;', err);
+      console.warn('%c[Suppier API] Backend API offline or unreachable. Using fallback:', 'color: #d97706;', err);
       
       // Standalone Fallback for Danuphon and common test accounts
       if (code === 'X4770') {
@@ -171,17 +171,17 @@ export class ApiService {
    * Fetch requisition document for a specific employee account
    */
   async getRequisitionDocumentForAccount(empNo: string): Promise<{ header: any; items: any[] } | null> {
-    console.log(`%c[Suppier API] 📡 Fetching requisition document for account "${empNo}"...`, 'color: #2563eb;');
+    console.log(`%c[Suppier API] Fetching requisition document for account "${empNo}"...`, 'color: #2563eb;');
     try {
       const response = await fetch(`${this.baseUrl}/requisition/account/${encodeURIComponent(empNo)}`);
       const result = await response.json();
       if (result.success && result.data) {
-        console.log(`%c[Suppier API] 📥 Account requisition document loaded:`, 'color: #059669;', result.data);
+        console.log(`%c[Suppier API] Account requisition document loaded:`, 'color: #059669;', result.data);
         return result.data;
       }
       return null;
     } catch (err) {
-      console.warn('%c[Suppier API] ⚠️ Backend API offline, using fallback:', 'color: #d97706;', err);
+      console.warn('%c[Suppier API] Backend API offline, using fallback:', 'color: #d97706;', err);
       return null;
     }
   }
@@ -190,17 +190,17 @@ export class ApiService {
    * Fetch entire requisition document (Header & Items) from Database by docNumber
    */
   async getRequisitionDocument(docNumber = 'DOC-2026-0901-003'): Promise<{ header: any; items: any[] } | null> {
-    console.log(`%c[Suppier API] 📡 Fetching requisition document "${docNumber}"...`, 'color: #2563eb;');
+    console.log(`%c[Suppier API] Fetching requisition document "${docNumber}"...`, 'color: #2563eb;');
     try {
       const response = await fetch(`${this.baseUrl}/requisition/document/${docNumber}`);
       const result = await response.json();
       if (result.success && result.data) {
-        console.log(`%c[Suppier API] 📥 Requisition document loaded:`, 'color: #059669;', result.data);
+        console.log(`%c[Suppier API] Requisition document loaded:`, 'color: #059669;', result.data);
         return result.data;
       }
       return null;
     } catch (err) {
-      console.warn('%c[Suppier API] ⚠️ Backend API offline, using fallback:', 'color: #d97706;', err);
+      console.warn('%c[Suppier API] Backend API offline, using fallback:', 'color: #d97706;', err);
       return null;
     }
   }
@@ -209,7 +209,7 @@ export class ApiService {
    * Save or update requisition header in Database
    */
   async saveRequisitionHeader(docNumber: string, header: any, empNo?: string): Promise<boolean> {
-    console.log(`%c[Suppier API] 📡 Saving requisition header for "${docNumber}" (Emp: ${empNo || ''})...`, 'color: #2563eb;', header);
+    console.log(`%c[Suppier API] Saving requisition header for "${docNumber}" (Emp: ${empNo || ''})...`, 'color: #2563eb;', header);
     try {
       const response = await fetch(`${this.baseUrl}/requisition/document/${docNumber}`, {
         method: 'PUT',
@@ -217,10 +217,10 @@ export class ApiService {
         body: JSON.stringify({ ...header, empNo })
       });
       const res = await response.json();
-      console.log(`%c[Suppier API] 📥 Save header response:`, 'color: #059669;', res);
+      console.log(`%c[Suppier API] Save header response:`, 'color: #059669;', res);
       return !!res.success;
     } catch (err) {
-      console.error('%c[Suppier API] ❌ Failed to save header to backend:', 'color: #dc2626;', err);
+      console.error('%c[Suppier API] Failed to save header to backend:', 'color: #dc2626;', err);
       return false;
     }
   }
@@ -229,7 +229,7 @@ export class ApiService {
    * Save entire document (Header + All Items) in a single transactional request for the account
    */
   async saveEntireDocument(docNumber: string, header: any, items: any[], empNo?: string): Promise<boolean> {
-    console.log(`%c[Suppier API] 📡 Saving entire requisition document "${docNumber}" for account "${empNo || ''}"...`, 'color: #2563eb;', { header, itemsCount: items.length });
+    console.log(`%c[Suppier API] Saving entire requisition document "${docNumber}" for account "${empNo || ''}"...`, 'color: #2563eb;', { header, itemsCount: items.length });
     try {
       const response = await fetch(`${this.baseUrl}/requisition/save-all`, {
         method: 'POST',
@@ -241,10 +241,10 @@ export class ApiService {
         })
       });
       const res = await response.json();
-      console.log(`%c[Suppier API] 📥 Save-all response:`, 'color: #059669;', res);
+      console.log(`%c[Suppier API] Save-all response:`, 'color: #059669;', res);
       return !!res.success;
     } catch (err) {
-      console.error('%c[Suppier API] ❌ Failed to save entire document to backend:', 'color: #dc2626;', err);
+      console.error('%c[Suppier API] Failed to save entire document to backend:', 'color: #dc2626;', err);
       return false;
     }
   }
@@ -253,14 +253,14 @@ export class ApiService {
    * Fetch all requisition items from Database
    */
   async getRequisitionItems(docNumber = 'DOC-2026-0901-003'): Promise<any[]> {
-    console.log(`%c[Suppier API] 📡 Fetching requisition items...`, 'color: #2563eb;');
+    console.log(`%c[Suppier API] Fetching requisition items...`, 'color: #2563eb;');
     try {
       const response = await fetch(`${this.baseUrl}/requisition/items?docNumber=${encodeURIComponent(docNumber)}`);
       const result = await response.json();
-      console.log(`%c[Suppier API] 📥 Requisition items loaded:`, 'color: #059669;', result);
+      console.log(`%c[Suppier API] Requisition items loaded:`, 'color: #059669;', result);
       return result.data || [];
     } catch (err) {
-      console.warn('%c[Suppier API] ⚠️ Backend API offline, using local requisition data:', 'color: #d97706;', err);
+      console.warn('%c[Suppier API] Backend API offline, using local requisition data:', 'color: #d97706;', err);
       return [];
     }
   }
@@ -269,7 +269,7 @@ export class ApiService {
    * Save or update single requisition item
    */
   async saveRequisitionItem(item: any): Promise<boolean> {
-    console.log(`%c[Suppier API] 📡 Saving requisition item:`, 'color: #2563eb;', item);
+    console.log(`%c[Suppier API] Saving requisition item:`, 'color: #2563eb;', item);
     try {
       const url = item.id ? `${this.baseUrl}/requisition/items/${item.id}` : `${this.baseUrl}/requisition/items`;
       const method = item.id ? 'PUT' : 'POST';
@@ -279,10 +279,10 @@ export class ApiService {
         body: JSON.stringify(item)
       });
       const res = await response.json();
-      console.log(`%c[Suppier API] 📥 Save item response:`, 'color: #059669;', res);
+      console.log(`%c[Suppier API] Save item response:`, 'color: #059669;', res);
       return !!res.success;
     } catch (err) {
-      console.error('%c[Suppier API] ❌ Failed to save requisition item to backend:', 'color: #dc2626;', err);
+      console.error('%c[Suppier API] Failed to save requisition item to backend:', 'color: #dc2626;', err);
       return false;
     }
   }
@@ -291,7 +291,7 @@ export class ApiService {
    * Delete requisition item from database
    */
   async deleteRequisitionItem(id: number): Promise<boolean> {
-    console.log(`%c[Suppier API] 📡 Deleting requisition item #${id}...`, 'color: #2563eb;');
+    console.log(`%c[Suppier API] Deleting requisition item #${id}...`, 'color: #2563eb;');
     try {
       const response = await fetch(`${this.baseUrl}/requisition/items/${id}`, {
         method: 'DELETE'
@@ -299,7 +299,7 @@ export class ApiService {
       const res = await response.json();
       return !!res.success;
     } catch (err) {
-      console.error('%c[Suppier API] ❌ Failed to delete item:', 'color: #dc2626;', err);
+      console.error('%c[Suppier API] Failed to delete item:', 'color: #dc2626;', err);
       return false;
     }
   }
@@ -308,16 +308,16 @@ export class ApiService {
    * Get all quotation requests submitted by users (for PURCHASE section view)
    */
   async getAllQuotationRequests(): Promise<Array<{ header: any; items: any[] }>> {
-    console.log(`%c[Suppier API] 📡 Fetching all user quotation requests...`, 'color: #2563eb;');
+    console.log(`%c[Suppier API] Fetching all user quotation requests...`, 'color: #2563eb;');
     try {
       const response = await fetch(`${this.baseUrl}/requisition/all-requests`);
       const res = await response.json();
       if (res.success && Array.isArray(res.data)) {
-        console.log(`%c[Suppier API] 📥 Loaded ${res.data.length} quotation requests:`, 'color: #059669;', res.data);
+        console.log(`%c[Suppier API] Loaded ${res.data.length} quotation requests:`, 'color: #059669;', res.data);
         return res.data;
       }
     } catch (err) {
-      console.warn('%c[Suppier API] ⚠️ Failed to fetch all requests from backend:', 'color: #d97706;', err);
+      console.warn('%c[Suppier API] Failed to fetch all requests from backend:', 'color: #d97706;', err);
     }
     return [];
   }
