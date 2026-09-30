@@ -1,7 +1,25 @@
 import { Component, OnInit, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService, EmployeeUser } from './services/api.service';
+import { ApiService, EmployeeUser, QuotationLineItem, SupplierQuotationResult, SupplierQuotationSearchResponse } from './services/api.service';
+
+export interface SupplierItem {
+  id: string;
+  name: string;
+  code: string;
+  category: string;
+  contactPerson?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  taxId?: string;
+  rating: number;
+  status: 'ACTIVE' | 'INACTIVE' | 'PENDING';
+  tags: string[];
+  notes?: string;
+  quotationCount?: number;
+  lastQuoteDate?: string;
+}
 
 export interface Attachment {
   name: string;
@@ -505,7 +523,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   // Navigation & View State
   activeMenu = 'spare-part';
-  activeView: 'list' | 'edit' | 'purchase-quotation' | 'quotation-search' = 'edit';
+  activeView: 'list' | 'edit' | 'purchase-quotation' | 'quotation-search' | 'supplier-directory' | 'supplier-detail' = 'edit';
   isSidebarCollapsed = false;
 
   toggleSidebar() {
@@ -518,6 +536,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   isSearchCollapsing = false;
   searchAnimStage: 'idle' | 'expanding' | 'collapsing' | 'loading' = 'idle';
   private searchAnimTimeout: any = null;
+  quotationSearchTab: 'live-quotes' | 'suppliers' | 'catalog' = 'live-quotes';
   searchFilterTab: 'all' | 'pdf' | 'makers' | 'vendors' | 'urgent' | 'price' = 'all';
   isSearchToolsOpen = false;
   searchPeriodFilter = 'ALL';
@@ -2337,6 +2356,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   activeSubMenu = '';
 
   masterMenus = [
+    { id: 'master-supplier', label: 'Master Suppliers (คู่ค้า & ใบเสนอราคา)' },
     { id: 'master-section', label: 'Master Section' },
     { id: 'master-unit', label: 'Master Unit' },
     { id: 'master-order-type', label: 'Master Order Type' },
@@ -2430,6 +2450,10 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
     if (menuId === 'purchase-quotations') {
       this.openPurchaseQuotationView();
+      return;
+    }
+    if (menuId === 'master-supplier' || menuId === 'supplier-directory' || menuId === 'master-purchase') {
+      this.openSupplierDirectoryView();
       return;
     }
     const foundMenu = this.documentMenus.find(m => m.id === menuId);
@@ -3627,7 +3651,7 @@ Could you please include the estimated lead time as well`;
   // =========================================================
   // GOOGLE-STYLE QUOTATION SEARCH ENGINE CONTROLLERS
   // =========================================================
-  previousViewBeforeSearch: 'list' | 'edit' | 'purchase-quotation' = 'edit';
+  previousViewBeforeSearch: 'list' | 'edit' | 'purchase-quotation' | 'supplier-directory' | 'supplier-detail' = 'edit';
   previousMenuBeforeSearch: string = 'spare-part';
   previousSubMenuBeforeSearch: string = '';
 
@@ -3660,6 +3684,20 @@ Could you please include the estimated lead time as well`;
     if (query !== undefined) {
       this.quotationSearchQuery = query;
     }
+
+    const q = (this.quotationSearchQuery || '').trim();
+    // Resolve matching supplier in directory if query matches vendor name or code
+    const matchingSupplier = this.supplierList.find(s =>
+      s.name.toLowerCase().includes(q.toLowerCase()) ||
+      (q.length >= 2 && s.code.toLowerCase().includes(q.toLowerCase()))
+    );
+    if (matchingSupplier) {
+      this.selectedSupplier = matchingSupplier;
+    }
+
+    // Call live microservice search API (localhost:8000)
+    const searchQuery = q || (matchingSupplier ? matchingSupplier.name : 'BANDO');
+    this.loadSupplierQuotations(searchQuery, this.supplierUserRole);
 
     // When searching from Home, animate:
     // Phase 1: Surrounding elements fade out, search box expands larger into center (420ms)
@@ -3704,6 +3742,21 @@ Could you please include the estimated lead time as well`;
     if (results.length > 0) {
       this.selectedKnowledgeResult = results[0];
     }
+  }
+
+  searchSupplierInMicroservice(supplierName: string): void {
+    this.quotationSearchQuery = supplierName;
+    this.quotationSearchTab = 'live-quotes';
+    this.switchSearchMode('results');
+    const matched = this.supplierList.find(s => 
+      s.name.toLowerCase().includes(supplierName.toLowerCase()) || 
+      supplierName.toLowerCase().includes(s.name.toLowerCase()) ||
+      s.code.toLowerCase() === supplierName.toLowerCase()
+    );
+    if (matched) {
+      this.selectedSupplier = matched;
+    }
+    this.loadSupplierQuotations(supplierName, this.supplierUserRole);
   }
 
   switchSearchMode(mode: 'home' | 'results'): void {
@@ -4560,4 +4613,385 @@ Could you please include the estimated lead time as well`;
     document.body.removeChild(container);
   }
 
+  // =========================================================
+  // SUPPLIER & VENDOR DIRECTORY & DETAIL CONTROLLERS
+  // =========================================================
+  supplierList: SupplierItem[] = [
+    {
+      id: 'VND-001',
+      name: 'BANDO CHEMICAL INDUSTRIES (THAILAND) LTD.',
+      code: 'BANDO',
+      category: 'Power Transmission & Industrial Belts',
+      contactPerson: 'Industrial Sales & Support',
+      phone: '02-393-2211',
+      email: 'sales@bando-thai.com',
+      address: 'Bangpoo Industrial Estate, Samut Prakan, Thailand',
+      taxId: '0105530018892',
+      rating: 4.9,
+      status: 'ACTIVE',
+      tags: ['V-Belt', 'Transmission Belt', 'Industrial Rubber', 'Pneumatics', 'Preferred Vendor'],
+      notes: 'Official industrial transmission belt supplier for automated assembly lines.'
+    },
+    {
+      id: 'VND-002',
+      name: 'DooDee Technology Co.,Ltd.',
+      code: 'DOODEE',
+      category: 'Automation & Control Enclosures',
+      contactPerson: 'Engineering & Project Sales',
+      phone: '02-892-7744',
+      email: 'contact@doodee-tech.co.th',
+      address: '77/12 Moo 4, Rama 2 Road, Bangkok, Thailand',
+      taxId: '0105558123456',
+      rating: 4.8,
+      status: 'ACTIVE',
+      tags: ['Control Box', 'Button Box', 'Electrical', 'Project M-AL6-001B', 'Custom Fab'],
+      notes: 'Custom button boxes, control panels, and automation enclosure fabrications.'
+    },
+    {
+      id: 'VND-003',
+      name: 'NMB-MINEBEA THAI LIMITED',
+      code: 'MINEBEA',
+      category: 'Miniature Bearings & Precision Motors',
+      contactPerson: 'Internal Procurement & Sales Desk',
+      phone: '035-361-420',
+      email: 'parts@minebea.co.th',
+      address: '1 Moo 7, Phaholyothin Rd., Km. 51, Bangpa-in, Ayutthaya',
+      taxId: '0105531012345',
+      rating: 5.0,
+      status: 'ACTIVE',
+      tags: ['Bearings', 'Stepping Motors', 'Sensors', 'Minebea Group', 'Precision Parts'],
+      notes: 'Affiliated manufacturing group supplier for high-precision components and sub-assemblies.'
+    },
+    {
+      id: 'VND-004',
+      name: 'IWASE (Thailand) Co., Ltd. (Head Office)',
+      code: 'IWASE',
+      category: 'Factory Automation & Machinery Tools',
+      contactPerson: 'Industrial Sales Department',
+      phone: '02-248-7300',
+      email: 'info@iwase.co.th',
+      address: '33/4 The 9th Towers Grand Rama 9, 17th Fl, Huay Kwang, Bangkok',
+      taxId: '0105557018991',
+      rating: 4.8,
+      status: 'ACTIVE',
+      tags: ['Pneumatics', 'Cutting Tools', 'Linear Motion', 'Valves', 'Sensors'],
+      notes: 'Authorized trading firm for top Japanese factory automation and machine tool makers.'
+    },
+    {
+      id: 'VND-005',
+      name: 'THAI-INTER ELECTRIC INDUSTRIES CO.,LTD.',
+      code: 'THAI-INTER',
+      category: 'Electrical Wiring & Power Components',
+      contactPerson: 'Commercial Procurement Desk',
+      phone: '02-416-3590',
+      email: 'sales@thaiinter-electric.com',
+      address: '124 Sukhumvit 103, Bangna, Bangkok',
+      taxId: '0105535041635',
+      rating: 4.7,
+      status: 'ACTIVE',
+      tags: ['Electrical', 'Cables', 'Transformers', 'Switchgear', 'Power Supplies'],
+      notes: 'Supplying heavy industrial electrical equipment and certified electrical accessories.'
+    },
+    {
+      id: 'VND-006',
+      name: 'CHAVANAN CO., LTD.',
+      code: 'CHAVANAN',
+      category: 'Pneumatic Automation (SMC Authorized)',
+      contactPerson: 'Khun Chavanon / Sales Team',
+      phone: '02-748-8120',
+      email: 'sales@chavanan.com',
+      address: '88/15 Bangna-Trad Road, Bangna, Bangkok',
+      taxId: '0105541018273',
+      rating: 4.9,
+      status: 'ACTIVE',
+      tags: ['SMC Authorized', 'Air Cylinder', 'Guide Cylinder', 'Solenoid Valve', 'Fast Delivery'],
+      notes: 'Primary distributor for SMC pneumatics and air cylinders with official warranty.'
+    },
+    {
+      id: 'VND-007',
+      name: 'MISUMI (THAILAND) CO., LTD.',
+      code: 'MISUMI',
+      category: 'Standard Mechanical & Automation Components',
+      contactPerson: 'WOS Customer Service Desk',
+      phone: '038-959-200',
+      email: 'cs@misumi.co.th',
+      address: 'Eastern Seaboard Industrial Estate, Rayong, Thailand',
+      taxId: '0105540028192',
+      rating: 5.0,
+      status: 'ACTIVE',
+      tags: ['WOS Web Order', 'Linear Guide', 'Ball Screws', 'Shafts', 'Next-Day Delivery'],
+      notes: 'Direct supplier of configurable factory automation components and CAD-verified standard parts.'
+    },
+    {
+      id: 'VND-008',
+      name: 'AIRTAC 2060080',
+      code: 'AIRTAC',
+      category: 'Pneumatics & Fluid Control',
+      contactPerson: 'Authorized AirTAC Regional Distributor',
+      phone: '02-751-2060',
+      email: 'sales@airtac-thai.com',
+      address: 'King Kaew Road, Racha Thewa, Bang Phli, Samut Prakan',
+      taxId: '0105549020608',
+      rating: 4.7,
+      status: 'ACTIVE',
+      tags: ['AirTAC Cylinders', 'Directional Valves', 'FRL Units', 'Tubing & Fittings'],
+      notes: 'Standard pneumatic actuator provider for M/M and MA production cells.'
+    },
+    {
+      id: 'VND-009',
+      name: 'WORLD PUMP CO., LTD.',
+      code: 'WORLD PUMP',
+      category: 'Vacuum & Industrial Pumping Systems',
+      contactPerson: 'Vacuum Engineering Specialist',
+      phone: '02-942-8800',
+      email: 'support@worldpump.co.th',
+      address: 'Phaholyothin Rd., Chatuchak, Bangkok',
+      taxId: '0105543089123',
+      rating: 4.8,
+      status: 'ACTIVE',
+      tags: ['Dry Screw Pump', 'Shcoh Sangyo', 'Vacuum Tech', 'Clean Room Pumps'],
+      notes: 'Specialist vendor for clean-room grade dry screw vacuum pumps and rebuild kits.'
+    },
+    {
+      id: 'VND-010',
+      name: 'KEYENCE (THAILAND) CO., LTD.',
+      code: 'KEYENCE',
+      category: 'Sensors & Machine Vision Inspection',
+      contactPerson: 'Keyence Direct Engineering Sales',
+      phone: '02-366-2500',
+      email: 'info@keyence.co.th',
+      address: 'Athenee Tower, Wireless Road, Lumpini, Pathumwan, Bangkok',
+      taxId: '0105542019876',
+      rating: 4.9,
+      status: 'ACTIVE',
+      tags: ['Optical Sensors', 'Barcode Readers', 'Vision Systems', 'Safety Light Curtains'],
+      notes: 'High-end sensor solutions, displacement sensors, and quality control vision systems.'
+    },
+    {
+      id: 'VND-011',
+      name: 'ULVAC (THAILAND) CO., LTD.',
+      code: 'ULVAC',
+      category: 'Vacuum Technology & Vacuum Components',
+      contactPerson: 'Components & Service Department',
+      phone: '02-738-8888',
+      email: 'sales@ulvac.co.th',
+      address: 'Wellgrow Industrial Estate, Bangna-Trad Km.36, Chachoengsao',
+      taxId: '0105545012398',
+      rating: 4.7,
+      status: 'ACTIVE',
+      tags: ['Flanges', 'Reducers', 'Vacuum Clamps', 'Chambers', 'High Vacuum'],
+      notes: 'OEM supplier of KF/KQC vacuum flanges, seals, and specialized vacuum fittings.'
+    }
+  ];
+
+  selectedSupplier: SupplierItem | null = null;
+  supplierDetailTab: 'overview' | 'quotations' | 'items' = 'quotations';
+  showSupplierDetailModal = false;
+  supplierQuotationsLoading = false;
+  supplierQuotationsResult: SupplierQuotationSearchResponse | null = null;
+  supplierQuotationsError = '';
+  supplierUserRole: 'NORMAL_USER' | 'PH_USER' = 'NORMAL_USER';
+  supplierDirectorySearchQuery = '';
+  supplierDirectoryCategoryFilter = 'ALL';
+  supplierDirectoryStatusFilter = 'ALL';
+  supplierLineItemFilter = '';
+
+  openSupplierDirectoryView(): void {
+    this.openQuotationSearchView();
+    this.quotationSearchTab = 'suppliers';
+    this.switchSearchMode('results');
+  }
+
+  viewSupplier(supplier: SupplierItem, tab: 'overview' | 'quotations' | 'items' = 'quotations'): void {
+    this.selectedSupplier = supplier;
+    this.supplierDetailTab = tab;
+    this.activeView = 'supplier-detail';
+    this.activeMenu = 'master-supplier';
+    this.loadSupplierQuotations(supplier.name, this.supplierUserRole);
+  }
+
+  closeSupplierDetailView(): void {
+    this.openQuotationSearchView();
+    this.quotationSearchTab = 'suppliers';
+    this.switchSearchMode('results');
+  }
+
+  openSupplierDetailModal(supplierOrName: SupplierItem | string, tab: 'overview' | 'quotations' | 'items' = 'quotations', event?: MouseEvent): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    let targetSupplier: SupplierItem;
+    if (typeof supplierOrName === 'string') {
+      const trimmed = (supplierOrName || '').trim();
+      const existing = this.supplierList.find(s => 
+        s.name.toLowerCase().includes(trimmed.toLowerCase()) || 
+        trimmed.toLowerCase().includes(s.name.toLowerCase()) ||
+        s.code.toLowerCase() === trimmed.toLowerCase()
+      );
+      if (existing) {
+        targetSupplier = existing;
+      } else {
+        targetSupplier = {
+          id: 'VND-' + Math.floor(1000 + Math.random() * 9000),
+          name: trimmed || 'Unknown Supplier',
+          code: (trimmed.slice(0, 8) || 'VENDOR').toUpperCase(),
+          category: 'General Industrial & Factory Supplier',
+          contactPerson: 'Sales Department',
+          phone: '-',
+          email: '-',
+          rating: 4.8,
+          status: 'ACTIVE',
+          tags: ['Vendor', 'Registered Supplier']
+        };
+        this.supplierList.push(targetSupplier);
+      }
+    } else {
+      targetSupplier = supplierOrName;
+    }
+
+    this.selectedSupplier = targetSupplier;
+    this.supplierDetailTab = tab;
+    this.showSupplierDetailModal = true;
+    this.loadSupplierQuotations(targetSupplier.name);
+  }
+
+  openSupplierDetailByName(name: string, event?: MouseEvent): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.openSupplierDetailModal(name, 'quotations');
+  }
+
+  closeSupplierDetailModal(): void {
+    this.showSupplierDetailModal = false;
+  }
+
+  async loadSupplierQuotations(supplierName: string, userRole?: 'NORMAL_USER' | 'PH_USER'): Promise<void> {
+    if (userRole) {
+      this.supplierUserRole = userRole;
+    }
+    if (!supplierName) {
+      this.supplierQuotationsResult = { query: '', count: 0, results: [] };
+      return;
+    }
+    this.supplierQuotationsLoading = true;
+    this.supplierQuotationsError = '';
+    try {
+      const response = await this.apiService.searchSupplierQuotations(supplierName, this.supplierUserRole);
+      this.supplierQuotationsResult = response;
+      if (this.selectedSupplier) {
+        this.selectedSupplier.quotationCount = response.count;
+      }
+    } catch (err: any) {
+      console.error('Failed to load supplier quotations:', err);
+      this.supplierQuotationsError = err?.message || 'Could not connect to Quotation Search service (http://localhost:8000)';
+      this.supplierQuotationsResult = { query: supplierName, count: 0, results: [] };
+    } finally {
+      this.supplierQuotationsLoading = false;
+    }
+  }
+
+  setSupplierUserRole(role: 'NORMAL_USER' | 'PH_USER'): void {
+    if (this.supplierUserRole !== role) {
+      this.supplierUserRole = role;
+      const targetQuery = this.selectedSupplier?.name || this.quotationSearchQuery || 'BANDO';
+      if (targetQuery) {
+        this.loadSupplierQuotations(targetQuery, this.supplierUserRole);
+      }
+    }
+  }
+
+  get filteredSupplierList(): SupplierItem[] {
+    let list = this.supplierList;
+    const q = (this.supplierDirectorySearchQuery || '').trim().toLowerCase();
+    if (q) {
+      list = list.filter(s => 
+        s.name.toLowerCase().includes(q) ||
+        s.code.toLowerCase().includes(q) ||
+        s.category.toLowerCase().includes(q) ||
+        s.tags.some(t => t.toLowerCase().includes(q))
+      );
+    }
+    if (this.supplierDirectoryCategoryFilter !== 'ALL') {
+      list = list.filter(s => s.category.toLowerCase().includes(this.supplierDirectoryCategoryFilter.toLowerCase()));
+    }
+    return list;
+  }
+
+  getAllQuotationItemsFromResults(): Array<QuotationLineItem & { quotationNo: string; currency: string; vendorName: string; pdfUrl: string; status: string; expirationDate: string }> {
+    if (!this.supplierQuotationsResult?.results) return [];
+    const allItems: Array<QuotationLineItem & { quotationNo: string; currency: string; vendorName: string; pdfUrl: string; status: string; expirationDate: string }> = [];
+    this.supplierQuotationsResult.results.forEach(q => {
+      if (Array.isArray(q.items)) {
+        q.items.forEach(it => {
+          allItems.push({
+            ...it,
+            quotationNo: q.quotation_number,
+            currency: q.currency,
+            vendorName: q.vendor_name,
+            pdfUrl: q.pdf_url,
+            status: q.status,
+            expirationDate: q.expiration_date
+          });
+        });
+      }
+    });
+
+    const filter = (this.supplierLineItemFilter || '').trim().toLowerCase();
+    if (filter) {
+      return allItems.filter(it => 
+        (it.part_number && it.part_number.toLowerCase().includes(filter)) ||
+        (it.description && it.description.toLowerCase().includes(filter)) ||
+        it.quotationNo.toLowerCase().includes(filter)
+      );
+    }
+    return allItems;
+  }
+
+  copyQuotationItemToRequisition(item: QuotationLineItem, quote: SupplierQuotationResult, event?: MouseEvent): void {
+    if (event) event.stopPropagation();
+    const nextNo = this.items.length + 1;
+    const newItem: RequisitionItem = {
+      id: Date.now(),
+      no: nextNo,
+      partName: item.description || item.part_number || 'Quoted Part',
+      spec: item.part_number || item.description || '',
+      position: 'Main Line',
+      makerName: quote.vendor_name || '',
+      qty: item.quantity || 1,
+      unit: item.unit || 'PCS',
+      remark: `From Quote #${quote.quotation_number}`,
+      isUrgent: false,
+      machineModel: '',
+      machineMaker: '',
+      serialNo: '',
+      acCode: '',
+      vendor: quote.vendor_name || '',
+      unitPrice: item.unit_price,
+      currency: quote.currency || 'THB',
+      crCode: '',
+      quotationNo: quote.quotation_number,
+      quotationPdf: quote.pdf_url,
+      leadTime: '7-14 Days',
+      status: 'Quoted',
+      isEditing: false
+    };
+    this.items.push(newItem);
+    this.showToast(`นำเข้าชิ้นส่วน "${newItem.partName}" จากใบเสนอราคา #${quote.quotation_number} เรียบร้อยแล้ว`);
+  }
+
+  calculateAgreementDaysRemaining(expirationDate: string): { days: number; isExpired: boolean; text: string } {
+    if (!expirationDate) return { days: 0, isExpired: false, text: '-' };
+    const exp = new Date(expirationDate);
+    const now = new Date();
+    const diffTime = exp.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) {
+      return { days: diffDays, isExpired: true, text: `หมดอายุแล้ว (${Math.abs(diffDays)} วันที่แล้ว)` };
+    }
+    if (diffDays === 0) {
+      return { days: 0, isExpired: false, text: 'หมดอายุวันนี้' };
+    }
+    return { days: diffDays, isExpired: false, text: `ใช้งานได้อีก ${diffDays} วัน` };
+  }
 }

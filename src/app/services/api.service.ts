@@ -324,4 +324,65 @@ export class ApiService {
     }
     return [];
   }
+
+  /**
+   * Search vendor quotations from Quotation Search microservice at http://localhost:8000
+   * GET /api/search?query={supplier_name}&user_role={NORMAL_USER|PH_USER}
+   */
+  async searchSupplierQuotations(
+    supplierName: string,
+    userRole: 'NORMAL_USER' | 'PH_USER' = 'NORMAL_USER'
+  ): Promise<SupplierQuotationSearchResponse> {
+    const trimmed = (supplierName || '').trim();
+    if (!trimmed) {
+      return { query: '', count: 0, results: [] };
+    }
+
+    const url = `http://localhost:8000/api/search?query=${encodeURIComponent(trimmed)}&user_role=${userRole}`;
+    console.log(`%c[Quotation Microservice] Searching quotations for "${trimmed}" (${userRole})...`, 'color: #2563eb;', url);
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Microservice HTTP ${response.status}: ${response.statusText}`);
+      }
+      const data: SupplierQuotationSearchResponse = await response.json();
+      console.log(`%c[Quotation Microservice] Found ${data.count} quotation(s) for "${trimmed}":`, 'color: #059669;', data);
+      return data;
+    } catch (err) {
+      console.warn(`%c[Quotation Microservice] Error or service unreachable at ${url}:`, 'color: #d97706;', err);
+      return { query: trimmed, count: 0, results: [] };
+    }
+  }
+}
+
+export interface QuotationLineItem {
+  item_number: number;
+  part_number: string | null;
+  description: string;
+  quantity: number;
+  unit: string;
+  unit_price: number;
+  total_price: number;
+}
+
+export interface SupplierQuotationResult {
+  quotation_id: string;
+  quotation_number: string;
+  vendor_name: string;
+  vendor_tax_id?: string | null;
+  currency: string;
+  status: 'ACTIVE' | 'EXPIRED';
+  issue_date: string;
+  expiration_date: string;
+  confidence_score: number;
+  can_receive: boolean;
+  pdf_url: string;
+  items: QuotationLineItem[];
+}
+
+export interface SupplierQuotationSearchResponse {
+  query: string;
+  count: number;
+  results: SupplierQuotationResult[];
 }
