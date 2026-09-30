@@ -305,19 +305,22 @@ export class ApiService {
   }
 
   /**
-   * Get all quotation requests submitted by users (for PURCHASE section view)
+   * Get quotation requests (optionally filtered by empNo)
    */
-  async getAllQuotationRequests(): Promise<Array<{ header: any; items: any[] }>> {
-    console.log(`%c[Suppier API] Fetching all user quotation requests...`, 'color: #2563eb;');
+  async getAllQuotationRequests(empNo?: string): Promise<Array<{ header: any; items: any[] }>> {
+    console.log(`%c[Suppier API] Fetching quotation requests (emp: ${empNo || 'all'})...`, 'color: #2563eb;');
     try {
-      const response = await fetch(`${this.baseUrl}/requisition/all-requests`);
+      const url = empNo
+        ? `${this.baseUrl}/requisition/all-requests?empNo=${encodeURIComponent(empNo)}`
+        : `${this.baseUrl}/requisition/all-requests`;
+      const response = await fetch(url);
       const res = await response.json();
       if (res.success && Array.isArray(res.data)) {
         console.log(`%c[Suppier API] Loaded ${res.data.length} quotation requests:`, 'color: #059669;', res.data);
         return res.data;
       }
     } catch (err) {
-      console.warn('%c[Suppier API] Failed to fetch all requests from backend:', 'color: #d97706;', err);
+      console.warn('%c[Suppier API] Failed to fetch requests from backend:', 'color: #d97706;', err);
     }
     return [];
   }

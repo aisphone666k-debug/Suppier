@@ -563,6 +563,12 @@ exports.saveAll = async (req, res) => {
     }
 
     // Fallback mode
+    if (targetEmpNo) {
+      MOCK_DOCUMENTS_BY_EMP[targetEmpNo] = { ...header, empNo: targetEmpNo };
+    }
+    MOCK_DOCUMENTS_BY_EMP['PEERAPAT'] = { ...header, empNo: targetEmpNo || 'PEERAPAT' };
+    MOCK_ITEMS_BY_DOC[docNumber] = items;
+
     return res.json({
       success: true,
       message: 'บันทึกข้อมูลสำเร็จ (Fallback Mode)',
@@ -822,18 +828,28 @@ exports.deleteItem = async (req, res) => {
  * GET /api/requisition/all-requests
  */
 exports.getAllRequests = async (req, res) => {
+  const filterEmpNo = (req.query.empNo || '').trim().toUpperCase();
   try {
     const pool = await connectDB();
     let requests = [];
 
     if (pool) {
-      const docResult = await pool.request().query(`
+      let queryStr = `
         SELECT r.*,
           (SELECT COUNT(*) FROM RequisitionItems i WHERE i.DocNumber = r.DocNumber) as TotalItems,
           (SELECT COUNT(*) FROM RequisitionItems i WHERE i.DocNumber = r.DocNumber AND (i.QuotationNo IS NULL OR i.QuotationNo = '' OR i.QuotationNo = 'WAIT' OR i.Status = 'Waiting Quotation')) as PendingQuotationCount
         FROM Requisitions r
-        ORDER BY r.UpdatedAt DESC, r.CreatedAt DESC
-      `);
+      `;
+
+      const reqPool = pool.request();
+      if (filterEmpNo) {
+        queryStr += ` WHERE (UPPER(r.EmpNo) = @filterEmpNo OR UPPER(r.DocNumber) LIKE '%' + @filterEmpNo + '%' OR UPPER(r.RequestBy) LIKE '%' + @filterEmpNo + '%') `;
+        reqPool.input('filterEmpNo', sql.NVarChar(50), filterEmpNo);
+      }
+
+      queryStr += ` ORDER BY r.UpdatedAt DESC, r.CreatedAt DESC `;
+
+      const docResult = await reqPool.query(queryStr);
 
       for (const row of docResult.recordset) {
         const header = mapDbDocToFrontend(row);
@@ -852,11 +868,12 @@ exports.getAllRequests = async (req, res) => {
       }
     }
 
-    // Ensure sample requests exist for demo / testing (e.g. TRISAK matching user screenshot)
-    const hasTrisak = requests.some(r => r.header.docNumber === 'DOC-TRISAK-01' || (r.header.requestBy && r.header.requestBy.toUpperCase().includes('TRISAK')));
-    if (!hasTrisak) {
-      requests.unshift({
-        header: {
+    // Only add TRISAK demo sample if not filtering or TRISAK specifically requested
+    if (!filterEmpNo || filterEmpNo.includes('TRISAK')) {
+      const hasTrisak = requests.some(r => r.header.docNumber === 'DOC-TRISAK-01' || (r.header.requestBy && r.header.requestBy.toUpperCase().includes('TRISAK')));
+      if (!hasTrisak) {
+        requests.push({
+          header: {
           docNumber: 'DOC-TRISAK-01',
           empNo: 'TRISAK',
           docDate: '24/09/2026 09:30',
@@ -963,17 +980,20 @@ exports.getAllRequests = async (req, res) => {
         ]
       });
     }
+  }
 
-    const hasPeerapat = requests.some(r => r.header.docNumber === 'DOC-2026-0901-003' || (r.header.requestBy && r.header.requestBy.toUpperCase().includes('PEERAPAT')));
-    if (!hasPeerapat && MOCK_DOCUMENTS_BY_EMP['PEERAPAT']) {
-      requests.push({
-        header: {
-          ...MOCK_DOCUMENTS_BY_EMP['PEERAPAT'],
-          totalItems: (MOCK_ITEMS_BY_DOC['DOC-2026-0901-003'] || []).length,
-          pendingQuotationCount: (MOCK_ITEMS_BY_DOC['DOC-2026-0901-003'] || []).filter(i => !i.quotationNo || i.quotationNo === 'WAIT').length
-        },
-        items: MOCK_ITEMS_BY_DOC['DOC-2026-0901-003'] || []
-      });
+    if (!filterEmpNo || filterEmpNo.includes('PEERAPAT') || filterEmpNo.includes('PB') || filterEmpNo.includes('TK655')) {
+      const hasPeerapat = requests.some(r => r.header.docNumber === 'DOC-2026-0901-003' || (r.header.requestBy && r.header.requestBy.toUpperCase().includes('PEERAPAT')));
+      if (!hasPeerapat && MOCK_DOCUMENTS_BY_EMP['PEERAPAT']) {
+        requests.push({
+          header: {
+            ...MOCK_DOCUMENTS_BY_EMP['PEERAPAT'],
+            totalItems: (MOCK_ITEMS_BY_DOC['DOC-2026-0901-003'] || []).length,
+            pendingQuotationCount: (MOCK_ITEMS_BY_DOC['DOC-2026-0901-003'] || []).filter(i => !i.quotationNo || i.quotationNo === 'WAIT').length
+          },
+          items: MOCK_ITEMS_BY_DOC['DOC-2026-0901-003'] || []
+        });
+      }
     }
 
     return res.json({

@@ -469,8 +469,9 @@ export class AppComponent implements OnInit, AfterViewInit {
           this.activeMenu = 'spare-part';
           this.activeView = 'edit';
 
-          // Load active document from DB for this account
-          await this.loadDocumentFromDb(user.empNo);
+          // Initialize form in empty state ready to input new quotation
+          this.clearFormDetails();
+          await this.loadWaitingQuotationRequests();
           if (this.isPurchaseSection) {
             this.loadAllQuotationRequests();
           }
@@ -2485,6 +2486,98 @@ export class AppComponent implements OnInit, AfterViewInit {
   // Requisition Items (Empty by default if no data exists)
   items: RequisitionItem[] = [];
 
+  // Waiting Quotation Under Main Table State
+  waitingQuotationRequests: Array<{ header: any; items: RequisitionItem[] }> = [];
+  expandedWaitingDocNumbers: Set<string> = new Set<string>();
+  waitingQuotationSearchTerm = '';
+  waitingQuotationFilter: 'ALL' | 'WAITING' | 'URGENT' = 'ALL';
+  isLoadingWaitingQuotations = false;
+  justSavedDocNumber: string | null = null;
+  saveSuccessMessage = '';
+  private saveSuccessTimeout: any = null;
+
+  get filteredWaitingQuotationRequests(): Array<{ header: any; items: RequisitionItem[] }> {
+    return this.waitingQuotationRequests.filter(req => {
+      // 1. Strict filter: User only sees their OWN quotation requests
+      if (!this.isUserOwnRequest(req)) return false;
+
+      // 2. Filter by Status/Urgent Tab
+      if (this.waitingQuotationFilter === 'WAITING') {
+        const st = (req.header?.status || '').toLowerCase();
+        const hasWaitingItem = (req.items || []).some(i => (i.status || '').toLowerCase().includes('waiting'));
+        if (!st.includes('waiting') && !hasWaitingItem) return false;
+      }
+      if (this.waitingQuotationFilter === 'URGENT') {
+        const isUrgentHeader = (req.header?.priority || '').toUpperCase() === 'URGENT';
+        const hasUrgentItem = (req.items || []).some(i => i.isUrgent);
+        if (!isUrgentHeader && !hasUrgentItem) return false;
+      }
+
+      // 3. Filter by search term
+      if (!this.waitingQuotationSearchTerm.trim()) return true;
+      const term = this.waitingQuotationSearchTerm.toLowerCase();
+      const docMatch = (req.header?.docNumber || '').toLowerCase().includes(term);
+      const reqByMatch = (req.header?.requestBy || '').toLowerCase().includes(term);
+      const divMatch = (req.header?.division || '').toLowerCase().includes(term);
+      const secMatch = (req.header?.section || '').toLowerCase().includes(term);
+      const itemMatch = (req.items || []).some(i =>
+        (i.partName || '').toLowerCase().includes(term) ||
+        (i.spec || '').toLowerCase().includes(term) ||
+        (i.makerName || '').toLowerCase().includes(term) ||
+        (i.vendor || '').toLowerCase().includes(term) ||
+        (i.machineModel || '').toLowerCase().includes(term)
+      );
+
+      return docMatch || reqByMatch || divMatch || secMatch || itemMatch;
+    });
+  }
+
+  /**
+   * Check if a quotation request belongs exclusively to the current logged-in user
+   */
+  isUserOwnRequest(req: { header: any; items?: any[] }): boolean {
+    if (!req || !req.header) return false;
+
+    const activeEmp = (this.currentEmpNo || this.loggedInEmployeeId || this.currentUser?.empNo || '').trim().toUpperCase();
+    const reqEmpNo = (req.header.empNo || '').trim().toUpperCase();
+    const reqDocNo = (req.header.docNumber || '').trim().toUpperCase();
+    const reqName = (req.header.requestBy || '').trim().toUpperCase();
+
+    // 1. Direct empNo match (e.g. TK655, PEERAPAT)
+    if (activeEmp && reqEmpNo && (reqEmpNo === activeEmp || reqEmpNo.includes(activeEmp) || activeEmp.includes(reqEmpNo))) {
+      return true;
+    }
+
+    // 2. DocNumber contains employee ID (e.g. DOC-TK655)
+    if (activeEmp && reqDocNo && reqDocNo.includes(activeEmp)) {
+      return true;
+    }
+
+    // 3. User name match (e.g. PEERAPAT BUASA)
+    const currentName = (this.requestBy || this.currentUser?.fullName || this.currentUser?.rawName || '').trim().toUpperCase();
+    if (currentName && reqName) {
+      if (reqName === currentName) return true;
+      const curClean = currentName.replace(/^(MR\.|MISS|MRS\.|MS\.)\s+/i, '').trim();
+      const reqClean = reqName.replace(/^(MR\.|MISS|MRS\.|MS\.)\s+/i, '').trim();
+      if (curClean && reqClean && (curClean.includes(reqClean) || reqClean.includes(curClean))) {
+        return true;
+      }
+      const curFirst = curClean.split(/\s+/)[0];
+      const reqFirst = reqClean.split(/\s+/)[0];
+      if (curFirst && curFirst.length >= 3 && reqFirst && curFirst === reqFirst) {
+        return true;
+      }
+    }
+
+    // 4. Default fallback matching for demo / initial account
+    if ((activeEmp === 'PEERAPAT' || activeEmp === 'PB001' || activeEmp === 'TK655') && 
+        (reqDocNo.includes('PEERAPAT') || reqDocNo.includes('TK655') || reqName.includes('PEERAPAT'))) {
+      return true;
+    }
+
+    return false;
+  }
+
   // KPIs
   get totalItems(): number {
     return this.items.length;
@@ -2775,11 +2868,12 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   async saveEntireDocument(): Promise<void> {
     const activeEmp = this.currentEmpNo || this.loggedInEmployeeId || 'PEERAPAT';
+    const savedDocNumber = this.docNumber || `DOC-${activeEmp}`;
     const headerData = {
-      docNumber: this.docNumber,
+      docNumber: savedDocNumber,
       empNo: activeEmp,
       docDate: this.docDate,
-      status: this.documentStatus,
+      status: this.documentStatus || 'Waiting Quotation',
       requestBy: this.requestBy,
       division: this.division,
       section: this.section,
@@ -2796,18 +2890,196 @@ export class AppComponent implements OnInit, AfterViewInit {
     // Close all editing flags
     this.isEditingHeader = false;
     this.isEditingAllRows = false;
-    this.items.forEach(i => {
-      i.isEditing = false;
-      delete i.backupData;
+    const savedItems: RequisitionItem[] = this.items.map((i, idx) => {
+      const copy: RequisitionItem = {
+        ...i,
+        no: i.no || idx + 1,
+        status: i.status || 'Waiting Quotation',
+        isEditing: false
+      };
+      delete copy.backupData;
+      return copy;
     });
 
-    const success = await this.apiService.saveEntireDocument(this.docNumber, headerData, this.items, activeEmp);
-    if (success) {
-      this.showToast(`บันทึกข้อมูล Requisition ของบัญชี ${activeEmp} ลงฐานข้อมูลสำเร็จ`);
-      await this.loadDocumentFromDb(activeEmp);
-    } else {
-      this.showToast('บันทึกข้อมูลเอกสาร Requisition ทั้งหมดสำเร็จ');
+    // 1. Save entire document to database via API
+    try {
+      await this.apiService.saveEntireDocument(savedDocNumber, headerData, savedItems, activeEmp);
+    } catch (err) {
+      console.warn('Backend API save warning:', err);
     }
+
+    // 2. Add / Update in-memory waiting quotation list immediately so it reflects instantly
+    const existingIndex = this.waitingQuotationRequests.findIndex(r => r.header?.docNumber === savedDocNumber);
+    const newDocRecord = {
+      header: {
+        ...headerData,
+        totalItems: savedItems.length,
+        pendingQuotationCount: savedItems.filter(i => !i.quotationNo || i.quotationNo === 'WAIT' || i.status === 'Waiting Quotation').length
+      },
+      items: savedItems
+    };
+
+    if (existingIndex !== -1) {
+      this.waitingQuotationRequests[existingIndex] = newDocRecord;
+    } else {
+      this.waitingQuotationRequests.unshift(newDocRecord);
+    }
+
+    // 3. Set as just saved and expand it in the Waiting Quotation list below
+    this.justSavedDocNumber = savedDocNumber;
+    this.expandedWaitingDocNumbers.add(savedDocNumber);
+
+    // 4. Background sync with backend
+    this.loadWaitingQuotationRequests().catch(() => {});
+
+    // 5. CLEAR ALL DETAIL IN PICTURE (Clear form & items table)
+    this.clearFormDetails();
+
+    this.saveSuccessMessage = `บันทึกเอกสาร ${savedDocNumber} เรียบร้อยแล้ว (แสดงใน Waiting Quotation ด้านล่าง)`;
+    if (this.saveSuccessTimeout) clearTimeout(this.saveSuccessTimeout);
+    this.saveSuccessTimeout = setTimeout(() => {
+      this.saveSuccessMessage = '';
+    }, 6000);
+
+    // Smooth scroll down to Waiting Quotation section
+    setTimeout(() => {
+      const el = document.getElementById('waiting-quotation-section');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 200);
+  }
+
+  /**
+   * Clear all details in the requisition form & items table (Clear picture)
+   */
+  clearFormDetails(): void {
+    // 1. Clear items table
+    this.items = [];
+    this.isEditingAllRows = false;
+
+    // 2. Reset header details to fresh empty state
+    this.priority = 'NORMAL';
+    this.priorityReason = '';
+    this.orderType = 'Spare Part M/C';
+    this.orderTypeDesc = 'อะไหล่ ของเครื่องจักร (ถ้าไม่มีใช้เครื่องจักรทำงานไม่ได้)';
+    this.sendToPurchase = '';
+    this.ccList = '-';
+    this.approvalComment = '';
+    this.documentStatus = 'Waiting for purchase approve';
+    this.isEditingHeader = false;
+    this.headerBackup = null;
+
+    // 3. Generate a new document number and current timestamp for next request
+    const activeEmp = this.currentEmpNo || this.loggedInEmployeeId || 'PEERAPAT';
+    this.docNumber = this.generateNextDocNumber(activeEmp);
+    this.docDate = this.getCurrentDateTimeString();
+  }
+
+  /**
+   * Load saved waiting quotation document back into the editor form to view/edit
+   */
+  loadWaitingDocIntoForm(req: { header: any; items: RequisitionItem[] }): void {
+    if (!req || !req.header) return;
+    this.docNumber = req.header.docNumber || this.docNumber;
+    this.docDate = req.header.docDate || this.docDate;
+    this.documentStatus = req.header.status || 'Waiting for purchase approve';
+    this.requestBy = req.header.requestBy || this.requestBy;
+    this.division = req.header.division || this.division;
+    this.section = req.header.section || this.section;
+    this.sectionName = req.header.sectionName || this.sectionName;
+    this.priority = req.header.priority || 'NORMAL';
+    this.priorityReason = req.header.priorityReason !== undefined ? req.header.priorityReason : '';
+    this.orderType = req.header.orderType || 'Spare Part M/C';
+    this.orderTypeDesc = req.header.orderTypeDesc !== undefined ? req.header.orderTypeDesc : '';
+    this.sendToPurchase = req.header.sendToPurchase !== undefined ? req.header.sendToPurchase : '';
+    this.ccList = req.header.cc !== undefined ? req.header.cc : '-';
+    this.approvalComment = req.header.approvalComment !== undefined ? req.header.approvalComment : '';
+
+    this.items = (req.items || []).map((item, idx) => ({
+      ...item,
+      no: item.no || idx + 1,
+      isEditing: false
+    }));
+
+    this.isEditingHeader = false;
+    this.isEditingAllRows = false;
+
+    // Scroll up to form smoothly
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.saveSuccessMessage = `โหลดเอกสาร ${this.docNumber} เข้าสู่ฟอร์มเรียบร้อยแล้ว`;
+    if (this.saveSuccessTimeout) clearTimeout(this.saveSuccessTimeout);
+    this.saveSuccessTimeout = setTimeout(() => {
+      this.saveSuccessMessage = '';
+    }, 4000);
+  }
+
+  /**
+   * Fetch all waiting quotation requests for the bottom section
+   */
+  async loadWaitingQuotationRequests(): Promise<void> {
+    this.isLoadingWaitingQuotations = true;
+    try {
+      const activeEmp = this.currentEmpNo || this.loggedInEmployeeId || this.currentUser?.empNo;
+      const data = await this.apiService.getAllQuotationRequests(activeEmp);
+      if (Array.isArray(data)) {
+        this.waitingQuotationRequests = data;
+        if (this.justSavedDocNumber) {
+          this.expandedWaitingDocNumbers.add(this.justSavedDocNumber);
+        }
+      }
+    } catch (err) {
+      console.warn('Error loading waiting quotation requests:', err);
+    } finally {
+      this.isLoadingWaitingQuotations = false;
+    }
+  }
+
+  toggleExpandWaitingDoc(docNumber?: string): void {
+    if (!docNumber) return;
+    if (this.expandedWaitingDocNumbers.has(docNumber)) {
+      this.expandedWaitingDocNumbers.delete(docNumber);
+    } else {
+      this.expandedWaitingDocNumbers.add(docNumber);
+    }
+  }
+
+  isWaitingDocExpanded(docNumber?: string): boolean {
+    if (!docNumber) return false;
+    return this.expandedWaitingDocNumbers.has(docNumber);
+  }
+
+  expandAllWaitingDocs(): void {
+    this.waitingQuotationRequests.forEach(r => {
+      if (r.header?.docNumber) this.expandedWaitingDocNumbers.add(r.header.docNumber);
+    });
+  }
+
+  collapseAllWaitingDocs(): void {
+    this.expandedWaitingDocNumbers.clear();
+  }
+
+  generateNextDocNumber(empNo: string): string {
+    const today = new Date();
+    const yy = String(today.getFullYear()).slice(-2);
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const rand = Math.floor(100 + Math.random() * 900);
+    return `DOC-${empNo || 'REQ'}-${yy}${mm}${dd}-${rand}`;
+  }
+
+  getCurrentDateTimeString(): string {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const yyyy = today.getFullYear();
+    const hh = String(today.getHours()).padStart(2, '0');
+    const min = String(today.getMinutes()).padStart(2, '0');
+    return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
+  }
+
+  getTotalWaitingItemsCount(): number {
+    return this.filteredWaitingQuotationRequests.reduce((acc, req) => acc + (req.items?.length || req.header?.totalItems || 0), 0);
   }
 
   exportData(): void {
@@ -2918,7 +3190,8 @@ export class AppComponent implements OnInit, AfterViewInit {
           this.currentEmpNo = user.empNo;
           this.activeMenu = 'spare-part';
           this.activeView = 'edit';
-          await this.loadDocumentFromDb(user.empNo);
+          this.clearFormDetails();
+          await this.loadWaitingQuotationRequests();
           if (this.isPurchaseSection) {
             await this.loadAllQuotationRequests();
           }
