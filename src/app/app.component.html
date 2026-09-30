@@ -1,6 +1,7 @@
 <div class="font-sans antialiased text-slate-800">
 
   <!-- ========== IMAGE SEARCH MODAL (Google Lens Style) ========== -->
+
   <div *ngIf="imageSearchModalOpen"
     class="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center sm:p-4 bg-black/40 backdrop-blur-[2px]"
     (click)="closeImageSearchModal()">
@@ -382,68 +383,86 @@
             class="h-8 sm:h-9.5 w-auto object-contain filter drop-shadow-xs" />
         </div>
 
-        <!-- Header Center: Prominent Stylish Typography Title -->
-        <div class="flex-1 text-center py-0.5 select-none flex flex-col items-center justify-center">
+        <!-- Header Center: Prominent Stylish Typography Title with Moving Effects -->
+        <div class="flex-1 text-center py-0.5 select-none flex flex-col items-center justify-center relative">
+          <!-- Subtle Floating Ambient Glow behind title -->
+          <div class="header-title-ambient-glow"></div>
+
           <h1
-            class="inline-flex items-center justify-center flex-wrap gap-x-2 sm:gap-x-2.5 gap-y-1 text-lg sm:text-xl lg:text-2xl xl:text-[26px] font-black tracking-tight leading-none">
-            <!-- Request quotation -->
-            <span class="text-[#131936] drop-shadow-2xs">Request quotation</span>
+            class="inline-flex items-center justify-center flex-wrap gap-x-2 sm:gap-x-2.5 gap-y-1 text-lg sm:text-xl lg:text-2xl xl:text-[26px] font-black tracking-tight leading-none group cursor-default z-10">
+            <!-- Request quotation with animated moving sheen -->
+            <span class="header-request-gradient font-black drop-shadow-2xs">Request quotation</span>
             <!-- to -->
             <span class="text-slate-400 font-semibold text-base sm:text-lg lg:text-xl">to</span>
-            <!-- Purchase -->
-            <span
-              class="bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500 bg-clip-text text-transparent drop-shadow-2xs">Purchase</span>
+            <!-- Purchase with animated flowing gradient -->
+            <span class="header-purchase-gradient font-black drop-shadow-2xs">Purchase</span>
             <!-- Divider -->
             <span class="text-slate-300 font-light mx-1 hidden sm:inline text-xl sm:text-2xl">|</span>
             <!-- GM1 - MA - PMA -->
             <span
               class="font-mono text-base sm:text-lg lg:text-xl xl:text-[22px] font-black tracking-wider inline-flex items-center gap-1.5">
-              <span class="text-blue-700">GM1</span>
+              <span class="text-blue-700 hover:text-blue-600 transition-colors">GM1</span>
               <span class="text-slate-300 font-light">&ndash;</span>
-              <span class="text-indigo-600">MA</span>
+              <span class="text-indigo-600 hover:text-indigo-500 transition-colors">MA</span>
               <span class="text-slate-300 font-light">&ndash;</span>
-              <span class="text-cyan-600">PMA</span>
+              <span class="text-cyan-600 hover:text-cyan-500 transition-colors">PMA</span>
             </span>
           </h1>
-          <!-- Sleek Brand Gradient Accent Line -->
-          <div
-            class="h-[2px] w-28 sm:w-44 lg:w-60 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full mt-1.5 opacity-70">
+
+          <!-- Sleek Modern Ultra-Smooth Laser Beam Line -->
+          <div class="header-smooth-line-container">
+            <div class="header-smooth-glow"></div>
+            <div class="header-smooth-base"></div>
+            <div class="header-smooth-beam"></div>
           </div>
         </div>
 
         <!-- Logged in employee info & Logout button -->
         <div class="flex items-center gap-3">
+          <!-- Employee Badge Pill with Playful Hover Interaction -->
           <div (click)="openEmployeeCard()" title="คลิกเพื่อดูบัตรพนักงาน (Employee Badge)"
-            class="flex items-center gap-2.5 bg-slate-100/90 hover:bg-blue-50/80 px-3.5 py-1.5 rounded-2xl border border-slate-200/80 hover:border-blue-300 shadow-2xs hover:shadow-xs transition-all cursor-pointer group">
-            <div *ngIf="currentUser?.profilePictureUrl; else fallbackAvatar"
-              class="w-10 h-10 rounded-xl overflow-hidden border border-slate-300/80 shadow-xs shrink-0 group-hover:border-blue-400 transition-colors">
-              <img [src]="currentUser?.profilePictureUrl" alt="Avatar" class="w-full h-full object-cover"
-                (error)="currentUser!.profilePictureUrl = ''" />
+            class="employee-badge-pill flex items-center gap-2.5 px-3.5 py-1.5 rounded-2xl group">
+            <!-- Avatar Frame -->
+            <div class="badge-avatar-frame shrink-0">
+              <div *ngIf="currentUser?.profilePictureUrl; else fallbackAvatar"
+                class="w-10 h-10 rounded-xl overflow-hidden border border-slate-300/80 shadow-xs bg-[#f1f3f6]">
+                <img [src]="currentUser?.profilePictureUrl" alt="Avatar" class="badge-avatar-img w-full h-full object-cover"
+                  (error)="currentUser!.profilePictureUrl = ''" />
+              </div>
+              <ng-template #fallbackAvatar>
+                <div
+                  class="w-10 h-10 rounded-xl overflow-hidden border border-slate-300/80 shadow-xs bg-[#f1f3f6]">
+                  <img src="facebook-default-avatar.png" alt="Avatar" class="badge-avatar-img w-full h-full object-cover" />
+                </div>
+              </ng-template>
+
             </div>
-            <ng-template #fallbackAvatar>
-              <div
-                class="w-10 h-10 rounded-xl overflow-hidden border border-slate-300/80 shadow-xs shrink-0 group-hover:border-blue-400 transition-colors bg-[#f1f3f6]">
-                <img src="facebook-default-avatar.png" alt="Avatar" class="w-full h-full object-cover" />
-              </div>
-            </ng-template>
-            <div class="text-left">
-              <div
-                class="text-sm sm:text-base font-black text-[#131936] group-hover:text-blue-700 leading-none tracking-tight transition-colors">
-                <span class="font-mono text-blue-700">{{ loggedInEmployeeId || '12345' }}</span>
-              </div>
+
+            <!-- Employee ID Text & Interactive Mini Badge Icon -->
+            <div class="text-left flex items-center gap-1.5">
+              <span class="badge-id-text font-mono text-sm sm:text-base font-black text-blue-700">
+                {{ loggedInEmployeeId || '12345' }}
+              </span>
+              <!-- Cute interactive badge icon that pops in on hover -->
+              <svg class="badge-interactive-icon" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm6 12H6v-1c0-2 4-3.1 6-3.1s6 1.1 6 3.1v1z"/>
+              </svg>
             </div>
           </div>
 
           <!-- Quotation Search Quick Access -->
-          <button (click)="openQuotationSearchView()"
+          <button (click)="activeView === 'quotation-search' ? closeQuotationSearchView() : openQuotationSearchView()"
             [class]="activeView === 'quotation-search' 
               ? 'bg-[#131936] text-white ring-2 ring-blue-400 shadow-sm font-bold' 
               : 'bg-white hover:bg-blue-50/70 text-slate-700 hover:text-blue-700 border border-slate-300/80 shadow-2xs font-semibold'"
-            class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer">
+            class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer"
+            title="Quotation Search">
             <img src="/sp-logo-emblem.png" alt="Suppier" class="w-4 h-4 object-contain shrink-0" />
             <span>Quotation Search</span>
             <span class="text-[10px] font-black px-1.5 py-0.5 rounded-md"
-              [class]="activeView === 'quotation-search' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800'">SEARCH</span>
+              [class]="activeView === 'quotation-search' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800'">
+              SEARCH
+            </span>
           </button>
 
           <!-- Purchase Quick Access Header Button -->
@@ -1918,21 +1937,39 @@
             <!-- Top Actions -->
             <div class="flex items-center gap-2 flex-wrap">
               <button (click)="copyEmailQuotationToClipboard()"
-                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 shadow-xs transition-colors cursor-pointer">
-                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                </svg>
-                <span>Copy for Email</span>
+                [ngClass]="copiedEmailButton ? 'bg-emerald-600 hover:bg-emerald-700 text-white ring-2 ring-emerald-400 ring-offset-1 shadow-md' : 'bg-slate-900 hover:bg-slate-800 text-white shadow-xs'"
+                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer">
+                <ng-container *ngIf="!copiedEmailButton">
+                  <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                  </svg>
+                  <span>Copy for Email</span>
+                </ng-container>
+                <ng-container *ngIf="copiedEmailButton">
+                  <svg class="w-3.5 h-3.5 text-white animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span class="font-bold">✓ Copy Success!</span>
+                </ng-container>
               </button>
 
               <button (click)="copyTableOnlyToClipboard()"
-                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-colors cursor-pointer">
-                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                </svg>
-                <span>Copy Table</span>
+                [ngClass]="copiedTableButton ? 'bg-emerald-50 text-emerald-800 border-emerald-400 ring-2 ring-emerald-300 ring-offset-1 font-semibold shadow-xs' : 'text-slate-700 bg-white hover:bg-slate-50 border-slate-200 shadow-2xs'"
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium border transition-all duration-200 cursor-pointer">
+                <ng-container *ngIf="!copiedTableButton">
+                  <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                  </svg>
+                  <span>Copy Table</span>
+                </ng-container>
+                <ng-container *ngIf="copiedTableButton">
+                  <svg class="w-3.5 h-3.5 text-emerald-600 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span class="font-bold text-emerald-700">✓ Copy Table Success!</span>
+                </ng-container>
               </button>
 
               <button (click)="openInEmailClient()"
@@ -1956,13 +1993,18 @@
 
           <!-- Success Alert Banner when Copied -->
           <div *ngIf="copyFeedbackText"
-            class="bg-emerald-50/80 border border-emerald-200 text-emerald-950 px-4 py-3 rounded-xl shadow-2xs flex items-center justify-between gap-3">
+            class="bg-emerald-50/90 border border-emerald-300 text-emerald-950 px-4 py-3 rounded-xl shadow-xs flex items-center justify-between gap-3 animate-fadeInFast">
             <div class="flex items-center gap-2.5">
-              <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-              </svg>
+              <div class="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
               <div>
-                <span class="font-bold text-xs text-emerald-900">{{ copyFeedbackText }}</span>
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-xs text-emerald-900">{{ copyFeedbackText }}</span>
+                  <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-800 font-semibold">Copy Success</span>
+                </div>
                 <p class="text-[11px] text-emerald-700 mt-0.5">
                   เปิด Outlook หรือ Gmail แล้วกด <kbd
                     class="bg-white border border-emerald-300 font-mono px-1.5 py-0.2 rounded text-[10px] font-semibold text-emerald-900">Ctrl
@@ -1970,7 +2012,7 @@
                 </p>
               </div>
             </div>
-            <button (click)="copyFeedbackText = ''" class="text-emerald-600 hover:text-emerald-950 p-1 text-xs">
+            <button (click)="copyFeedbackText = ''" class="text-emerald-600 hover:text-emerald-950 p-1 text-xs cursor-pointer font-bold">
               ✕
             </button>
           </div>
@@ -2293,12 +2335,16 @@
                     <span>ปรับแต่งหัวข้อและข้อความอีเมล (Email Content)</span>
                   </h3>
                   <button (click)="copySubjectToClipboard()"
-                    class="text-[11px] font-medium text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 cursor-pointer">
-                    <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-colors"
+                    [ngClass]="copiedSubjectButton ? 'text-emerald-600 font-bold' : 'text-blue-600 hover:text-blue-800 hover:underline'">
+                    <svg *ngIf="!copiedSubjectButton" class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                     </svg>
-                    <span>คัดลอก Subject</span>
+                    <svg *ngIf="copiedSubjectButton" class="w-3 h-3 text-emerald-600 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>{{ copiedSubjectButton ? '✓ Copy Subject Success!' : 'คัดลอก Subject' }}</span>
                   </button>
                 </div>
 
@@ -2524,21 +2570,39 @@
 
                   <div class="flex items-center gap-2">
                     <button (click)="copyEmailQuotationToClipboard()"
-                      class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 shadow-xs transition-colors cursor-pointer">
-                      <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                      </svg>
-                      <span>Copy for Email (Rich Text)</span>
+                      [ngClass]="copiedEmailButton ? 'bg-emerald-600 hover:bg-emerald-700 text-white ring-2 ring-emerald-400 ring-offset-1 shadow-md' : 'bg-slate-900 hover:bg-slate-800 text-white shadow-xs'"
+                      class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer">
+                      <ng-container *ngIf="!copiedEmailButton">
+                        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                        <span>Copy for Email (Rich Text)</span>
+                      </ng-container>
+                      <ng-container *ngIf="copiedEmailButton">
+                        <svg class="w-3.5 h-3.5 text-white animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span class="font-bold">✓ Copy Success!</span>
+                      </ng-container>
                     </button>
 
                     <button (click)="copyTableOnlyToClipboard()"
-                      class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-colors cursor-pointer">
-                      <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                      </svg>
-                      <span>Copy Table Only</span>
+                      [ngClass]="copiedTableButton ? 'bg-emerald-50 text-emerald-800 border-emerald-400 ring-2 ring-emerald-300 ring-offset-1 font-semibold shadow-xs' : 'text-slate-700 bg-white hover:bg-slate-50 border-slate-200 shadow-2xs'"
+                      class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium border transition-all duration-200 cursor-pointer">
+                      <ng-container *ngIf="!copiedTableButton">
+                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                        <span>Copy Table Only</span>
+                      </ng-container>
+                      <ng-container *ngIf="copiedTableButton">
+                        <svg class="w-3.5 h-3.5 text-emerald-600 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span class="font-bold text-emerald-700">✓ Copy Table Success!</span>
+                      </ng-container>
                     </button>
                   </div>
                 </div>
@@ -2573,8 +2637,18 @@
             <div class="flex items-center justify-between z-10 transition-all duration-500"
               [class.opacity-0]="isSearchCollapsing" [class.-translate-y-3]="isSearchCollapsing"
               [class.pointer-events-none]="isSearchCollapsing">
-              <!-- Top Left: MinebeaMitsumi Brand Logo -->
-              <div class="flex items-center">
+              <!-- Top Left: Back Button & MinebeaMitsumi Brand Logo -->
+              <div class="flex items-center gap-3">
+                <button type="button" (click)="closeQuotationSearchView()"
+                  title="Back"
+                  class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-white hover:bg-blue-50 text-slate-600 hover:text-blue-700 border border-slate-300/90 hover:border-blue-400 shadow-2xs hover:shadow-xs transition-all cursor-pointer group active:scale-95 shrink-0">
+                  <svg class="w-5 h-5 text-slate-600 group-hover:text-blue-600 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                </button>
+
+                <div class="h-5 w-px bg-slate-200/90 hidden sm:block"></div>
+
                 <img src="/minebea-transparent-logo.png" alt="MinebeaMitsumi"
                   class="h-6 sm:h-7.5 w-auto object-contain select-none filter drop-shadow-2xs" />
               </div>
@@ -2602,7 +2676,7 @@
                     <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 pb-2">Suppier
                       Corporate Apps</div>
                     <div class="grid grid-cols-3 gap-2 text-center text-xs">
-                      <div (click)="activeView = 'edit'; showGoogleAppsMenu = false"
+                      <div (click)="closeQuotationSearchView(); showGoogleAppsMenu = false"
                         class="p-2.5 rounded-xl hover:bg-blue-50/80 cursor-pointer transition-colors group">
                         <div
                           class="w-10 h-10 mx-auto rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform">
@@ -2610,7 +2684,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg></div>
-                        <div class="font-bold text-slate-700 text-[11px]">Requisition</div>
+                        <div class="font-bold text-slate-700 text-[11px]">ดูใบเสนอราคา</div>
                       </div>
                       <div (click)="openPurchaseQuotationView(); showGoogleAppsMenu = false"
                         class="p-2.5 rounded-xl hover:bg-cyan-50/80 cursor-pointer transition-colors group">
@@ -2921,14 +2995,23 @@
             <div class="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-xs space-y-3">
               <div class="flex flex-wrap items-center justify-between gap-4">
 
-                <!-- Left: Title / Back to Home (Clicking returns to Home) -->
-                <div (click)="switchSearchMode('home')" title="กลับหน้าแรก Search"
-                  class="flex items-center cursor-pointer group shrink-0 select-none">
-                  <div
-                    class="inline-flex items-baseline text-xl sm:text-2xl font-black tracking-tight group-hover:opacity-90 transition-opacity">
-                    <span class="text-[#131936]">Quotation</span>
-                    <span
-                      class="ml-1 bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500 bg-clip-text text-transparent">Search</span>
+                <!-- Left: Back Button & Title -->
+                <div class="flex items-center gap-3 shrink-0">
+                  <button type="button" (click)="closeQuotationSearchView()" title="Back"
+                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-white hover:bg-blue-50 text-slate-600 hover:text-blue-700 border border-slate-300 hover:border-blue-400 shadow-2xs hover:shadow-xs transition-all cursor-pointer group active:scale-95 shrink-0">
+                    <svg class="w-5 h-5 text-slate-600 group-hover:text-blue-600 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                  </button>
+
+                  <div (click)="switchSearchMode('home')" title="Search Home"
+                    class="flex items-center cursor-pointer group select-none">
+                    <div
+                      class="inline-flex items-baseline text-xl sm:text-2xl font-black tracking-tight group-hover:opacity-90 transition-opacity">
+                      <span class="text-[#131936]">Quotation</span>
+                      <span
+                        class="ml-1 bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500 bg-clip-text text-transparent">Search</span>
+                    </div>
                   </div>
                 </div>
 
@@ -2972,13 +3055,13 @@
 
                 <!-- Right Action Button: Home -->
                 <div class="flex items-center gap-2">
-                  <button (click)="switchSearchMode('home')" title="กลับหน้าแรก Search"
+                  <button type="button" (click)="switchSearchMode('home')" title="Search Home"
                     class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-[#131936] border border-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer">
                     <svg class="w-3.5 h-3.5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
-                    <span class="hidden sm:inline">หน้าแรก</span>
+                    <span class="hidden sm:inline">Search Home</span>
                   </button>
                 </div>
 
@@ -3001,7 +3084,7 @@
                     <span>TOP 5 ตรงที่สุด</span>
                   </button>
                   <button
-                    *ngFor="let mkr of ['SMC', 'MISUMI', 'KEYENCE', 'AIRTAC', 'ULVAC', 'IAI', 'MITSUBISHI', 'OMRON']"
+                    *ngFor="let mkr of ['SMC', 'MISUMI', 'KEYENCE', 'AIRTAC', 'ULVAC', 'IAI', 'MITSUBISHI', 'OMRON', 'THK', 'FESTO', 'PANASONIC', 'CKD']"
                     (click)="setShopeeMaker(mkr)"
                     [class]="shopeeSelectedMaker === mkr ? 'bg-blue-600 text-white font-bold' : 'bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700'"
                     class="px-2.5 py-1 rounded-lg text-xs transition-colors cursor-pointer font-medium">
@@ -3085,146 +3168,228 @@
             <div *ngIf="shopeeFilteredResults.length > 0"
               class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4">
 
-              <!-- Quotation Card (กรอบของใบเสนอราคา) -->
+              <!-- Quotation Card (Electronic Component Theme) -->
               <div *ngFor="let item of shopeeFilteredResults" (click)="openShopeeQuickView(item)"
                 [class.ring-2]="item.rank === 1" [class.ring-amber-400]="item.rank === 1"
                 [class.shadow-md]="item.rank === 1"
-                class="bg-white rounded-2xl border border-slate-200/90 hover:border-blue-600 hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between overflow-hidden group cursor-pointer relative shadow-xs">
+                class="electronic-card bg-white rounded-2xl border border-slate-200/90 hover:border-cyan-500 hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between overflow-hidden group cursor-pointer relative shadow-xs">
 
-                <!-- 1. Technical Drawing Frame (Top Box) -->
+                <!-- 1. Electronic Component Chassis / PCB Substrate Frame (Top Box) -->
                 <div
-                  class="aspect-[4/3] bg-gradient-to-b from-slate-50 via-blue-50/20 to-slate-100/60 relative flex items-center justify-center p-4 overflow-hidden select-none border-b border-slate-100">
+                  class="aspect-[4/3] pcb-substrate relative flex items-center justify-center p-3 overflow-hidden select-none border-b border-slate-800">
 
-                  <!-- Subtle CAD Blueprint Grid Pattern -->
-                  <div
-                    class="absolute inset-0 opacity-15 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:10px_10px] pointer-events-none">
-                  </div>
-
-                  <!-- Technical CAD SVG Diagram -->
-                  <!-- Cylinder -->
-                  <svg *ngIf="item.partType === 'cylinder'"
-                    class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200"
-                    viewBox="0 0 100 100" fill="none">
-                    <rect x="18" y="32" width="54" height="36" rx="4" fill="#2563eb" fill-opacity="0.1" stroke="#2563eb"
-                      stroke-width="2.5" />
-                    <rect x="72" y="44" width="20" height="12" rx="2" fill="#94a3b8" stroke="#475569"
-                      stroke-width="2" />
-                    <line x1="18" y1="50" x2="8" y2="50" stroke="#2563eb" stroke-width="3" stroke-linecap="round" />
-                    <circle cx="32" cy="38" r="3" fill="#2563eb" />
-                    <circle cx="58" cy="38" r="3" fill="#2563eb" />
-                    <line x1="28" y1="40" x2="28" y2="60" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="2 2" />
-                    <text x="45" y="54" font-size="8" font-family="monospace" fill="#131936" text-anchor="middle"
-                      font-weight="bold">CYLINDER</text>
+                  <!-- PCB Circuit Copper Traces & Silkscreen Markings Overlay -->
+                  <svg class="absolute inset-0 w-full h-full pointer-events-none opacity-30" viewBox="0 0 200 150" fill="none">
+                    <path d="M 0 32 H 42 L 58 48 H 125" stroke="#38bdf8" stroke-width="0.9" />
+                    <path d="M 200 118 H 158 L 142 102 H 85" stroke="#38bdf8" stroke-width="0.9" />
+                    <path d="M 12 140 H 52 L 68 124 V 85" stroke="#38bdf8" stroke-width="0.9" />
+                    <circle cx="58" cy="48" r="2.2" fill="#38bdf8" />
+                    <circle cx="142" cy="102" r="2.2" fill="#38bdf8" />
+                    <circle cx="68" cy="124" r="2.2" fill="#38bdf8" />
+                    <!-- Silkscreen alignment marks -->
+                    <path d="M 8 14 H 16 M 12 10 V 18" stroke="#94a3b8" stroke-width="0.8" opacity="0.6" />
+                    <path d="M 184 14 H 192 M 188 10 V 18" stroke="#94a3b8" stroke-width="0.8" opacity="0.6" />
+                    <circle cx="28" cy="18" r="1.5" stroke="#f59e0b" stroke-width="0.6" fill="#fef08a" />
+                    <text x="32" y="20" font-size="5" font-family="monospace" fill="#94a3b8">TP1</text>
+                    <circle cx="172" cy="132" r="1.5" stroke="#f59e0b" stroke-width="0.6" fill="#fef08a" />
+                    <text x="156" y="134" font-size="5" font-family="monospace" fill="#94a3b8">GND</text>
                   </svg>
 
-                  <!-- Vacuum -->
-                  <svg *ngIf="item.partType === 'vacuum'"
-                    class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200"
-                    viewBox="0 0 100 100" fill="none">
-                    <rect x="22" y="34" width="50" height="34" rx="6" fill="#0284c7" fill-opacity="0.1" stroke="#0284c7"
-                      stroke-width="2.5" />
-                    <circle cx="47" cy="51" r="11" fill="#f0f9ff" stroke="#0369a1" stroke-width="2" />
-                    <path d="M47 43v16M39 51h16" stroke="#0284c7" stroke-width="2" stroke-linecap="round" />
-                    <rect x="10" y="44" width="12" height="14" rx="2" fill="#94a3b8" stroke="#475569"
-                      stroke-width="2" />
-                    <rect x="72" y="38" width="16" height="24" rx="2" fill="#64748b" stroke="#334155"
-                      stroke-width="2" />
-                    <text x="47" y="78" font-size="7.5" font-family="monospace" fill="#0369a1" text-anchor="middle"
-                      font-weight="bold">VACUUM</text>
+                  <!-- ================= ELECTRONIC COMPONENT SCHEMATICS ================= -->
+
+                  <!-- 1. SENSOR: Industrial Proximity/Photoelectric Sensor with Threaded Barrel, M12 Connector & Optical Lens -->
+                  <svg *ngIf="item.partType === 'sensor'" class="w-28 h-24 text-slate-300 group-hover:scale-105 transition-transform duration-200"
+                    viewBox="0 0 120 100" fill="none">
+                    <!-- Laser / Optical Emission Beam -->
+                    <polygon points="96,44 116,34 116,58" fill="#ef4444" fill-opacity="0.25" />
+                    <line x1="96" y1="46" x2="116" y2="46" stroke="#ef4444" stroke-width="1.8" stroke-dasharray="3 1.5" />
+                    <circle cx="116" cy="46" r="2" fill="#ef4444" />
+                    <!-- Threaded Barrel Body -->
+                    <rect x="36" y="32" width="60" height="28" rx="2" fill="#1e293b" stroke="#64748b" stroke-width="1.5" />
+                    <line x1="42" y1="32" x2="42" y2="60" stroke="#475569" stroke-width="1" />
+                    <line x1="48" y1="32" x2="48" y2="60" stroke="#475569" stroke-width="1" />
+                    <line x1="54" y1="32" x2="54" y2="60" stroke="#475569" stroke-width="1" />
+                    <line x1="60" y1="32" x2="60" y2="60" stroke="#475569" stroke-width="1" />
+                    <line x1="66" y1="32" x2="66" y2="60" stroke="#475569" stroke-width="1" />
+                    <line x1="72" y1="32" x2="72" y2="60" stroke="#475569" stroke-width="1" />
+                    <line x1="78" y1="32" x2="78" y2="60" stroke="#475569" stroke-width="1" />
+                    <line x1="84" y1="32" x2="84" y2="60" stroke="#475569" stroke-width="1" />
+                    <!-- Sensor Optical Lens / Head -->
+                    <path d="M 96 34 C 100 34, 102 38, 102 46 C 102 54, 100 58, 96 58 Z" fill="#0284c7" stroke="#38bdf8" stroke-width="1.5" />
+                    <!-- Mounting Hex Nuts -->
+                    <rect x="44" y="27" width="6" height="38" rx="1" fill="#94a3b8" stroke="#cbd5e1" stroke-width="1" />
+                    <rect x="74" y="27" width="6" height="38" rx="1" fill="#94a3b8" stroke="#cbd5e1" stroke-width="1" />
+                    <!-- Rear Status LED Ring -->
+                    <rect x="30" y="34" width="6" height="24" rx="1" fill="#ef4444" opacity="0.9" />
+                    <!-- M12 Connector Pinout Tail -->
+                    <rect x="18" y="38" width="12" height="16" rx="2" fill="#0f172a" stroke="#475569" stroke-width="1.5" />
+                    <line x1="6" y1="46" x2="18" y2="46" stroke="#64748b" stroke-width="4" stroke-linecap="round" />
+                    <text x="64" y="74" font-size="7" font-family="'JetBrains Mono', monospace" fill="#38bdf8" text-anchor="middle" font-weight="bold">PHOTO SENSOR</text>
+                    <text x="64" y="83" font-size="5.5" font-family="monospace" fill="#94a3b8" text-anchor="middle">M12 • NPN/PNP • 24VDC</text>
                   </svg>
 
-                  <!-- Linear -->
-                  <svg *ngIf="item.partType === 'linear'"
-                    class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200"
-                    viewBox="0 0 100 100" fill="none">
-                    <rect x="10" y="46" width="80" height="12" rx="2" fill="#cbd5e1" stroke="#64748b"
-                      stroke-width="2" />
-                    <rect x="32" y="32" width="36" height="36" rx="3" fill="#ffffff" stroke="#131936"
-                      stroke-width="2.5" />
-                    <circle cx="40" cy="42" r="2.5" fill="#2563eb" />
-                    <circle cx="60" cy="42" r="2.5" fill="#2563eb" />
-                    <circle cx="40" cy="58" r="2.5" fill="#2563eb" />
-                    <circle cx="60" cy="58" r="2.5" fill="#2563eb" />
-                    <text x="50" y="52" font-size="7" font-family="monospace" fill="#131936" text-anchor="middle"
-                      font-weight="bold">GUIDE</text>
+                  <!-- 2. VALVE: Electronic Solenoid Coil with DIN 43650 Connector & LED Pilot Indicator -->
+                  <svg *ngIf="item.partType === 'valve'" class="w-28 h-24 text-slate-300 group-hover:scale-105 transition-transform duration-200"
+                    viewBox="0 0 120 100" fill="none">
+                    <!-- Valve Base Body -->
+                    <rect x="22" y="44" width="76" height="28" rx="3" fill="#1e293b" stroke="#475569" stroke-width="1.8" />
+                    <circle cx="36" cy="58" r="4.5" fill="#0f172a" stroke="#64748b" stroke-width="1.2" />
+                    <circle cx="60" cy="58" r="4.5" fill="#0f172a" stroke="#64748b" stroke-width="1.2" />
+                    <circle cx="84" cy="58" r="4.5" fill="#0f172a" stroke="#64748b" stroke-width="1.2" />
+                    <!-- Solenoid Operator Coil Block -->
+                    <rect x="42" y="23" width="36" height="21" rx="2" fill="#0284c7" stroke="#38bdf8" stroke-width="1.5" fill-opacity="0.2" />
+                    <!-- Copper Coil Windings -->
+                    <rect x="48" y="25" width="24" height="17" rx="1" fill="#78350f" stroke="#b45309" stroke-width="1" />
+                    <line x1="52" y1="25" x2="52" y2="42" stroke="#f59e0b" stroke-width="1" />
+                    <line x1="56" y1="25" x2="56" y2="42" stroke="#f59e0b" stroke-width="1" />
+                    <line x1="60" y1="25" x2="60" y2="42" stroke="#f59e0b" stroke-width="1" />
+                    <line x1="64" y1="25" x2="64" y2="42" stroke="#f59e0b" stroke-width="1" />
+                    <line x1="68" y1="25" x2="68" y2="42" stroke="#f59e0b" stroke-width="1" />
+                    <!-- DIN 43650 Terminal Plug -->
+                    <path d="M 50 13 L 70 13 L 74 23 L 46 23 Z" fill="#0f172a" stroke="#64748b" stroke-width="1.2" />
+                    <circle cx="60" cy="18" r="2.5" fill="#22c55e" />
+                    <!-- Manual Override Button -->
+                    <circle cx="34" cy="33" r="3" fill="#eab308" stroke="#ca8a04" stroke-width="1" />
+                    <text x="60" y="84" font-size="7" font-family="'JetBrains Mono', monospace" fill="#38bdf8" text-anchor="middle" font-weight="bold">SOLENOID VALVE</text>
+                    <text x="60" y="93" font-size="5.5" font-family="monospace" fill="#94a3b8" text-anchor="middle">5-PORT PILOT • 24VDC 0.35W</text>
                   </svg>
 
-                  <!-- Sensor -->
-                  <svg *ngIf="item.partType === 'sensor'"
-                    class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200"
-                    viewBox="0 0 100 100" fill="none">
-                    <rect x="28" y="34" width="22" height="34" rx="3" fill="#1e293b" stroke="#0f172a"
-                      stroke-width="2.5" />
-                    <circle cx="39" cy="45" r="4.5" fill="#ef4444" />
-                    <circle cx="39" cy="45" r="2" fill="#fee2e2" />
-                    <line x1="50" y1="45" x2="88" y2="45" stroke="#ef4444" stroke-width="2" stroke-dasharray="3 2" />
-                    <path d="M14 51h14" stroke="#64748b" stroke-width="3" stroke-linecap="round" />
-                    <text x="39" y="80" font-size="7.5" font-family="monospace" fill="#dc2626" text-anchor="middle"
-                      font-weight="bold">SENSOR</text>
+                  <!-- 3. MOTOR: Electronic AC Servo Drive & Power Inverter Module with Heatsink -->
+                  <svg *ngIf="item.partType === 'motor'" class="w-28 h-24 text-slate-300 group-hover:scale-105 transition-transform duration-200"
+                    viewBox="0 0 120 100" fill="none">
+                    <!-- Heatsink Base -->
+                    <rect x="22" y="24" width="76" height="46" rx="3" fill="#1e293b" stroke="#475569" stroke-width="1.8" />
+                    <line x1="28" y1="24" x2="28" y2="70" stroke="#334155" stroke-width="2" />
+                    <line x1="36" y1="24" x2="36" y2="70" stroke="#334155" stroke-width="2" />
+                    <line x1="44" y1="24" x2="44" y2="70" stroke="#334155" stroke-width="2" />
+                    <line x1="52" y1="24" x2="52" y2="70" stroke="#334155" stroke-width="2" />
+                    <!-- High-Capacitance Filter Capacitors with Polarity Markings -->
+                    <circle cx="70" cy="38" r="9" fill="#0f172a" stroke="#64748b" stroke-width="1.5" />
+                    <line x1="67" y1="38" x2="73" y2="38" stroke="#38bdf8" stroke-width="1" />
+                    <line x1="70" y1="35" x2="70" y2="41" stroke="#38bdf8" stroke-width="1" />
+                    <circle cx="88" cy="38" r="7" fill="#0f172a" stroke="#64748b" stroke-width="1.5" />
+                    <!-- Power Stage Terminals U V W -->
+                    <rect x="62" y="54" width="32" height="12" rx="1.5" fill="#0284c7" fill-opacity="0.2" stroke="#0284c7" stroke-width="1" />
+                    <circle cx="68" cy="60" r="2" fill="#f59e0b" />
+                    <circle cx="78" cy="60" r="2" fill="#f59e0b" />
+                    <circle cx="88" cy="60" r="2" fill="#f59e0b" />
+                    <circle cx="32" cy="32" r="2" fill="#22c55e" />
+                    <text x="60" y="84" font-size="7" font-family="'JetBrains Mono', monospace" fill="#38bdf8" text-anchor="middle" font-weight="bold">SERVO / INVERTER</text>
+                    <text x="60" y="93" font-size="5.5" font-family="monospace" fill="#94a3b8" text-anchor="middle">IGBT POWER STAGE • 3-PHASE</text>
                   </svg>
 
-                  <!-- Motor -->
-                  <svg *ngIf="item.partType === 'motor'"
-                    class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200"
-                    viewBox="0 0 100 100" fill="none">
-                    <rect x="22" y="28" width="46" height="44" rx="4" fill="#334155" stroke="#0f172a"
-                      stroke-width="2.5" />
-                    <line x1="28" y1="28" x2="28" y2="72" stroke="#64748b" stroke-width="1.5" />
-                    <line x1="36" y1="28" x2="36" y2="72" stroke="#64748b" stroke-width="1.5" />
-                    <line x1="44" y1="28" x2="44" y2="72" stroke="#64748b" stroke-width="1.5" />
-                    <line x1="52" y1="28" x2="52" y2="72" stroke="#64748b" stroke-width="1.5" />
-                    <rect x="68" y="44" width="18" height="12" rx="1" fill="#94a3b8" stroke="#475569"
-                      stroke-width="2" />
-                    <circle cx="16" cy="50" r="5" fill="#38bdf8" stroke="#0284c7" stroke-width="1.5" />
-                    <text x="45" y="84" font-size="7.5" font-family="monospace" fill="#0f172a" text-anchor="middle"
-                      font-weight="bold">SERVO</text>
+                  <!-- 4. CYLINDER: Electro-Pneumatic Actuator with Magnetic Reed Position Sensor -->
+                  <svg *ngIf="item.partType === 'cylinder'" class="w-28 h-24 text-slate-300 group-hover:scale-105 transition-transform duration-200"
+                    viewBox="0 0 120 100" fill="none">
+                    <!-- Barrel Body -->
+                    <rect x="20" y="34" width="60" height="30" rx="3" fill="#1e293b" stroke="#38bdf8" stroke-width="1.8" />
+                    <!-- Piston Rod -->
+                    <rect x="80" y="44" width="28" height="10" rx="1.5" fill="#94a3b8" stroke="#cbd5e1" stroke-width="1.2" />
+                    <line x1="86" y1="44" x2="86" y2="54" stroke="#475569" stroke-width="0.8" />
+                    <line x1="94" y1="44" x2="94" y2="54" stroke="#475569" stroke-width="0.8" />
+                    <line x1="102" y1="44" x2="102" y2="54" stroke="#475569" stroke-width="0.8" />
+                    <!-- Magnetic Position Sensor Module clamped on rail with LED -->
+                    <rect x="42" y="24" width="22" height="9" rx="1.5" fill="#0f172a" stroke="#eab308" stroke-width="1" />
+                    <circle cx="48" cy="28.5" r="1.8" fill="#ef4444" />
+                    <path d="M 64 28.5 H 78" stroke="#eab308" stroke-width="1" stroke-linecap="round" />
+                    <circle cx="30" cy="40" r="3" fill="#0284c7" />
+                    <circle cx="70" cy="40" r="3" fill="#0284c7" />
+                    <line x1="55" y1="36" x2="55" y2="62" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="2 2" />
+                    <text x="60" y="78" font-size="7" font-family="'JetBrains Mono', monospace" fill="#38bdf8" text-anchor="middle" font-weight="bold">ACTUATOR CYLINDER</text>
+                    <text x="60" y="87" font-size="5.5" font-family="monospace" fill="#94a3b8" text-anchor="middle">MAG-SENSOR • 24VDC</text>
                   </svg>
 
-                  <!-- Filter -->
-                  <svg *ngIf="item.partType === 'filter'"
-                    class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200"
-                    viewBox="0 0 100 100" fill="none">
-                    <rect x="34" y="20" width="32" height="58" rx="4" fill="#f8fafc" stroke="#2563eb"
-                      stroke-width="2.5" />
-                    <line x1="34" y1="32" x2="66" y2="32" stroke="#93c5fd" stroke-width="1.5" />
-                    <line x1="34" y1="42" x2="66" y2="42" stroke="#93c5fd" stroke-width="1.5" />
-                    <line x1="34" y1="52" x2="66" y2="52" stroke="#93c5fd" stroke-width="1.5" />
-                    <line x1="34" y1="62" x2="66" y2="62" stroke="#93c5fd" stroke-width="1.5" />
-                    <text x="50" y="88" font-size="7.5" font-family="monospace" fill="#2563eb" text-anchor="middle"
-                      font-weight="bold">FILTER</text>
+                  <!-- 5. LINEAR: Precision Linear Scale & Optical Encoder Reading Head Module -->
+                  <svg *ngIf="item.partType === 'linear'" class="w-28 h-24 text-slate-300 group-hover:scale-105 transition-transform duration-200"
+                    viewBox="0 0 120 100" fill="none">
+                    <!-- Ground Steel Rail with Optical Scale Grating -->
+                    <rect x="14" y="44" width="92" height="12" rx="2" fill="#334155" stroke="#64748b" stroke-width="1.5" />
+                    <line x1="22" y1="44" x2="22" y2="56" stroke="#0ea5e9" stroke-width="0.8" opacity="0.6" />
+                    <line x1="30" y1="44" x2="30" y2="56" stroke="#0ea5e9" stroke-width="0.8" opacity="0.6" />
+                    <line x1="38" y1="44" x2="38" y2="56" stroke="#0ea5e9" stroke-width="0.8" opacity="0.6" />
+                    <line x1="82" y1="44" x2="82" y2="56" stroke="#0ea5e9" stroke-width="0.8" opacity="0.6" />
+                    <line x1="90" y1="44" x2="90" y2="56" stroke="#0ea5e9" stroke-width="0.8" opacity="0.6" />
+                    <line x1="98" y1="44" x2="98" y2="56" stroke="#0ea5e9" stroke-width="0.8" opacity="0.6" />
+                    <!-- Optical Encoder Head Block -->
+                    <rect x="44" y="28" width="32" height="36" rx="3" fill="#1e293b" stroke="#38bdf8" stroke-width="1.8" />
+                    <rect x="52" y="34" width="16" height="10" rx="1.5" fill="#0284c7" fill-opacity="0.3" stroke="#38bdf8" stroke-width="1" />
+                    <circle cx="49" cy="33" r="1.5" fill="#f59e0b" />
+                    <circle cx="71" cy="33" r="1.5" fill="#f59e0b" />
+                    <circle cx="49" cy="59" r="1.5" fill="#f59e0b" />
+                    <circle cx="71" cy="59" r="1.5" fill="#f59e0b" />
+                    <!-- FFC Flat Flexible Cable Pin Connector -->
+                    <rect x="54" y="20" width="12" height="8" rx="1" fill="#f59e0b" stroke="#d97706" stroke-width="0.8" />
+                    <text x="60" y="78" font-size="7" font-family="'JetBrains Mono', monospace" fill="#38bdf8" text-anchor="middle" font-weight="bold">LINEAR ENCODER</text>
+                    <text x="60" y="87" font-size="5.5" font-family="monospace" fill="#94a3b8" text-anchor="middle">OPTICAL SCALE • 0.1um RES</text>
                   </svg>
 
-                  <!-- Valve -->
-                  <svg *ngIf="item.partType === 'valve'"
-                    class="w-24 h-24 text-slate-400 group-hover:scale-105 transition-transform duration-200"
-                    viewBox="0 0 100 100" fill="none">
-                    <rect x="25" y="32" width="50" height="36" rx="4" fill="#0f172a" stroke="#334155"
-                      stroke-width="2.5" />
-                    <rect x="32" y="24" width="16" height="8" rx="2" fill="#2563eb" stroke="#1d4ed8"
-                      stroke-width="1.5" />
-                    <circle cx="36" cy="45" r="3" fill="#22c55e" />
-                    <circle cx="50" cy="45" r="3" fill="#e2e8f0" />
-                    <circle cx="64" cy="45" r="3" fill="#e2e8f0" />
-                    <circle cx="43" cy="57" r="3" fill="#e2e8f0" />
-                    <circle cx="57" cy="57" r="3" fill="#e2e8f0" />
-                    <text x="50" y="80" font-size="7.5" font-family="monospace" fill="#0284c7" text-anchor="middle"
-                      font-weight="bold">VALVE</text>
+                  <!-- 6. VACUUM: Electronic Digital Pressure Transducer & Sensor Switch -->
+                  <svg *ngIf="item.partType === 'vacuum'" class="w-28 h-24 text-slate-300 group-hover:scale-105 transition-transform duration-200"
+                    viewBox="0 0 120 100" fill="none">
+                    <rect x="28" y="24" width="64" height="46" rx="4" fill="#1e293b" stroke="#0284c7" stroke-width="1.8" />
+                    <!-- Digital 7-Segment Readout -->
+                    <rect x="36" y="32" width="48" height="18" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1" />
+                    <text x="60" y="45" font-size="10.5" font-family="'Courier New', monospace" fill="#ef4444" text-anchor="middle" font-weight="900" letter-spacing="1">-101.3</text>
+                    <circle cx="42" cy="57" r="2" fill="#22c55e" />
+                    <circle cx="50" cy="57" r="2" fill="#64748b" />
+                    <text x="42" y="64" font-size="4.5" font-family="monospace" fill="#22c55e" text-anchor="middle">OUT1</text>
+                    <rect x="64" y="54" width="8" height="6" rx="1" fill="#334155" stroke="#64748b" stroke-width="0.8" />
+                    <rect x="74" y="54" width="8" height="6" rx="1" fill="#334155" stroke="#64748b" stroke-width="0.8" />
+                    <rect x="52" y="70" width="16" height="8" rx="1" fill="#64748b" stroke="#94a3b8" stroke-width="1" />
+                    <text x="60" y="88" font-size="7" font-family="'JetBrains Mono', monospace" fill="#38bdf8" text-anchor="middle" font-weight="bold">DIGITAL VACUUM</text>
                   </svg>
 
-                  <!-- Fallback -->
-                  <svg *ngIf="!item.partType"
-                    class="w-16 h-16 text-slate-300 group-hover:scale-105 transition-transform" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <!-- 7. FILTER: Electronic Noise Filter / EMI Line Filter Module -->
+                  <svg *ngIf="item.partType === 'filter'" class="w-28 h-24 text-slate-300 group-hover:scale-105 transition-transform duration-200"
+                    viewBox="0 0 120 100" fill="none">
+                    <rect x="25" y="24" width="70" height="46" rx="3" fill="#1e293b" stroke="#64748b" stroke-width="1.8" />
+                    <circle cx="32" cy="31" r="3" fill="#f59e0b" stroke="#d97706" stroke-width="0.8" />
+                    <!-- Toroidal Choke Coils L1 & L2 -->
+                    <circle cx="48" cy="46" r="9" fill="#0f172a" stroke="#d97706" stroke-width="2.2" stroke-dasharray="3 2" />
+                    <circle cx="72" cy="46" r="9" fill="#0f172a" stroke="#d97706" stroke-width="2.2" stroke-dasharray="3 2" />
+                    <circle cx="60" cy="38" r="4.5" fill="#0284c7" stroke="#38bdf8" stroke-width="1" />
+                    <!-- Spade Terminals (LINE / LOAD) -->
+                    <rect x="15" y="42" width="10" height="8" rx="1" fill="#94a3b8" stroke="#cbd5e1" stroke-width="1" />
+                    <rect x="95" y="42" width="10" height="8" rx="1" fill="#94a3b8" stroke="#cbd5e1" stroke-width="1" />
+                    <text x="60" y="82" font-size="7" font-family="'JetBrains Mono', monospace" fill="#38bdf8" text-anchor="middle" font-weight="bold">EMI LINE FILTER</text>
+                    <text x="60" y="91" font-size="5.5" font-family="monospace" fill="#94a3b8" text-anchor="middle">250VAC 10A • CHOKE/CAP</text>
                   </svg>
 
-                  <!-- Top-Left Badges: Quotation No & Rank Tag -->
+                  <!-- 8. FALLBACK: Quad Flat Package Microcontroller IC Chip -->
+                  <svg *ngIf="!['cylinder', 'vacuum', 'linear', 'sensor', 'motor', 'filter', 'valve'].includes(item.partType || '')"
+                    class="w-28 h-24 text-slate-300 group-hover:scale-105 transition-transform duration-200" viewBox="0 0 120 100" fill="none">
+                    <rect x="36" y="26" width="48" height="48" rx="2" fill="#0f172a" stroke="#475569" stroke-width="1.8" />
+                    <circle cx="42" cy="32" r="2.5" fill="#f59e0b" />
+                    <!-- Pin 1 to N Leads -->
+                    <line x1="44" y1="18" x2="44" y2="26" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="52" y1="18" x2="52" y2="26" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="60" y1="18" x2="60" y2="26" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="68" y1="18" x2="68" y2="26" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="76" y1="18" x2="76" y2="26" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="44" y1="74" x2="44" y2="82" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="52" y1="74" x2="52" y2="82" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="60" y1="74" x2="60" y2="82" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="68" y1="74" x2="68" y2="82" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="76" y1="74" x2="76" y2="82" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="28" y1="34" x2="36" y2="34" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="28" y1="42" x2="36" y2="42" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="28" y1="50" x2="36" y2="50" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="28" y1="58" x2="36" y2="58" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="28" y1="66" x2="36" y2="66" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="84" y1="34" x2="92" y2="34" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="84" y1="42" x2="92" y2="42" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="84" y1="50" x2="92" y2="50" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="84" y1="58" x2="92" y2="58" stroke="#94a3b8" stroke-width="1.5" />
+                    <line x1="84" y1="66" x2="92" y2="66" stroke="#94a3b8" stroke-width="1.5" />
+                    <text x="60" y="47" font-size="7" font-family="'JetBrains Mono', monospace" fill="#38bdf8" text-anchor="middle" font-weight="bold">MICRO-IC</text>
+                    <text x="60" y="57" font-size="5" font-family="monospace" fill="#64748b" text-anchor="middle">ARM-32BIT</text>
+                  </svg>
+
+                  <!-- Top-Left Badges: Part Number Chip & Rank Tag -->
                   <div class="absolute top-0 left-0 z-10 flex items-center flex-wrap gap-1">
                     <span
-                      class="bg-[#131936] text-white font-mono font-bold text-[10px] px-2.5 py-1 rounded-br-xl shadow-xs leading-none">
+                      class="bg-[#0b0f19]/95 text-cyan-300 font-mono font-bold text-[10px] px-2.5 py-1 rounded-br-xl border-r border-b border-cyan-500/30 flex items-center gap-1 shadow-sm leading-none">
+                      <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
                       {{ item.quotationNo }}
                     </span>
 
@@ -3242,35 +3407,35 @@
                     </span>
                   </div>
 
-                  <!-- Top-Right Badge: Status (Emerald / Rose / Blue) -->
+                  <!-- Top-Right Badge: Electronic Status with Glowing SMD LED -->
                   <div class="absolute top-2.5 right-2.5 z-10">
                     <span *ngIf="item.isUrgent"
-                      class="bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs animate-pulse">
-                      <span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
+                      class="bg-rose-950/85 text-rose-300 border border-rose-500/50 text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 shadow-sm">
+                      <span class="w-2 h-2 rounded-full smd-led-red"></span>
                       <span>URGENT</span>
                     </span>
                     <span *ngIf="!item.isUrgent && item.status === 'Approved'"
-                      class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
-
-                      <span>Approved</span>
+                      class="bg-emerald-950/85 text-emerald-300 border border-emerald-500/50 text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 shadow-sm">
+                      <span class="w-2 h-2 rounded-full smd-led-green"></span>
+                      <span>APPROVED</span>
                     </span>
                     <span *ngIf="!item.isUrgent && item.status !== 'Approved'"
-                      class="bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-2xs">
-                      {{ item.status }}
+                      class="bg-slate-900/85 text-cyan-300 border border-cyan-500/40 text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 shadow-sm">
+                      <span class="w-2 h-2 rounded-full smd-led-cyan"></span>
+                      <span>{{ item.status }}</span>
                     </span>
                   </div>
 
-                  <!-- Bottom Overlay Bar on Drawing -->
+                  <!-- Bottom Overlay Bar on PCB -->
                   <div
-                    class="absolute bottom-0 inset-x-0 bg-slate-900/65 backdrop-blur-2xs text-white text-[10px] font-medium py-1 px-3 flex items-center justify-between z-10">
-                    <span class="truncate">ส่งมอบ: {{ item.leadTime }}</span>
-                    <span class="font-bold text-cyan-300 uppercase tracking-wider text-[9px]">{{ item.makerName
-                      }}</span>
+                    class="absolute bottom-0 inset-x-0 bg-slate-950/85 backdrop-blur-xs text-white text-[10px] font-mono py-1 px-3 flex items-center justify-between z-10 border-t border-slate-800/80">
+                    <span class="truncate text-slate-300 text-[9.5px]">⚡ 24VDC &bull; ส่งมอบ: {{ item.leadTime }}</span>
+                    <span class="font-bold text-cyan-300 uppercase tracking-wider text-[9px] font-mono">{{ item.makerName }}</span>
                   </div>
 
                 </div>
 
-                <!-- 2. Quotation Information Content -->
+                <!-- 2. Quotation Information Content (Datasheet Style) -->
                 <div class="p-3.5 flex-1 flex flex-col justify-between space-y-2">
 
                   <!-- Part Name & Spec -->
@@ -3279,19 +3444,30 @@
                       class="text-sm font-bold text-[#131936] group-hover:text-blue-600 transition-colors line-clamp-1 leading-snug">
                       {{ item.partName }}
                     </h3>
-                    <div class="text-[11px] font-mono text-slate-500 truncate">
-                      {{ item.spec }}
+                    <div class="text-[11px] font-mono text-slate-500 truncate flex items-center gap-1.5">
+                      <span class="text-cyan-600 font-bold">[SPEC]</span>
+                      <span>{{ item.spec }}</span>
                     </div>
                   </div>
 
-                  <!-- Match Relevance Score Indicator -->
-                  <div *ngIf="item.matchScore" class="flex items-center justify-between text-[10px] pt-0.5">
-                    <span class="text-slate-400 flex items-center gap-1">
-                      <span>ตรงการค้นหา</span>
-                    </span>
-                    <span class="font-mono font-bold px-1.5 py-0.2 rounded" [ngClass]="{
-                        'bg-amber-100 text-amber-800': item.rank === 1,
-                        'bg-blue-50 text-blue-700': item.rank !== 1 && item.matchScore >= 90,
+                  <!-- Electronic Tags & Match Score -->
+                  <div class="flex items-center justify-between gap-1 text-[10px] pt-0.5 flex-wrap">
+                    <div class="flex items-center gap-1">
+                      <span class="bg-slate-100 text-slate-600 font-mono text-[9px] px-1.5 py-0.5 rounded font-bold border border-slate-200">
+                        {{ item.makerName }}
+                      </span>
+                      <span class="bg-cyan-50 text-cyan-700 font-mono text-[9px] px-1.5 py-0.5 rounded font-bold border border-cyan-200">
+                        RoHS/CE
+                      </span>
+                      <span *ngIf="item.stockCount" class="bg-emerald-50 text-emerald-700 font-mono text-[9px] px-1.5 py-0.5 rounded font-medium">
+                        สต็อก {{ item.stockCount }}
+                      </span>
+                    </div>
+
+                    <!-- Match Score -->
+                    <span *ngIf="item.matchScore" class="font-mono font-bold px-1.5 py-0.2 rounded" [ngClass]="{
+                        'bg-amber-100 text-amber-800 border border-amber-300': item.rank === 1,
+                        'bg-blue-50 text-blue-700 border border-blue-200': item.rank !== 1 && item.matchScore >= 90,
                         'bg-slate-100 text-slate-600': item.matchScore < 90
                       }">
                       {{ item.matchScore }}% Match
@@ -3304,13 +3480,13 @@
                     <span class="text-[10px] text-slate-400 shrink-0 ml-1">{{ item.location }}</span>
                   </div>
 
-                  <!-- Price Row (Suppier Electric Blue & Deep Navy #131936) -->
+                  <!-- Price Row (Digital Multimeter Instrument Readout Style) -->
                   <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
                     <div class="flex items-baseline gap-1">
-                      <span class="text-xs font-bold text-blue-700">฿</span>
+                      <span class="text-xs font-bold text-blue-700 font-mono">฿</span>
                       <span class="text-lg font-black text-[#131936] font-mono tracking-tight">{{ item.unitPrice |
                         number }}</span>
-                      <span class="text-[10px] font-semibold text-slate-500">{{ item.currency }}</span>
+                      <span class="text-[10px] font-semibold text-slate-500 font-mono">{{ item.currency }}</span>
                     </div>
                     <span class="text-[10px] text-slate-400 font-mono">Doc: {{ item.docNumber }}</span>
                   </div>
@@ -3319,28 +3495,28 @@
                   <div class="text-[10.5px] text-slate-400 flex items-center justify-between pt-0.5">
                     <span class="truncate">ผู้ขอ: {{ item.requesterName.split(' ')[0] }} ({{ item.division }})</span>
                     <span *ngIf="item.machineModel"
-                      class="font-mono text-[9.5px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                      class="font-mono text-[9.5px] text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
                       {{ item.machineModel }}
                     </span>
                   </div>
 
                 </div>
 
-                <!-- 3. Bottom Action Footer -->
-                <div class="p-2 bg-slate-50 border-t border-slate-100 flex items-center gap-1.5">
+                <!-- 3. Bottom Action Footer (Datasheet & Spec View) -->
+                <div class="p-2 bg-slate-50/90 border-t border-slate-100 flex items-center gap-1.5">
                   <button *ngIf="item.quotationPdf"
                     (click)="openPdfPreview(item.quotationPdf, 'Quotation: ' + item.quotationNo, $event)"
-                    class="flex-1 py-1.5 px-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer">
+                    class="flex-1 py-1.5 px-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer border border-blue-200/60 shadow-2xs">
                     <svg class="w-3.5 h-3.5 text-rose-500" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd"
                         d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
                         clip-rule="evenodd" />
                     </svg>
-                    <span>ดู PDF</span>
+                    <span>ดู DATASHEET</span>
                   </button>
 
                   <button (click)="openShopeeQuickView(item, $event)"
-                    class="py-1.5 px-3 rounded-lg bg-white hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200 flex items-center justify-center gap-1 transition-colors cursor-pointer">
+                    class="py-1.5 px-3 rounded-lg bg-white hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200 flex items-center justify-center gap-1 transition-colors cursor-pointer shadow-2xs">
                     <span>รายละเอียด</span>
                   </button>
                 </div>
@@ -3373,34 +3549,65 @@
                   <!-- Left: CAD Schematic Preview -->
                   <div class="md:col-span-5 space-y-3">
                     <div
-                      class="aspect-square rounded-2xl bg-gradient-to-br from-[#131936] to-blue-950 text-white p-5 flex flex-col justify-between relative overflow-hidden shadow-inner">
-                      <!-- Grid lines -->
-                      <div
-                        class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:12px_12px] pointer-events-none">
-                      </div>
+                      class="aspect-square rounded-2xl pcb-substrate border border-slate-700/80 text-white p-4 flex flex-col justify-between relative overflow-hidden shadow-xl">
+                      <!-- PCB Circuit Copper Traces & Silkscreen Markings Overlay -->
+                      <svg class="absolute inset-0 w-full h-full pointer-events-none opacity-35" viewBox="0 0 200 200" fill="none">
+                        <path d="M 0 40 H 50 L 70 60 H 150" stroke="#38bdf8" stroke-width="0.9" />
+                        <path d="M 200 160 H 150 L 130 140 H 50" stroke="#38bdf8" stroke-width="0.9" />
+                        <circle cx="70" cy="60" r="2.5" fill="#38bdf8" />
+                        <circle cx="130" cy="140" r="2.5" fill="#38bdf8" />
+                        <path d="M 12 16 H 22 M 17 11 V 21" stroke="#94a3b8" stroke-width="0.8" opacity="0.6" />
+                        <path d="M 178 16 H 188 M 183 11 V 21" stroke="#94a3b8" stroke-width="0.8" opacity="0.6" />
+                        <circle cx="34" cy="20" r="2" stroke="#f59e0b" stroke-width="0.8" fill="#fef08a" />
+                        <text x="39" y="23" font-size="6" font-family="monospace" fill="#94a3b8">TP1</text>
+                      </svg>
 
+                      <!-- Top Header in Modal PCB -->
                       <div class="flex items-center justify-between z-10">
-                        <span class="font-mono text-xs text-cyan-300 font-bold">{{ selectedShopeeItemModal.quotationNo
-                          }}</span>
-                        <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-md font-mono">{{
+                        <span class="font-mono text-xs text-cyan-300 font-bold bg-[#0b0f19]/90 px-2 py-0.5 rounded border border-cyan-500/30 flex items-center gap-1.5">
+                          <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                          {{ selectedShopeeItemModal.quotationNo }}
+                        </span>
+                        <span class="text-[10px] bg-slate-900/80 border border-slate-700 text-slate-300 px-2 py-0.5 rounded font-mono">{{
                           selectedShopeeItemModal.quotationDate }}</span>
                       </div>
 
+                      <!-- Central Micro-chip / Electronic graphic -->
                       <div class="my-auto text-center z-10 space-y-1">
-                        <svg class="w-16 h-16 mx-auto text-cyan-300/80" fill="none" stroke="currentColor"
-                          viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
+                        <div class="relative inline-block">
+                          <svg class="w-24 h-24 mx-auto" viewBox="0 0 100 100" fill="none">
+                            <rect x="25" y="25" width="50" height="50" rx="3" fill="#0f172a" stroke="#38bdf8" stroke-width="1.8" />
+                            <circle cx="33" cy="33" r="3" fill="#f59e0b" />
+                            <!-- Pins -->
+                            <line x1="33" y1="16" x2="33" y2="25" stroke="#94a3b8" stroke-width="1.8" />
+                            <line x1="43" y1="16" x2="43" y2="25" stroke="#94a3b8" stroke-width="1.8" />
+                            <line x1="53" y1="16" x2="53" y2="25" stroke="#94a3b8" stroke-width="1.8" />
+                            <line x1="63" y1="16" x2="63" y2="25" stroke="#94a3b8" stroke-width="1.8" />
+                            <line x1="33" y1="75" x2="33" y2="84" stroke="#94a3b8" stroke-width="1.8" />
+                            <line x1="43" y1="75" x2="43" y2="84" stroke="#94a3b8" stroke-width="1.8" />
+                            <line x1="53" y1="75" x2="53" y2="84" stroke="#94a3b8" stroke-width="1.8" />
+                            <line x1="63" y1="75" x2="63" y2="84" stroke="#94a3b8" stroke-width="1.8" />
+                            <line x1="16" y1="33" x2="25" y2="33" stroke="#94a3b8" stroke-width="1.8" />
+                            <line x1="16" y1="43" x2="25" y2="43" stroke="#94a3b8" stroke-width="1.8" />
+                            <line x1="16" y1="53" x2="25" y2="53" stroke="#94a3b8" stroke-width="1.8" />
+                            <line x1="16" y1="63" x2="25" y2="63" stroke="#94a3b8" stroke-width="1.8" />
+                            <line x1="75" y1="33" x2="84" y2="33" stroke="#94a3b8" stroke-width="1.8" />
+                            <line x1="75" y1="43" x2="84" y2="43" stroke="#94a3b8" stroke-width="1.8" />
+                            <line x1="75" y1="53" x2="84" y2="53" stroke="#94a3b8" stroke-width="1.8" />
+                            <line x1="75" y1="63" x2="84" y2="63" stroke="#94a3b8" stroke-width="1.8" />
+                            <text x="50" y="47" font-size="7.5" font-family="'JetBrains Mono', monospace" fill="#38bdf8" text-anchor="middle" font-weight="bold">{{ selectedShopeeItemModal.makerName }}</text>
+                            <text x="50" y="58" font-size="6" font-family="monospace" fill="#94a3b8" text-anchor="middle">{{ (selectedShopeeItemModal.partType || 'IC').toUpperCase() }}</text>
+                          </svg>
+                        </div>
                         <div class="text-xs uppercase font-bold tracking-widest text-cyan-200 font-mono">{{
                           selectedShopeeItemModal.makerName }}</div>
+                        <div class="text-[10px] text-slate-400 font-mono">⚡ 24VDC &bull; RoHS COMPLIANT</div>
                       </div>
 
-                      <div class="flex items-center justify-between z-10 text-xs">
-                        <span class="text-slate-300 truncate max-w-[150px]">{{ selectedShopeeItemModal.vendor }}</span>
-                        <span class="font-bold text-amber-300 font-mono text-sm">฿{{ selectedShopeeItemModal.unitPrice |
+                      <!-- Bottom Bar in Modal PCB -->
+                      <div class="flex items-center justify-between z-10 text-xs bg-slate-950/80 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                        <span class="text-slate-300 truncate max-w-[150px] font-mono text-[11px]">{{ selectedShopeeItemModal.vendor }}</span>
+                        <span class="font-bold text-cyan-300 font-mono text-sm">฿{{ selectedShopeeItemModal.unitPrice |
                           number }}</span>
                       </div>
                     </div>

@@ -1234,6 +1234,1059 @@ export class AppComponent implements OnInit, AfterViewInit {
       descriptionSnippet: 'THK 4-way equal load linear motion guide block series HSR. Self-adjusting capability, high rigidity against heavy radial and reverse loads.',
       urlBreadcrumb: 'suppier.corp › quotation › thk › hsr25-lm-guide',
       tags: ['THK', 'LM Guide', 'Linear', 'Heavy Load']
+    },
+    {
+      id: 'QTR-13',
+      quotationNo: 'QT-2026-0941',
+      partName: 'ROTARY ACTUATOR VANE TYPE',
+      spec: 'CRB2BW20-90SZ (Size 20, 90 deg)',
+      makerName: 'SMC',
+      vendor: 'CHAVANAN CO., LTD.',
+      vendorRating: 4.9,
+      unitPrice: 3850,
+      originalPrice: 4400,
+      discountPercent: 12,
+      currency: 'THB',
+      leadTime: '5 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'อยุธยา',
+      category: 'กระบอกลม & นิวเมติกส์',
+      soldCount: '95 ชิ้น',
+      voucherText: 'โค้ดลด ฿200',
+      stockCount: 15,
+      partType: 'cylinder',
+      docNumber: 'REQ-2026-0391',
+      requesterName: 'SOMCHAI TANGTRONG',
+      division: 'GM1',
+      section: 'MA',
+      quotationDate: '24/09/2026',
+      quotationPdf: 'QT-2026-0941-SMC.pdf',
+      machineModel: 'GM1-INDEX-02',
+      descriptionSnippet: 'SMC rotary actuator vane style series CRB2. Compact body with auto switch unit option. Single vane 90 degree oscillating movement.',
+      urlBreadcrumb: 'suppier.corp › quotation › smc › crb2bw20-actuator',
+      priceHistory: [
+        { year: '2024', price: 4100, vendor: 'CHAVANAN' },
+        { year: '2025', price: 3950, vendor: 'CHAVANAN' },
+        { year: '2026', price: 3850, vendor: 'CHAVANAN' }
+      ],
+      tags: ['SMC', 'Rotary', 'Actuator', 'Pneumatics']
+    },
+    {
+      id: 'QTR-14',
+      quotationNo: 'QT-2026-0955',
+      partName: 'GUIDED CYLINDER DFM SERIES',
+      spec: 'DFM-25-100-P-A-KF (Bore 25mm Stroke 100mm)',
+      makerName: 'FESTO',
+      vendor: 'FESTO (THAILAND) LTD.',
+      vendorRating: 4.8,
+      unitPrice: 8750,
+      originalPrice: 9900,
+      discountPercent: 11,
+      currency: 'THB',
+      leadTime: '10 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'กรุงเทพมหานคร',
+      category: 'กระบอกลม & นิวเมติกส์',
+      soldCount: '38 ชิ้น',
+      voucherText: 'ส่งฟรี ฿0',
+      stockCount: 10,
+      partType: 'cylinder',
+      docNumber: 'REQ-2026-0395',
+      requesterName: 'PEERAPAT BUASA',
+      division: 'MA',
+      section: 'P/H',
+      quotationDate: '24/09/2026',
+      quotationPdf: 'QT-2026-0955-FESTO.pdf',
+      machineModel: 'MA-PICK-03',
+      descriptionSnippet: 'Festo guided drive DFM series with recirculating ball bearing guide. High torque and lateral force resistance. Cleanroom ready.',
+      urlBreadcrumb: 'suppier.corp › quotation › festo › dfm-25-100-cylinder',
+      priceHistory: [
+        { year: '2025', price: 8900, vendor: 'FESTO' },
+        { year: '2026', price: 8750, vendor: 'FESTO' }
+      ],
+      tags: ['Festo', 'Guided Cylinder', 'Automation', 'High Load']
+    },
+    {
+      id: 'QTR-15',
+      quotationNo: 'QT-2026-0888',
+      partName: 'MINI FREE MOUNT CYLINDER',
+      spec: 'CU10-15D (Double Acting Single Rod)',
+      makerName: 'SMC',
+      vendor: 'MISUMI (THAILAND) CO., LTD.',
+      vendorRating: 5.0,
+      unitPrice: 1280,
+      originalPrice: 1450,
+      discountPercent: 12,
+      currency: 'THB',
+      leadTime: '2 Days',
+      status: 'Approved',
+      isUrgent: true,
+      isMall: true,
+      location: 'ระยอง',
+      category: 'กระบอกลม & นิวเมติกส์',
+      soldCount: '210 ชิ้น',
+      voucherText: 'ด่วน พร้อมส่ง',
+      stockCount: 45,
+      partType: 'cylinder',
+      docNumber: 'REQ-2026-0388',
+      requesterName: 'ANAN JITMAN',
+      division: 'GM1',
+      section: 'MA',
+      quotationDate: '23/09/2026',
+      quotationPdf: 'QT-2026-0888-SMC.pdf',
+      machineModel: 'GM1-LINE-04',
+      descriptionSnippet: 'Space-saving rectangular cylinder CU series. Multi-surface mounting capability with embedded auto-switch groove. Direct delivery within 48 hours.',
+      urlBreadcrumb: 'suppier.corp › quotation › smc › cu10-15d-cylinder',
+      priceHistory: [
+        { year: '2024', price: 1350, vendor: 'MISUMI' },
+        { year: '2025', price: 1300, vendor: 'MISUMI' },
+        { year: '2026', price: 1280, vendor: 'MISUMI' }
+      ],
+      tags: ['SMC', 'Mini Cylinder', 'Compact', 'Fast Delivery']
+    },
+    {
+      id: 'QTR-16',
+      quotationNo: 'QT-2026-0732',
+      partName: 'COMPACT SLIDE TABLE',
+      spec: 'MXS12-50AS (Stroke 50mm Adjuster)',
+      makerName: 'SMC',
+      vendor: 'CHAVANAN CO., LTD.',
+      vendorRating: 4.9,
+      unitPrice: 9600,
+      originalPrice: 11200,
+      discountPercent: 14,
+      currency: 'THB',
+      leadTime: '7 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'อยุธยา',
+      category: 'กระบอกลม & นิวเมติกส์',
+      soldCount: '52 ชิ้น',
+      voucherText: 'โค้ดลด ฿300',
+      stockCount: 14,
+      partType: 'cylinder',
+      docNumber: 'REQ-2026-0372',
+      requesterName: 'NATTHANICHA SONTHIKESORN',
+      division: 'GM1',
+      section: 'MA',
+      quotationDate: '22/09/2026',
+      quotationPdf: 'QT-2026-0732-SMC.pdf',
+      machineModel: 'GM1-CNC-02',
+      descriptionSnippet: 'Air slide table MXS series integrating guide table and cylinder. Dual rod structure generating double thrust force with high precision stop.',
+      urlBreadcrumb: 'suppier.corp › quotation › smc › mxs12-50as-slide',
+      priceHistory: [
+        { year: '2025', price: 9800, vendor: 'CHAVANAN' },
+        { year: '2026', price: 9600, vendor: 'CHAVANAN' }
+      ],
+      tags: ['SMC', 'Slide Table', 'Precision', 'Pneumatics']
+    },
+    {
+      id: 'QTR-17',
+      quotationNo: 'QT-2026-0966',
+      partName: '3-PORT DIRECT SOLENOID VALVE',
+      spec: 'VT307-5G-02 (High Frequency Cycle)',
+      makerName: 'SMC',
+      vendor: 'CHAVANAN CO., LTD.',
+      vendorRating: 4.9,
+      unitPrice: 1750,
+      originalPrice: 2050,
+      discountPercent: 15,
+      currency: 'THB',
+      leadTime: '4 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'อยุธยา',
+      category: 'กระบอกลม & นิวเมติกส์',
+      soldCount: '168 ชิ้น',
+      voucherText: 'โค้ดลด ฿100',
+      stockCount: 35,
+      partType: 'valve',
+      docNumber: 'REQ-2026-0366',
+      requesterName: 'SOMCHAI TANGTRONG',
+      division: 'GM1',
+      section: 'MA',
+      quotationDate: '23/09/2026',
+      quotationPdf: 'QT-2026-0966-SMC.pdf',
+      machineModel: 'GM1-VALVE-03',
+      descriptionSnippet: 'Direct operated 3-port poppet solenoid valve VT307 series. Suitable for vacuum applications with fast response time under 10ms.',
+      urlBreadcrumb: 'suppier.corp › quotation › smc › vt307-solenoid-valve',
+      priceHistory: [
+        { year: '2024', price: 1850, vendor: 'CHAVANAN' },
+        { year: '2025', price: 1800, vendor: 'CHAVANAN' },
+        { year: '2026', price: 1750, vendor: 'CHAVANAN' }
+      ],
+      tags: ['SMC', 'Solenoid Valve', '3-Port', 'Fast Response']
+    },
+    {
+      id: 'QTR-18',
+      quotationNo: 'QT-2026-0612',
+      partName: 'MODULAR F.R.L. COMBINATION',
+      spec: 'AC30-03DG-A (Filter + Reg + Lub)',
+      makerName: 'SMC',
+      vendor: 'CHAVANAN CO., LTD.',
+      vendorRating: 4.9,
+      unitPrice: 3450,
+      originalPrice: 3900,
+      discountPercent: 12,
+      currency: 'THB',
+      leadTime: '7 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'อยุธยา',
+      category: 'กระบอกลม & นิวเมติกส์',
+      soldCount: '80 ชิ้น',
+      voucherText: 'จัดส่งฟรี ฿0',
+      stockCount: 22,
+      partType: 'valve',
+      docNumber: 'REQ-2026-0318',
+      requesterName: 'KUNLADA PANMAN',
+      division: 'MA',
+      section: 'MA',
+      quotationDate: '17/09/2026',
+      quotationPdf: 'QT-2026-0612-SMC.pdf',
+      machineModel: 'MA-AIR-MAIN-01',
+      descriptionSnippet: 'Clean air preparation unit AC30 series. Includes auto-drain 5 micron air filter, pressure regulator with gauge, and micro-fog lubricator.',
+      urlBreadcrumb: 'suppier.corp › quotation › smc › ac30-frl-unit',
+      priceHistory: [
+        { year: '2025', price: 3600, vendor: 'CHAVANAN' },
+        { year: '2026', price: 3450, vendor: 'CHAVANAN' }
+      ],
+      tags: ['SMC', 'FRL', 'Air Preparation', 'Filter Regulator']
+    },
+    {
+      id: 'QTR-19',
+      quotationNo: 'QT-2026-0850',
+      partName: 'AIR GRIPPER PARALLEL TYPE',
+      spec: 'MHZ2-16D (Dual Acting Bore 16mm)',
+      makerName: 'AIRTAC',
+      vendor: 'AIRTAC 2060080',
+      vendorRating: 4.7,
+      unitPrice: 2950,
+      originalPrice: 3400,
+      discountPercent: 13,
+      currency: 'THB',
+      leadTime: '3 Days',
+      status: 'Approved',
+      isUrgent: true,
+      isMall: true,
+      location: 'ชลบุรี',
+      category: 'กระบอกลม & นิวเมติกส์',
+      soldCount: '115 ชิ้น',
+      voucherText: 'ส่งด่วน 24ชม.',
+      stockCount: 28,
+      partType: 'cylinder',
+      docNumber: 'REQ-2026-0385',
+      requesterName: 'SUNAN SRISOD',
+      division: 'MA',
+      section: 'MA',
+      quotationDate: '22/09/2026',
+      quotationPdf: 'QT-2026-0850-AIRTAC.pdf',
+      machineModel: 'MA-PRESS-11',
+      descriptionSnippet: 'High precision parallel linear air gripper MHZ2 series. Linear guide mechanism with integral high rigidity fingers for robot end-effector.',
+      urlBreadcrumb: 'suppier.corp › quotation › airtac › mhz2-16d-gripper',
+      priceHistory: [
+        { year: '2024', price: 3100, vendor: 'AIRTAC 2060080' },
+        { year: '2025', price: 3000, vendor: 'AIRTAC 2060080' },
+        { year: '2026', price: 2950, vendor: 'AIRTAC 2060080' }
+      ],
+      tags: ['Airtac', 'Gripper', 'Robot Hand', 'Pneumatics']
+    },
+    {
+      id: 'QTR-20',
+      quotationNo: 'QT-2026-0975',
+      partName: '5-PORT PILOT SOLENOID VALVE',
+      spec: '4KA210-06-B-DC24V (Compact Cassette)',
+      makerName: 'CKD',
+      vendor: 'CKD THAI CORPORATION',
+      vendorRating: 4.8,
+      unitPrice: 2150,
+      originalPrice: 2500,
+      discountPercent: 14,
+      currency: 'THB',
+      leadTime: '7 Days',
+      status: 'Quoted',
+      isUrgent: false,
+      isMall: true,
+      location: 'สมุทรปราการ',
+      category: 'กระบอกลม & นิวเมติกส์',
+      soldCount: '64 ชิ้น',
+      voucherText: 'โค้ดลด ฿150',
+      stockCount: 19,
+      partType: 'valve',
+      docNumber: 'REQ-2026-0375',
+      requesterName: 'PICHET SANGCHAN',
+      division: 'PMA',
+      section: 'PMA',
+      quotationDate: '20/09/2026',
+      quotationPdf: 'QT-2026-0975-CKD.pdf',
+      machineModel: 'PMA-MILL-04',
+      descriptionSnippet: 'CKD 4KA series 5-port pilot operated valve. Low profile design with reduced wiring manifold option. Surge absorber built in.',
+      urlBreadcrumb: 'suppier.corp › quotation › ckd › 4ka210-valve',
+      priceHistory: [
+        { year: '2025', price: 2200, vendor: 'CKD THAI' },
+        { year: '2026', price: 2150, vendor: 'CKD THAI' }
+      ],
+      tags: ['CKD', 'Valve', 'Pneumatics', 'Pilot Operated']
+    },
+    {
+      id: 'QTR-21',
+      quotationNo: 'QT-2026-0980',
+      partName: 'DIGITAL LASER SENSOR CMOS TYPE',
+      spec: 'LR-ZH500N (Distance 500mm NPN)',
+      makerName: 'KEYENCE',
+      vendor: 'KEYENCE (THAILAND) CO., LTD.',
+      vendorRating: 4.9,
+      unitPrice: 12800,
+      originalPrice: 14500,
+      discountPercent: 12,
+      currency: 'THB',
+      leadTime: '5 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'อยุธยา',
+      category: 'เซนเซอร์ & ตรวจจับ',
+      soldCount: '86 ชิ้น',
+      voucherText: 'ประกันศูนย์ 1 ปี',
+      stockCount: 15,
+      partType: 'sensor',
+      docNumber: 'REQ-2026-0380',
+      requesterName: 'KUNLADA PANMAN',
+      division: 'MA',
+      section: 'MA',
+      quotationDate: '24/09/2026',
+      quotationPdf: 'QT-2026-0980-KEYENCE.pdf',
+      machineModel: 'MA-INSPECT-05',
+      descriptionSnippet: 'Keyence LR-Z series CMOS laser sensor. Detects targets based on position rather than intensity, ensuring stable detection of dark or shiny metals.',
+      urlBreadcrumb: 'suppier.corp › quotation › keyence › lr-zh500n-sensor',
+      priceHistory: [
+        { year: '2024', price: 13400, vendor: 'KEYENCE' },
+        { year: '2025', price: 13000, vendor: 'KEYENCE' },
+        { year: '2026', price: 12800, vendor: 'KEYENCE' }
+      ],
+      tags: ['Keyence', 'Laser Sensor', 'CMOS', 'Inspection']
+    },
+    {
+      id: 'QTR-22',
+      quotationNo: 'QT-2026-0765',
+      partName: 'RECTANGULAR PHOTO SENSOR',
+      spec: 'E3Z-T61 2M (Through-beam 15m NPN)',
+      makerName: 'OMRON',
+      vendor: 'MISUMI (THAILAND) CO., LTD.',
+      vendorRating: 5.0,
+      unitPrice: 1420,
+      originalPrice: 1700,
+      discountPercent: 16,
+      currency: 'THB',
+      leadTime: '2 Days',
+      status: 'Approved',
+      isUrgent: true,
+      isMall: true,
+      location: 'ระยอง',
+      category: 'เซนเซอร์ & ตรวจจับ',
+      soldCount: '290 ชิ้น',
+      voucherText: 'ด่วน พร้อมส่ง',
+      stockCount: 60,
+      partType: 'sensor',
+      docNumber: 'REQ-2026-0378',
+      requesterName: 'ANAN JITMAN',
+      division: 'GM1',
+      section: 'MA',
+      quotationDate: '23/09/2026',
+      quotationPdf: 'QT-2026-0765-OMRON.pdf',
+      machineModel: 'GM1-CONV-02',
+      descriptionSnippet: 'Omron standard amplifier built-in photoelectric sensor E3Z series. Compact size IP67 rating with excellent noise immunity and oil resistance.',
+      urlBreadcrumb: 'suppier.corp › quotation › omron › e3z-t61-sensor',
+      priceHistory: [
+        { year: '2024', price: 1550, vendor: 'MISUMI' },
+        { year: '2025', price: 1480, vendor: 'MISUMI' },
+        { year: '2026', price: 1420, vendor: 'MISUMI' }
+      ],
+      tags: ['Omron', 'Photoelectric', 'Through-beam', 'InStock']
+    },
+    {
+      id: 'QTR-23',
+      quotationNo: 'QT-2026-0933',
+      partName: 'SAFETY LIGHT CURTAIN SET',
+      spec: 'SF4D-H24-01 (Protection Height 480mm)',
+      makerName: 'PANASONIC',
+      vendor: 'FA SYSTEMS CO., LTD.',
+      vendorRating: 4.8,
+      unitPrice: 24000,
+      originalPrice: 27500,
+      discountPercent: 13,
+      currency: 'THB',
+      leadTime: '14 Days',
+      status: 'PO Issued',
+      isUrgent: false,
+      isMall: true,
+      location: 'กรุงเทพมหานคร',
+      category: 'เซนเซอร์ & ตรวจจับ',
+      soldCount: '18 ชุด',
+      voucherText: 'Safety Category 4',
+      stockCount: 4,
+      partType: 'sensor',
+      docNumber: 'REQ-2026-0359',
+      requesterName: 'WARAWUT KLAHAN',
+      division: 'MA',
+      section: 'MTO',
+      quotationDate: '15/09/2026',
+      quotationPdf: 'QT-2026-0933-PANASONIC.pdf',
+      machineModel: 'MA-PRESS-SAFETY-01',
+      descriptionSnippet: 'Panasonic SF4D robust safety light curtain. Type 4 PLe SIL3 compliant. Thick aluminum housing with IP67G water and oil resistance.',
+      urlBreadcrumb: 'suppier.corp › quotation › panasonic › sf4d-safety-curtain',
+      priceHistory: [
+        { year: '2025', price: 24800, vendor: 'FA SYSTEMS' },
+        { year: '2026', price: 24000, vendor: 'FA SYSTEMS' }
+      ],
+      tags: ['Panasonic', 'Safety Light Curtain', 'Machine Safety']
+    },
+    {
+      id: 'QTR-24',
+      quotationNo: 'QT-2026-0892',
+      partName: 'HIGH-RES SMART VISION SENSOR',
+      spec: 'IV3-G500MA (Wide-Field Monochrome)',
+      makerName: 'KEYENCE',
+      vendor: 'KEYENCE (THAILAND) CO., LTD.',
+      vendorRating: 4.9,
+      unitPrice: 48500,
+      originalPrice: 54000,
+      discountPercent: 10,
+      currency: 'THB',
+      leadTime: '10 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'อยุธยา',
+      category: 'เซนเซอร์ & ตรวจจับ',
+      soldCount: '24 ตัว',
+      voucherText: 'AI Vision Chip',
+      stockCount: 5,
+      partType: 'sensor',
+      docNumber: 'REQ-2026-0368',
+      requesterName: 'KUNLADA PANMAN',
+      division: 'MA',
+      section: 'MA',
+      quotationDate: '18/09/2026',
+      quotationPdf: 'QT-2026-0892-KEYENCE.pdf',
+      machineModel: 'MA-VISION-LINE-02',
+      descriptionSnippet: 'Keyence IV3 series AI-powered vision sensor with autofocus liquid lens. High sensitivity monochrome CMOS sensor with automatic illumination adjustment.',
+      urlBreadcrumb: 'suppier.corp › quotation › keyence › iv3-g500ma-vision',
+      priceHistory: [
+        { year: '2025', price: 51000, vendor: 'KEYENCE' },
+        { year: '2026', price: 48500, vendor: 'KEYENCE' }
+      ],
+      tags: ['Keyence', 'Vision Camera', 'AI Sensor', 'Inspection']
+    },
+    {
+      id: 'QTR-25',
+      quotationNo: 'QT-2026-0866',
+      partName: 'MINIATURE LINEAR MOTION GUIDE',
+      spec: 'SRS15M1UU+230L (Stainless Steel Caged)',
+      makerName: 'THK',
+      vendor: 'THK PRECISION (THAILAND)',
+      vendorRating: 4.9,
+      unitPrice: 4200,
+      originalPrice: 4800,
+      discountPercent: 13,
+      currency: 'THB',
+      leadTime: '7 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'กรุงเทพมหานคร',
+      category: 'ลิเนียร์ไกด์ & รางสไลด์',
+      soldCount: '78 ชิ้น',
+      voucherText: 'SUS304 Caged Ball',
+      stockCount: 16,
+      partType: 'linear',
+      docNumber: 'REQ-2026-0364',
+      requesterName: 'PICHET SANGCHAN',
+      division: 'PMA',
+      section: 'PMA',
+      quotationDate: '21/09/2026',
+      quotationPdf: 'QT-2026-0866-THK.pdf',
+      machineModel: 'PMA-DISPENSE-01',
+      descriptionSnippet: 'THK miniature LM guide SRS series with caged ball technology. Smooth noiseless motion and long maintenance-free operation.',
+      urlBreadcrumb: 'suppier.corp › quotation › thk › srs15-miniature-guide',
+      priceHistory: [
+        { year: '2024', price: 4400, vendor: 'THK PRECISION' },
+        { year: '2025', price: 4300, vendor: 'THK PRECISION' },
+        { year: '2026', price: 4200, vendor: 'THK PRECISION' }
+      ],
+      tags: ['THK', 'LM Guide', 'Miniature', 'Stainless']
+    },
+    {
+      id: 'QTR-26',
+      quotationNo: 'QT-2026-0919',
+      partName: 'PRECISION BALL SCREW ASSEMBLY',
+      spec: 'BSS1510-500-G10 (Dia 15mm Lead 10mm C7)',
+      makerName: 'MISUMI',
+      vendor: 'MISUMI (THAILAND) CO., LTD.',
+      vendorRating: 5.0,
+      unitPrice: 6850,
+      originalPrice: 7900,
+      discountPercent: 13,
+      currency: 'THB',
+      leadTime: '5 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'ระยอง',
+      category: 'ลิเนียร์ไกด์ & รางสไลด์',
+      soldCount: '62 ชิ้น',
+      voucherText: 'โค้ดลด ฿300',
+      stockCount: 12,
+      partType: 'linear',
+      docNumber: 'REQ-2026-0377',
+      requesterName: 'TICHAGORN PROMJAREE',
+      division: 'GM1',
+      section: 'MTO',
+      quotationDate: '23/09/2026',
+      quotationPdf: 'QT-2026-0919-MISUMI.pdf',
+      machineModel: 'GM1-ACT-08',
+      descriptionSnippet: 'Misumi rolled precision ball screw set with end journal machining. Complete with support unit and fixed/supported bearing blocks.',
+      urlBreadcrumb: 'suppier.corp › quotation › misumi › bss1510-ball-screw',
+      priceHistory: [
+        { year: '2025', price: 7100, vendor: 'MISUMI' },
+        { year: '2026', price: 6850, vendor: 'MISUMI' }
+      ],
+      tags: ['Misumi', 'Ball Screw', 'Motion Transmission']
+    },
+    {
+      id: 'QTR-27',
+      quotationNo: 'QT-2026-0785',
+      partName: 'HEAVY LOAD LINEAR GUIDE BLOCK',
+      spec: 'HG25CA-Z0C (High Rigidity Flange)',
+      makerName: 'HIWIN',
+      vendor: 'HIWIN ENTERPRISE (THAI)',
+      vendorRating: 4.8,
+      unitPrice: 3100,
+      originalPrice: 3600,
+      discountPercent: 14,
+      currency: 'THB',
+      leadTime: '4 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'สมุทรปราการ',
+      category: 'ลิเนียร์ไกด์ & รางสไลด์',
+      soldCount: '135 ชิ้น',
+      voucherText: 'Heavy Duty 4-Row',
+      stockCount: 30,
+      partType: 'linear',
+      docNumber: 'REQ-2026-0371',
+      requesterName: 'WARAWUT KLAHAN',
+      division: 'MA',
+      section: 'MTO',
+      quotationDate: '19/09/2026',
+      quotationPdf: 'QT-2026-0785-HIWIN.pdf',
+      machineModel: 'MA-GANTRY-02',
+      descriptionSnippet: 'Hiwin HG series 4-row linear guideway block. High load capacity and rigidity with self-aligning capability in all 4 directions.',
+      urlBreadcrumb: 'suppier.corp › quotation › hiwin › hg25ca-linear-guide',
+      priceHistory: [
+        { year: '2024', price: 3300, vendor: 'HIWIN' },
+        { year: '2025', price: 3200, vendor: 'HIWIN' },
+        { year: '2026', price: 3100, vendor: 'HIWIN' }
+      ],
+      tags: ['Hiwin', 'Linear Guide', 'Heavy Load', 'Flange Block']
+    },
+    {
+      id: 'QTR-28',
+      quotationNo: 'QT-2026-0908',
+      partName: 'LINEAR BUSHING WITH FLANGE',
+      spec: 'LHK20UU (Double Type Square Flange)',
+      makerName: 'MISUMI',
+      vendor: 'MISUMI (THAILAND) CO., LTD.',
+      vendorRating: 5.0,
+      unitPrice: 1180,
+      originalPrice: 1350,
+      discountPercent: 13,
+      currency: 'THB',
+      leadTime: '2 Days',
+      status: 'Approved',
+      isUrgent: true,
+      isMall: true,
+      location: 'ระยอง',
+      category: 'ลิเนียร์ไกด์ & รางสไลด์',
+      soldCount: '240 ชิ้น',
+      voucherText: 'ด่วน ส่งวันนี้',
+      stockCount: 50,
+      partType: 'linear',
+      docNumber: 'REQ-2026-0386',
+      requesterName: 'ANAN JITMAN',
+      division: 'GM1',
+      section: 'MA',
+      quotationDate: '24/09/2026',
+      quotationPdf: 'QT-2026-0908-MISUMI.pdf',
+      machineModel: 'GM1-LIFT-03',
+      descriptionSnippet: 'Misumi high precision linear ball bushing with integrated square mounting flange. Double retainer length for higher moment rigidity.',
+      urlBreadcrumb: 'suppier.corp › quotation › misumi › lhk20uu-bushing',
+      priceHistory: [
+        { year: '2024', price: 1250, vendor: 'MISUMI' },
+        { year: '2025', price: 1200, vendor: 'MISUMI' },
+        { year: '2026', price: 1180, vendor: 'MISUMI' }
+      ],
+      tags: ['Misumi', 'Linear Bushing', 'Flange Type', 'Fast Delivery']
+    },
+    {
+      id: 'QTR-29',
+      quotationNo: 'QT-2026-0870',
+      partName: 'MULTI-STAGE VACUUM EJECTOR',
+      spec: 'ZK2A12K5AL-08 (Digital Switch)',
+      makerName: 'SMC',
+      vendor: 'CHAVANAN CO., LTD.',
+      vendorRating: 4.9,
+      unitPrice: 5600,
+      originalPrice: 6400,
+      discountPercent: 13,
+      currency: 'THB',
+      leadTime: '6 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'อยุธยา',
+      category: 'ปั๊มสุญญากาศ & วาล์ว',
+      soldCount: '48 ชิ้น',
+      voucherText: 'โค้ดลด ฿250',
+      stockCount: 14,
+      partType: 'vacuum',
+      docNumber: 'REQ-2026-0365',
+      requesterName: 'SOMCHAI TANGTRONG',
+      division: 'GM1',
+      section: 'MA',
+      quotationDate: '21/09/2026',
+      quotationPdf: 'QT-2026-0870-SMC.pdf',
+      machineModel: 'GM1-PICK-04',
+      descriptionSnippet: 'All-in-one vacuum ejector unit SMC ZK2 series. Equipped with high-speed digital pressure switch, supply/release valve, and energy-saving vacuum sensor.',
+      urlBreadcrumb: 'suppier.corp › quotation › smc › zk2-vacuum-ejector',
+      priceHistory: [
+        { year: '2025', price: 5800, vendor: 'CHAVANAN' },
+        { year: '2026', price: 5600, vendor: 'CHAVANAN' }
+      ],
+      tags: ['SMC', 'Vacuum Ejector', 'Energy Saving', 'Digital Switch']
+    },
+    {
+      id: 'QTR-30',
+      quotationNo: 'QT-2026-0758',
+      partName: 'OIL ROTARY VACUUM PUMP',
+      spec: 'GLD-051 (Direct Drive 50L/min 220V)',
+      makerName: 'ULVAC',
+      vendor: 'ULVAC (THAILAND) CO., LTD.',
+      vendorRating: 4.7,
+      unitPrice: 62000,
+      originalPrice: 68000,
+      discountPercent: 9,
+      currency: 'THB',
+      leadTime: '20 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'อยุธยา',
+      category: 'ปั๊มสุญญากาศ & วาล์ว',
+      soldCount: '8 เครื่อง',
+      voucherText: 'รับประกัน 1 ปี',
+      stockCount: 3,
+      partType: 'vacuum',
+      docNumber: 'REQ-2026-0348',
+      requesterName: 'CHANTHANY THAI',
+      division: 'PMA',
+      section: 'PMA',
+      quotationDate: '16/09/2026',
+      quotationPdf: 'QT-2026-0758-ULVAC.pdf',
+      machineModel: 'PMA-COAT-02',
+      descriptionSnippet: 'Ulvac two-stage direct-drive oil rotary vacuum pump GLD series. Low vibration, low noise, with thermal protector and gas ballast valve.',
+      urlBreadcrumb: 'suppier.corp › quotation › ulvac › gld-051-rotary-pump',
+      priceHistory: [
+        { year: '2024', price: 65000, vendor: 'ULVAC' },
+        { year: '2025', price: 63500, vendor: 'ULVAC' },
+        { year: '2026', price: 62000, vendor: 'ULVAC' }
+      ],
+      tags: ['Ulvac', 'Vacuum Pump', 'Rotary Pump', 'Clean Chamber']
+    },
+    {
+      id: 'QTR-31',
+      quotationNo: 'QT-2026-0947',
+      partName: 'VACUUM PAD BELLOWS TYPE',
+      spec: 'ZP3-B15JS (Conductive NBR 15mm)',
+      makerName: 'SMC',
+      vendor: 'MISUMI (THAILAND) CO., LTD.',
+      vendorRating: 5.0,
+      unitPrice: 380,
+      originalPrice: 450,
+      discountPercent: 16,
+      currency: 'THB',
+      leadTime: '2 Days',
+      status: 'Approved',
+      isUrgent: true,
+      isMall: true,
+      location: 'ระยอง',
+      category: 'ปั๊มสุญญากาศ & วาล์ว',
+      soldCount: '450 ชิ้น',
+      voucherText: 'จัดส่งด่วน 24ชม.',
+      stockCount: 120,
+      partType: 'vacuum',
+      docNumber: 'REQ-2026-0394',
+      requesterName: 'SOMCHAI TANGTRONG',
+      division: 'GM1',
+      section: 'MA',
+      quotationDate: '24/09/2026',
+      quotationPdf: 'QT-2026-0947-SMC.pdf',
+      machineModel: 'GM1-PICK-01',
+      descriptionSnippet: 'SMC compact suction cup series ZP3. Bellows type made from conductive static-dissipative NBR material for sensitive electronic component pickup.',
+      urlBreadcrumb: 'suppier.corp › quotation › smc › zp3-b15js-suction-pad',
+      priceHistory: [
+        { year: '2024', price: 420, vendor: 'MISUMI' },
+        { year: '2025', price: 395, vendor: 'MISUMI' },
+        { year: '2026', price: 380, vendor: 'MISUMI' }
+      ],
+      tags: ['SMC', 'Suction Pad', 'Vacuum', 'ESD Safe']
+    },
+    {
+      id: 'QTR-32',
+      quotationNo: 'QT-2026-0988',
+      partName: 'AC SERVO DRIVE MR-J4',
+      spec: 'MR-J4-40A (400W 200V SSCNET III/H)',
+      makerName: 'MITSUBISHI',
+      vendor: 'FA SYSTEMS CO., LTD.',
+      vendorRating: 4.8,
+      unitPrice: 22500,
+      originalPrice: 26000,
+      discountPercent: 13,
+      currency: 'THB',
+      leadTime: '14 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'กรุงเทพมหานคร',
+      category: 'มอเตอร์ & ระบบขับเคลื่อน',
+      soldCount: '28 เครื่อง',
+      voucherText: 'โค้ดลด ฿1,000',
+      stockCount: 8,
+      partType: 'motor',
+      docNumber: 'REQ-2026-0384',
+      requesterName: 'WARAWUT KLAHAN',
+      division: 'MA',
+      section: 'MTO',
+      quotationDate: '22/09/2026',
+      quotationPdf: 'QT-2026-0988-MITSUBISHI.pdf',
+      machineModel: 'MA-SERVO-05',
+      descriptionSnippet: 'Mitsubishi MR-J4 servo amplifier 400W general purpose interface. Advanced vibration suppression control II, high frequency response up to 2.5kHz.',
+      urlBreadcrumb: 'suppier.corp › quotation › mitsubishi › mr-j4-40a-drive',
+      priceHistory: [
+        { year: '2024', price: 24000, vendor: 'FA SYSTEMS' },
+        { year: '2025', price: 23200, vendor: 'FA SYSTEMS' },
+        { year: '2026', price: 22500, vendor: 'FA SYSTEMS' }
+      ],
+      tags: ['Mitsubishi', 'Servo Drive', 'MR-J4', 'Motion Controller']
+    },
+    {
+      id: 'QTR-33',
+      quotationNo: 'QT-2026-0803',
+      partName: 'STEPPING MOTOR & DRIVER SET',
+      spec: 'AZM46AC-HP10 (Geared Harmonic 1:10)',
+      makerName: 'ORIENTAL MOTOR',
+      vendor: 'FA SYSTEMS CO., LTD.',
+      vendorRating: 4.8,
+      unitPrice: 16800,
+      originalPrice: 19200,
+      discountPercent: 12,
+      currency: 'THB',
+      leadTime: '10 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'กรุงเทพมหานคร',
+      category: 'มอเตอร์ & ระบบขับเคลื่อน',
+      soldCount: '44 ชุด',
+      voucherText: 'Zero Backlash Gear',
+      stockCount: 7,
+      partType: 'motor',
+      docNumber: 'REQ-2026-0361',
+      requesterName: 'TICHAGORN PROMJAREE',
+      division: 'GM1',
+      section: 'MTO',
+      quotationDate: '19/09/2026',
+      quotationPdf: 'QT-2026-0803-ORIENTAL.pdf',
+      machineModel: 'GM1-ROT-01',
+      descriptionSnippet: 'Oriental Motor AZ series closed-loop stepping motor equipped with mechanical absolute sensor. High precision harmonic gearhead with zero backlash.',
+      urlBreadcrumb: 'suppier.corp › quotation › oriental-motor › azm46ac-stepper',
+      priceHistory: [
+        { year: '2025', price: 17200, vendor: 'FA SYSTEMS' },
+        { year: '2026', price: 16800, vendor: 'FA SYSTEMS' }
+      ],
+      tags: ['Oriental Motor', 'Stepper Motor', 'Harmonic Gear', 'Absolute Encoder']
+    },
+    {
+      id: 'QTR-34',
+      quotationNo: 'QT-2026-0711',
+      partName: 'VARIABLE FREQUENCY INVERTER',
+      spec: 'FR-D720-0.75K (3-Phase 200V 0.75kW)',
+      makerName: 'MITSUBISHI',
+      vendor: 'FA SYSTEMS CO., LTD.',
+      vendorRating: 4.8,
+      unitPrice: 7900,
+      originalPrice: 9100,
+      discountPercent: 13,
+      currency: 'THB',
+      leadTime: '5 Days',
+      status: 'Approved',
+      isUrgent: true,
+      isMall: true,
+      location: 'กรุงเทพมหานคร',
+      category: 'มอเตอร์ & ระบบขับเคลื่อน',
+      soldCount: '92 เครื่อง',
+      voucherText: 'ด่วน ส่งไว',
+      stockCount: 18,
+      partType: 'motor',
+      docNumber: 'REQ-2026-0355',
+      requesterName: 'SUNAN SRISOD',
+      division: 'MA',
+      section: 'MA',
+      quotationDate: '23/09/2026',
+      quotationPdf: 'QT-2026-0711-MITSUBISHI.pdf',
+      machineModel: 'MA-CONV-MAIN-01',
+      descriptionSnippet: 'Mitsubishi compact micro-inverter series FR-D700. Simple dial operation, spring clamp terminals, auto torque boost for reliable conveyor driving.',
+      urlBreadcrumb: 'suppier.corp › quotation › mitsubishi › fr-d720-inverter',
+      priceHistory: [
+        { year: '2024', price: 8300, vendor: 'FA SYSTEMS' },
+        { year: '2025', price: 8100, vendor: 'FA SYSTEMS' },
+        { year: '2026', price: 7900, vendor: 'FA SYSTEMS' }
+      ],
+      tags: ['Mitsubishi', 'Inverter', 'VFD', 'Speed Control']
+    },
+    {
+      id: 'QTR-35',
+      quotationNo: 'QT-2026-0860',
+      partName: 'MIST SEPARATOR WITH DRAIN',
+      spec: 'AFM30-03D-A (Filtration 0.3 micron)',
+      makerName: 'SMC',
+      vendor: 'CHAVANAN CO., LTD.',
+      vendorRating: 4.9,
+      unitPrice: 2680,
+      originalPrice: 3100,
+      discountPercent: 14,
+      currency: 'THB',
+      leadTime: '4 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'อยุธยา',
+      category: 'ตัวกรอง & ข้อต่อ',
+      soldCount: '105 ชิ้น',
+      voucherText: 'โค้ดลด ฿150',
+      stockCount: 25,
+      partType: 'filter',
+      docNumber: 'REQ-2026-0360',
+      requesterName: 'NATTHANICHA SONTHIKESORN',
+      division: 'GM1',
+      section: 'MA',
+      quotationDate: '20/09/2026',
+      quotationPdf: 'QT-2026-0860-SMC.pdf',
+      machineModel: 'GM1-AIR-LINE-02',
+      descriptionSnippet: 'SMC oil mist separator AFM series. Eliminates oil mist and carbon particles down to 0.3 micron with automatic float-type N.O. drain.',
+      urlBreadcrumb: 'suppier.corp › quotation › smc › afm30-mist-separator',
+      priceHistory: [
+        { year: '2024', price: 2850, vendor: 'CHAVANAN' },
+        { year: '2025', price: 2750, vendor: 'CHAVANAN' },
+        { year: '2026', price: 2680, vendor: 'CHAVANAN' }
+      ],
+      tags: ['SMC', 'Mist Separator', 'Air Filter', 'Clean Air']
+    },
+    {
+      id: 'QTR-36',
+      quotationNo: 'QT-2026-0929',
+      partName: 'STAINLESS BASKET STRAINER',
+      spec: 'SS-ST40-100M (SUS316 1.5 Inch 100 Mesh)',
+      makerName: 'PEMIUM',
+      vendor: 'IPO 22222ZS',
+      vendorRating: 4.6,
+      unitPrice: 6400,
+      originalPrice: 7200,
+      discountPercent: 11,
+      currency: 'THB',
+      leadTime: '10 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: false,
+      location: 'ชลบุรี',
+      category: 'ตัวกรอง & ข้อต่อ',
+      soldCount: '32 ชิ้น',
+      voucherText: 'SUS316 Cleanline',
+      stockCount: 9,
+      partType: 'filter',
+      docNumber: 'REQ-2026-0373',
+      requesterName: 'PEERAPAT BUASA',
+      division: 'MA',
+      section: 'P/H',
+      quotationDate: '18/09/2026',
+      quotationPdf: 'QT-2026-0929-PEMIUM.pdf',
+      machineModel: 'MA-UDI-LINE-02',
+      descriptionSnippet: 'Industrial grade stainless steel SUS316 basket strainer for UDI deionized water wash line. Removable mesh screen for easy cleaning without dismantling.',
+      urlBreadcrumb: 'suppier.corp › quotation › pemium › ss-st40-strainer',
+      priceHistory: [
+        { year: '2025', price: 6600, vendor: 'IPO' },
+        { year: '2026', price: 6400, vendor: 'IPO' }
+      ],
+      tags: ['Filter', 'Strainer', 'Cleanroom', 'Stainless Steel']
+    },
+    {
+      id: 'QTR-37',
+      quotationNo: 'QT-2026-0972',
+      partName: 'COMPACT CYLINDER COMPACT GUIDE',
+      spec: 'CDQ2B50-30DZ (Bore 50mm Stroke 30mm)',
+      makerName: 'SMC',
+      vendor: 'CHAVANAN CO., LTD.',
+      vendorRating: 4.9,
+      unitPrice: 2750,
+      originalPrice: 3200,
+      discountPercent: 14,
+      currency: 'THB',
+      leadTime: '5 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'อยุธยา',
+      category: 'กระบอกลม & นิวเมติกส์',
+      soldCount: '130 ชิ้น',
+      voucherText: 'โค้ดลด ฿150',
+      stockCount: 26,
+      partType: 'cylinder',
+      docNumber: 'REQ-2026-0376',
+      requesterName: 'SOMCHAI TANGTRONG',
+      division: 'GM1',
+      section: 'MA',
+      quotationDate: '23/09/2026',
+      quotationPdf: 'QT-2026-0972-SMC.pdf',
+      machineModel: 'GM1-PRESS-04',
+      descriptionSnippet: 'SMC CQ2 series compact cylinder with female rod end thread. High durability design with built-in magnet for magnetic auto switch sensing.',
+      urlBreadcrumb: 'suppier.corp › quotation › smc › cdq2b50-cylinder',
+      priceHistory: [
+        { year: '2024', price: 2950, vendor: 'CHAVANAN' },
+        { year: '2025', price: 2850, vendor: 'CHAVANAN' },
+        { year: '2026', price: 2750, vendor: 'CHAVANAN' }
+      ],
+      tags: ['SMC', 'Compact Cylinder', 'CQ2', 'Pneumatic']
+    },
+    {
+      id: 'QTR-38',
+      quotationNo: 'QT-2026-0848',
+      partName: 'INDUCTIVE PROXIMITY SENSOR M8',
+      spec: 'PRD08-2DN (Detect 2mm NPN-NO Shield)',
+      makerName: 'AUTONICS',
+      vendor: 'MISUMI (THAILAND) CO., LTD.',
+      vendorRating: 4.9,
+      unitPrice: 790,
+      originalPrice: 950,
+      discountPercent: 17,
+      currency: 'THB',
+      leadTime: '2 Days',
+      status: 'Approved',
+      isUrgent: true,
+      isMall: true,
+      location: 'ระยอง',
+      category: 'เซนเซอร์ & ตรวจจับ',
+      soldCount: '340 ชิ้น',
+      voucherText: 'ด่วน ส่ง 24ชม.',
+      stockCount: 75,
+      partType: 'sensor',
+      docNumber: 'REQ-2026-0387',
+      requesterName: 'ANAN JITMAN',
+      division: 'GM1',
+      section: 'MA',
+      quotationDate: '24/09/2026',
+      quotationPdf: 'QT-2026-0848-AUTONICS.pdf',
+      machineModel: 'GM1-LINE-12',
+      descriptionSnippet: 'Autonics PRD series long-distance cylindrical inductive proximity sensor M8. Enhanced noise immunity with dedicated IC, red LED operation indicator.',
+      urlBreadcrumb: 'suppier.corp › quotation › autonics › prd08-proximity-sensor',
+      priceHistory: [
+        { year: '2024', price: 860, vendor: 'MISUMI' },
+        { year: '2025', price: 820, vendor: 'MISUMI' },
+        { year: '2026', price: 790, vendor: 'MISUMI' }
+      ],
+      tags: ['Autonics', 'Proximity Sensor', 'M8', 'InStock']
+    },
+    {
+      id: 'QTR-39',
+      quotationNo: 'QT-2026-0960',
+      partName: 'MODULAR SPEED CONTROLLER ELBOW',
+      spec: 'AS2201F-02-08S (Push-lock 8mm)',
+      makerName: 'SMC',
+      vendor: 'CHAVANAN CO., LTD.',
+      vendorRating: 4.9,
+      unitPrice: 290,
+      originalPrice: 350,
+      discountPercent: 17,
+      currency: 'THB',
+      leadTime: '3 Days',
+      status: 'Approved',
+      isUrgent: false,
+      isMall: true,
+      location: 'อยุธยา',
+      category: 'กระบอกลม & นิวเมติกส์',
+      soldCount: '580 ชิ้น',
+      voucherText: 'จัดส่งฟรี ฿0',
+      stockCount: 150,
+      partType: 'valve',
+      docNumber: 'REQ-2026-0389',
+      requesterName: 'SOMCHAI TANGTRONG',
+      division: 'GM1',
+      section: 'MA',
+      quotationDate: '24/09/2026',
+      quotationPdf: 'QT-2026-0960-SMC.pdf',
+      machineModel: 'GM1-FITTINGS-01',
+      descriptionSnippet: 'SMC speed controller with one-touch fitting AS series. Push-lock type handle for quick and secure needle locking, flame-resistant PBT resin body.',
+      urlBreadcrumb: 'suppier.corp › quotation › smc › as2201f-speed-controller',
+      priceHistory: [
+        { year: '2024', price: 320, vendor: 'CHAVANAN' },
+        { year: '2025', price: 300, vendor: 'CHAVANAN' },
+        { year: '2026', price: 290, vendor: 'CHAVANAN' }
+      ],
+      tags: ['SMC', 'Speed Controller', 'Fitting', 'Pneumatics']
+    },
+    {
+      id: 'QTR-40',
+      quotationNo: 'QT-2026-0899',
+      partName: 'PRECISION CROSS ROLLER GUIDE',
+      spec: 'VR2-60HX11Z (Stroke 40mm Set)',
+      makerName: 'THK',
+      vendor: 'THK PRECISION (THAILAND)',
+      vendorRating: 4.9,
+      unitPrice: 5800,
+      originalPrice: 6600,
+      discountPercent: 12,
+      currency: 'THB',
+      leadTime: '8 Days',
+      status: 'Quoted',
+      isUrgent: false,
+      isMall: true,
+      location: 'กรุงเทพมหานคร',
+      category: 'ลิเนียร์ไกด์ & รางสไลด์',
+      soldCount: '34 ชิ้น',
+      voucherText: 'Anti-Creep Retainer',
+      stockCount: 8,
+      partType: 'linear',
+      docNumber: 'REQ-2026-0367',
+      requesterName: 'PICHET SANGCHAN',
+      division: 'PMA',
+      section: 'PMA',
+      quotationDate: '22/09/2026',
+      quotationPdf: 'QT-2026-0899-THK.pdf',
+      machineModel: 'PMA-ALIGN-01',
+      descriptionSnippet: 'THK cross-roller table guide VR series. Orthogonally crossed precision cylindrical rollers providing ultra-high rigidity and micro-travel positioning accuracy.',
+      urlBreadcrumb: 'suppier.corp › quotation › thk › vr2-cross-roller-guide',
+      priceHistory: [
+        { year: '2025', price: 6100, vendor: 'THK PRECISION' },
+        { year: '2026', price: 5800, vendor: 'THK PRECISION' }
+      ],
+      tags: ['THK', 'Cross Roller', 'High Precision', 'Slide Way']
     }
   ];
 
@@ -1400,6 +2453,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   openDocument(): void {
+    this.showShopeeQuickView = false;
     this.activeView = 'edit';
   }
 
@@ -2121,6 +3175,41 @@ Could you please include the estimated lead time as well`;
   copyFeedbackText = '';
   isLoadingRequests = false;
 
+  // Dedicated Floating Copy Alert Notification States
+  copyAlertVisible = false;
+  copyAlertTitle = '';
+  copyAlertMessage = '';
+  copyAlertSubtitle = '';
+  copyAlertType: 'success' | 'warning' | 'info' = 'success';
+  private copyAlertTimer: any = null;
+
+  // In-button feedback states
+  copiedEmailButton = false;
+  copiedTableButton = false;
+  copiedSubjectButton = false;
+
+  triggerCopyAlert(title: string, message: string, subtitle = '', type: 'success' | 'warning' | 'info' = 'success'): void {
+    if (this.copyAlertTimer) {
+      clearTimeout(this.copyAlertTimer);
+    }
+    this.copyAlertTitle = title;
+    this.copyAlertMessage = message;
+    this.copyAlertSubtitle = subtitle;
+    this.copyAlertType = type;
+    this.copyAlertVisible = true;
+
+    this.copyAlertTimer = setTimeout(() => {
+      this.copyAlertVisible = false;
+    }, 4000);
+  }
+
+  closeCopyAlert(): void {
+    if (this.copyAlertTimer) {
+      clearTimeout(this.copyAlertTimer);
+    }
+    this.copyAlertVisible = false;
+  }
+
   get uniqueDivisions(): string[] {
     const set = new Set<string>();
     this.allQuotationRequests.forEach(r => {
@@ -2265,7 +3354,16 @@ Could you please include the estimated lead time as well`;
   // =========================================================
   // GOOGLE-STYLE QUOTATION SEARCH ENGINE CONTROLLERS
   // =========================================================
+  previousViewBeforeSearch: 'list' | 'edit' | 'purchase-quotation' = 'edit';
+  previousMenuBeforeSearch: string = 'spare-part';
+  previousSubMenuBeforeSearch: string = '';
+
   openQuotationSearchView(): void {
+    if (this.activeView !== 'quotation-search') {
+      this.previousViewBeforeSearch = this.activeView;
+      this.previousMenuBeforeSearch = this.activeMenu || 'spare-part';
+      this.previousSubMenuBeforeSearch = this.activeSubMenu || '';
+    }
     this.activeView = 'quotation-search';
     this.activeMenu = 'quotation-search';
     this.activeSubMenu = '';
@@ -2278,8 +3376,10 @@ Could you please include the estimated lead time as well`;
     if (this.searchAnimTimeout) clearTimeout(this.searchAnimTimeout);
     this.isSearchCollapsing = false;
     this.searchAnimStage = 'idle';
-    this.activeView = 'edit';
-    this.activeMenu = 'spare-part';
+    this.showShopeeQuickView = false;
+    this.activeView = this.previousViewBeforeSearch || 'edit';
+    this.activeMenu = this.previousMenuBeforeSearch || 'spare-part';
+    this.activeSubMenu = this.previousSubMenuBeforeSearch || '';
   }
 
   executeQuotationSearch(query?: string): void {
@@ -2497,7 +3597,7 @@ Could you please include the estimated lead time as well`;
     } else if (this.searchFilterTab === 'urgent') {
       list = list.filter(item => item.isUrgent);
     } else if (this.searchFilterTab === 'makers') {
-      list = list.filter(item => ['SMC', 'AIRTAC', 'MISUMI', 'KEYENCE', 'ULVAC', 'SHCOH SANGYO', 'IAI'].includes(item.makerName));
+      list = list.filter(item => ['SMC', 'AIRTAC', 'MISUMI', 'KEYENCE', 'ULVAC', 'SHCOH SANGYO', 'IAI', 'MITSUBISHI', 'OMRON', 'THK', 'FESTO', 'PANASONIC', 'CKD'].includes(item.makerName));
     }
 
     if (this.searchCurrencyFilter !== 'ALL') {
@@ -2990,7 +4090,7 @@ Could you please include the estimated lead time as well`;
   async copyEmailQuotationToClipboard(): Promise<void> {
     const selectedItems = this.getSelectedQuotationItems();
     if (selectedItems.length === 0) {
-      this.showToast('กรุณาเลือกรายการอย่างน้อย 1 รายการเพื่อส่งขอใบเสนอราคา');
+      this.triggerCopyAlert('ยังไม่ได้เลือกรายการ', 'กรุณาติ๊กเลือกรายการในตารางอย่างน้อย 1 รายการเพื่อคัดลอกแบบฟอร์ม', '', 'warning');
       return;
     }
 
@@ -3012,22 +4112,41 @@ Could you please include the estimated lead time as well`;
       }
 
       this.isCopyingEmail = true;
-      this.copyFeedbackText = 'คัดลอกแบบฟอร์มขอใบเสนอราคาเรียบร้อยแล้ว! สามารถเปิด Outlook หรือ Gmail แล้วกด Ctrl+V วางได้ทันที';
-      this.showToast('คัดลอกตารางขอใบเสนอราคาสำเร็จ! กด Ctrl+V ใน Email ได้ทันที');
+      this.copiedEmailButton = true;
+      this.copyFeedbackText = 'คัดลอกแบบฟอร์มขอใบเสนอราคาสำเร็จ! เปิด Outlook หรือ Gmail แล้วกด Ctrl+V เพื่อวางได้ทันที';
+      this.triggerCopyAlert(
+        'Copy Success!',
+        'คัดลอกแบบฟอร์มขอใบเสนอราคาสำเร็จ (Rich Text)',
+        'เปิด Outlook หรือ Gmail แล้วกด Ctrl + V วางได้ทันที รูปแบบตารางจะแสดงผลสมบูรณ์แบบ',
+        'success'
+      );
       setTimeout(() => {
         this.isCopyingEmail = false;
-      }, 4000);
+        this.copiedEmailButton = false;
+      }, 3000);
     } catch (err) {
       console.warn('Clipboard write failed, using fallback copy:', err);
       this.fallbackCopyHtml(htmlContent);
-      this.showToast('คัดลอกตารางขอใบเสนอราคาสำเร็จ (Fallback Mode)');
+      this.isCopyingEmail = true;
+      this.copiedEmailButton = true;
+      this.copyFeedbackText = 'คัดลอกแบบฟอร์มขอใบเสนอราคาสำเร็จ (โหมด Fallback)';
+      this.triggerCopyAlert(
+        'Copy Success!',
+        'คัดลอกแบบฟอร์มขอใบเสนอราคาสำเร็จ',
+        'กด Ctrl + V ในอีเมลเพื่อวางข้อมูล',
+        'success'
+      );
+      setTimeout(() => {
+        this.isCopyingEmail = false;
+        this.copiedEmailButton = false;
+      }, 3000);
     }
   }
 
   async copyTableOnlyToClipboard(): Promise<void> {
     const selectedItems = this.getSelectedQuotationItems();
     if (selectedItems.length === 0) {
-      this.showToast('กรุณาเลือกรายการอย่างน้อย 1 รายการ');
+      this.triggerCopyAlert('ยังไม่ได้เลือกรายการ', 'กรุณาติ๊กเลือกรายการในตารางอย่างน้อย 1 รายการเพื่อคัดลอกตาราง', '', 'warning');
       return;
     }
 
@@ -3091,19 +4210,48 @@ Could you please include the estimated lead time as well`;
       } else {
         this.fallbackCopyHtml(htmlContent);
       }
-      this.showToast('คัดลอกตารางอย่างเดียวสำเร็จ!');
+      this.copiedTableButton = true;
+      this.copyFeedbackText = 'คัดลอกเฉพาะตารางขอใบเสนอราคาสำเร็จ! กด Ctrl+V ใน Email หรือ Excel ได้ทันที';
+      this.triggerCopyAlert(
+        'Copy Table Success!',
+        'คัดลอกเฉพาะตารางขอใบเสนอราคาสำเร็จ',
+        'สามารถนำไปวาง (Ctrl + V) ใน Outlook, Gmail หรือ Excel ได้ทันที',
+        'success'
+      );
+      setTimeout(() => {
+        this.copiedTableButton = false;
+      }, 3000);
     } catch (e) {
       this.fallbackCopyHtml(htmlContent);
-      this.showToast('คัดลอกตารางอย่างเดียวสำเร็จ (Fallback)');
+      this.copiedTableButton = true;
+      this.copyFeedbackText = 'คัดลอกเฉพาะตารางสำเร็จ (Fallback)';
+      this.triggerCopyAlert(
+        'Copy Table Success!',
+        'คัดลอกเฉพาะตารางสำเร็จ',
+        'กด Ctrl + V ในโปรแกรมที่ต้องการ',
+        'success'
+      );
+      setTimeout(() => {
+        this.copiedTableButton = false;
+      }, 3000);
     }
   }
 
   async copySubjectToClipboard(): Promise<void> {
     try {
       await navigator.clipboard.writeText(this.quotationEmailSubject);
-      this.showToast(`คัดลอก Subject: "${this.quotationEmailSubject}"`);
+      this.copiedSubjectButton = true;
+      this.triggerCopyAlert(
+        'Copy Subject Success!',
+        'คัดลอกหัวข้ออีเมลเรียบร้อยแล้ว',
+        `"${this.quotationEmailSubject}"`,
+        'success'
+      );
+      setTimeout(() => {
+        this.copiedSubjectButton = false;
+      }, 3000);
     } catch (e) {
-      this.showToast('ไม่สามารถคัดลอกได้');
+      this.triggerCopyAlert('คัดลอกไม่สำเร็จ', 'เบราว์เซอร์ไม่อนุญาตให้เข้าถึง Clipboard', '', 'warning');
     }
   }
 
