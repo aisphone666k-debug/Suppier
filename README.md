@@ -1,5 +1,7 @@
 # Suppier
 
+> 📘 **Production Developer Manual**: For comprehensive architecture, database schemas, function registries, and feature workflows, refer to [DEVELOPER_MANUAL.md](file:///D:/suppier/Suppier/DEVELOPER_MANUAL.md).
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.21.
 
 ## Development server
