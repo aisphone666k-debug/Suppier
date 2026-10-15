@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ApiService, EmployeeUser, QuotationLineItem, SupplierQuotationResult, SupplierQuotationSearchResponse } from './services/api.service';
 
 export interface SupplierItem {
@@ -25,6 +26,8 @@ export interface Attachment {
   name: string;
   type: 'pdf' | 'doc' | 'image';
   size?: string;
+  url?: string;
+  storedName?: string;
 }
 
 export interface RequisitionItem {
@@ -462,11 +465,28 @@ export class AppComponent implements OnInit, AfterViewInit {
     { name: 'Benjarom Hospital', phone: '0-3641-3933' }
   ];
 
-  constructor(private apiService: ApiService) { }
+  constructor(private apiService: ApiService, private sanitizer: DomSanitizer) { }
 
   async ngOnInit(): Promise<void> {
     this.loadThemePreference();
+    this.loadShortcutsCollapsedPreference();
     await this.restoreSessionOrInit();
+  }
+
+  loadShortcutsCollapsedPreference(): void {
+    try {
+      const saved = localStorage.getItem('suppier_shortcuts_collapsed');
+      if (saved !== null) {
+        this.isHeaderShortcutsCollapsed = saved === 'true';
+      }
+    } catch (e) { }
+  }
+
+  toggleHeaderShortcuts(): void {
+    this.isHeaderShortcutsCollapsed = !this.isHeaderShortcutsCollapsed;
+    try {
+      localStorage.setItem('suppier_shortcuts_collapsed', this.isHeaderShortcutsCollapsed ? 'true' : 'false');
+    } catch (e) { }
   }
 
   async restoreSessionOrInit(): Promise<void> {
@@ -2435,6 +2455,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   toggleMenu(menu: any, event?: Event): void {
     if (event) {
       event.stopPropagation();
+      event.preventDefault();
     }
     if (menu.subItems) {
       menu.isExpanded = !menu.isExpanded;
@@ -2442,6 +2463,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   selectMenu(menuId: string): void {
+    const foundMenu = this.documentMenus.find(m => m.id === menuId);
+    if (foundMenu?.subItems) {
+      foundMenu.isExpanded = !foundMenu.isExpanded;
+    }
     this.activeMenu = menuId;
     this.activeSubMenu = '';
     if (menuId === 'quotation-search') {
@@ -2455,10 +2480,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     if (menuId === 'master-supplier' || menuId === 'supplier-directory' || menuId === 'master-purchase') {
       this.openSupplierDirectoryView();
       return;
-    }
-    const foundMenu = this.documentMenus.find(m => m.id === menuId);
-    if (foundMenu?.subItems) {
-      foundMenu.isExpanded = true;
     }
     if (menuId === 'spare-part') {
       this.activeView = 'edit';
@@ -2504,8 +2525,11 @@ export class AppComponent implements OnInit, AfterViewInit {
   isPdfModalOpen = false;
   activePdfTitle = '';
   activePdfName = '';
+  activeAttachmentUrl: string | null = null;
+  activeAttachmentType: 'pdf' | 'image' | 'doc' | null = null;
   toastMessage = '';
   toastVisible = false;
+  isHeaderShortcutsCollapsed = false;
 
   // Requisition Items (Empty by default if no data exists)
   items: RequisitionItem[] = [];
@@ -2517,6 +2541,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   waitingQuotationFilter: 'ALL' | 'WAITING' | 'URGENT' = 'ALL';
   isLoadingWaitingQuotations = false;
   justSavedDocNumber: string | null = null;
+  activeWaitingDocModal: { header: any; items: RequisitionItem[] } | null = null;
   saveSuccessMessage = '';
   private saveSuccessTimeout: any = null;
 
@@ -2673,16 +2698,155 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.showToast(item.isUrgent ? `กำหนดให้รายการ #${item.no} เป็น URGENT แล้ว` : `ยกเลิกสถานะเร่งด่วนของรายการ #${item.no}`);
   }
 
-  openPdfPreview(fileName: string, title?: string, event?: MouseEvent): void {
+  get safeActiveAttachmentUrl(): SafeResourceUrl | null {
+    if (!this.activeAttachmentUrl) return null;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(this.activeAttachmentUrl);
+  }
+
+  openAttachmentPreview(att: Attachment | { name: string; url?: string; type?: string }, title?: string, event?: MouseEvent): void {
+    if (event) event.stopPropagation();
+    this.activePdfName = att.name;
+    this.activePdfTitle = title || `เอกสารแนบ: ${att.name}`;
+    this.activeAttachmentUrl = att.url || null;
+    const isImg = att.type === 'image' || /\.(jpe?g|png|webp|gif|bmp|svg)$/i.test(att.name) || (att.url && att.url.startsWith('data:image/'));
+    const isPdf = att.type === 'pdf' || /\.pdf$/i.test(att.name) || (att.url && att.url.startsWith('data:application/pdf'));
+    this.activeAttachmentType = isImg ? 'image' : (isPdf ? 'pdf' : ((att.type as any) || 'doc'));
+    this.isPdfModalOpen = true;
+  }
+
+  openPdfPreview(fileName: string, title?: string, event?: MouseEvent, fileUrl?: string): void {
     if (event) event.stopPropagation();
     this.activePdfName = fileName;
     this.activePdfTitle = title || `เอกสาร: ${fileName}`;
+    this.activeAttachmentUrl = fileUrl || null;
+    const isImg = /\.(jpe?g|png|webp|gif|bmp|svg)$/i.test(fileName) || (fileUrl && fileUrl.startsWith('data:image/'));
+    const isPdf = /\.pdf$/i.test(fileName) || (fileUrl && fileUrl.startsWith('data:application/pdf'));
+    this.activeAttachmentType = isImg ? 'image' : (isPdf ? 'pdf' : 'pdf');
     this.isPdfModalOpen = true;
   }
 
   closePdfModal(): void {
     this.isPdfModalOpen = false;
     this.activePdfName = '';
+    this.activeAttachmentUrl = null;
+    this.activeAttachmentType = null;
+  }
+
+  downloadActiveAttachment(): void {
+    if (!this.activeAttachmentUrl) return;
+    const a = document.createElement('a');
+    a.href = this.activeAttachmentUrl;
+    a.download = this.activePdfName || 'attachment';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  openActiveAttachmentInNewTab(): void {
+    if (!this.activeAttachmentUrl) return;
+    const win = window.open();
+    if (win) {
+      if (this.activeAttachmentType === 'image') {
+        win.document.write(`<title>${this.activePdfName}</title><body style="margin:0;background:#0f172a;display:flex;align-items:center;justify-content:center;height:100vh;"><img src="${this.activeAttachmentUrl}" style="max-width:100%;max-height:100vh;object-fit:contain;"/></body>`);
+      } else {
+        win.location.href = this.activeAttachmentUrl;
+      }
+    }
+  }
+
+  formatFileSize(bytes: number): string {
+    if (!bytes || bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  }
+
+  async processFilesForAttachment(item: RequisitionItem, files: FileList | File[]): Promise<void> {
+    if (!files || files.length === 0) return;
+    if (!item.attachments) {
+      item.attachments = [];
+    }
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const isImg = file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|bmp|svg)$/i.test(file.name);
+      const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+      const fileType: 'pdf' | 'image' | 'doc' = isImg ? 'image' : (isPdf ? 'pdf' : 'doc');
+      const sizeStr = this.formatFileSize(file.size);
+
+      // Read file as base64 Data URL
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve((e.target?.result as string) || '');
+        reader.onerror = (e) => reject(e);
+        reader.readAsDataURL(file);
+      });
+
+      const newAtt: Attachment = {
+        name: file.name,
+        type: fileType,
+        size: sizeStr,
+        url: dataUrl
+      };
+
+      // Try uploading to backend server in background
+      try {
+        const uploadRes = await this.apiService.uploadAttachment({
+          fileName: file.name,
+          fileType: file.type,
+          fileData: dataUrl,
+          size: sizeStr
+        });
+        if (uploadRes && uploadRes.success && uploadRes.file?.url) {
+          newAtt.url = uploadRes.file.url;
+          newAtt.storedName = uploadRes.file.storedName;
+        }
+      } catch (err) {
+        console.warn('Backend upload skipped, preserved as dataUrl:', err);
+      }
+
+      item.attachments.push(newAtt);
+      this.showToast(`แนบไฟล์ "${file.name}" ให้กับรายการ #${item.no} สำเร็จ`);
+    }
+  }
+
+  async onAttachmentSelected(item: RequisitionItem, event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      await this.processFilesForAttachment(item, input.files);
+      input.value = '';
+    }
+  }
+
+  async onQuickAttachmentSelected(item: RequisitionItem, event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      await this.processFilesForAttachment(item, input.files);
+      input.value = '';
+      if (!item.isEditing) {
+        await this.saveRow(item);
+      }
+    }
+  }
+
+  async onAttachmentDrop(item: RequisitionItem, event: DragEvent): Promise<void> {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+      await this.processFilesForAttachment(item, event.dataTransfer.files);
+      if (!item.isEditing) {
+        await this.saveRow(item);
+      }
+    }
+  }
+
+  removeAttachment(item: RequisitionItem, index: number, event?: MouseEvent): void {
+    if (event) event.stopPropagation();
+    if (item.attachments && item.attachments.length > index) {
+      const removed = item.attachments.splice(index, 1);
+      this.showToast(`ลบไฟล์แนบ "${removed[0]?.name}" แล้ว`);
+    }
   }
 
   async loadDocumentFromDb(empNo?: string): Promise<void> {
@@ -3081,6 +3245,14 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   collapseAllWaitingDocs(): void {
     this.expandedWaitingDocNumbers.clear();
+  }
+
+  openWaitingDocPreviewModal(req: { header: any; items: RequisitionItem[] }): void {
+    this.activeWaitingDocModal = req;
+  }
+
+  closeWaitingDocPreviewModal(): void {
+    this.activeWaitingDocModal = null;
   }
 
   generateNextDocNumber(empNo: string): string {

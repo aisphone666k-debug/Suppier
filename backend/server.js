@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
+const path = require('path');
 const { connectDB } = require('./config/db');
 const authRoutes = require('./routes/auth.routes');
 const requisitionRoutes = require('./routes/requisition.routes');
@@ -14,8 +15,11 @@ app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
   credentials: true
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Serve static uploaded files (PDFs, images)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Request logger middleware to display interaction logs clearly in terminal
 app.use((req, res, next) => {
@@ -24,7 +28,12 @@ app.use((req, res, next) => {
   console.log(`\n=========================================================`);
   console.log(`📡 [${timestamp}] API Request: ${req.method} ${req.originalUrl}`);
   if (req.body && Object.keys(req.body).length > 0) {
-    console.log(`📦 Request Body:`, JSON.stringify(req.body));
+    if (req.originalUrl.includes('/upload') && req.body.fileData) {
+      console.log(`📦 Request Body:`, JSON.stringify({ ...req.body, fileData: `[Base64 Data ${req.body.fileData.length} chars]` }));
+    } else {
+      const bodyStr = JSON.stringify(req.body);
+      console.log(`📦 Request Body:`, bodyStr.length > 500 ? bodyStr.substring(0, 500) + '... (truncated)' : bodyStr);
+    }
   }
 
   res.on('finish', () => {

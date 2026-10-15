@@ -1009,3 +1009,55 @@ exports.getAllRequests = async (req, res) => {
   }
 };
 
+/**
+ * Upload requisition attachment (Image or PDF)
+ * POST /api/requisition/upload
+ */
+exports.uploadAttachment = async (req, res) => {
+  try {
+    const { fileName, fileType, fileData, size } = req.body;
+    if (!fileName || !fileData) {
+      return res.status(400).json({ success: false, message: 'Missing fileName or fileData' });
+    }
+
+    const fs = require('fs');
+    const path = require('path');
+    const uploadsDir = path.join(__dirname, '../uploads/attachments');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    // Clean base64 header if present
+    const base64Data = fileData.replace(/^data:.*?;base64,/, '');
+    const ext = path.extname(fileName) || (fileType?.includes('pdf') ? '.pdf' : '.png');
+    const baseName = path.basename(fileName, ext).replace(/[^a-zA-Z0-9_\u0E00-\u0E7F-]/g, '_');
+    const uniqueFileName = `${Date.now()}_${baseName}${ext}`;
+    const filePath = path.join(uploadsDir, uniqueFileName);
+
+    await fs.promises.writeFile(filePath, Buffer.from(base64Data, 'base64'));
+
+    const host = req.get('host') || 'localhost:5000';
+    const protocol = req.protocol || 'http';
+    const fileUrl = `${protocol}://${host}/uploads/attachments/${uniqueFileName}`;
+
+    const isImage = fileType?.startsWith('image/') || /\.(png|jpe?g|webp|gif|bmp|svg)$/i.test(fileName);
+    const isPdf = fileType?.includes('pdf') || /\.pdf$/i.test(fileName);
+
+    return res.json({
+      success: true,
+      message: 'Upload file successfully',
+      file: {
+        name: fileName,
+        storedName: uniqueFileName,
+        url: fileUrl,
+        type: isImage ? 'image' : (isPdf ? 'pdf' : 'doc'),
+        size: size || (Math.round(Buffer.from(base64Data, 'base64').length / 1024) + ' KB')
+      }
+    });
+  } catch (error) {
+    console.error('Error uploading attachment:', error);
+    return res.status(500).json({ success: false, message: 'Upload failed: ' + error.message });
+  }
+};
+
+

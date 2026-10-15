@@ -36,4 +36,8 @@ router.put('/items/:id', requisitionController.updateItem);
 // DELETE /api/requisition/items/:id
 router.delete('/items/:id', requisitionController.deleteItem);
 
+// POST /api/requisition/upload (Upload image or PDF attachment)
+router.post('/upload', requisitionController.uploadAttachment);
+
 module.exports = router;
+

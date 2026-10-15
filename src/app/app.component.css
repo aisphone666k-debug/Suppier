@@ -1255,6 +1255,102 @@
   background-color: #0d1322;
 }
 
+/* ================= COLLAPSIBLE SHORTCUTS TOOLBAR ANIMATION ================= */
+.shortcuts-collapsible-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.shortcuts-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: #ffffff;
+  border: 1px solid rgba(203, 213, 225, 0.9);
+  border-radius: 9999px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  flex-shrink: 0;
+  color: #64748b;
+}
+
+.shortcuts-toggle-btn:hover {
+  background: #f8fafc;
+  border-color: #93c5fd;
+  color: #2563eb;
+  box-shadow: 0 2px 8px -1px rgba(59, 130, 246, 0.16);
+  transform: scale(1.06);
+}
+
+.shortcuts-toggle-btn:active {
+  transform: scale(0.92);
+}
+
+.shortcuts-toggle-btn.is-collapsed {
+  background: #ffffff;
+  border-color: #60a5fa;
+  color: #2563eb;
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.14);
+}
+
+.shortcuts-toggle-btn.is-collapsed:hover {
+  background: #eff6ff;
+  border-color: #2563eb;
+  color: #1d4ed8;
+  box-shadow: 0 3px 10px -1px rgba(37, 99, 235, 0.26);
+}
+
+/* The Smooth Sliding Drawer */
+.shortcuts-drawer {
+  max-width: 850px;
+  opacity: 1;
+  transform: scale(1) translateX(0);
+  overflow: hidden;
+  transition: 
+    max-width 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    margin 0.32s ease;
+  transform-origin: left center;
+  display: flex;
+  align-items: center;
+}
+
+.shortcuts-drawer.is-collapsed {
+  max-width: 0 !important;
+  opacity: 0 !important;
+  transform: scale(0.92) translateX(-14px) !important;
+  margin: 0 !important;
+  pointer-events: none;
+  visibility: hidden;
+  transition: 
+    max-width 0.42s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.22s ease-out,
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.42s;
+}
+
+.shortcuts-inner-content {
+  min-width: max-content;
+}
+
+/* =========================================================
+   AUTHENTIC WORKSHOP / BENTO PEGBOARD DOT-GRID PATTERN
+   ========================================================= */
+.pegboard-grid-bg {
+  background-color: #f1f5f9;
+  background-image: radial-gradient(circle, rgba(148, 163, 184, 0.45) 1.8px, transparent 1.8px);
+  background-size: 20px 20px;
+}
+
+
+
 
 
 

@@ -305,7 +305,27 @@ export class ApiService {
   }
 
   /**
+   * Upload requisition attachment (Image or PDF) to backend storage
+   */
+  async uploadAttachment(payload: { fileName: string; fileType: string; fileData: string; size?: string }): Promise<{ success: boolean; file?: any; message?: string }> {
+    console.log(`%c[Suppier API] Uploading attachment "${payload.fileName}" (${payload.size || ''})...`, 'color: #2563eb;');
+    try {
+      const response = await fetch(`${this.baseUrl}/requisition/upload`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const res = await response.json();
+      return res;
+    } catch (err) {
+      console.warn('%c[Suppier API] Backend upload failed, continuing with local DataURL:', 'color: #d97706;', err);
+      return { success: false, message: 'Upload service unavailable' };
+    }
+  }
+
+  /**
    * Get quotation requests (optionally filtered by empNo)
+
    */
   async getAllQuotationRequests(empNo?: string): Promise<Array<{ header: any; items: any[] }>> {
     console.log(`%c[Suppier API] Fetching quotation requests (emp: ${empNo || 'all'})...`, 'color: #2563eb;');
