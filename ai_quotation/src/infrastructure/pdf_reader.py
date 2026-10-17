@@ -257,7 +257,7 @@ class PdfDocumentReader:
         vendor_tax_id = self._extract_vendor_tax_id(raw_text)
         currency = self._extract_currency(raw_text)
         issue_date, expiration_date = self._extract_dates(raw_text, layout_text)
-        items = self._extract_line_items(raw_text, meta.inferred_total)
+        items = self._extract_line_items(raw_text, meta.inferred_total, layout_text=layout_text)
 
         total_amount = meta.inferred_total
         if total_amount is None and items:
@@ -542,7 +542,64 @@ class PdfDocumentReader:
 
         return issue_date, expiration_date
 
-    def _extract_line_items(self, raw_text: str, inferred_total: Optional[float]) -> tuple[DraftItem, ...]:
+    def _extract_line_items(self, raw_text: str, inferred_total: Optional[float], layout_text: str = "") -> tuple[DraftItem, ...]:
+        # 0. Layout-mode tabular rows (Factory Max and columnar quotations)
+        if layout_text:
+            layout_lines = [l for l in layout_text.splitlines() if l.strip()]
+            fmax_layout_pattern = re.compile(
+                r"^\s*(\d+)\.\s+([A-Za-z0-9\-_#]+)\s+(.+?)\s+([0-9,]+(?:\.\d+)?)\s+([A-Za-z\u0E00-\u0E7F]+)\s+([0-9,]+\.[0-9]{2}).*?([0-9,]+\.[0-9]{2})\s*$"
+            )
+            layout_items: list[DraftItem] = []
+            for idx, l_line in enumerate(layout_lines):
+                m_fmax = fmax_layout_pattern.match(l_line)
+                if m_fmax:
+                    item_no = int(m_fmax.group(1))
+                    part_no = m_fmax.group(2).strip()
+                    desc = m_fmax.group(3).strip()
+                    qty = float(m_fmax.group(4).replace(",", ""))
+                    unit = m_fmax.group(5).strip()
+                    amt = float(m_fmax.group(7).replace(",", ""))
+                    unit_price = amt / qty if qty > 0 else amt
+
+                    # Lookahead for wrapped description continuation (e.g. 'SPINDLE')
+                    if idx + 1 < len(layout_lines):
+                        next_line = layout_lines[idx + 1]
+                        if not fmax_layout_pattern.match(next_line) and not re.match(r"^\s*\d+\.", next_line):
+                            if not re.search(r"รวม|total|vat|ภาษี|ส่วนลด|delivery|payment|หมายเหตุ|fmx|csr|ผู้มีอํานาจ|ผู้มีอำนาจ|ผู้เสนอราคา|บริษัท|ใบเสนอราคา", next_line, re.IGNORECASE):
+                                cont = next_line.strip()
+                                if cont and len(cont) < 100:
+                                    desc = f"{desc} {cont}"
+
+                    layout_items.append(DraftItem(
+                        item_number=item_no,
+                        description=desc,
+                        quantity=qty,
+                        unit=unit,
+                        unit_price=unit_price,
+                        part_number=part_no,
+                        amount=amt,
+                    ))
+                elif "Belt 7M" in l_line:
+                    m_iw = re.search(r"^\s*(\d+)\s+(Belt\s+[A-Za-z0-9\s/]+?)\s+(\d+(?:\.\d+)?)\s+([A-Za-z]+)\s+([0-9,]+\.[0-9]{2})\s+([0-9,]+\.[0-9]{2})", l_line)
+                    if m_iw:
+                        item_no = int(m_iw.group(1))
+                        desc = m_iw.group(2).strip()
+                        qty = float(m_iw.group(3))
+                        unit = m_iw.group(4).strip()
+                        price = float(m_iw.group(5).replace(",", ""))
+                        amt = float(m_iw.group(6).replace(",", ""))
+                        layout_items.append(DraftItem(
+                            item_number=item_no,
+                            description=desc,
+                            quantity=qty,
+                            unit=unit,
+                            unit_price=price,
+                            part_number="Belt 7M 1360",
+                            amount=amt,
+                        ))
+            if layout_items:
+                return tuple(layout_items)
+
         lines = [line.strip() for line in raw_text.splitlines() if line.strip()]
         items: list[DraftItem] = []
 
@@ -750,31 +807,48 @@ class PdfDocumentReader:
 
             # 7. Iwase Belt format (Belt 7M 1360 / Gate)
             if "Belt 7M" in line or ("PCSBelt" in line):
-                iwase_m = re.search(r"([0-9,]+\.[0-9]{2})\s+([0-9,]+\.[0-9]{2})\s*PCS(Belt\s+[A-Za-z0-9\s/]+)\s+(\d+)", line)
+                iwase_m = re.search(r"([0-9,]+\.[0-9]{2})\s+([0-9,]+\.[0-9]{2})\s*PCS(Belt\s+[A-Za-z0-9\s/]+?)\s+(\d+(?:\.\d+)?)(?:\s+\d+\s*-\s*\d+\s*days|\s+\d+|$)", line)
                 if iwase_m:
+                    amt = float(iwase_m.group(1).replace(",", ""))
+                    price = float(iwase_m.group(2).replace(",", ""))
+                    desc = iwase_m.group(3).strip()
+                    qty = float(iwase_m.group(4))
+                    if abs(qty * price - amt) > 0.01 and price > 0:
+                        qty = round(amt / price, 2)
                     items.append(DraftItem(
                         item_number=len(items) + 1,
-                        description=iwase_m.group(3).strip(),
-                        quantity=float(iwase_m.group(4)),
+                        description=desc,
+                        quantity=qty,
                         unit="PCS",
-                        unit_price=float(iwase_m.group(2).replace(",", "")),
+                        unit_price=price,
                         part_number="Belt 7M 1360",
-                        amount=float(iwase_m.group(1).replace(",", "")),
+                        amount=amt,
                     ))
                     continue
 
             # 8. Factory Max NSK Air Line Kit format
             if "AL-M1202" in line or "NSKT" in line:
-                fmax_m = re.search(r"(NSKT-[0-9]+).*?(NSK\s*\[[A-Za-z0-9\-]+\]\s*[A-Za-z\s]+)\s+(\d+\.\d+)\s+([A-Za-z]+)\s+([0-9,]+\.[0-9]{2})\s+([0-9,]+\.[0-9]{2})", line)
+                combined = line
+                if i + 1 < len(lines) and not any(k in lines[i+1] for k in ["NSKT", "รวม", "total", "vat", "หมายเหตุ"]):
+                    combined += " " + lines[i+1]
+                if i + 2 < len(lines) and not any(k in lines[i+2] for k in ["NSKT", "รวม", "total", "vat", "หมายเหตุ"]):
+                    combined += " " + lines[i+2]
+                fmax_m = re.search(r"(NSKT-[0-9]{4,5})(?:[0-9]+\.)?.*?(NSK\s*\[[A-Za-z0-9\-]+\]\s*[A-Za-z\s]+?)\s+(\d+(?:\.\d+)?)\s+([A-Za-z]+)\s+([0-9,]+\.[0-9]{2}).*?([0-9,]+\.[0-9]{2})", combined)
                 if fmax_m:
+                    p_no = fmax_m.group(1).strip()
+                    desc = re.sub(r"\s+", " ", fmax_m.group(2).strip())
+                    qty = float(fmax_m.group(3))
+                    unit = fmax_m.group(4).strip()
+                    amt = float(fmax_m.group(6).replace(",", ""))
+                    unit_price = amt / qty if qty > 0 else amt
                     items.append(DraftItem(
                         item_number=len(items) + 1,
-                        description=fmax_m.group(2).strip(),
-                        quantity=float(fmax_m.group(3)),
-                        unit=fmax_m.group(4).strip(),
-                        unit_price=float(fmax_m.group(6).replace(",", "")),
-                        part_number=fmax_m.group(1).strip(),
-                        amount=float(fmax_m.group(6).replace(",", "")),
+                        description=desc,
+                        quantity=qty,
+                        unit=unit,
+                        unit_price=unit_price,
+                        part_number=p_no,
+                        amount=amt,
                     ))
                     continue
 

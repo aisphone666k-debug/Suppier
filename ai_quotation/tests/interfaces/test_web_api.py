@@ -282,3 +282,18 @@ def test_batch_preview_and_commit_with_user_edits(client):
     assert "CUSTOM-PART-9999" in search_resp.text
 
 
+def test_ask_inquiry_json_endpoint(client):
+    response = client.post(
+        "/api/inquiry/ask-json",
+        data={"query": "belt", "user_role": "NORMAL_USER"},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "answer" in data
+    assert "cached" in data
+    assert "total_duration_ms" in data
+    assert "citations" in data
+    assert isinstance(data["citations"], list)
+
+
+

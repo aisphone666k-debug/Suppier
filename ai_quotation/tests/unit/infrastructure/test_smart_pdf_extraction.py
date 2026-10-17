@@ -35,6 +35,14 @@ def test_smart_extraction_iwase():
     assert draft.issue_date == date(2026, 7, 31)
     assert draft.expiration_date == date(2026, 9, 5)
     assert draft.vendor_tax_id == "0105543072502"
+    assert len(draft.items) == 1
+    it = draft.items[0]
+    assert it.item_number == 1
+    assert it.description == "Belt 7M 1360 / Gate"
+    assert it.quantity == 3.0
+    assert it.unit == "PCS"
+    assert it.unit_price == 500.0
+    assert it.amount == 1500.0
 
 
 def test_smart_extraction_fanuc():
@@ -79,6 +87,29 @@ def test_smart_extraction_factory_max_thai_days():
     assert "69Q" in draft.quotation_number
     assert draft.issue_date == date(2026, 9, 25)
     assert draft.expiration_date == date(2026, 10, 2)
+    assert len(draft.items) == 2
+
+    # Item 1: NSKT-4502 NSK [AL-M1202] AIR LINE KIT
+    it1 = draft.items[0]
+    assert it1.item_number == 1
+    assert it1.part_number == "NSKT-4502"
+    assert "NSK [AL-M1202] AIR LINE KIT" in it1.description
+    assert it1.quantity == 1.0
+    assert it1.unit == "Unit"
+    assert it1.unit_price == 16458.0
+    assert it1.amount == 16458.0
+
+    # Item 2: NSKT-7825 NSK [MSS-1908RA] AIR MOTOR SPINDLE
+    it2 = draft.items[1]
+    assert it2.item_number == 2
+    assert it2.part_number == "NSKT-7825"
+    assert "NSK [MSS-1908RA] AIR MOTOR SPINDLE" in it2.description
+    assert it2.quantity == 1.0
+    assert it2.unit == "Unit"
+    assert it2.unit_price == 56784.0
+    assert it2.amount == 56784.0
+
+    assert draft.total_amount == 73242.0
 
 
 def test_smart_extraction_trisak_validity_days():
