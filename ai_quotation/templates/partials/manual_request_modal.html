@@ -1,0 +1,100 @@
+<div class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+            <h3 class="text-lg font-bold text-slate-900">Request Quotation Manually</h3>
+            <button onclick="document.getElementById('modal-container').innerHTML = ''"
+                    class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200/60 transition-colors">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <form hx-post="/api/requests/manual"
+              hx-target="#modal-container"
+              hx-swap="innerHTML"
+              class="p-6 space-y-4 text-sm">
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Item Description / Technical Specs *</label>
+                <textarea name="item_description"
+                          required
+                          rows="3"
+                          class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                          placeholder="Describe the required item, specifications, materials, or model...">{{ prefill or '' }}</textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Part / Model Number</label>
+                    <input type="text"
+                           name="part_number"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                           placeholder="e.g. 5V-1400 or FLG-250">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Department / Cost Center *</label>
+                    <input type="text"
+                           name="department"
+                           required
+                           value="Engineering"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Quantity</label>
+                    <input type="number"
+                           step="any"
+                           name="target_quantity"
+                           value="1"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Unit</label>
+                    <input type="text"
+                           name="target_unit"
+                           value="Pcs"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Urgency</label>
+                    <select name="urgency" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <option value="NORMAL">Normal</option>
+                        <option value="HIGH">High</option>
+                        <option value="CRITICAL">Critical</option>
+                        <option value="LOW">Low</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Needed By Date</label>
+                    <input type="date"
+                           name="needed_by_date"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Requester Employee ID</label>
+                    <input type="text"
+                           name="requester_user_id"
+                           value="emp_current"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-200 flex justify-end space-x-3">
+                <button type="button"
+                        onclick="document.getElementById('modal-container').innerHTML = ''"
+                        class="px-4 py-2 text-sm font-semibold rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="px-5 py-2 text-sm font-semibold rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm transition-colors">
+                    Submit Demand
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

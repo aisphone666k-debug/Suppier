@@ -2,7 +2,7 @@ import { Component, OnInit, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ApiService, EmployeeUser, QuotationLineItem, SupplierQuotationResult, SupplierQuotationSearchResponse } from './services/api.service';
+import { ApiService, EmployeeUser, QuotationLineItem, SupplierQuotationResult, SupplierQuotationSearchResponse, AiInquiryResponse, AiInquiryCitation } from './services/api.service';
 
 export interface SupplierItem {
   id: string;
@@ -567,6 +567,13 @@ export class AppComponent implements OnInit, AfterViewInit {
   searchExecutionTime = '0.24';
   selectedKnowledgeResult: QuotationSearchResult | null = null;
   showGoogleAppsMenu = false;
+  isMicroserviceOnline = true;
+
+  // AI Copilot Inquiry State (integrated with ai_quotation port 8000)
+  aiInquiryQuery = '';
+  aiInquiryLoading = false;
+  aiInquiryResult: AiInquiryResponse | null = null;
+  aiInquiryError = '';
 
   // Customize Chrome Theme State (Authentic Google Chrome Side Panel)
   isThemeDrawerOpen = false;
@@ -848,12 +855,13 @@ export class AppComponent implements OnInit, AfterViewInit {
   shopeeOnlyTop5 = false;
 
   recentSearches: string[] = [
-    'AIR CYLINDER MGPL50',
-    'VACUUM PUMP SDV-30S',
-    'FILTER MP5002',
-    'MISUMI Linear Guide',
-    'CHAVANAN CO., LTD.',
-    'Urgent Parts (Lead Time < 7 Days)'
+    'Bando V-Belt',
+    '5V-1400',
+    'IWASE',
+    'FANUC',
+    'THAI-INTER',
+    'Botton Box',
+    'AIR CYLINDER MGPL50'
   ];
 
   quotationSampleList: QuotationSearchResult[] = [
@@ -2718,9 +2726,18 @@ export class AppComponent implements OnInit, AfterViewInit {
     if (event) event.stopPropagation();
     this.activePdfName = fileName;
     this.activePdfTitle = title || `เอกสาร: ${fileName}`;
+    if (!fileUrl && fileName) {
+      if (fileName.startsWith('/pdf/')) {
+        fileUrl = `http://localhost:8000${fileName}`;
+      } else if (fileName.startsWith('/uploads/')) {
+        fileUrl = `http://localhost:5000${fileName}`;
+      } else if (fileName.startsWith('http')) {
+        fileUrl = fileName;
+      }
+    }
     this.activeAttachmentUrl = fileUrl || null;
     const isImg = /\.(jpe?g|png|webp|gif|bmp|svg)$/i.test(fileName) || (fileUrl && fileUrl.startsWith('data:image/'));
-    const isPdf = /\.pdf$/i.test(fileName) || (fileUrl && fileUrl.startsWith('data:application/pdf'));
+    const isPdf = /\.pdf$/i.test(fileName) || (fileUrl && fileUrl.startsWith('data:application/pdf')) || (fileUrl && fileUrl.includes('/pdf/'));
     this.activeAttachmentType = isImg ? 'image' : (isPdf ? 'pdf' : 'pdf');
     this.isPdfModalOpen = true;
   }
@@ -3863,9 +3880,7 @@ Could you please include the estimated lead time as well`;
       s.name.toLowerCase().includes(q.toLowerCase()) ||
       (q.length >= 2 && s.code.toLowerCase().includes(q.toLowerCase()))
     );
-    if (matchingSupplier) {
-      this.selectedSupplier = matchingSupplier;
-    }
+    this.selectedSupplier = matchingSupplier || null;
 
     // Call live microservice search API (localhost:8000)
     const searchQuery = q || (matchingSupplier ? matchingSupplier.name : 'BANDO');
@@ -5051,16 +5066,43 @@ Could you please include the estimated lead time as well`;
     try {
       const response = await this.apiService.searchSupplierQuotations(supplierName, this.supplierUserRole);
       this.supplierQuotationsResult = response;
+      this.isMicroserviceOnline = true;
       if (this.selectedSupplier) {
         this.selectedSupplier.quotationCount = response.count;
       }
     } catch (err: any) {
       console.error('Failed to load supplier quotations:', err);
+      this.isMicroserviceOnline = false;
       this.supplierQuotationsError = err?.message || 'Could not connect to Quotation Search service (http://localhost:8000)';
       this.supplierQuotationsResult = { query: supplierName, count: 0, results: [] };
     } finally {
       this.supplierQuotationsLoading = false;
     }
+  }
+
+  async submitAiInquiry(query?: string): Promise<void> {
+    const q = (query || this.aiInquiryQuery || '').trim();
+    if (!q) return;
+    this.aiInquiryQuery = q;
+    this.aiInquiryLoading = true;
+    this.aiInquiryError = '';
+    this.aiInquiryResult = null;
+    try {
+      const res = await this.apiService.askAiQuotationInquiry(q, this.supplierUserRole);
+      this.aiInquiryResult = res;
+      this.isMicroserviceOnline = true;
+    } catch (err: any) {
+      this.aiInquiryError = err?.message || 'ไม่สามารถติดต่อ AI Quotation Copilot (http://localhost:8000) ได้';
+      this.isMicroserviceOnline = false;
+    } finally {
+      this.aiInquiryLoading = false;
+    }
+  }
+
+  clearAiInquiry(): void {
+    this.aiInquiryQuery = '';
+    this.aiInquiryResult = null;
+    this.aiInquiryError = '';
   }
 
   setSupplierUserRole(role: 'NORMAL_USER' | 'PH_USER'): void {

@@ -362,18 +362,80 @@ export class ApiService {
     console.log(`%c[Quotation Microservice] Searching quotations for "${trimmed}" (${userRole})...`, 'color: #2563eb;', url);
 
     try {
-      const response = await fetch(url);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const response = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
         throw new Error(`Microservice HTTP ${response.status}: ${response.statusText}`);
       }
       const data: SupplierQuotationSearchResponse = await response.json();
       console.log(`%c[Quotation Microservice] Found ${data.count} quotation(s) for "${trimmed}":`, 'color: #059669;', data);
       return data;
-    } catch (err) {
+    } catch (err: any) {
       console.warn(`%c[Quotation Microservice] Error or service unreachable at ${url}:`, 'color: #d97706;', err);
-      return { query: trimmed, count: 0, results: [] };
+      throw err;
     }
   }
+
+  /**
+   * Health check for Quotation Search Microservice (port 8000)
+   */
+  async checkQuotationMicroserviceHealth(): Promise<boolean> {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
+      const res = await fetch('http://localhost:8000/api/search?query=health_ping', { signal: controller.signal });
+      clearTimeout(timeoutId);
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Send natural language inquiry to AI Copilot (RAG) at port 8000
+   */
+  async askAiQuotationInquiry(
+    query: string,
+    userRole: 'NORMAL_USER' | 'PH_USER' = 'NORMAL_USER'
+  ): Promise<AiInquiryResponse> {
+    const formData = new FormData();
+    formData.append('query', query.trim());
+    formData.append('user_role', userRole);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
+    const response = await fetch('http://localhost:8000/api/inquiry/ask-json', {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      throw new Error(`AI Inquiry HTTP ${response.status}`);
+    }
+    return await response.json();
+  }
+}
+
+export interface AiInquiryCitation {
+  quotation_id: string;
+  quotation_number: string;
+  vendor_name: string;
+  status: 'ACTIVE' | 'EXPIRED';
+  items_summary: string;
+  price_summary: string;
+  search_query: string;
+}
+
+export interface AiInquiryResponse {
+  answer: string;
+  cached: boolean;
+  total_duration_ms: number;
+  citations: AiInquiryCitation[];
 }
 
 export interface QuotationLineItem {

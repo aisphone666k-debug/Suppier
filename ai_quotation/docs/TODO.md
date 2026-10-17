@@ -1,0 +1,32 @@
+# Living Task List (Rule 17)
+
+- [x] DONE: Explore workspace and inventory existing quotation PDF samples in `quoatation/` (Rule 14)
+- [x] DONE: Draft comprehensive system requirements, architecture, UI wireframes, state machine diagrams, and sequence diagrams in `docs/requirements/system_requirements_and_architecture.md`
+- [x] DONE: Author standalone comprehensive acceptance criteria in `docs/requirements/comprehensive_acceptance_criteria.md`
+- [x] DONE: Initialize `docs/DECISIONS.md` (Rule 3) and `docs/NOTES.md` (Rule 4)
+- [x] DONE: Setup 64-bit Python environment and dependencies via `uv` (FastAPI, FastEmbed, ONNX, PyPDF, PyTest, HTMX)
+- [x] DONE: [STATE: RED -> GREEN] Implement `ValidityPeriod`, `ConfidenceScore`, and `Quotation` Aggregate Root with INV-01 to INV-05
+- [x] DONE: [STATE: RED -> GREEN] Implement `ManualQuotationRequest` aggregate root
+- [x] DONE: [STATE: RED -> GREEN] Implement `SqliteQuotationRepository` and `SqliteManualRequestRepository`
+- [x] DONE: [STATE: RED -> GREEN] Implement `MemorySearchCache` (SHA-256 normalized queries, TTL, invalidation)
+- [x] DONE: [STATE: RED -> GREEN] Implement `MemoryVectorIndex` (cosine similarity + token boosting) and `FastEmbedEngine` (ONNX)
+- [x] DONE: [STATE: RED -> GREEN] Implement `PdfDocumentReader` extracting text, SHA-256, and metadata heuristics
+- [x] DONE: [STATE: RED -> GREEN] Implement `QuotationApplicationService` orchestrating discovery, claims, renewals, and demands
+- [x] DONE: [STATE: RED -> GREEN] Implement Web UI (Google-style search, PDF review modal, receive button, manual demand modal, PH workbench)
+- [x] DONE: Ingest and seed real PDF quotations from `quoatation/` and validate all Acceptance Criteria (49/49 tests passing)
+- [x] DONE: Fix search click interaction via offline native event delegation engine and Jinja2 template fixes
+- [x] DONE: Implement automated Playwright end-to-end browser testing (`test_playwright_e2e.py`)
+- [x] DONE: [STATE: RED -> GREEN] Implement `MultilingualLexicon` supporting Thai (`กล่อง`, `สายพาน`) and Japanese (`箱`, `ボックス`, `ベルト`, `見積書`)
+- [x] DONE: Fix token precision guard preventing short-token/letter over-expansion (`A-61(S)` triggering `box`)
+- [x] DONE: Verify 100% test pass rate across all unit, integration, and Playwright E2E suites (61/61 passing)
+- [x] DONE: [STATE: RED -> GREEN] Implement `ExtractedQuotationDraft` and smart table/metadata extraction in `PdfDocumentReader.extract_draft`
+- [x] DONE: [STATE: RED -> GREEN] Implement `extract_draft_from_pdf` in `QuotationApplicationService`
+- [x] DONE: [STATE: RED -> GREEN] Implement `/api/quotations/extract-preview` and smart fallback ingestion in `register_quotation_endpoint`
+- [x] DONE: [STATE: RED -> GREEN] Upgrade `ph_portal.html` with instant smart analysis, auto-filled fields, and 1-click confirm
+- [x] DONE: Implement automated Playwright E2E test for smart PDF auto-extraction and zero-input ingestion (68/68 tests passing)
+- [x] DONE: [STATE: RED -> GREEN] Implement semantic meaning-based discovery for abstract hypernyms (Thai 'ภาชนะ' [container/receptacle] -> 'box' / 'enclosure') with 100% test pass (70/70 tests passing)
+- [x] DONE: [STATE: RED -> GREEN] Full UI Review & Happy/Bad Path Simulation: Author 11 bad path integration tests (`test_simulation_happy_and_bad_paths.py`), harden HTTP status codes (400, 403, 404), guard DOM event delegation from non-HTML corruption, and verify full browser journey via Playwright (82/82 tests passing)
+- [x] DONE: [STATE: RED -> GREEN] Implement RAG Generation Layer: Add `AnswerGeneratorPort` (Application), `QuotationInquiryService` (Application), `GeminiAnswerGenerator` with secure `credentials.ini` integration (Infrastructure), `/api/inquiry/ask` endpoint (Interfaces), and AI Procurement Assistant UI widget in `search.html` (88/88 tests passing)
+- [x] DONE: [STATE: RED -> GREEN] High-Speed Inquiry Cache & Structured Telemetry Logging: Implement `MemoryInquiryCache` with TTL and hit/miss tracking, telemetry recording in `QuotationInquiryService`, and UI performance badges (95/95 tests passing; latency reduced from 2200ms to 0.04ms on cache hits)
+- [x] DONE: [STATE: RED -> GREEN] Agentic Inquiry & Conversational Capabilities: Add catalog overview intent detection (`_is_catalog_overview_intent`), technical snippet context passing (`raw_text_snippet`), and prompt guidance for general catalog summaries ("มีอะไรบ้าง") and deep technical breakdowns ("สายพานนี้เป็นเเบบไหน") (97/97 tests passing)
+- [x] DONE: [STATE: RED -> GREEN] Interactive Search Engine Citation Lines: Implement `QuotationCitationView` DTO, update `InquiryResultView` and `MemoryInquiryCache` to cache and return citations, and render clickable `[Research]` (trigger search engine) and `[PDF]` (modal viewer) lines in web UI (98/98 tests passing)

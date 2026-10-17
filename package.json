@@ -4,6 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:backend": "cd backend && npm start",
+    "start:ai": "cd ai_quotation && .venv\\Scripts\\python.exe main.py",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"

@@ -1,0 +1,398 @@
+{% if query and results %}
+<div class="space-y-6">
+    <!-- Header Summary Bar with View Switcher -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+            </div>
+            <div>
+                <div class="text-sm text-slate-600">
+                    Found <span class="font-bold text-slate-900">{{ results|length }}</span> matching quotation(s) for "<span class="font-semibold text-indigo-600">{{ query }}</span>"
+                </div>
+                <div class="text-xs text-slate-400 mt-0.5">
+                    Items split one-by-one &bull; Ranked by Semantic Relevance
+                </div>
+            </div>
+        </div>
+
+        <!-- View Switcher Toggle -->
+        <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl text-xs font-semibold border border-slate-200">
+            <button type="button"
+                    onclick="setSearchView('card')"
+                    id="btn-view-card"
+                    class="px-3 py-1.5 rounded-lg bg-white shadow-sm text-slate-900 font-bold transition-all flex items-center space-x-1.5">
+                <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                </svg>
+                <span>By Quotation</span>
+            </button>
+            <button type="button"
+                    onclick="setSearchView('table')"
+                    id="btn-view-table"
+                    class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all flex items-center space-x-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+                <span>All Items Flat Table</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- VIEW 1: BY QUOTATION (ITEMIZED LIST PER QUOTATION) -->
+    <div id="results-grouped-view" class="space-y-6">
+        {% for item in results %}
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:border-slate-300 transition-all">
+            <!-- Quotation Header Bar -->
+            <div class="px-6 py-4 bg-slate-50/70 border-b border-slate-200 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center space-x-3 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-indigo-600 shadow-xs flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center space-x-2 flex-wrap">
+                            <span class="font-extrabold text-slate-900 text-base">{{ item.quotation.quotation_number }}</span>
+                            <span class="text-xs text-slate-400 font-mono">({{ item.quotation.quotation_id }})</span>
+                            {% if item.quotation.status.value == 'ACTIVE' %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                ACTIVE
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                EXPIRED
+                            </span>
+                            {% endif %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                {{ item.quotation.items|length }} item(s)
+                            </span>
+                        </div>
+                        <div class="text-xs text-slate-600 font-medium mt-0.5 flex items-center space-x-2 flex-wrap">
+                            <span class="font-semibold text-slate-800">{{ item.quotation.vendor_name }}</span>
+                            <span class="text-slate-300">&bull;</span>
+                            <span>Expires: <strong class="text-slate-700">{{ item.quotation.validity_period.expiration_date }}</strong></span>
+                            {% if item.quotation.vendor_tax_id %}
+                            <span class="text-slate-300">&bull;</span>
+                            <span class="text-slate-400 font-mono">Tax: {{ item.quotation.vendor_tax_id }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4 flex-wrap">
+                    <!-- Match Confidence Score -->
+                    <div class="text-right">
+                        <div class="flex items-center justify-end space-x-1.5">
+                            <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Match</span>
+                            <span class="confidence-pill font-bold text-sm
+                                {% if item.confidence.value >= 0.80 %} text-emerald-600
+                                {% elif item.confidence.value >= 0.50 %} text-indigo-600
+                                {% else %} text-amber-600 {% endif %}">
+                                {{ item.confidence.as_percentage() }}
+                            </span>
+                        </div>
+                        <div class="w-20 bg-slate-200 rounded-full h-1.5 mt-1 overflow-hidden">
+                            <div class="h-1.5 rounded-full
+                                {% if item.confidence.value >= 0.80 %} bg-emerald-500
+                                {% elif item.confidence.value >= 0.50 %} bg-indigo-500
+                                {% else %} bg-amber-500 {% endif %}"
+                                style="width: {{ item.confidence.value * 100 }}%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex items-center space-x-2 whitespace-nowrap">
+                        <button hx-get="/pdf-modal/{{ item.quotation.quotation_id }}"
+                                hx-target="#modal-container"
+                                class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-colors shadow-xs">
+                            <svg class="w-3.5 h-3.5 mr-1 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Review PDF
+                        </button>
+
+                        {% if item.can_receive %}
+                        <button id="receive-btn-{{ item.quotation.quotation_id }}"
+                                hx-post="/api/quotations/{{ item.quotation.quotation_id }}/receive"
+                                hx-vals='{"user_id": "current_user"}'
+                                hx-target="#receive-btn-{{ item.quotation.quotation_id }}"
+                                hx-swap="outerHTML"
+                                class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-xs">
+                            <svg class="w-3.5 h-3.5 mr-1 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Receive
+                        </button>
+                        {% else %}
+                        <button disabled
+                                class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-400 cursor-not-allowed">
+                            Expired
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Itemized Table: Show Each Item One By One -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="text-xs uppercase tracking-wider text-slate-500 bg-slate-50/50 border-b border-slate-200">
+                            <th class="px-5 py-2.5 font-semibold w-12 text-center">#</th>
+                            <th class="px-5 py-2.5 font-semibold">Item Description</th>
+                            <th class="px-5 py-2.5 font-semibold">Part Number</th>
+                            <th class="px-5 py-2.5 font-semibold text-right">Quantity</th>
+                            <th class="px-5 py-2.5 font-semibold text-right">Unit Price</th>
+                            <th class="px-5 py-2.5 font-semibold text-right">Line Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for line_item in item.quotation.items %}
+                        {% set is_match = query and (query.lower() in line_item.description.lower() or (line_item.part_number and query.lower() in line_item.part_number.lower())) %}
+                        <tr class="transition-colors hover:bg-indigo-50/30 {% if is_match %}bg-indigo-50/15{% endif %}">
+                            <td class="px-5 py-3 text-xs text-slate-400 font-mono text-center">
+                                {{ line_item.item_number or loop.index }}
+                            </td>
+                            <td class="px-5 py-3">
+                                <div class="font-medium text-slate-900 flex items-center flex-wrap gap-1.5">
+                                    <span>{{ line_item.description }}</span>
+                                    {% if is_match %}
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                        Matched
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="px-5 py-3">
+                                {% if line_item.part_number %}
+                                <span class="inline-block bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded font-mono border border-slate-200">
+                                    {{ line_item.part_number }}
+                                </span>
+                                {% else %}
+                                <span class="text-slate-300 text-xs font-mono">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-5 py-3 text-right whitespace-nowrap">
+                                <span class="font-medium text-slate-900">{{ line_item.quantity }}</span>
+                                <span class="text-xs text-slate-500 ml-0.5">{{ line_item.unit }}</span>
+                            </td>
+                            <td class="px-5 py-3 text-right whitespace-nowrap font-mono text-slate-800">
+                                {{ "%.2f"|format(line_item.unit_price) if line_item.unit_price is number else line_item.unit_price }}
+                                <span class="text-xs text-slate-400">{{ item.quotation.currency }}</span>
+                            </td>
+                            <td class="px-5 py-3 text-right whitespace-nowrap font-mono font-semibold text-slate-900">
+                                {{ "%.2f"|format(line_item.total_price) if line_item.total_price is number else line_item.total_price }}
+                                <span class="text-xs text-slate-400 font-normal">{{ item.quotation.currency }}</span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="px-6 py-6 text-center text-slate-400 text-xs">
+                                No line items detailed for this quotation.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Card Summary Footer -->
+            <div class="px-6 py-3 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                <div>
+                    <span>Total items: <strong class="text-slate-700">{{ item.quotation.items|length }}</strong></span>
+                </div>
+                <div>
+                    <span>Quotation Total: <strong class="text-slate-900 text-sm font-mono">{{ "%.2f"|format(item.quotation.total_amount) }} {{ item.quotation.currency }}</strong></span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- VIEW 2: FLAT ALL-ITEMS TABLE VIEW -->
+    <div id="results-flat-view" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="text-xs uppercase tracking-wider text-slate-500 bg-slate-50 border-b border-slate-200">
+                        <th class="px-4 py-3 font-semibold w-10 text-center">#</th>
+                        <th class="px-4 py-3 font-semibold">Item Description</th>
+                        <th class="px-4 py-3 font-semibold">Part Number</th>
+                        <th class="px-4 py-3 font-semibold text-right">Quantity</th>
+                        <th class="px-4 py-3 font-semibold text-right">Unit Price</th>
+                        <th class="px-4 py-3 font-semibold text-right">Total</th>
+                        <th class="px-4 py-3 font-semibold">Quotation & Vendor</th>
+                        <th class="px-4 py-3 font-semibold">Validity</th>
+                        <th class="px-4 py-3 font-semibold">Confidence</th>
+                        <th class="px-4 py-3 font-semibold text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% set ns = namespace(flat_index=0) %}
+                    {% for item in results %}
+                        {% for line_item in item.quotation.items %}
+                        {% set ns.flat_index = ns.flat_index + 1 %}
+                        {% set is_match = query and (query.lower() in line_item.description.lower() or (line_item.part_number and query.lower() in line_item.part_number.lower())) %}
+                        <tr class="transition-colors hover:bg-indigo-50/30 {% if is_match %}bg-indigo-50/15{% endif %}">
+                            <td class="px-4 py-3 text-xs text-slate-400 font-mono text-center">
+                                {{ ns.flat_index }}
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="font-medium text-slate-900 flex items-center flex-wrap gap-1">
+                                    <span>{{ line_item.description }}</span>
+                                    {% if is_match %}
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                        Matched
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                {% if line_item.part_number %}
+                                <span class="inline-block bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded font-mono border border-slate-200">
+                                    {{ line_item.part_number }}
+                                </span>
+                                {% else %}
+                                <span class="text-slate-300 text-xs font-mono">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-right whitespace-nowrap">
+                                <span class="font-medium text-slate-900">{{ line_item.quantity }}</span>
+                                <span class="text-xs text-slate-500 ml-0.5">{{ line_item.unit }}</span>
+                            </td>
+                            <td class="px-4 py-3 text-right whitespace-nowrap font-mono text-slate-800">
+                                {{ "%.2f"|format(line_item.unit_price) if line_item.unit_price is number else line_item.unit_price }}
+                                <span class="text-xs text-slate-400">{{ item.quotation.currency }}</span>
+                            </td>
+                            <td class="px-4 py-3 text-right whitespace-nowrap font-mono font-semibold text-slate-900">
+                                {{ "%.2f"|format(line_item.total_price) if line_item.total_price is number else line_item.total_price }}
+                                <span class="text-xs text-slate-400 font-normal">{{ item.quotation.currency }}</span>
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <div class="font-bold text-slate-900 text-xs">{{ item.quotation.quotation_number }}</div>
+                                <div class="text-[11px] text-slate-500 truncate max-w-[150px]" title="{{ item.quotation.vendor_name }}">{{ item.quotation.vendor_name }}</div>
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                {% if item.quotation.status.value == 'ACTIVE' %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                    ACTIVE
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                    EXPIRED
+                                </span>
+                                {% endif %}
+                                <div class="text-[10px] text-slate-400 mt-0.5">Exp: {{ item.quotation.validity_period.expiration_date }}</div>
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <span class="confidence-pill font-bold text-xs
+                                    {% if item.confidence.value >= 0.80 %} text-emerald-600
+                                    {% elif item.confidence.value >= 0.50 %} text-indigo-600
+                                    {% else %} text-amber-600 {% endif %}">
+                                    {{ item.confidence.as_percentage() }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-right whitespace-nowrap space-x-1.5">
+                                <button hx-get="/pdf-modal/{{ item.quotation.quotation_id }}"
+                                        hx-target="#modal-container"
+                                        class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-colors shadow-xs">
+                                    PDF
+                                </button>
+                                {% if item.can_receive %}
+                                <button id="receive-btn-flat-{{ item.quotation.quotation_id }}-{{ ns.flat_index }}"
+                                        hx-post="/api/quotations/{{ item.quotation.quotation_id }}/receive"
+                                        hx-vals='{"user_id": "current_user"}'
+                                        hx-target="#receive-btn-flat-{{ item.quotation.quotation_id }}-{{ ns.flat_index }}"
+                                        hx-swap="outerHTML"
+                                        class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-xs">
+                                    Receive
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setSearchView(mode) {
+        const grouped = document.getElementById('results-grouped-view');
+        const flat = document.getElementById('results-flat-view');
+        const btnCard = document.getElementById('btn-view-card');
+        const btnTable = document.getElementById('btn-view-table');
+
+        if (!grouped || !flat) return;
+
+        if (mode === 'table') {
+            grouped.classList.add('hidden');
+            flat.classList.remove('hidden');
+            if (btnTable && btnCard) {
+                btnTable.classList.add('bg-white', 'shadow-sm', 'text-slate-900', 'font-bold');
+                btnTable.classList.remove('text-slate-600');
+                btnCard.classList.remove('bg-white', 'shadow-sm', 'text-slate-900', 'font-bold');
+                btnCard.classList.add('text-slate-600');
+            }
+            try { localStorage.setItem('quotation_search_view_mode', 'table'); } catch(e){}
+        } else {
+            flat.classList.add('hidden');
+            grouped.classList.remove('hidden');
+            if (btnTable && btnCard) {
+                btnCard.classList.add('bg-white', 'shadow-sm', 'text-slate-900', 'font-bold');
+                btnCard.classList.remove('text-slate-600');
+                btnTable.classList.remove('bg-white', 'shadow-sm', 'text-slate-900', 'font-bold');
+                btnTable.classList.add('text-slate-600');
+            }
+            try { localStorage.setItem('quotation_search_view_mode', 'card'); } catch(e){}
+        }
+    }
+
+    // Restore saved view preference
+    (function() {
+        try {
+            const saved = localStorage.getItem('quotation_search_view_mode');
+            if (saved === 'table') {
+                setSearchView('table');
+            }
+        } catch(e){}
+    })();
+</script>
+
+{% elif query %}
+<!-- No Results Found Banner -->
+<div class="bg-white rounded-2xl p-8 border border-slate-200 text-center shadow-sm">
+    <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-200">
+        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+    </div>
+    <h3 class="text-lg font-bold text-slate-900 mb-1">No matching quotation found</h3>
+    <p class="text-sm text-slate-500 max-w-md mx-auto mb-6">
+        We could not find any active quotation matching "<span class="font-semibold text-slate-700">{{ query }}</span>" with sufficient confidence.
+    </p>
+    <button hx-get="/manual-request-modal?prefill={{ query }}"
+            hx-target="#modal-container"
+            class="inline-flex items-center px-5 py-2.5 rounded-xl font-semibold text-sm bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm transition-all transform hover:-translate-y-0.5">
+        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Request Quotation Manually
+    </button>
+</div>
+
+{% else %}
+<!-- Initial Welcome State -->
+<div class="text-center py-12 text-slate-400">
+    <svg class="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 16l2.879-2.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <p class="text-sm font-medium">Type keywords above to discover commercial quotations with semantic vector matching.</p>
+</div>
+{% endif %}

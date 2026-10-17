@@ -1,0 +1,123 @@
+<div class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <!-- Modal Header -->
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 font-bold">
+                    PDF
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900">{{ quotation.quotation_number }} &bull; {{ quotation.vendor_name }}</h3>
+                    <p class="text-xs text-slate-500 font-mono">ID: {{ quotation.quotation_id }} &bull; SHA256: {{ quotation.pdf_sha256[:16] }}...</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <a href="/pdf/{{ pdf_filename }}"
+                   target="_blank"
+                   class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors">
+                    Open in New Tab
+                </a>
+                <button onclick="document.getElementById('modal-container').innerHTML = ''"
+                        class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200/60 transition-colors">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal Body (Split Screen 70% PDF, 30% Metadata) -->
+        <div class="flex-grow flex flex-col md:flex-row overflow-hidden">
+            <!-- Left: PDF Embedded Viewer -->
+            <div class="w-full md:w-8/12 bg-slate-100 h-full border-r border-slate-200 flex flex-col">
+                <iframe src="/pdf/{{ pdf_filename }}"
+                        class="w-full h-full border-none"
+                        title="PDF Viewer">
+                </iframe>
+
+            </div>
+
+            <!-- Right: Verified Metadata Sidebar -->
+            <div class="w-full md:w-4/12 h-full overflow-y-auto p-6 bg-white flex flex-col justify-between">
+                <div>
+                    <div class="mb-6">
+                        <span class="text-xs uppercase tracking-wider font-semibold text-slate-400">Status</span>
+                        <div class="mt-1">
+                            {% if quotation.status.value == 'ACTIVE' %}
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                                ACTIVE VALID
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800">
+                                EXPIRED
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 text-sm">
+                        <div>
+                            <span class="text-xs text-slate-400 font-semibold uppercase">Vendor</span>
+                            <div class="font-bold text-slate-800 mt-0.5">{{ quotation.vendor_name }}</div>
+                            {% if quotation.vendor_tax_id %}
+                            <div class="text-xs text-slate-500 font-mono">Tax ID: {{ quotation.vendor_tax_id }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <span class="text-xs text-slate-400 font-semibold uppercase">Issue Date</span>
+                                <div class="font-medium text-slate-800 mt-0.5">{{ quotation.validity_period.issue_date }}</div>
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-400 font-semibold uppercase">Expiration Date</span>
+                                <div class="font-medium text-slate-800 mt-0.5">{{ quotation.validity_period.expiration_date }}</div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-100">
+                            <span class="text-xs text-slate-400 font-semibold uppercase mb-2 block">Itemized Details</span>
+                            <div class="space-y-3">
+                                {% for it in quotation.items %}
+                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs">
+                                    <div class="font-bold text-slate-900">{{ it.description }}</div>
+                                    {% if it.part_number %}
+                                    <div class="text-slate-500 font-mono mt-0.5">Part: {{ it.part_number }}</div>
+                                    {% endif %}
+                                    <div class="flex justify-between items-center mt-2 text-slate-600">
+                                        <span>{{ it.quantity }} {{ it.unit }} &times; {{ it.unit_price }}</span>
+                                        <span class="font-bold text-slate-900">{{ it.total_price }} {{ quotation.currency }}</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-100 flex justify-between items-baseline">
+                            <span class="font-bold text-slate-900">Total Amount</span>
+                            <span class="text-xl font-extrabold text-indigo-600">{{ quotation.total_amount }} {{ quotation.currency }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="pt-6 border-t border-slate-200 mt-6 flex items-center justify-end space-x-3">
+                    <button type="button"
+                            onclick="document.getElementById('modal-container').innerHTML = ''"
+                            class="px-4 py-2 text-sm font-semibold rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors">
+                        Close
+                    </button>
+                    {% if quotation.status.value == 'ACTIVE' %}
+                    <button hx-post="/api/quotations/{{ quotation.quotation_id }}/receive"
+                            hx-vals='{"user_id": "current_user"}'
+                            hx-target="#modal-container"
+                            hx-swap="innerHTML"
+                            class="px-5 py-2 text-sm font-semibold rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm transition-colors">
+                        Receive Quotation
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,1293 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Purchasing Hub (PH) Workbench</h1>
+            <p class="text-sm text-slate-500 mt-1">Manage quotations, refresh expired agreements, ingest new vendor PDFs, and fulfill manual user demands.</p>
+        </div>
+        <div>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800">
+                PH Authorized Mode
+            </span>
+        </div>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase">Active Quotations</p>
+                <p class="text-3xl font-extrabold text-slate-900 mt-1">{{ active_quotations|length }}</p>
+            </div>
+            <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase">Expired Quotations</p>
+                <p class="text-3xl font-extrabold text-red-600 mt-1">{{ expired_quotations|length }}</p>
+            </div>
+            <div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center text-red-600">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase">Pending Demands</p>
+                <p class="text-3xl font-extrabold text-indigo-600 mt-1">{{ pending_requests|length }}</p>
+            </div>
+            <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabbed Workbench Sections -->
+    <div class="space-y-10">
+        <!-- Section 1: Ingest New Quotation PDF -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        Smart Quotation Ingestion & Auto-Extraction
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Upload single or bulk vendor quotation PDFs to automatically parse quotation numbers, vendors, validity terms, and line items into search.</p>
+                </div>
+                
+                <!-- Ingestion Mode Tabs -->
+                <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl flex-shrink-0">
+                    <button type="button" id="tab-single" onclick="switchIngestionTab('single')" class="px-3.5 py-1.5 font-bold text-xs rounded-lg bg-indigo-600 text-white shadow-xs transition-all">
+                        Single PDF (Inspect &amp; Tweak)
+                    </button>
+                    <button type="button" id="tab-batch" onclick="switchIngestionTab('batch')" class="px-3.5 py-1.5 font-bold text-xs rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-white transition-all flex items-center">
+                        <svg class="w-3.5 h-3.5 mr-1 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        Batch / Bulk (Multiple PDFs)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel 1: Single PDF Mode -->
+            <div id="panel-single">
+                <form action="/api/quotations/register" method="POST" enctype="multipart/form-data" class="space-y-4">
+                    <input type="hidden" name="user_role" value="PH_USER">
+                    
+                    <div id="single-dropzone" class="border-2 border-dashed border-indigo-200 hover:border-indigo-500 rounded-xl p-6 text-center cursor-pointer bg-indigo-50/20 transition-all">
+                        <input type="file" name="pdf_file" id="pdf_file" required accept=".pdf" class="hidden" onchange="handleSmartPdfSelect(this)">
+                        <label for="pdf_file" class="cursor-pointer block">
+                            <svg class="w-10 h-10 text-indigo-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <span id="file-label" class="text-sm font-bold text-indigo-600 hover:text-indigo-700">Choose or Drop Single Vendor PDF (Instant Auto-Extraction)</span>
+                            <p class="text-xs text-slate-400 mt-1">Accepts any standard vendor quotation PDF</p>
+                        </label>
+                    </div>
+
+                    <!-- Dynamic Status / Smart Preview Card -->
+                    <div id="smart-status-banner" class="hidden"></div>
+
+                    <div class="pt-2">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Extracted Quotation Fields (Auto-Populated)</span>
+                            <span class="text-[11px] text-slate-400">Review or adjust if needed</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
+                            <div>
+                                <label class="block font-semibold text-slate-700 uppercase mb-1">
+                                    Quotation Number
+                                    <span class="text-[10px] text-indigo-600 font-normal ml-1">[Auto-Extracted]</span>
+                                </label>
+                                <input type="text" name="quotation_number" id="input_quotation_number" placeholder="Auto-detected from PDF" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-slate-50/50 focus:bg-white transition-colors">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-700 uppercase mb-1">
+                                    Vendor Name
+                                    <span class="text-[10px] text-indigo-600 font-normal ml-1">[Auto-Extracted]</span>
+                                </label>
+                                <input type="text" name="vendor_name" id="input_vendor_name" placeholder="Auto-detected from PDF" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-slate-50/50 focus:bg-white transition-colors">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-700 uppercase mb-1">
+                                    Issue Date
+                                    <span class="text-[10px] text-indigo-600 font-normal ml-1">[Auto-Extracted]</span>
+                                </label>
+                                <input type="date" name="issue_date" id="input_issue_date" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-slate-50/50 focus:bg-white transition-colors">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-700 uppercase mb-1">
+                                    Expiration Date
+                                    <span class="text-[10px] text-indigo-600 font-normal ml-1">[Auto-Extracted]</span>
+                                </label>
+                                <input type="date" name="expiration_date" id="input_expiration_date" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-slate-50/50 focus:bg-white transition-colors">
+                            </div>
+                        </div>
+
+                        <!-- Interactive Line Items & Pricing Table Editor -->
+                        <div class="mt-5 pt-3 border-t border-slate-200/80">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center">
+                                        <svg class="w-4 h-4 mr-1.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                        </svg>
+                                        Line Items &amp; Pricing Editor
+                                    </span>
+                                    <span id="single-items-count-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700">1 Item</span>
+                                    <span class="text-[11px] text-slate-400">Click any box to edit description, part number, qty, unit, or price</span>
+                                </div>
+                                <button type="button" onclick="addSingleLineItem()" class="px-2.5 py-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 border border-indigo-200 rounded-lg transition-colors flex items-center shadow-2xs">
+                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                    Add Line Item
+                                </button>
+                            </div>
+
+                            <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-2xs">
+                                <table class="w-full text-left text-xs border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-semibold text-[10px]">
+                                            <th class="px-3 py-2 w-10 text-center">#</th>
+                                            <th class="px-3 py-2 w-44">Part Number</th>
+                                            <th class="px-3 py-2">Item Description</th>
+                                            <th class="px-3 py-2 w-20 text-center">Qty</th>
+                                            <th class="px-3 py-2 w-20 text-center">Unit</th>
+                                            <th class="px-3 py-2 w-28 text-right">Unit Price</th>
+                                            <th class="px-3 py-2 w-28 text-right">Line Total</th>
+                                            <th class="px-3 py-2 w-10 text-center"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="single-items-tbody" class="divide-y divide-slate-100 bg-white">
+                                        <tr class="single-item-row hover:bg-slate-50/70 transition-colors">
+                                            <td class="px-3 py-2 font-mono text-slate-400 text-[11px] text-center single-item-num">1</td>
+                                            <td class="px-2 py-1.5">
+                                                <input type="text" class="single-item-part w-full px-2 py-1 border border-slate-200 rounded font-mono text-xs text-indigo-700 bg-slate-50 focus:bg-white" placeholder="Part Number" oninput="serializeSingleItems()">
+                                            </td>
+                                            <td class="px-2 py-1.5">
+                                                <input type="text" class="single-item-desc w-full px-2 py-1 border border-slate-200 rounded text-xs text-slate-800 bg-slate-50 focus:bg-white" placeholder="Item Description" required oninput="serializeSingleItems()">
+                                            </td>
+                                            <td class="px-2 py-1.5">
+                                                <input type="number" step="any" min="0.001" value="1" oninput="recalcSingleRow(this)" class="single-item-qty w-full px-2 py-1 border border-slate-200 rounded text-xs text-center bg-slate-50 focus:bg-white">
+                                            </td>
+                                            <td class="px-2 py-1.5">
+                                                <input type="text" value="Pcs" oninput="serializeSingleItems()" class="single-item-unit w-full px-2 py-1 border border-slate-200 rounded text-xs text-center bg-slate-50 focus:bg-white">
+                                            </td>
+                                            <td class="px-2 py-1.5">
+                                                <input type="number" step="any" min="0" value="0.00" oninput="recalcSingleRow(this)" class="single-item-price w-full px-2 py-1 border border-slate-200 rounded text-xs text-right bg-slate-50 focus:bg-white">
+                                            </td>
+                                            <td class="px-3 py-2 text-right font-mono font-semibold text-slate-800 single-item-total">
+                                                THB 0.00
+                                            </td>
+                                            <td class="px-2 py-1.5 text-center">
+                                                <button type="button" onclick="removeSingleLineItem(this)" title="Delete Line Item" class="text-slate-400 hover:text-rose-600 transition-colors p-1">
+                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                    </svg>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Calculated Total Row -->
+                            <div class="flex items-center justify-between pt-2">
+                                <span class="text-[11px] text-slate-400">All line items above will be indexed &amp; searchable immediately.</span>
+                                <div class="text-xs font-semibold text-slate-700">
+                                    Quotation Total: <span id="single-calculated-total" class="text-sm font-extrabold text-slate-900">THB 0.00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hidden serialization fields for backend compatibility -->
+                        <input type="hidden" name="items_json" id="input_items_json">
+                        <input type="hidden" name="item_description" id="input_item_description">
+                        <input type="hidden" name="item_part_number" id="input_item_part_number">
+                        <input type="hidden" name="item_quantity" id="input_item_quantity" value="1">
+                        <input type="hidden" name="item_unit" id="input_item_unit" value="Pcs">
+                        <input type="hidden" name="item_unit_price" id="input_item_unit_price" value="0">
+                    </div>
+
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                        <span class="text-xs text-slate-400">All fields are optional when uploading standard PDF documents.</span>
+                        <button type="submit" id="submit-btn" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-sm transition-all flex items-center">
+                            <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Confirm & Ingest Quotation
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Panel 2: Batch / Bulk Upload Mode -->
+            <div id="panel-batch" class="hidden space-y-6">
+                <!-- Dropzone Section -->
+                <div id="batch-dropzone-section" class="space-y-4">
+                    <div id="batch-dropzone" class="border-2 border-dashed border-indigo-200 hover:border-indigo-500 rounded-xl p-8 text-center cursor-pointer bg-indigo-50/20 transition-all">
+                        <input type="file" id="batch_pdf_files" multiple accept=".pdf" class="hidden" onchange="handleBatchSelect(this)">
+                        <label for="batch_pdf_files" class="cursor-pointer block">
+                            <svg class="w-12 h-12 text-indigo-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
+                            </svg>
+                            <span id="batch-file-label" class="text-sm font-bold text-indigo-600 hover:text-indigo-700">Choose or Drop Multiple Quotation PDFs (Bulk Ingestion &amp; Review)</span>
+                            <p class="text-xs text-slate-400 mt-1">Select multiple vendor PDFs. The AI parser will extract all quotation fields and line items into an interactive review queue where you can edit everything before saving to your website.</p>
+                        </label>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-1">
+                        <div class="flex items-center space-x-2 text-xs text-slate-600">
+                            <span id="batch-file-count" class="font-bold text-slate-800">No files selected</span>
+                            <span class="text-slate-400">&bull;</span>
+                            <span class="text-slate-500">Hold Shift or Ctrl to select multiple PDFs</span>
+                        </div>
+                        <button type="button" id="batch-start-btn" onclick="startBatchExtraction()" disabled class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-sm transition-all opacity-50 cursor-not-allowed flex items-center">
+                            <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                            Auto-Extract &amp; Open Edit Queue
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progress container -->
+                <div id="batch-progress-container" class="hidden p-5 rounded-2xl bg-indigo-50/70 border border-indigo-200 text-xs space-y-3">
+                    <div class="flex items-center justify-between text-indigo-900 font-semibold">
+                        <span id="batch-progress-text" class="flex items-center">
+                            <svg class="w-4 h-4 mr-2 animate-spin text-indigo-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Parsing PDFs and extracting draft quotation data...
+                        </span>
+                        <span id="batch-progress-pct" class="font-mono text-indigo-700">0%</span>
+                    </div>
+                    <div class="w-full bg-indigo-200/80 rounded-full h-2 overflow-hidden">
+                        <div id="batch-progress-bar" class="bg-indigo-600 h-2 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Interactive Pre-Commit Staging & Edit Workbench -->
+                <div id="batch-staging-container" class="hidden space-y-6">
+                    <!-- Staging Top Action Banner -->
+                    <div class="bg-gradient-to-r from-indigo-50 to-emerald-50 border border-indigo-200/80 rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200">
+                                    [DRAFT QUEUE - NOT YET SAVED]
+                                </span>
+                                <h3 class="text-base font-extrabold text-slate-900">Review &amp; Edit Before Saving to Website</h3>
+                            </div>
+                            <p class="text-xs text-slate-600 mt-1">You can freely edit quotation numbers, vendors, dates, part numbers, descriptions, quantities, and prices. Everything is validated before saving.</p>
+                        </div>
+                        <div class="flex items-center space-x-2.5 flex-shrink-0">
+                            <button type="button" onclick="cancelBatchStaging()" class="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-300 rounded-xl transition-all">
+                                Discard &amp; Re-upload
+                            </button>
+                            <button type="button" onclick="commitBatchStaging()" class="px-5 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-600/20 rounded-xl transition-all flex items-center">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Save &amp; Take All to Website
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Cards Container -->
+                    <div id="batch-staging-list" class="space-y-6">
+                        <!-- Rendered by JavaScript dynamically -->
+                    </div>
+
+                    <!-- Sticky Bottom Confirmation Bar -->
+                    <div id="batch-sticky-bar" class="sticky bottom-4 z-40 bg-slate-900/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl border border-slate-800 flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ready to Ingest to Website</p>
+                            <p class="text-xs sm:text-sm font-semibold text-white" id="sticky-summary-text">0 Quotation(s) &bull; 0 Line Item(s)</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button type="button" onclick="cancelBatchStaging()" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+                                Clear
+                            </button>
+                            <button type="button" id="confirm-commit-btn" onclick="commitBatchStaging()" class="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/25 transition-all flex items-center">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Confirm &amp; Take All to Website
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Final Ingestion Results Table -->
+                <div id="batch-results-container" class="hidden space-y-4">
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-emerald-950 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <div class="flex items-center space-x-2 text-emerald-700 font-bold mb-1">
+                                <svg class="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span class="text-base font-extrabold text-emerald-900" id="results-headline">Quotations Successfully Published!</span>
+                            </div>
+                            <p class="text-xs text-emerald-700" id="results-subtext">All approved quotation details, part numbers, and line items are now committed to the database and indexed into search.</p>
+                        </div>
+                        <div class="flex items-center space-x-2 flex-shrink-0">
+                            <a href="/" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-sm transition-all flex items-center">
+                                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                                Search Now on Website
+                            </a>
+                            <button type="button" onclick="cancelBatchStaging()" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-semibold rounded-xl text-xs shadow-xs transition-all">
+                                Ingest More PDFs
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border border-slate-200 rounded-2xl shadow-xs">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-semibold text-[11px]">
+                                    <th class="px-4 py-3">Source File</th>
+                                    <th class="px-4 py-3">Quotation #</th>
+                                    <th class="px-4 py-3">Vendor</th>
+                                    <th class="px-4 py-3">Line Items</th>
+                                    <th class="px-4 py-3 text-right">Website Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="batch-results-tbody" class="divide-y divide-slate-100 bg-white">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Expired Quotations & In-Place Renewal -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6" id="expired-section">
+            <h2 class="text-lg font-bold text-slate-900 mb-1 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Expired Quotations (Awaiting Renewal)
+            </h2>
+            <p class="text-xs text-slate-500 mb-6">Review vendor agreements whose validity date has elapsed. In-place renewal extends the expiration date and immediately re-enables receipt by Normal Users.</p>
+
+            {% if expired_quotations %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="text-xs uppercase tracking-wider text-slate-500 bg-slate-50 border-b border-slate-200">
+                            <th class="px-4 py-3 font-semibold">Quotation ID</th>
+                            <th class="px-4 py-3 font-semibold">Vendor</th>
+                            <th class="px-4 py-3 font-semibold">Items</th>
+                            <th class="px-4 py-3 font-semibold">Expired On</th>
+                            <th class="px-4 py-3 font-semibold text-right">In-Place Renewal Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for eq in expired_quotations %}
+                        <tr id="row-{{ eq.quotation_id }}" class="hover:bg-slate-50/50">
+                            <td class="px-4 py-3 font-bold text-slate-900">{{ eq.quotation_number }}</td>
+                            <td class="px-4 py-3 text-slate-600">{{ eq.vendor_name }}</td>
+                            <td class="px-4 py-3 text-slate-600 max-w-xs truncate">
+                                {% for it in eq.items %}{{ it.description }} ({{ it.part_number or 'N/A' }}){% endfor %}
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="px-2 py-0.5 rounded text-xs font-semibold bg-red-100 text-red-700">
+                                    {{ eq.validity_period.expiration_date }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <form hx-post="/api/quotations/{{ eq.quotation_id }}/renew"
+                                      hx-target="#row-{{ eq.quotation_id }}"
+                                      hx-swap="outerHTML"
+                                      class="inline-flex items-center space-x-2">
+                                    <input type="hidden" name="user_role" value="PH_USER">
+                                    <input type="date" name="new_expiration_date" required class="text-xs px-2 py-1 border border-slate-300 rounded-lg">
+                                    <input type="text" name="remarks" placeholder="Renewal remarks" class="text-xs px-2 py-1 border border-slate-300 rounded-lg w-28">
+                                    <button type="submit" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm">
+                                        Renew
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-slate-400 text-sm">
+                No expired quotations at this time. All commercial agreements are currently active.
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Section 3: Pending Manual Requests & Fulfillment -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <h2 class="text-lg font-bold text-slate-900 mb-1 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+                Pending Manual Demands Queue
+            </h2>
+            <p class="text-xs text-slate-500 mb-6">Review procurement demands requested by Normal Users when search yielded no match. Link an ingested quotation to fulfill tickets.</p>
+
+            {% if pending_requests %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="text-xs uppercase tracking-wider text-slate-500 bg-slate-50 border-b border-slate-200">
+                            <th class="px-4 py-3 font-semibold">Ticket ID</th>
+                            <th class="px-4 py-3 font-semibold">Requester</th>
+                            <th class="px-4 py-3 font-semibold">Description</th>
+                            <th class="px-4 py-3 font-semibold">Urgency</th>
+                            <th class="px-4 py-3 font-semibold text-right">Fulfillment</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for pr in pending_requests %}
+                        <tr id="req-row-{{ pr.ticket_id }}" class="hover:bg-slate-50/50">
+                            <td class="px-4 py-3 font-mono font-bold text-slate-900">{{ pr.ticket_id }}</td>
+                            <td class="px-4 py-3 text-slate-600">{{ pr.requester_user_id }} &bull; {{ pr.department }}</td>
+                            <td class="px-4 py-3 text-slate-800 font-medium">
+                                {{ pr.item_description }}
+                                {% if pr.part_number %}<span class="text-xs font-mono text-slate-500 ml-1">[{{ pr.part_number }}]</span>{% endif %}
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="px-2 py-0.5 rounded text-xs font-semibold
+                                    {% if pr.urgency.value == 'CRITICAL' %} bg-red-100 text-red-700
+                                    {% elif pr.urgency.value == 'HIGH' %} bg-amber-100 text-amber-700
+                                    {% else %} bg-slate-100 text-slate-700 {% endif %}">
+                                    {{ pr.urgency.value }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <form hx-post="/api/requests/{{ pr.ticket_id }}/fulfill"
+                                      hx-target="#req-row-{{ pr.ticket_id }}"
+                                      hx-swap="outerHTML"
+                                      class="inline-flex items-center space-x-2">
+                                    <input type="hidden" name="user_role" value="PH_USER">
+                                    <input type="text" name="quotation_id" required placeholder="QT-XXXXX" class="text-xs px-2 py-1 border border-slate-300 rounded-lg w-28">
+                                    <button type="submit" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-sm">
+                                        Fulfill
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-slate-400 text-sm">
+                No open manual quotation requests. All user demands are fulfilled!
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    async function handleSmartPdfSelect(input) {
+        const label = document.getElementById('file-label');
+        const statusBanner = document.getElementById('smart-status-banner');
+        
+        if (!input.files || input.files.length === 0) return;
+        const file = input.files[0];
+        label.innerText = file.name;
+        
+        statusBanner.classList.remove('hidden');
+        statusBanner.className = "p-4 rounded-xl mb-4 bg-indigo-50 border border-indigo-200 text-indigo-900 text-xs flex items-center justify-between";
+        statusBanner.innerHTML = `
+            <div class="flex items-center space-x-2">
+                <svg class="w-4 h-4 animate-spin text-indigo-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <span class="font-semibold">Smart Parser analyzing PDF... Auto-extracting vendor, pricing, validity terms, and line items.</span>
+            </div>
+        `;
+        
+        const formData = new FormData();
+        formData.append('pdf_file', file);
+        formData.append('user_role', 'PH_USER');
+        
+        try {
+            const resp = await fetch('/api/quotations/extract-preview', {
+                method: 'POST',
+                body: formData
+            });
+            if (!resp.ok) throw new Error('Extraction failed');
+            const data = await resp.json();
+            
+            // Auto-populate form fields
+            if (data.quotation_number) document.getElementById('input_quotation_number').value = data.quotation_number;
+            if (data.vendor_name) document.getElementById('input_vendor_name').value = data.vendor_name;
+            if (data.issue_date) document.getElementById('input_issue_date').value = data.issue_date;
+            if (data.expiration_date) document.getElementById('input_expiration_date').value = data.expiration_date;
+
+            // Render all extracted items into the interactive editable table!
+            if (data.items && data.items.length > 0) {
+                renderSingleItemsTable(data.items, data.currency || 'THB');
+            } else if (data.first_item) {
+                renderSingleItemsTable([data.first_item], data.currency || 'THB');
+            }
+            
+            statusBanner.className = "p-4 rounded-xl mb-4 bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs";
+            statusBanner.innerHTML = `
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        <span class="font-bold">Smart Auto-Extraction Complete (${data.items.length} Items Loaded into Editor Below)</span>
+                    </div>
+                    <span class="text-[10px] font-semibold uppercase tracking-wider bg-emerald-200/60 text-emerald-800 px-2 py-0.5 rounded">100% Inferred</span>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-emerald-200/60 font-mono text-[11px]">
+                    <div><span class="text-slate-500 font-sans">Quotation:</span> <strong class="text-slate-900">${data.quotation_number}</strong></div>
+                    <div><span class="text-slate-500 font-sans">Vendor:</span> <strong class="text-slate-900 truncate block">${data.vendor_name}</strong></div>
+                    <div><span class="text-slate-500 font-sans">Valid:</span> <strong class="text-slate-900">${data.issue_date} &rarr; ${data.expiration_date}</strong></div>
+                    <div><span class="text-slate-500 font-sans">Total Extracted:</span> <strong class="text-slate-900">${data.items.length} item(s) (${data.currency} ${data.total_amount ? Number(data.total_amount).toLocaleString() : 'Calculated'})</strong></div>
+                </div>
+                <div class="mt-2 text-[11px] text-emerald-800 bg-emerald-100/70 px-3 py-1.5 rounded-lg border border-emerald-200 flex items-center justify-between">
+                    <span>&bull; All <strong>${data.items.length} line items</strong> have been populated in the table below. You can freely edit, add, or delete any item before confirming.</span>
+                </div>
+            `;
+            
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.innerHTML = `
+                <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                Confirm & Ingest Quotation <span class="ml-1 opacity-80 font-normal text-xs">(All Items Ready)</span>
+            `;
+            submitBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+            submitBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+            
+        } catch (err) {
+            statusBanner.className = "p-3 rounded-xl mb-4 bg-amber-50 border border-amber-200 text-amber-800 text-xs";
+            statusBanner.innerText = "Smart auto-extraction ran into an issue. You can still submit with standard defaults.";
+        }
+    }
+
+    function renderSingleItemsTable(items, currency = 'THB') {
+        const tbody = document.getElementById('single-items-tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        items.forEach((it, idx) => {
+            const qty = parseFloat(it.quantity) || 1.0;
+            const price = parseFloat(it.unit_price) || 0.0;
+            const total = (it.amount !== undefined && it.amount !== null) ? parseFloat(it.amount) : (qty * price);
+            const tr = document.createElement('tr');
+            tr.className = "single-item-row hover:bg-slate-50/70 transition-colors";
+            tr.innerHTML = `
+                <td class="px-3 py-2 font-mono text-slate-400 text-[11px] text-center single-item-num">${idx + 1}</td>
+                <td class="px-2 py-1.5">
+                    <input type="text" class="single-item-part w-full px-2 py-1 border border-slate-200 rounded font-mono text-xs text-indigo-700 bg-slate-50 focus:bg-white" placeholder="Part Number" value="${escapeHtml(it.part_number || '')}" oninput="serializeSingleItems()">
+                </td>
+                <td class="px-2 py-1.5">
+                    <input type="text" class="single-item-desc w-full px-2 py-1 border border-slate-200 rounded text-xs text-slate-800 bg-slate-50 focus:bg-white" placeholder="Item Description" required value="${escapeHtml(it.description || '')}" oninput="serializeSingleItems()">
+                </td>
+                <td class="px-2 py-1.5">
+                    <input type="number" step="any" min="0.001" value="${qty}" oninput="recalcSingleRow(this)" class="single-item-qty w-full px-2 py-1 border border-slate-200 rounded text-xs text-center bg-slate-50 focus:bg-white">
+                </td>
+                <td class="px-2 py-1.5">
+                    <input type="text" value="${escapeHtml(it.unit || 'Pcs')}" oninput="serializeSingleItems()" class="single-item-unit w-full px-2 py-1 border border-slate-200 rounded text-xs text-center bg-slate-50 focus:bg-white">
+                </td>
+                <td class="px-2 py-1.5">
+                    <input type="number" step="any" min="0" value="${price}" oninput="recalcSingleRow(this)" class="single-item-price w-full px-2 py-1 border border-slate-200 rounded text-xs text-right bg-slate-50 focus:bg-white">
+                </td>
+                <td class="px-3 py-2 text-right font-mono font-semibold text-slate-800 single-item-total">
+                    ${formatMoney(total, currency)}
+                </td>
+                <td class="px-2 py-1.5 text-center">
+                    <button type="button" onclick="removeSingleLineItem(this)" title="Delete Line Item" class="text-slate-400 hover:text-rose-600 transition-colors p-1">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        serializeSingleItems();
+    }
+
+    function recalcSingleRow(inputEl) {
+        const row = inputEl.closest('.single-item-row');
+        if (!row) return;
+        const qty = parseFloat(row.querySelector('.single-item-qty').value) || 0;
+        const price = parseFloat(row.querySelector('.single-item-price').value) || 0;
+        const total = qty * price;
+        const totalCell = row.querySelector('.single-item-total');
+        if (totalCell) totalCell.innerText = formatMoney(total, 'THB');
+        serializeSingleItems();
+    }
+
+    function removeSingleLineItem(btn) {
+        const row = btn.closest('.single-item-row');
+        const tbody = document.getElementById('single-items-tbody');
+        if (tbody.children.length <= 1) {
+            row.querySelector('.single-item-desc').value = '';
+            row.querySelector('.single-item-part').value = '';
+            row.querySelector('.single-item-qty').value = '1';
+            row.querySelector('.single-item-unit').value = 'Pcs';
+            row.querySelector('.single-item-price').value = '0.00';
+            recalcSingleRow(row.querySelector('.single-item-qty'));
+            return;
+        }
+        row.remove();
+        Array.from(tbody.querySelectorAll('.single-item-row')).forEach((r, i) => {
+            r.querySelector('.single-item-num').innerText = i + 1;
+        });
+        serializeSingleItems();
+    }
+
+    function addSingleLineItem() {
+        const tbody = document.getElementById('single-items-tbody');
+        const count = tbody.children.length + 1;
+        const tr = document.createElement('tr');
+        tr.className = "single-item-row hover:bg-slate-50/70 transition-colors";
+        tr.innerHTML = `
+            <td class="px-3 py-2 font-mono text-slate-400 text-[11px] text-center single-item-num">${count}</td>
+            <td class="px-2 py-1.5">
+                <input type="text" class="single-item-part w-full px-2 py-1 border border-slate-200 rounded font-mono text-xs text-indigo-700 bg-slate-50 focus:bg-white" placeholder="Part Number" oninput="serializeSingleItems()">
+            </td>
+            <td class="px-2 py-1.5">
+                <input type="text" class="single-item-desc w-full px-2 py-1 border border-slate-200 rounded text-xs text-slate-800 bg-slate-50 focus:bg-white" placeholder="Item Description" required oninput="serializeSingleItems()">
+            </td>
+            <td class="px-2 py-1.5">
+                <input type="number" step="any" min="0.001" value="1" oninput="recalcSingleRow(this)" class="single-item-qty w-full px-2 py-1 border border-slate-200 rounded text-xs text-center bg-slate-50 focus:bg-white">
+            </td>
+            <td class="px-2 py-1.5">
+                <input type="text" value="Pcs" oninput="serializeSingleItems()" class="single-item-unit w-full px-2 py-1 border border-slate-200 rounded text-xs text-center bg-slate-50 focus:bg-white">
+            </td>
+            <td class="px-2 py-1.5">
+                <input type="number" step="any" min="0" value="0.00" oninput="recalcSingleRow(this)" class="single-item-price w-full px-2 py-1 border border-slate-200 rounded text-xs text-right bg-slate-50 focus:bg-white">
+            </td>
+            <td class="px-3 py-2 text-right font-mono font-semibold text-slate-800 single-item-total">
+                THB 0.00
+            </td>
+            <td class="px-2 py-1.5 text-center">
+                <button type="button" onclick="removeSingleLineItem(this)" title="Delete Line Item" class="text-slate-400 hover:text-rose-600 transition-colors p-1">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+        serializeSingleItems();
+        tr.querySelector('.single-item-desc').focus();
+    }
+
+    function serializeSingleItems() {
+        const rows = document.querySelectorAll('.single-item-row');
+        const items = [];
+        let grandTotal = 0;
+        rows.forEach((r, idx) => {
+            const desc = (r.querySelector('.single-item-desc')?.value || '').trim();
+            const part = (r.querySelector('.single-item-part')?.value || '').trim();
+            const qty = parseFloat(r.querySelector('.single-item-qty')?.value) || 1.0;
+            const unit = (r.querySelector('.single-item-unit')?.value || 'Pcs').trim();
+            const price = parseFloat(r.querySelector('.single-item-price')?.value) || 0.0;
+            const lineTotal = qty * price;
+            grandTotal += lineTotal;
+            items.push({
+                item_number: idx + 1,
+                description: desc,
+                part_number: part || null,
+                quantity: qty,
+                unit: unit || 'Pcs',
+                unit_price: price,
+                amount: lineTotal
+            });
+        });
+
+        // Set hidden JSON
+        const jsonInput = document.getElementById('input_items_json');
+        if (jsonInput) jsonInput.value = JSON.stringify(items);
+
+        // Update badge and total
+        const countBadge = document.getElementById('single-items-count-badge');
+        if (countBadge) countBadge.innerText = `${items.length} Item${items.length !== 1 ? 's' : ''}`;
+        
+        const totalSpan = document.getElementById('single-calculated-total');
+        if (totalSpan) totalSpan.innerText = formatMoney(grandTotal, 'THB');
+
+        // Backward compatibility hidden inputs for first item
+        if (items.length > 0) {
+            const first = items[0];
+            const dInput = document.getElementById('input_item_description');
+            if (dInput) dInput.value = first.description;
+            const pInput = document.getElementById('input_item_part_number');
+            if (pInput) pInput.value = first.part_number || '';
+            const qInput = document.getElementById('input_item_quantity');
+            if (qInput) qInput.value = first.quantity;
+            const uInput = document.getElementById('input_item_unit');
+            if (uInput) uInput.value = first.unit;
+            const prInput = document.getElementById('input_item_unit_price');
+            if (prInput) prInput.value = first.unit_price;
+        }
+    }
+
+    function switchIngestionTab(mode) {
+        const singleTab = document.getElementById('tab-single');
+        const batchTab = document.getElementById('tab-batch');
+        const singlePanel = document.getElementById('panel-single');
+        const batchPanel = document.getElementById('panel-batch');
+        
+        if (mode === 'single') {
+            singleTab.className = "px-3.5 py-1.5 font-bold text-xs rounded-lg bg-indigo-600 text-white shadow-xs transition-all";
+            batchTab.className = "px-3.5 py-1.5 font-bold text-xs rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-white transition-all flex items-center";
+            singlePanel.classList.remove('hidden');
+            batchPanel.classList.add('hidden');
+        } else {
+            batchTab.className = "px-3.5 py-1.5 font-bold text-xs rounded-lg bg-indigo-600 text-white shadow-xs transition-all flex items-center";
+            singleTab.className = "px-3.5 py-1.5 font-bold text-xs rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-white transition-all";
+            singlePanel.classList.add('hidden');
+            batchPanel.classList.remove('hidden');
+        }
+    }
+
+    let selectedBatchFiles = [];
+    let stagedDrafts = [];
+
+    function handleBatchSelect(input) {
+        if (!input.files || input.files.length === 0) return;
+        selectedBatchFiles = Array.from(input.files);
+        
+        const countLabel = document.getElementById('batch-file-count');
+        const batchBtn = document.getElementById('batch-start-btn');
+        countLabel.innerText = `${selectedBatchFiles.length} PDF file(s) selected`;
+        batchBtn.disabled = false;
+        batchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+        // Automatically start extraction to smoothly transition into staging review
+        startBatchExtraction();
+    }
+
+    async function startBatchExtraction() {
+        if (!selectedBatchFiles || selectedBatchFiles.length === 0) return;
+        
+        const batchBtn = document.getElementById('batch-start-btn');
+        const progressContainer = document.getElementById('batch-progress-container');
+        const progressBar = document.getElementById('batch-progress-bar');
+        const progressPct = document.getElementById('batch-progress-pct');
+        const progressText = document.getElementById('batch-progress-text');
+        const dropzoneSection = document.getElementById('batch-dropzone-section');
+        const resultsContainer = document.getElementById('batch-results-container');
+        
+        resultsContainer.classList.add('hidden');
+        batchBtn.disabled = true;
+        batchBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        progressContainer.classList.remove('hidden');
+        
+        progressBar.style.width = '35%';
+        progressPct.innerText = '35%';
+        progressText.innerHTML = `
+            <svg class="w-4 h-4 mr-2 animate-spin text-indigo-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            Auto-extracting metadata &amp; line items from ${selectedBatchFiles.length} PDF(s)...
+        `;
+        
+        const formData = new FormData();
+        for (const f of selectedBatchFiles) {
+            formData.append('pdf_files', f);
+        }
+        formData.append('user_role', 'PH_USER');
+        
+        try {
+            progressBar.style.width = '65%';
+            progressPct.innerText = '65%';
+            
+            const resp = await fetch('/api/quotations/batch-preview', {
+                method: 'POST',
+                body: formData
+            });
+            if (!resp.ok) throw new Error('Preview extraction failed with HTTP status ' + resp.status);
+            const data = await resp.json();
+            
+            progressBar.style.width = '100%';
+            progressPct.innerText = '100%';
+            
+            stagedDrafts = data.drafts || [];
+            
+            setTimeout(() => {
+                progressContainer.classList.add('hidden');
+                dropzoneSection.classList.add('hidden');
+                renderStagingWorkbench();
+            }, 300);
+            
+        } catch (err) {
+            progressContainer.className = "p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800";
+            progressContainer.innerHTML = `<span class="font-bold">Extraction Error:</span> ${err.message}. Please try again or upload standard PDF files.`;
+            batchBtn.disabled = false;
+            batchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    }
+
+    function renderStagingWorkbench() {
+        const stagingContainer = document.getElementById('batch-staging-container');
+        const stagingList = document.getElementById('batch-staging-list');
+        stagingList.innerHTML = '';
+        
+        if (stagedDrafts.length === 0) {
+            cancelBatchStaging();
+            return;
+        }
+
+        stagedDrafts.forEach((draft, cardIdx) => {
+            const card = document.createElement('div');
+            card.id = `card-${draft.staging_id}`;
+            card.className = "quotation-staging-card bg-white rounded-2xl border-2 border-slate-200/90 shadow-sm p-5 sm:p-6 space-y-4 hover:border-indigo-300 transition-all";
+            card.dataset.stagingId = draft.staging_id;
+            card.dataset.filename = draft.filename;
+            card.dataset.tempFilePath = draft.temp_file_path || '';
+            
+            let itemsRowsHtml = '';
+            draft.items.forEach((it, itIdx) => {
+                itemsRowsHtml += createItemRowHtml(it, itIdx + 1, draft.currency || 'THB');
+            });
+
+            card.innerHTML = `
+                <!-- Card Header -->
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div class="flex items-center space-x-2.5 min-w-0">
+                        <span class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </span>
+                        <div class="min-w-0">
+                            <div class="flex items-center space-x-2">
+                                <h4 class="font-bold text-slate-900 text-sm truncate">${draft.filename}</h4>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-800">DRAFT #${cardIdx + 1}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 truncate">Extracted from PDF &bull; Edit any field below before saving</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="removeStagingQuotation('${draft.staging_id}')" class="px-2.5 py-1 text-xs text-rose-600 hover:text-rose-800 hover:bg-rose-50 border border-rose-200 rounded-lg transition-all flex items-center font-semibold flex-shrink-0">
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Exclude PDF
+                    </button>
+                </div>
+
+                <!-- Quotation Level Fields -->
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-700 uppercase text-[10px] mb-1">
+                            Quotation #
+                            <span class="text-indigo-600 font-normal ml-0.5">[Editable]</span>
+                        </label>
+                        <input type="text" class="q-number w-full px-2.5 py-1.5 border border-slate-300 rounded-lg font-mono font-bold text-indigo-700 bg-slate-50 focus:bg-white transition-colors" value="${escapeHtml(draft.quotation_number)}">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block font-semibold text-slate-700 uppercase text-[10px] mb-1">
+                            Vendor Name
+                            <span class="text-indigo-600 font-normal ml-0.5">[Editable]</span>
+                        </label>
+                        <input type="text" class="q-vendor w-full px-2.5 py-1.5 border border-slate-300 rounded-lg font-semibold text-slate-800 bg-slate-50 focus:bg-white transition-colors" value="${escapeHtml(draft.vendor_name)}">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 uppercase text-[10px] mb-1">Issue Date</label>
+                        <input type="date" class="q-issue w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-slate-800 bg-slate-50 focus:bg-white transition-colors" value="${draft.issue_date}">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 uppercase text-[10px] mb-1">Valid Until / Exp</label>
+                        <input type="date" class="q-exp w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-slate-800 bg-slate-50 focus:bg-white transition-colors" value="${draft.expiration_date}">
+                    </div>
+                </div>
+
+                <!-- Line Items Table -->
+                <div class="mt-3">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-700">Line Items &amp; Pricing</span>
+                            <span class="text-[11px] text-slate-400">Click cells to edit values</span>
+                        </div>
+                        <button type="button" onclick="addLineItemToCard('${draft.staging_id}')" class="px-2.5 py-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 border border-indigo-200 rounded-lg transition-colors flex items-center shadow-2xs">
+                            <svg class="w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Add Line Item
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-semibold text-[10px]">
+                                    <th class="px-3 py-2 w-10">#</th>
+                                    <th class="px-3 py-2 w-44">Part Number</th>
+                                    <th class="px-3 py-2">Item Description</th>
+                                    <th class="px-3 py-2 w-20">Qty</th>
+                                    <th class="px-3 py-2 w-20">Unit</th>
+                                    <th class="px-3 py-2 w-28">Unit Price</th>
+                                    <th class="px-3 py-2 w-28 text-right">Line Total</th>
+                                    <th class="px-3 py-2 w-10 text-center"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="items-tbody divide-y divide-slate-100 bg-white">
+                                ${itemsRowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Hidden currency & tax fields -->
+                <input type="hidden" class="q-currency" value="${draft.currency || 'THB'}">
+                <input type="hidden" class="q-tax-id" value="${draft.vendor_tax_id || ''}">
+
+                <!-- Card Footer with Dynamic Total -->
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                    <span class="text-[11px] text-slate-400 flex items-center">
+                        <svg class="w-3.5 h-3.5 mr-1 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Edits will be permanently stored and vectorized upon confirmation.
+                    </span>
+                    <div class="text-xs font-semibold text-slate-700">
+                        Quotation Total: <span class="card-total text-sm font-extrabold text-slate-900">${formatMoney(draft.total_amount, draft.currency || 'THB')}</span>
+                    </div>
+                </div>
+            `;
+            
+            stagingList.appendChild(card);
+            recalculateCardTotal(draft.staging_id);
+        });
+
+        stagingContainer.classList.remove('hidden');
+        updateStickySummary();
+    }
+
+    function createItemRowHtml(it, idx, currency) {
+        const qty = parseFloat(it.quantity) || 1.0;
+        const price = parseFloat(it.unit_price) || 0.0;
+        const total = qty * price;
+        return `
+            <tr class="item-row hover:bg-slate-50/70 transition-colors">
+                <td class="px-3 py-2 font-mono text-slate-400 text-[11px] item-num">${idx}</td>
+                <td class="px-2 py-1.5">
+                    <input type="text" class="item-part w-full px-2 py-1 border border-slate-200 rounded font-mono text-xs text-indigo-700 bg-slate-50 focus:bg-white" placeholder="Part Number" value="${escapeHtml(it.part_number || '')}">
+                </td>
+                <td class="px-2 py-1.5">
+                    <input type="text" class="item-desc w-full px-2 py-1 border border-slate-200 rounded text-xs text-slate-800 bg-slate-50 focus:bg-white" placeholder="Item Description" value="${escapeHtml(it.description || '')}">
+                </td>
+                <td class="px-2 py-1.5">
+                    <input type="number" step="any" min="0.001" oninput="recalcRow(this)" class="item-qty w-full px-2 py-1 border border-slate-200 rounded text-xs text-center bg-slate-50 focus:bg-white" value="${qty}">
+                </td>
+                <td class="px-2 py-1.5">
+                    <input type="text" class="item-unit w-full px-2 py-1 border border-slate-200 rounded text-xs text-center bg-slate-50 focus:bg-white" value="${escapeHtml(it.unit || 'Pcs')}">
+                </td>
+                <td class="px-2 py-1.5">
+                    <input type="number" step="any" min="0" oninput="recalcRow(this)" class="item-price w-full px-2 py-1 border border-slate-200 rounded text-xs text-right bg-slate-50 focus:bg-white" value="${price}">
+                </td>
+                <td class="px-3 py-2 text-right font-mono font-semibold text-slate-800 item-total">
+                    ${formatMoney(total, currency)}
+                </td>
+                <td class="px-2 py-1.5 text-center">
+                    <button type="button" onclick="removeLineItem(this)" title="Delete Line Item" class="text-slate-400 hover:text-rose-600 transition-colors p-1">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }
+
+    function recalcRow(inputEl) {
+        const row = inputEl.closest('.item-row');
+        if (!row) return;
+        const card = inputEl.closest('.quotation-staging-card');
+        const currency = card ? card.querySelector('.q-currency').value : 'THB';
+        
+        const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+        const price = parseFloat(row.querySelector('.item-price').value) || 0;
+        const total = qty * price;
+        
+        const totalCell = row.querySelector('.item-total');
+        if (totalCell) totalCell.innerText = formatMoney(total, currency);
+        
+        if (card) {
+            recalculateCardTotal(card.dataset.stagingId);
+        }
+    }
+
+    function recalculateCardTotal(stagingId) {
+        const card = document.getElementById(`card-${stagingId}`);
+        if (!card) return;
+        
+        const currency = card.querySelector('.q-currency').value || 'THB';
+        let cardSum = 0;
+        
+        card.querySelectorAll('.item-row').forEach((row, i) => {
+            const numEl = row.querySelector('.item-num');
+            if (numEl) numEl.innerText = i + 1;
+            const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+            const price = parseFloat(row.querySelector('.item-price').value) || 0;
+            cardSum += (qty * price);
+        });
+        
+        const cardTotalEl = card.querySelector('.card-total');
+        if (cardTotalEl) cardTotalEl.innerText = formatMoney(cardSum, currency);
+        
+        updateStickySummary();
+    }
+
+    function addLineItemToCard(stagingId) {
+        const card = document.getElementById(`card-${stagingId}`);
+        if (!card) return;
+        const tbody = card.querySelector('.items-tbody');
+        const currentCount = tbody.querySelectorAll('.item-row').length;
+        const currency = card.querySelector('.q-currency').value || 'THB';
+        
+        const newItem = {
+            item_number: currentCount + 1,
+            part_number: '',
+            description: 'New Quotation Item',
+            quantity: 1,
+            unit: 'Pcs',
+            unit_price: 0
+        };
+        
+        const tr = document.createElement('tr');
+        tr.className = "item-row hover:bg-slate-50/70 transition-colors";
+        tr.innerHTML = createItemRowHtml(newItem, currentCount + 1, currency).replace('<tr class="item-row hover:bg-slate-50/70 transition-colors">', '').replace('</tr>', '');
+        tbody.appendChild(tr);
+        
+        recalculateCardTotal(stagingId);
+    }
+
+    function removeLineItem(btnEl) {
+        const row = btnEl.closest('.item-row');
+        const card = btnEl.closest('.quotation-staging-card');
+        if (row && card) {
+            row.remove();
+            recalculateCardTotal(card.dataset.stagingId);
+        }
+    }
+
+    function removeStagingQuotation(stagingId) {
+        const card = document.getElementById(`card-${stagingId}`);
+        if (card) {
+            card.remove();
+        }
+        stagedDrafts = stagedDrafts.filter(d => d.staging_id !== stagingId);
+        
+        const remainingCards = document.querySelectorAll('.quotation-staging-card');
+        if (remainingCards.length === 0) {
+            cancelBatchStaging();
+        } else {
+            updateStickySummary();
+        }
+    }
+
+    function updateStickySummary() {
+        const cards = document.querySelectorAll('.quotation-staging-card');
+        let totalItems = 0;
+        cards.forEach(c => {
+            totalItems += c.querySelectorAll('.item-row').length;
+        });
+        
+        const summaryText = document.getElementById('sticky-summary-text');
+        if (summaryText) {
+            summaryText.innerText = `${cards.length} Quotation(s) &bull; ${totalItems} Line Item(s) Ready`;
+        }
+    }
+
+    function cancelBatchStaging() {
+        document.getElementById('batch-staging-container').classList.add('hidden');
+        document.getElementById('batch-results-container').classList.add('hidden');
+        document.getElementById('batch-dropzone-section').classList.remove('hidden');
+        
+        const fileInput = document.getElementById('batch_pdf_files');
+        if (fileInput) fileInput.value = '';
+        selectedBatchFiles = [];
+        stagedDrafts = [];
+        
+        const countLabel = document.getElementById('batch-file-count');
+        const batchBtn = document.getElementById('batch-start-btn');
+        if (countLabel) countLabel.innerText = 'No files selected';
+        if (batchBtn) {
+            batchBtn.disabled = true;
+            batchBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    }
+
+    async function commitBatchStaging() {
+        const cards = document.querySelectorAll('.quotation-staging-card');
+        if (cards.length === 0) return;
+        
+        const confirmBtn = document.getElementById('confirm-commit-btn');
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = `
+            <svg class="w-4 h-4 mr-2 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            Saving &amp; Vectorizing...
+        `;
+        
+        const quotationsPayload = [];
+        cards.forEach(card => {
+            const stagingId = card.dataset.stagingId;
+            const filename = card.dataset.filename;
+            const tempFilePath = card.dataset.tempFilePath;
+            
+            const qNum = card.querySelector('.q-number').value.trim() || filename.replace('.pdf', '');
+            const vendor = card.querySelector('.q-vendor').value.trim() || 'Vendor International';
+            const issueDate = card.querySelector('.q-issue').value || new Date().toISOString().split('T')[0];
+            const expDate = card.querySelector('.q-exp').value || new Date(new Date().getFullYear(), 11, 31).toISOString().split('T')[0];
+            const currency = card.querySelector('.q-currency').value.trim() || 'THB';
+            const taxId = card.querySelector('.q-tax-id') ? card.querySelector('.q-tax-id').value.trim() : '';
+            
+            const items = [];
+            card.querySelectorAll('.item-row').forEach((row, rowIdx) => {
+                const partNo = row.querySelector('.item-part').value.trim();
+                const desc = row.querySelector('.item-desc').value.trim() || `Item ${rowIdx + 1}`;
+                const qty = parseFloat(row.querySelector('.item-qty').value) || 1.0;
+                const unit = row.querySelector('.item-unit').value.trim() || 'Pcs';
+                const price = parseFloat(row.querySelector('.item-price').value) || 0.0;
+                
+                items.push({
+                    item_number: rowIdx + 1,
+                    part_number: partNo || null,
+                    description: desc,
+                    quantity: qty,
+                    unit: unit,
+                    unit_price: price
+                });
+            });
+            
+            quotationsPayload.push({
+                staging_id: stagingId,
+                temp_file_path: tempFilePath,
+                filename: filename,
+                quotation_number: qNum,
+                vendor_name: vendor,
+                vendor_tax_id: taxId,
+                issue_date: issueDate,
+                expiration_date: expDate,
+                currency: currency,
+                items: items
+            });
+        });
+        
+        try {
+            const resp = await fetch('/api/quotations/batch-commit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_role: 'PH_USER',
+                    quotations: quotationsPayload
+                })
+            });
+            if (!resp.ok) throw new Error('Failed to commit batch: HTTP ' + resp.status);
+            const data = await resp.json();
+            
+            // Render results
+            document.getElementById('batch-staging-container').classList.add('hidden');
+            const resultsContainer = document.getElementById('batch-results-container');
+            const resultsTbody = document.getElementById('batch-results-tbody');
+            resultsTbody.innerHTML = '';
+            
+            document.getElementById('results-headline').innerText = `Successfully Published ${data.successful} Quotation(s) to Website!`;
+            document.getElementById('results-subtext').innerText = `${data.successful} quotations and all edited line items are committed to quotations.db and immediately indexed in live search.`;
+            
+            data.results.forEach(res => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 border-b border-slate-100 text-xs";
+                const isSuccess = res.status === 'SUCCESS';
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-medium text-slate-800">${escapeHtml(res.filename)}</td>
+                    <td class="px-4 py-3 font-mono font-bold text-slate-900">${escapeHtml(res.quotation_number)}</td>
+                    <td class="px-4 py-3 text-slate-600 truncate max-w-xs">${escapeHtml(res.vendor_name)}</td>
+                    <td class="px-4 py-3 font-semibold text-slate-700">${res.items_count} item(s) confirmed</td>
+                    <td class="px-4 py-3 text-right">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold ${isSuccess ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                            ${isSuccess ? '[OK] LIVE &amp; SEARCHABLE' : '[ERROR] ' + (res.error || '')}
+                        </span>
+                    </td>
+                `;
+                resultsTbody.appendChild(tr);
+            });
+            
+            resultsContainer.classList.remove('hidden');
+            
+        } catch (err) {
+            alert('Error saving batch quotations: ' + err.message);
+        } finally {
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = `
+                <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                Confirm &amp; Take All to Website
+            `;
+        }
+    }
+
+    function formatMoney(amount, currency) {
+        const num = parseFloat(amount) || 0;
+        return `${currency || 'THB'} ${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    // Attach native HTML5 Drag and Drop event listeners for Single and Batch dropzones
+    document.addEventListener('DOMContentLoaded', () => {
+        const setupDropzone = (zoneId, inputId, onSelectFn) => {
+            const dropzone = document.getElementById(zoneId);
+            const fileInput = document.getElementById(inputId);
+            if (!dropzone || !fileInput) return;
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropzone.classList.add('border-indigo-600', 'bg-indigo-100/60', 'scale-[1.01]');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropzone.classList.remove('border-indigo-600', 'bg-indigo-100/60', 'scale-[1.01]');
+                }, false);
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                if (dt && dt.files && dt.files.length > 0) {
+                    fileInput.files = dt.files;
+                    onSelectFn(fileInput);
+                }
+            });
+        };
+
+        setupDropzone('single-dropzone', 'pdf_file', handleSmartPdfSelect);
+        setupDropzone('batch-dropzone', 'batch_pdf_files', handleBatchSelect);
+        if (typeof serializeSingleItems === 'function') {
+            serializeSingleItems();
+        }
+    });
+</script>
+{% endblock %}

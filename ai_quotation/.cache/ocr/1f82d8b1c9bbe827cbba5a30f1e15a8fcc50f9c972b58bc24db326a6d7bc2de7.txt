@@ -1,0 +1,61 @@
+Here is the extracted text and tabular content from the scanned quotation document:
+
+**Header Information:**
+CITIZEN MACHINERY ASIA CO., LTD.
+199 Mu 1, Phahon Yothin Road, Sanap Tuep Sub-District, Phra Nakhon Si Ayutthaya Province, THAILAND
+Tel. 66 (0)35 902-640-2
+
+**Document Title:**
+QUOTATION
+
+**Customer/Supplier Information:**
+*   [X] CUSTOMER
+    *   Name: NMB-MINEBEA THAI LTD. (BANG PA-IN)
+    *   Attention: MS. PATTANAN PUYKAEW (YOK)
+    *   Tel.: 0-3536-1429-38 EXT.1371
+    *   E-mail: pattanan.p@minebea.co.th
+*   [ ] SUPPLIER
+
+**Quotation Details:**
+*   No.: 25-334
+*   Date: 02-Jul-2025
+*   Revised:
+*   Contact person: MS. NAPASSORN W.
+
+**Introductory Text:**
+We are please to submit our quotation as follow:
+
+**Main Item Table:**
+
+| Item | Code No. | Description | Unit | Quantity | Unit Price | Amount (THB) |
+| :--- | :------- | :---------- | :--- | :------- | :--------- | :----------- |
+| 1    | 447-022(T) | MINI CYCLE PUMP | SET  | 1        | 17,700.00  | 17,700.00    |
+
+**Summary Totals:**
+*   SUB TOTAL: 17,700.00
+*   DISCOUNT: 0.00
+*   NET TOTAL: 17,700.00
+
+**Amount in Words:**
+THB SEVENTEEN THOUSAND SEVEN HUNDRED ONLY
+
+**Remarks:**
+*   Remark: M/C : RL20-2F2
+*   S/N : Z1320
+*   DELIVERY DATE : 2 MONTHS AFTER RECEIVING PO.
+
+**Conditions:**
+Condition:
+1.  Term of payment: 60 Days
+2.  Validity: 04-Aug-2025
+3.  V.A.T. 7% Exclude
+
+**Authorization/Checking:**
+*   Checked By
+    *   Date: 02 / Jul / 2025
+*   Authorized By
+    *   Date: 02 / Jul / 2025
+
+**Footer:**
+CMA-FR-SD-05-05 (01/04/25)
+Page 1 Of 1

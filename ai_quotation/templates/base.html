@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}QuotationFinder - Intelligent Discovery{% endblock %}</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HTMX CDN -->
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <style>
+        .confidence-pill {
+            font-variant-numeric: tabular-nums;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans">
+    <!-- Top Navigation Bar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="/" class="flex items-center space-x-2 text-indigo-600 hover:text-indigo-700">
+                    <span class="text-2xl font-black tracking-tight">Quotation<span class="text-slate-900">Finder</span></span>
+                </a>
+                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">Semantic Engine</span>
+            </div>
+
+            <!-- Role Switcher & Navigation Links -->
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200 text-sm">
+                    <label class="px-3 py-1 rounded-md font-medium cursor-pointer transition-colors duration-150"
+                           id="role-normal-label">
+                        <input type="radio" name="global_role" value="NORMAL_USER" checked class="hidden"
+                               onchange="switchGlobalRole('NORMAL_USER')">
+                        Normal User
+                    </label>
+                    <label class="px-3 py-1 rounded-md font-medium cursor-pointer transition-colors duration-150 text-slate-600"
+                           id="role-ph-label">
+                        <input type="radio" name="global_role" value="PH_USER" class="hidden"
+                               onchange="switchGlobalRole('PH_USER')">
+                        PH User (Procurement)
+                    </label>
+                </div>
+
+                <a href="/" class="text-sm font-medium text-slate-600 hover:text-indigo-600">Search</a>
+                <a href="/ph-portal" id="ph-portal-link" class="text-sm font-medium text-slate-600 hover:text-indigo-600">PH Workbench</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Global Modals Container -->
+    <div id="modal-container"></div>
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2"></div>
+
+    <!-- Role switching helper -->
+    <script>
+        function switchGlobalRole(role) {
+            sessionStorage.setItem('user_role', role);
+            const normalLabel = document.getElementById('role-normal-label');
+            const phLabel = document.getElementById('role-ph-label');
+            const roleInput = document.getElementById('user_role_input');
+            
+            if (role === 'PH_USER') {
+                phLabel.className = 'px-3 py-1 rounded-md font-medium cursor-pointer bg-white text-indigo-700 shadow-sm';
+                normalLabel.className = 'px-3 py-1 rounded-md font-medium cursor-pointer text-slate-600';
+            } else {
+                normalLabel.className = 'px-3 py-1 rounded-md font-medium cursor-pointer bg-white text-indigo-700 shadow-sm';
+                phLabel.className = 'px-3 py-1 rounded-md font-medium cursor-pointer text-slate-600';
+            }
+            if (roleInput) {
+                roleInput.value = role;
+                // Re-trigger search if input has value
+                const searchInput = document.getElementById('search-input');
+                if (searchInput && searchInput.value.trim().length > 0) {
+                    htmx.trigger(searchInput, 'keyup');
+                }
+            }
+        }
+
+        // Native Zero-Dependency Event Delegation Engine (Ensures 100% functionality offline without external CDN)
+        document.addEventListener('click', async (e) => {
+            const btn = e.target.closest('button, a');
+            if (!btn) return;
+
+            // 1. Handle GET actions (e.g. [Review PDF], [Request Quotation Manually])
+            const hxGet = btn.getAttribute('hx-get');
+            if (hxGet) {
+                e.preventDefault();
+                const targetId = btn.getAttribute('hx-target') || '#modal-container';
+                const targetEl = document.querySelector(targetId);
+                try {
+                    const resp = await fetch(hxGet);
+                    const html = await resp.text();
+                    if (targetEl) targetEl.innerHTML = html;
+                } catch(err) {
+                    console.error('Fetch error:', err);
+                }
+                return;
+            }
+
+            // 2. Handle POST actions (e.g. [Receive])
+            const hxPost = btn.getAttribute('hx-post');
+            if (hxPost) {
+                e.preventDefault();
+                const targetId = btn.getAttribute('hx-target');
+                const swapMode = btn.getAttribute('hx-swap') || 'outerHTML';
+                const valsAttr = btn.getAttribute('hx-vals');
+                const formData = new FormData();
+                if (valsAttr) {
+                    try {
+                        const parsed = JSON.parse(valsAttr);
+                        for (const [k, v] of Object.entries(parsed)) formData.append(k, v);
+                    } catch(e) {}
+                }
+                try {
+                    const resp = await fetch(hxPost, { method: 'POST', body: formData });
+                    const html = await resp.text();
+                    if (!resp.ok) {
+                        try {
+                            const errJson = JSON.parse(html);
+                            if (errJson && errJson.detail) {
+                                showToast(errJson.detail, 'error');
+                            }
+                        } catch(e) {}
+                        if (!html.trim().startsWith('<')) {
+                            return;
+                        }
+                    }
+                    if (targetId) {
+                        const targetEl = document.querySelector(targetId);
+                        if (targetEl) {
+                            if (swapMode === 'innerHTML') {
+                                targetEl.innerHTML = html;
+                            } else {
+                                targetEl.outerHTML = html;
+                            }
+                        }
+                    } else if (btn) {
+                        btn.outerHTML = html;
+                    }
+                } catch(err) {
+                    console.error('POST error:', err);
+                    showToast('An unexpected error occurred. Please try again.', 'error');
+                }
+                return;
+            }
+        });
+
+        // 3. Handle Form Submissions (e.g. Manual Request Form, Renewal Form)
+        document.addEventListener('submit', async (e) => {
+            const form = e.target;
+            const hxPost = form.getAttribute('hx-post');
+            if (hxPost) {
+                e.preventDefault();
+                const targetId = form.getAttribute('hx-target') || '#modal-container';
+                const swapMode = form.getAttribute('hx-swap') || 'innerHTML';
+                const targetEl = document.querySelector(targetId);
+                const formData = new FormData(form);
+                try {
+                    const resp = await fetch(hxPost, { method: 'POST', body: formData });
+                    const html = await resp.text();
+                    if (!resp.ok) {
+                        try {
+                            const errJson = JSON.parse(html);
+                            if (errJson && errJson.detail) {
+                                showToast(errJson.detail, 'error');
+                            }
+                        } catch(e) {}
+                        if (!html.trim().startsWith('<')) {
+                            return;
+                        }
+                    }
+                    if (targetEl) {
+                        if (swapMode === 'outerHTML') {
+                            targetEl.outerHTML = html;
+                        } else {
+                            targetEl.innerHTML = html;
+                        }
+                    }
+                } catch(err) {
+                    console.error('Submit error:', err);
+                    showToast('Submission failed. Please check inputs and try again.', 'error');
+                }
+            }
+        });
+
+        // 4. Native Live Search Handling
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentRole = sessionStorage.getItem('user_role') || 'NORMAL_USER';
+            switchGlobalRole(currentRole);
+
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                let debounceTimer;
+                searchInput.addEventListener('input', () => {
+                    clearTimeout(debounceTimer);
+                    const indicator = document.getElementById('loading-indicator');
+                    if (indicator) indicator.style.display = 'block';
+                    debounceTimer = setTimeout(async () => {
+                        const query = searchInput.value;
+                        const role = document.getElementById('user_role_input')?.value || 'NORMAL_USER';
+                        const formData = new FormData();
+                        formData.append('query', query);
+                        formData.append('user_role', role);
+                        try {
+                            const resp = await fetch('/search', { method: 'POST', body: formData });
+                            const html = await resp.text();
+                            const resultsContainer = document.getElementById('search-results');
+                            if (resultsContainer) resultsContainer.innerHTML = html;
+                        } catch(err) {
+                            console.error('Search error:', err);
+                        } finally {
+                            if (indicator) indicator.style.display = 'none';
+                        }
+                    }, 200);
+                });
+            }
+        });
+
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white';
+            toast.className = `${bgClass} px-4 py-3 rounded-lg shadow-lg text-sm flex items-center justify-between min-w-[280px] transition-all transform duration-300`;
+            toast.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" class="ml-3 font-bold">&times;</button>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
