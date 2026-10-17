@@ -44,3 +44,10 @@ Thumbs.db
 # Uploaded attachments
 /backend/uploads/
 
+# Python & AI Quotation Microservice
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+credentials.ini
+storage/staging/
