@@ -1,6 +1,44 @@
 # Developer Manual: Suppier (MinebeaMitsumi Requisition & Quotation System)
 
 ---
+## 📑 Master Table of Contents
+1. [System Overview & Architecture](#1-system-overview--architecture)
+   - [1.1 Purpose & Scope](#purpose--scope)
+   - [1.2 Tech Stack Summary](#tech-stack-summary)
+   - [1.3 Architecture & System Design](#architecture--system-design)
+   - [1.4 Directory & Complete File Map](#directory--file-map)
+2. [Local Environment Setup & Workflow](#2-local-environment-setup--workflow)
+   - [2.1 Prerequisites](#prerequisites)
+   - [2.2 Environment Variables & Configuration](#environment-variables)
+   - [2.3 Setup & Build Instructions (Automated Launcher)](#setup--build-instructions)
+   - [2.4 Manual Step-by-Step Developer Launch](#option-b-manual-step-by-step-developer-launch)
+3. [Data Models & State Management](#3-data-models--state-management)
+   - [3.1 MSSQL Tables: Requisitions & RequisitionItems](#database--schema-specs)
+   - [3.2 SQLite Schema: ai_quotation Database](#3-sqlite-database-schema-ai_quotationquotationsdb)
+   - [3.3 State & Data Flow Lifecycles](#state--data-flow)
+   - [3.4 Types & Interfaces (Requisition, Attachment, AI Models)](#types--interfaces)
+4. [Comprehensive Function & API Registry](#4-comprehensive-function--api-registry)
+   - [Part A: Backend Application & Controller Layer (Express.js :5000)](#part-a-backend-application--controller-layer)
+   - [Part B: Frontend Service Layer (api.service.ts)](#part-b-frontend-service-layer---srcappservicesapiservicets)
+   - [Part C: Frontend Component Layer (app.component.ts - All 169+ Methods)](#part-c-frontend-component-layer---srcappappcomponentts)
+   - [Part D: AI Quotation & Copilot Microservice Layer (Python/FastAPI :8000)](#part-d-ai-quotation--copilot-microservice-layer-pythonfastapi-8000)
+5. [End-to-End System Workflows & Edge Cases](#5-end-to-end-system-workflows--edge-cases)
+   - [Flow 1: OTP Login & Master Employee Sync](#flow-1-otp-verification--session-bootstrap-flow)
+   - [Flow 2: Requisition Header & Item Atomic Persistence](#flow-2-requisition-crud--transactional-persistence-flow)
+   - [Flow 3: Requisition Attachment Upload & Disk Storage](#flow-6-requisition-document-attachment-upload--disk-persistence)
+   - [Flow 4: Google SERP & Shopee Hybrid Quotation Search](#flow-4-google-serp--shopee-hybrid-quotation-search--cart-transfer)
+   - [Flow 5: MinebeaMitsumi 3D Employee Card Flipping](#flow-5-minebeamitsumi-3d-employee-card-flipping--2026-shift-calendar-navigation)
+   - [Flow 6: AI Copilot Conversational RAG Procurement Inquiry](#flow-7-ai-copilot-conversational-rag-procurement-inquiry)
+   - [Flow 7: Smart PDF Auto-Extraction & Drag-and-Drop Ingestion](#flow-8-smart-pdf-auto-extraction--drag-and-drop-ingestion-zero-input)
+   - [Edge Cases & Reliability Safeguards](#edge-cases--handling)
+6. [Extension & Future Development Guide](#6-extension--future-development-guide)
+   - [How to Add a Backend REST API Endpoint](#1-adding-a-new-backend-rest-api-endpoint)
+   - [How to Add a Frontend Service Gateway Method](#2-adding-a-new-frontend-api-gateway-method)
+   - [How to Add a UI View or Navigation Tab](#3-adding-a-new-ui-view-or-navigation-tab)
+   - [Code Standards & Conventions](#code-standards--conventions)
+   - [Technical Debt & Known Limitations](#technical-debt--known-limitations)
+
+---
 
 ## 1. System Overview & Architecture
 
@@ -27,8 +65,12 @@ Key user personas and operational roles:
 | **Backend Framework** | [Express](https://expressjs.com/) | `^4.19.2` | Lightweight, modular REST API server routing and middleware pipeline. |
 | **Database Connector** | [mssql](https://www.npmjs.com/package/mssql) | `^10.0.2` | Native TDS protocol driver with built-in connection pooling and transactional queries for Microsoft SQL Server. |
 | **Database Engine** | [Microsoft SQL Server](https://www.microsoft.com/sql-server) | 2016+ / Express | Enterprise relational database hosting `Suppier` database on server `PBGM8G`. |
-| **External Microservice** | Quotation Search Engine | Fast/REST (`:8000`) | Secondary Python/FastAPI microservice executing high-speed vector/fuzzy text queries across vendor quote archives. |
-| **Process Management** | Windows Batch Scripts | `cmd.exe` | Dual-service orchestration (`start.bat` and `stop.bat`) for zero-configuration developer launch. |
+| **AI Quotation Microservice** | [Python](https://www.python.org/) & [FastAPI](https://fastapi.tiangolo.com/) | `Python 3.11+` / `FastAPI 0.115+` | Secondary microservice on Port 8000 handling high-speed vector search, smart PDF table extraction, and Gemini RAG copilot. |
+| **Vector Engine & Embeddings** | [FastEmbed](https://github.com/qdrant/fastembed) | ONNX Runtime | Local 384-dimensional dense text embeddings (`BAAI/bge-small-en-v1.5`) running entirely offline without cloud embedding costs. |
+| **PDF Extraction Engine** | [pypdf](https://pypdf.readthedocs.io/) & Custom Heuristics | `5.0+` | Zero-input heuristic extraction: vendor, quotation number, Buddhist Era (`BE 2569` -> `CE 2026`), table line items, and unit prices. |
+| **AI LLM Copilot** | [Google Generative AI](https://ai.google.dev/) (Gemini) | `gemini-2.5-flash` | Synthesizes natural-language answers grounded on extracted vendor quote chunks with clickable citations. |
+| **Local Cache Engine** | In-Memory SHA-256 Key Cache | Native Python | Dual caching layer (`SearchCache` & `InquiryCache`) yielding >50,000x latency reduction (2200ms -> 0.04ms). |
+| **Process Management** | Windows Batch Scripts | `cmd.exe` | Tri-service orchestration (`start.bat` and `stop.bat`) managing Backend (:5000), AI Microservice (:8000), and Frontend (:4200). |
 
 ---
 
@@ -38,37 +80,55 @@ The platform adopts a decoupled **Client-Server Micro-Services Hybrid Architectu
 
 ```mermaid
 graph TD
-    subgraph Client [Frontend Layer - Angular 18 Single Page Application]
-        UI[app.component.html - Responsive UI & Modals]
+    subgraph Client [Frontend Layer - Angular 18 Standalone SPA :4200]
+        UI[app.component.html - Requisition & Modals]
         AC[app.component.ts - Master View Controller]
         AS[api.service.ts - Unified HTTP API Client]
-        THEME[Chrome-Style Dynamic Theming Engine]
-        BADGE[3D Flip Employee Card & 2026 Factory Calendar]
+        HIST[Search History Store - localStorage]
+        THEME[Dynamic Color Drawer & CSS Tokens]
+        BADGE[3D Flip Employee Card & 2026 Calendar]
     end
 
-    subgraph Gateway [Backend API Layer - Express.js :5000]
-        SRV[server.js - Express Server & CORS Middleware]
+    subgraph Gateway [Backend Core API Layer - Express.js :5000]
+        SRV[server.js - Express Server & 50MB Body Parser]
         AUTH_R[routes/auth.routes.js]
         REQ_R[routes/requisition.routes.js]
         AUTH_C[controllers/auth.controller.js]
         REQ_C[controllers/requisition.controller.js]
         DB_CFG[config/db.js - MSSQL Connection Pool Manager]
+        UPLOADS_FS[(backend/uploads/attachments/ - Local Disk Storage)]
     end
 
-    subgraph Data [Data Persistence & External Services]
+    subgraph AI_Engine [AI Quotation Microservice Layer - Python FastAPI :8000]
+        FASTAPI[web_app.py - REST Endpoints & Jinja2 Templates]
+        APP_SVC[quotation_service.py - Search, Claims, Drafts]
+        INQ_SVC[quotation_inquiry_service.py - RAG Orchestrator]
+        PDF_RDR[pdf_reader.py - Heuristic Extraction & BE Converter]
+        VEC_IDX[vector_index.py - FastEmbed 384-dim ONNX]
+        CACHE[search_cache.py & inquiry_cache.py - SHA-256]
+        GEMINI[gemini_answer_generator.py - Gemini 2.5 Flash API]
+        SQLITE_DB[(quotations.db - SQLite Repository)]
+        PDF_STORAGE[(storage/pdf/ - Physical Vendor PDFs)]
+    end
+
+    subgraph Data [Enterprise Databases & Offline Fallbacks]
         MSSQL[(Microsoft SQL Server: PBGM8G / SuppierDB)]
         CSV[(Local Fallback: Master_Employee.csv)]
-        MEM[(In-Memory Cache / Fallback Store)]
-        SEARCH_MS[Quotation Search Microservice :8000]
+        MEM[(In-Memory Cache & Mock Store)]
     end
 
     UI <--> AC
     AC <--> AS
+    AC <--> HIST
     AC --- THEME
     AC --- BADGE
     AS -->|HTTP /api/auth/*| AUTH_R
     AS -->|HTTP /api/requisition/*| REQ_R
-    AS -->|HTTP /api/search?query=*| SEARCH_MS
+    AS -->|HTTP /api/requisition/upload (Base64)| REQ_C
+    REQ_C -->|Write file & return URL| UPLOADS_FS
+    SRV -->|Static serve /uploads/*| UPLOADS_FS
+    AS -->|HTTP GET /api/search?query=*| FASTAPI
+    AS -->|HTTP POST /api/inquiry/ask-json| FASTAPI
     AUTH_R --> AUTH_C
     REQ_R --> REQ_C
     AUTH_C --> DB_CFG
@@ -76,24 +136,36 @@ graph TD
     DB_CFG -->|TDS Port 1433| MSSQL
     DB_CFG -.->|Fallback on Disconnect| MEM
     AUTH_C -.->|Fallback on Disconnect| CSV
+    FASTAPI --> APP_SVC
+    FASTAPI --> INQ_SVC
+    APP_SVC --> SQLITE_DB
+    APP_SVC --> VEC_IDX
+    APP_SVC --> PDF_RDR
+    PDF_RDR --> PDF_STORAGE
+    INQ_SVC --> CACHE
+    INQ_SVC --> GEMINI
 ```
 
 #### Key Architectural Patterns:
 1. **Graceful Degradation & In-Memory Fallback Pattern**:
-   Both backend controllers ([auth.controller.js](file:///D:/suppier/Suppier/backend/controllers/auth.controller.js) and [requisition.controller.js](file:///D:/suppier/Suppier/backend/controllers/requisition.controller.js)) and the frontend client ([api.service.ts](file:///D:/suppier/Suppier/src/app/services/api.service.ts)) implement multi-tiered fallback handlers. If Microsoft SQL Server is offline, unreachable, or in development mode, the backend automatically transitions to memory state and local CSV lookups without throwing unhandled exceptions.
+   Both backend controllers ([auth.controller.js](file:///d:/suppier/backend/controllers/auth.controller.js) and [requisition.controller.js](file:///d:/suppier/backend/controllers/requisition.controller.js)) and the frontend client ([api.service.ts](file:///d:/suppier/src/app/services/api.service.ts)) implement multi-tiered fallback handlers. If Microsoft SQL Server is offline, unreachable, or in development mode, the backend automatically transitions to memory state and local CSV lookups without throwing unhandled exceptions.
 2. **Transactional Rehydration & Atomic Persistence**:
    The `POST /api/requisition/save-all` endpoint utilizes SQL Server transactions (`sql.Transaction`). It atomically updates the requisition header, purges existing item rows for that document number, and batch re-inserts all line items, rolling back entirely if any constraint or type check fails.
 3. **Dual View / Role-Adaptive Layout (Purchase vs. Normal User)**:
    The UI dynamically shifts its data projections based on whether the logged-in user belongs to `P/H` (Purchase) or an engineering/maintenance department, allowing instant access to multi-document aggregation and email generation.
 4. **Google SERP & Shopee Hybrid Search Pattern**:
    The quotation search engine supports instant switching between an authentic Google Search Results Page (SERP) layout and an e-commerce (Shopee) product grid with sorting, price bounds, rating filters, and CAD PCB overlays.
+5. **Zero-Cloud Offline Vector Indexing & RAG Synthesis**:
+   The `ai_quotation` service uses locally embedded FastEmbed ONNX models for dense cosine vector similarity combined with keyword frequency boosting, completely avoiding external API costs for search. Only conversational Q&A invokes Gemini 2.5 Flash, which is guarded with SHA-256 query caching.
+6. **Attachment Pipeline with Static Serving**:
+   Frontend files (images, PDFs) are converted to Base64 in the browser, transmitted via `POST /api/requisition/upload`, decoded by Node.js, and stored with timestamped filenames in `backend/uploads/attachments/`. Express serves them statically at `http://localhost:5000/uploads/attachments/...`.
 
 ---
 
 ### Directory & File Map
 
 ```text
-d:\suppier\Suppier\
+d:\suppier\
 ├── .angular/                       # Angular build cache and compiler metadata
 ├── .vscode/                        # Visual Studio Code tasks, extensions, and launch configs
 │   ├── extensions.json             # Recommended extensions (Angular, Tailwind, ESLint)
@@ -157,6 +229,7 @@ Before running or developing on the platform, ensure the following software is i
 | **Node.js** | `v20.x` or `v24.x` LTS | `node -v` | JavaScript runtime powering both build tools and the backend server. |
 | **npm** | `10.x` or higher | `npm -v` | Package manager. |
 | **Angular CLI** | `18.2.21` | `ng version` | Installed globally or executed via `npx ng`. |
+| **Python** | `3.11.x` or higher | `python --version` | Runtime powering the `ai_quotation` microservice and ONNX vector engine. |
 | **Microsoft SQL Server** | 2016 / 2019 / 2022 | SSMS / `sqlcmd` | Database server hosting `SuppierDB` on local or network host (`PBGM8G`). |
 | **Microsoft Edge / Chrome** | Latest Stable | `msedge --version` | Target browser for testing Chrome-style drawers and 3D transforms. |
 | **Git** | `2.40+` | `git --version` | Version control. |
@@ -165,7 +238,7 @@ Before running or developing on the platform, ensure the following software is i
 
 ### Environment Variables
 
-The backend relies on environment variables defined in [backend/.env](file:///D:/suppier/Suppier/backend/.env). An example template is provided in [backend/.env.example](file:///D:/suppier/Suppier/backend/.env.example).
+The backend relies on environment variables defined in [backend/.env](file:///d:/suppier/backend/.env). An example template is provided in [backend/.env.example](file:///d:/suppier/backend/.env.example).
 
 | Key | Description | Default / Example Value | Required? |
 | :--- | :--- | :--- | :--- |
@@ -186,22 +259,26 @@ The backend relies on environment variables defined in [backend/.env](file:///D:
 ### Setup & Build Instructions
 
 #### Option A: One-Click Windows Automated Launcher (Recommended)
-Double-click [start.bat](file:///D:/suppier/Suppier/start.bat) from the project root directory, or execute in PowerShell:
+Double-click [start.bat](file:///d:/suppier/start.bat) from the project root directory, or execute in PowerShell:
 ```powershell
-cd d:\suppier\Suppier
+cd d:\suppier
 .\start.bat
 ```
 **What `start.bat` does automatically:**
-1. Starts the Express Backend in a dedicated terminal window on port `5000`.
-2. Starts the Angular Dev Server in a separate terminal window on port `4200`.
-3. Waits 6 seconds for services to compile and bind ports.
-4. Detects Microsoft Edge installation path and automatically launches `http://localhost:4200`.
+1. Starts the **Backend API** in a dedicated terminal window on port `5000`:
+   `cmd /k npm start` inside `backend/`
+2. Starts the **AI Quotation Search Microservice** in a dedicated terminal window on port `8000`:
+   `cmd /k .venv\Scripts\python.exe main.py` inside `ai_quotation/`
+3. Starts the **Frontend Angular Dev Server** in a separate terminal window on port `4200`:
+   `cmd /k npm start` inside project root
+4. Waits 6 seconds for services to initialize and bind TCP ports.
+5. Launches Microsoft Edge directly to `http://localhost:4200`.
 
-To cleanly terminate all running services, run [stop.bat](file:///D:/suppier/Suppier/stop.bat):
+To cleanly terminate all running services, run [stop.bat](file:///d:/suppier/stop.bat):
 ```powershell
 .\stop.bat
 ```
-This script queries `netstat` for process IDs listening on ports `5000` and `4200` and forcefully kills them via `taskkill`.
+This script queries `netstat` for process IDs listening on ports `5000`, `8000`, and `4200` and forcefully terminates them via `taskkill /F /PID %%a`.
 
 ---
 
@@ -210,7 +287,7 @@ This script queries `netstat` for process IDs listening on ports `5000` and `420
 ##### 1. Backend Installation & Startup
 ```bash
 # 1. Navigate to backend directory
-cd d:\suppier\Suppier\backend
+cd d:\suppier\backend
 
 # 2. Install dependencies
 npm install
@@ -230,11 +307,40 @@ Backend will log:
 ✅ [Database] Connected successfully to SQL Server!
 ```
 
-##### 2. Frontend Installation & Startup
+##### 2. AI Quotation Microservice Setup & Startup
+```bash
+# 1. Navigate to ai_quotation directory
+cd d:\suppier\ai_quotation
+
+# 2. Create Python virtual environment
+python -m venv .venv
+
+# 3. Activate virtual environment
+# On Windows PowerShell:
+.\.venv\Scripts\Activate.ps1
+# On Windows cmd:
+.\.venv\Scripts\activate.bat
+
+# 4. Install dependencies
+pip install -e .
+# Or install using uv:
+uv sync
+
+# 5. Launch microservice
+python main.py
+```
+Microservice will log:
+```text
+[INFO] Booting QuotationFinder API on http://0.0.0.0:8000
+[INFO] Vector Index loaded: 14 quotations, 384-dimensional dense vectors
+[INFO] Database connected: quotations.db (SQLite)
+```
+
+##### 3. Frontend Installation & Startup
 Open a second terminal window:
 ```bash
 # 1. Navigate to project root
-cd d:\suppier\Suppier
+cd d:\suppier
 
 # 2. Install frontend dependencies
 npm install
@@ -245,7 +351,7 @@ npm start # runs: ng serve
 Angular will compile and serve at: `http://localhost:4200/`.
 
 ##### 3. Database Maintenance Commands
-Within `d:\suppier\Suppier\backend`:
+Within `d:\suppier\backend`:
 ```bash
 # Reset database and reseed initial sample records:
 npm run reset-db # runs: node scripts/clear-db.js --seed
@@ -363,7 +469,43 @@ CREATE INDEX IX_RequisitionItems_PartName ON [dbo].[RequisitionItems](PartName);
 
 ---
 
-#### 3. Enterprise Master Tables (Read-Only Integration)
+#### 3. SQLite Database Schema (`ai_quotation/quotations.db`)
+Used by the Python AI Quotation service for instant vector and metadata lookups:
+
+1. **`quotations` Table**:
+   - `id` (TEXT PRIMARY KEY): Unique UUID string.
+   - `quotation_number` (TEXT UNIQUE): Vendor quote reference (e.g. `26Q13131`).
+   - `vendor_name` (TEXT): Supplier company name.
+   - `vendor_tax_id` (TEXT): 13-digit tax ID.
+   - `currency` (TEXT): Currency code (`THB`, `USD`, `JPY`).
+   - `issue_date` (TEXT): ISO date `YYYY-MM-DD`.
+   - `expiration_date` (TEXT): ISO date `YYYY-MM-DD`.
+   - `status` (TEXT): `'ACTIVE'`, `'EXPIRED'`, `'SUPERSEDED'`.
+   - `pdf_path` (TEXT): Physical path in `storage/pdf/`.
+   - `pdf_sha256` (TEXT): Checksum for deduplication.
+   - `raw_text` (TEXT): Extracted OCR/text chunk for lexical search.
+
+2. **`line_items` Table**:
+   - `id` (INTEGER PRIMARY KEY AUTOINCREMENT)
+   - `quotation_id` (TEXT FOREIGN KEY)
+   - `item_number` (INTEGER)
+   - `part_number` (TEXT)
+   - `description` (TEXT)
+   - `quantity` (REAL)
+   - `unit` (TEXT)
+   - `unit_price` (REAL)
+
+3. **`manual_requests` Table**:
+   - `ticket_id` (TEXT PRIMARY KEY)
+   - `requester_name` (TEXT)
+   - `part_description` (TEXT)
+   - `quantity` (REAL)
+   - `urgency` (TEXT: `'LOW'`, `'MEDIUM'`, `'HIGH'`, `'CRITICAL'`)
+   - `status` (TEXT: `'PENDING'`, `'FULFILLED'`)
+
+---
+
+#### 4. Enterprise Master Tables (Read-Only Integration)
 The authentication controller queries existing enterprise personnel master tables located in the same database:
 
 ```sql
@@ -488,7 +630,7 @@ sequenceDiagram
 
 ### Types & Interfaces
 
-All shared TypeScript data contracts are strictly defined in [src/app/services/api.service.ts](file:///D:/suppier/Suppier/src/app/services/api.service.ts) and [src/app/app.component.ts](file:///D:/suppier/Suppier/src/app/app.component.ts):
+All shared TypeScript data contracts are strictly defined in [src/app/services/api.service.ts](file:///d:/suppier/src/app/services/api.service.ts) and [src/app/app.component.ts](file:///d:/suppier/src/app/app.component.ts):
 
 #### 1. User & Authentication Models
 ```typescript
@@ -641,6 +783,31 @@ export interface SupplierQuotationSearchResponse {
   results: SupplierQuotationResult[];
 }
 
+export interface RequisitionAttachment {
+  name: string;        // Original filename (e.g. 'Drawing_Shaft_A.pdf')
+  storedName: string;  // Timestamped unique filename ('1792209123_Drawing_Shaft_A.pdf')
+  url: string;         // Fully-qualified static URL ('http://localhost:5000/uploads/attachments/...')
+  type: 'image' | 'pdf' | 'doc';
+  size: string;        // Formatted size ('124 KB')
+}
+
+export interface AiInquiryCitation {
+  quotation_id: string;
+  quotation_number: string;
+  vendor_name: string;
+  status: 'ACTIVE' | 'EXPIRED';
+  items_summary: string;
+  price_summary: string;
+  search_query: string;
+}
+
+export interface AiInquiryResponse {
+  answer: string;
+  cached: boolean;
+  total_duration_ms: number;
+  citations: AiInquiryCitation[];
+}
+
 export interface SupplierItem {
   id: string;
   name: string;
@@ -679,7 +846,7 @@ export interface ThemeOption {
 
 ### Part A: Backend Application & Controller Layer
 
-#### Module: [backend/server.js](file:///D:/suppier/Suppier/backend/server.js)
+#### Module: [backend/server.js](file:///d:/suppier/backend/server.js)
 The entrypoint for the Express REST API service.
 
 ---
@@ -715,12 +882,12 @@ The entrypoint for the Express REST API service.
 - **Parameters & Return Values**:
   - `PORT`: Integer port number resolved from `process.env.PORT || 5000`.
   - **Returns**: Node.js `http.Server` instance.
-- **Dependencies & Side Effects**: Calls `connectDB()` from [backend/config/db.js](file:///D:/suppier/Suppier/backend/config/db.js). Writes launch banners to standard output.
+- **Dependencies & Side Effects**: Calls `connectDB()` from [backend/config/db.js](file:///d:/suppier/backend/config/db.js). Writes launch banners to standard output.
 - **Error Handling**: Unhandled listen errors (e.g. `EADDRINUSE`) bubble to the Node.js process runtime.
 
 ---
 
-#### Module: [backend/config/db.js](file:///D:/suppier/Suppier/backend/config/db.js)
+#### Module: [backend/config/db.js](file:///d:/suppier/backend/config/db.js)
 Database connection pool configuration and driver abstraction for Microsoft SQL Server.
 
 ---
@@ -736,7 +903,7 @@ Database connection pool configuration and driver abstraction for Microsoft SQL 
 
 ---
 
-#### Module: [backend/controllers/auth.controller.js](file:///D:/suppier/Suppier/backend/controllers/auth.controller.js)
+#### Module: [backend/controllers/auth.controller.js](file:///d:/suppier/backend/controllers/auth.controller.js)
 Handles employee identity verification against `[dbo].[Master_Employee]`, CSV fallback loading, name normalization, and section mapping.
 
 ---
@@ -789,7 +956,7 @@ Handles employee identity verification against `[dbo].[Master_Employee]`, CSV fa
 
 ---
 
-#### Module: [backend/controllers/requisition.controller.js](file:///D:/suppier/Suppier/backend/controllers/requisition.controller.js)
+#### Module: [backend/controllers/requisition.controller.js](file:///d:/suppier/backend/controllers/requisition.controller.js)
 Coordinates requisition document retrieval, header updates, transactional bulk line item saves, and multi-user purchase order views.
 
 ---
@@ -919,7 +1086,18 @@ Coordinates requisition document retrieval, header updates, transactional bulk l
 
 ---
 
-#### Module: [backend/scripts/init-db.js](file:///D:/suppier/Suppier/backend/scripts/init-db.js)
+##### 20. `uploadAttachment(req, res)`
+- **Signature**: `uploadAttachment(req: express.Request, res: express.Response): Promise<express.Response>`
+- **Purpose**: HTTP Controller for `POST /api/requisition/upload`. Receives Base64 encoded file data (`fileData`), decodes it into a binary buffer, creates the destination folder `backend/uploads/attachments/` if missing, generates a sanitized unique filename (`${Date.now()}_${baseName}${ext}`), and writes the file asynchronously to local disk. Returns the fully-qualified static URL (`http://localhost:5000/uploads/attachments/${uniqueFileName}`) for direct preview in the Angular client.
+- **Parameters & Return Values**:
+  - `req.body`: `{ fileName: string, fileType: string, fileData: string, size?: string }`.
+  - **Returns**: JSON response `{ success: true, message: 'Upload file successfully', file: { name, storedName, url, type, size } }`.
+- **Dependencies & Side Effects**: Writes files to `backend/uploads/attachments/`. Handled by Express static middleware mounted at `/uploads`.
+- **Error Handling**: Validates `fileName` and `fileData` (HTTP 400). Catches file I/O exceptions and returns HTTP 500.
+
+---
+
+#### Module: [backend/scripts/init-db.js](file:///d:/suppier/backend/scripts/init-db.js)
 Database initialization and default seed script.
 
 ---
@@ -935,7 +1113,7 @@ Database initialization and default seed script.
 
 ---
 
-#### Module: [backend/scripts/clear-db.js](file:///D:/suppier/Suppier/backend/scripts/clear-db.js)
+#### Module: [backend/scripts/clear-db.js](file:///d:/suppier/backend/scripts/clear-db.js)
 Database wiping and identity reset script.
 
 ---
@@ -955,7 +1133,7 @@ Database wiping and identity reset script.
 
 ### Part B: Frontend Core & Services Layer
 
-#### Module: [src/main.ts](file:///D:/suppier/Suppier/src/main.ts)
+#### Module: [src/main.ts](file:///d:/suppier/src/main.ts)
 Client application bootstrapping entrypoint.
 
 ---
@@ -964,15 +1142,15 @@ Client application bootstrapping entrypoint.
 - **Signature**: `bootstrapApplication(rootComponent: Type<AppComponent>, options?: ApplicationConfig): Promise<ApplicationRef>`
 - **Purpose**: Initializes the Angular 18 Single Page Application in standalone mode without traditional `NgModule` wrappers, attaching the root component `AppComponent` to the DOM element `<app-root>`.
 - **Parameters & Return Values**:
-  - `rootComponent`: The standalone root component class ([AppComponent](file:///D:/suppier/Suppier/src/app/app.component.ts)).
-  - `options`: Application configuration provider bundle ([appConfig](file:///D:/suppier/Suppier/src/app/app.config.ts)).
+  - `rootComponent`: The standalone root component class ([AppComponent](file:///d:/suppier/src/app/app.component.ts)).
+  - `options`: Application configuration provider bundle ([appConfig](file:///d:/suppier/src/app/app.config.ts)).
   - **Returns**: `Promise<ApplicationRef>`.
 - **Dependencies & Side Effects**: Configures Angular's root injector, renders the top-level template, and activates change detection.
 - **Error Handling**: Chained with `.catch((err) => console.error(err))` to intercept fatal bootstrapping errors.
 
 ---
 
-#### Module: [src/app/app.config.ts](file:///D:/suppier/Suppier/src/app/app.config.ts)
+#### Module: [src/app/app.config.ts](file:///d:/suppier/src/app/app.config.ts)
 Global application configuration and dependency injection providers.
 
 ---
@@ -987,7 +1165,7 @@ Global application configuration and dependency injection providers.
 
 ---
 
-#### Module: [src/app/services/api.service.ts](file:///D:/suppier/Suppier/src/app/services/api.service.ts)
+#### Module: [src/app/services/api.service.ts](file:///d:/suppier/src/app/services/api.service.ts)
 The central client HTTP gateway mediating all communication with the Express Backend (Port 5000) and the Quotation Search Microservice (Port 8000).
 
 ---
@@ -1106,8 +1284,38 @@ The central client HTTP gateway mediating all communication with the Express Bac
 - **Dependencies & Side Effects**: Connects across network to Port `8000`.
 - **Error Handling**: Validates input (returns empty result if query is empty). Catches network failures or non-200 responses, logs warning, and returns safe empty result `{ query, count: 0, results: [] }`.
 
+---
 
-### Part C: Frontend Component Layer - [src/app/app.component.ts](file:///D:/suppier/Suppier/src/app/app.component.ts)
+##### 34. `uploadAttachment(payload)`
+- **Signature**: `uploadAttachment(payload: { fileName: string; fileType: string; fileData: string; size?: string }): Promise<{ success: boolean; file?: any; message?: string }>`
+- **Purpose**: Transmits a Base64 encoded drawing, specification, or image to `POST http://localhost:5000/api/requisition/upload`.
+- **Parameters & Return Values**:
+  - `payload`: Object containing original file name, MIME type, Base64 data string, and optional size.
+  - **Returns**: `Promise<{ success: boolean, file?: RequisitionAttachment, message?: string }>`.
+- **Dependencies & Side Effects**: Sends JSON payload to Express backend.
+- **Error Handling**: Catches network and serialization errors, returns `{ success: false, message: err.message }`.
+
+---
+
+##### 35. `checkQuotationMicroserviceHealth()`
+- **Signature**: `checkQuotationMicroserviceHealth(): Promise<boolean>`
+- **Purpose**: Issues a lightweight test request with a 3-second `AbortController` timeout to `http://localhost:8000/api/search?query=health_check`. Used by the frontend to render the `Live Connected` badge.
+- **Returns**: `Promise<boolean>` - Resolves `true` if port 8000 responds with HTTP 200, `false` otherwise.
+
+---
+
+##### 36. `askAiQuotationInquiry(query, userRole)`
+- **Signature**: `askAiQuotationInquiry(query: string, userRole: 'NORMAL_USER' | 'PH_USER' = 'NORMAL_USER'): Promise<AiInquiryResponse>`
+- **Purpose**: Dispatches conversational procurement questions to `POST http://localhost:8000/api/inquiry/ask-json` with a 20-second timeout.
+- **Parameters & Return Values**:
+  - `query` (`string`): Natural language inquiry (e.g. "Which vendor has the best price for Bando V-Belts?").
+  - `userRole` (`'NORMAL_USER' | 'PH_USER'`): Role governing visibility of commercial rates.
+  - **Returns**: `Promise<AiInquiryResponse>` - Resolves to `{ answer: string, cached: boolean, total_duration_ms: number, citations: AiInquiryCitation[] }`.
+- **Dependencies & Side Effects**: Network connection to Port 8000.
+- **Error Handling**: Aborts on 20s timeout and raises descriptive error for UI to render in the copilot error banner.
+
+
+### Part C: Frontend Component Layer - [src/app/app.component.ts](file:///d:/suppier/src/app/app.component.ts)
 
 The `AppComponent` class is the central controller of the application, managing reactive component state, multi-view orchestration, animations, modals, table operations, search algorithms, and Outlook email generation across 169 methods and accessors.
 
@@ -2550,16 +2758,104 @@ sequenceDiagram
 
 ---
 
+#### Flow 6: Requisition Document Attachment Upload & Disk Persistence
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Factory Operator
+    participant UI as Requisition Table
+    participant AC as AppComponent
+    participant AS as ApiService
+    participant BE as Express Backend :5000
+    participant FS as Local Disk (backend/uploads/attachments)
+
+    User->>UI: Clicks "Attach Drawing" & selects "Shaft_Drawing.pdf"
+    UI->>AC: onAttachmentFileSelected(event, itemIndex)
+    AC->>AC: FileReader reads binary and converts to Base64 DataURL
+    AC->>AS: uploadAttachment({ fileName, fileType, fileData })
+    AS->>BE: POST /api/requisition/upload (JSON body limit: 50MB)
+    BE->>BE: Strips base64 header & generates unique filename "1792209123_Shaft_Drawing.pdf"
+    BE->>FS: fs.promises.writeFile(filePath, buffer)
+    BE-->>AS: 200 OK { success: true, file: { url: "http://localhost:5000/uploads/attachments/1792..." } }
+    AS-->>AC: Appends file object to item.attachments array
+    AC->>UI: Renders clickable attachment badge with file icon & preview link
+```
+
+---
+
+#### Flow 7: AI Copilot Conversational RAG Procurement Inquiry
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Purchase Buyer
+    participant UI as Quotation Search View
+    participant AC as AppComponent
+    participant AS as ApiService
+    participant MS as AI Microservice :8000
+    participant CACHE as In-Memory Inquiry Cache
+    participant GEMINI as Google Gemini 2.5 Flash
+
+    User->>UI: Types question: "Which vendor offers the lowest price for V-belts?"
+    UI->>AC: askAiQuotation(query)
+    AC->>AS: askAiQuotationInquiry(query, "PH_USER")
+    AS->>MS: POST /api/inquiry/ask-json (FormData query, timeout: 20s)
+    MS->>CACHE: Checks SHA-256(query + role)
+    alt Cache Hit (<1ms)
+        CACHE-->>MS: Cached answer and citations
+    else Cache Miss (~1200ms)
+        MS->>MS: Retrieves relevant quotation line items from SQLite
+        MS->>GEMINI: Generates grounded response with strict citation rules
+        GEMINI-->>MS: Markdown response text
+        MS->>CACHE: Stores answer in memory
+    end
+    MS-->>AS: 200 OK { answer, citations: [...], duration_ms: 1240 }
+    AS-->>AC: Binds aiInquiryResult
+    AC->>UI: Renders interactive Copilot answer card with clickable [PDF] badges
+```
+
+---
+
+#### Flow 8: Smart PDF Auto-Extraction & Drag-and-Drop Ingestion (Zero-Input)
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Officer as PH Officer
+    participant PORTAL as Purchasing Hub Portal
+    participant MS as AI Microservice :8000
+    participant READER as PdfDocumentReader
+    participant SQLITE as SQLite Database
+
+    Officer->>PORTAL: Drags and drops 10 vendor quotation PDFs
+    PORTAL->>MS: POST /api/quotations/batch-preview (multipart/form-data)
+    loop For each PDF
+        MS->>READER: extract_draft(pdf_file)
+        READER->>READER: Detects vendor, converts BE 2569 to CE 2026, parses item tables
+        READER-->>MS: Returns ExtractedQuotationDraft
+    end
+    MS-->>PORTAL: 200 OK with parsed drafts table
+    Officer->>PORTAL: Reviews detected line items and clicks "Confirm All Ingestions"
+    PORTAL->>MS: POST /api/quotations/batch-commit
+    MS->>SQLITE: Batch inserts quotations and line items
+    MS->>MS: Re-indexes vector embeddings in FastEmbed
+    MS-->>PORTAL: 200 OK { success: true, count: 10 }
+    PORTAL->>Officer: Displays success toast and updates active quotation KPIs
+```
+
+---
+
 ### Edge Cases & Handling
 
 | Subsystem | Potential Edge Case | Architectural Mitigation & Guard Code |
 | :--- | :--- | :--- |
-| **Database Pool** | SQL Server network timeout, offline host (`PBGM8G`), or bad credentials | [backend/config/db.js](file:///D:/suppier/Suppier/backend/config/db.js) intercepts connection exceptions, logs a warning, and sets `poolPromise = null`. Both [auth.controller.js](file:///D:/suppier/Suppier/backend/controllers/auth.controller.js) and [requisition.controller.js](file:///D:/suppier/Suppier/backend/controllers/requisition.controller.js) inspect `if (pool)` and gracefully fall back to local in-memory dictionaries and `Master_Employee.csv`. |
-| **New Employee Accounts** | First-time login by an employee who has no existing rows in `Requisitions` | [getDocumentByAccount()](file:///D:/suppier/Suppier/backend/controllers/requisition.controller.js) queries `Master_Employee` to dynamically construct a personalized empty template pre-filling their English name, division, and section, but **does not insert dummy rows** into the database until the user explicitly saves. |
-| **Transactional Saves** | Failure on line item 15 of 20 during bulk save | [saveAll()](file:///D:/suppier/Suppier/backend/controllers/requisition.controller.js) executes all steps inside `new sql.Transaction(pool)`. On any SQL failure, `await transaction.rollback()` is invoked, ensuring no orphaned headers or partial line item sets are left in the database. |
-| **Clipboard Security** | `navigator.clipboard.write()` blocked on insecure HTTP or older browsers | [copyEmailQuotationToClipboard()](file:///D:/suppier/Suppier/src/app/app.component.ts) wraps modern clipboard calls in `try...catch`. If denied, it automatically routes to [fallbackCopyHtml()](file:///D:/suppier/Suppier/src/app/app.component.ts), which creates a temporary hidden `contenteditable` DOM element and invokes `document.execCommand('copy')`. |
-| **Image Search OCR** | User uploads corrupted image, unsupported binary, or oversized PDF | [onImageSearchFileSelected()](file:///D:/suppier/Suppier/src/app/app.component.ts) checks `file.type`, caps read size, and if OCR text extraction yields no match, gracefully defaults to manual text entry prompt without throwing unhandled exceptions. |
-| **Corrupted Session** | Corrupt or invalid JSON string in `localStorage` | [restoreSessionOrInit()](file:///D:/suppier/Suppier/src/app/app.component.ts) wraps `JSON.parse` in a `try...catch` block. On parsing failure, it clears the corrupted keys and returns cleanly to the login screen. |
+| **Microservice Offline** | Microservice on Port 8000 not started or crashed | [api.service.ts](file:///d:/suppier/src/app/services/api.service.ts) wraps all calls in `AbortController` timeouts. [app.component.ts](file:///d:/suppier/src/app/app.component.ts) sets `isMicroserviceOnline = false`, replaces error popups with a friendly inline reconnection notice, and continues normal requisition editing without interrupting the user. |
+| **Large File Uploads** | Operator uploads high-res CAD drawing or 30MB PDF | [backend/server.js](file:///d:/suppier/backend/server.js) explicitly configures `express.json({ limit: '50mb' })` and `express.urlencoded({ limit: '50mb' })`. Upload controller writes asynchronously via `fs.promises.writeFile` without blocking the main event loop. |
+| **Thai Buddhist Era in Quotations** | Vendor quotes dated with Buddhist Era (e.g. `25/08/2569`) | [pdf_reader.py](file:///d:/suppier/ai_quotation/src/infrastructure/pdf_reader.py) contains heuristic converters: any detected year $> 2400$ is automatically subtracted by 543 to convert to Gregorian Calendar (`2569 BE` -> `2026 CE`). |
+| **Database Pool** | SQL Server network timeout, offline host (`PBGM8G`), or bad credentials | [backend/config/db.js](file:///d:/suppier/backend/config/db.js) intercepts connection exceptions, logs a warning, and sets `poolPromise = null`. Both [auth.controller.js](file:///d:/suppier/backend/controllers/auth.controller.js) and [requisition.controller.js](file:///d:/suppier/backend/controllers/requisition.controller.js) inspect `if (pool)` and gracefully fall back to local in-memory dictionaries and `Master_Employee.csv`. |
+| **New Employee Accounts** | First-time login by an employee who has no existing rows in `Requisitions` | [getDocumentByAccount()](file:///d:/suppier/backend/controllers/requisition.controller.js) queries `Master_Employee` to dynamically construct a personalized empty template pre-filling their English name, division, and section, but **does not insert dummy rows** into the database until the user explicitly saves. |
+| **Transactional Saves** | Failure on line item 15 of 20 during bulk save | [saveAll()](file:///d:/suppier/backend/controllers/requisition.controller.js) executes all steps inside `new sql.Transaction(pool)`. On any SQL failure, `await transaction.rollback()` is invoked, ensuring no orphaned headers or partial line item sets are left in the database. |
+| **Clipboard Security** | `navigator.clipboard.write()` blocked on insecure HTTP or older browsers | [copyEmailQuotationToClipboard()](file:///d:/suppier/src/app/app.component.ts) wraps modern clipboard calls in `try...catch`. If denied, it automatically routes to [fallbackCopyHtml()](file:///d:/suppier/src/app/app.component.ts), which creates a temporary hidden `contenteditable` DOM element and invokes `document.execCommand('copy')`. |
+| **Image Search OCR** | User uploads corrupted image, unsupported binary, or oversized PDF | [onImageSearchFileSelected()](file:///d:/suppier/src/app/app.component.ts) checks `file.type`, caps read size, and if OCR text extraction yields no match, gracefully defaults to manual text entry prompt without throwing unhandled exceptions. |
+| **Corrupted Session** | Corrupt or invalid JSON string in `localStorage` | [restoreSessionOrInit()](file:///d:/suppier/src/app/app.component.ts) wraps `JSON.parse` in a `try...catch` block. On parsing failure, it clears the corrupted keys and returns cleanly to the login screen. |
 
 ---
 
@@ -2568,7 +2864,7 @@ sequenceDiagram
 ### How to Add a New Feature
 
 #### 1. Adding a New Backend REST API Endpoint
-1. **Define Controller Function**: Open [backend/controllers/requisition.controller.js](file:///D:/suppier/Suppier/backend/controllers/requisition.controller.js) (or create a new controller under `backend/controllers/`).
+1. **Define Controller Function**: Open [backend/controllers/requisition.controller.js](file:///d:/suppier/backend/controllers/requisition.controller.js) (or create a new controller under `backend/controllers/`).
    ```javascript
    exports.myNewFeatureEndpoint = async (req, res) => {
      try {
@@ -2586,14 +2882,14 @@ sequenceDiagram
      }
    };
    ```
-2. **Mount Route**: Register the route in [backend/routes/requisition.routes.js](file:///D:/suppier/Suppier/backend/routes/requisition.routes.js):
+2. **Mount Route**: Register the route in [backend/routes/requisition.routes.js](file:///d:/suppier/backend/routes/requisition.routes.js):
    ```javascript
    router.post('/my-feature', requisitionController.myNewFeatureEndpoint);
    ```
 3. **Verify Endpoint**: Test using `curl` or Postman: `curl -X POST http://localhost:5000/api/requisition/my-feature`.
 
 #### 2. Adding a New Frontend API Gateway Method
-1. Open [src/app/services/api.service.ts](file:///D:/suppier/Suppier/src/app/services/api.service.ts).
+1. Open [src/app/services/api.service.ts](file:///d:/suppier/src/app/services/api.service.ts).
 2. Add the typed method:
    ```typescript
    async getMyFeatureData(param: string): Promise<MyFeatureType[]> {
@@ -2613,10 +2909,10 @@ sequenceDiagram
    ```
 
 #### 3. Adding a New UI View or Navigation Tab
-1. Open [src/app/app.component.ts](file:///D:/suppier/Suppier/src/app/app.component.ts).
+1. Open [src/app/app.component.ts](file:///d:/suppier/src/app/app.component.ts).
 2. Add view state property (e.g. `activeView: 'requisition' | 'search' | 'purchase' | 'my-feature' = 'requisition';`).
 3. Add navigation handler method (e.g. `openMyFeatureView(): void`).
-4. In [src/app/app.component.html](file:///D:/suppier/Suppier/src/app/app.component.html), add the template block guarded by `*ngIf="activeView === 'my-feature'"`.
+4. In [src/app/app.component.html](file:///d:/suppier/src/app/app.component.html), add the template block guarded by `*ngIf="activeView === 'my-feature'"`.
 5. Add the sidebar item in `masterMenus` or top navigation bar.
 
 ---
@@ -2632,7 +2928,7 @@ sequenceDiagram
 3. **Styling & CSS Rules**:
    - Primary utility layout: Tailwind CSS classes.
    - Dynamic theming: Use CSS variable utility classes (`.theme-bg-primary`, `.theme-text-primary`, `var(--theme-primary)`).
-   - Complex keyframe animations: Place in [src/app/app.component.css](file:///D:/suppier/Suppier/src/app/app.component.css) with clear section headers.
+   - Complex keyframe animations: Place in [src/app/app.component.css](file:///d:/suppier/src/app/app.component.css) with clear section headers.
 4. **Error Handling & Resilience**:
    - Never allow an unhandled Promise rejection or database disconnect to crash the client or backend.
    - Always implement graceful fallbacks for offline development.
@@ -2645,8 +2941,8 @@ sequenceDiagram
 
 | Area | Current Technical Debt / Limitation | Recommended Future Refactoring |
 | :--- | :--- | :--- |
-| **Monolithic Component Structure** | [app.component.ts](file:///D:/suppier/Suppier/src/app/app.component.ts) contains 4,998 lines and [app.component.html](file:///D:/suppier/Suppier/src/app/app.component.html) contains 6,173 lines, managing multiple views in a single class. | Decompose into focused child feature components: `<app-requisition-table>`, `<app-quotation-search>`, `<app-purchase-email-generator>`, `<app-supplier-directory>`, and `<app-employee-badge-modal>`. |
+| **Monolithic Component Structure** | [app.component.ts](file:///d:/suppier/src/app/app.component.ts) contains 4,998 lines and [app.component.html](file:///d:/suppier/src/app/app.component.html) contains 6,173 lines, managing multiple views in a single class. | Decompose into focused child feature components: `<app-requisition-table>`, `<app-quotation-search>`, `<app-purchase-email-generator>`, `<app-supplier-directory>`, and `<app-employee-badge-modal>`. |
 | **Large Data Virtualization** | Requisition tables with >200 line items render all DOM nodes directly via `*ngFor`. | Implement `@angular/cdk/scrolling` (`CdkVirtualScrollViewport`) to virtualize large table datasets and optimize DOM tree performance. |
-| **Hardcoded Microservice URL** | `http://localhost:8000` is directly declared inside `searchSupplierQuotations()` in [api.service.ts](file:///D:/suppier/Suppier/src/app/services/api.service.ts). | Move microservice base URLs into Angular environment configuration files (`environment.ts` and `environment.prod.ts`). |
-| **Automated Testing** | Unit tests in [app.component.spec.ts](file:///D:/suppier/Suppier/src/app/app.component.spec.ts) only verify default title property. | Expand Jasmine test specs to cover OTP authentication transitions, calculation accessors, and email HTML generation. |
+| **Hardcoded Microservice URL** | `http://localhost:8000` is directly declared inside `searchSupplierQuotations()` in [api.service.ts](file:///d:/suppier/src/app/services/api.service.ts). | Move microservice base URLs into Angular environment configuration files (`environment.ts` and `environment.prod.ts`). |
+| **Automated Testing** | Unit tests in [app.component.spec.ts](file:///d:/suppier/src/app/app.component.spec.ts) only verify default title property. | Expand Jasmine test specs to cover OTP authentication transitions, calculation accessors, and email HTML generation. |
 | **Real PDF Rendering** | PDF Preview modal currently renders simulated PDF preview containers or embed elements. | Integrate `pdfjs-dist` or `ng2-pdf-viewer` for native multi-page rendering and annotation overlays. |

@@ -470,6 +470,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   async ngOnInit(): Promise<void> {
     this.loadThemePreference();
     this.loadShortcutsCollapsedPreference();
+    this.loadSearchHistory();
     await this.restoreSessionOrInit();
   }
 
@@ -854,6 +855,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   showShopeeQuickView = false;
   shopeeOnlyTop5 = false;
 
+  isSearchHistoryOpen = false;
+
   recentSearches: string[] = [
     'Bando V-Belt',
     '5V-1400',
@@ -863,6 +866,71 @@ export class AppComponent implements OnInit, AfterViewInit {
     'Botton Box',
     'AIR CYLINDER MGPL50'
   ];
+
+  get filteredSearchHistory(): string[] {
+    const q = (this.quotationSearchQuery || '').trim().toLowerCase();
+    if (!q) return this.recentSearches;
+    return this.recentSearches.filter(item => item.toLowerCase().includes(q));
+  }
+
+  loadSearchHistory(): void {
+    try {
+      const saved = localStorage.getItem('suppier_quotation_recent_searches');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          this.recentSearches = parsed;
+        }
+      }
+    } catch (e) { }
+  }
+
+  saveSearchHistory(query: string): void {
+    const trimmed = (query || '').trim();
+    if (!trimmed) return;
+    this.recentSearches = [trimmed, ...this.recentSearches.filter(s => s.toLowerCase() !== trimmed.toLowerCase())].slice(0, 10);
+    try {
+      localStorage.setItem('suppier_quotation_recent_searches', JSON.stringify(this.recentSearches));
+    } catch (e) { }
+  }
+
+  removeSearchHistory(item: string, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    this.recentSearches = this.recentSearches.filter(s => s !== item);
+    try {
+      localStorage.setItem('suppier_quotation_recent_searches', JSON.stringify(this.recentSearches));
+    } catch (e) { }
+  }
+
+  clearAllSearchHistory(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    this.recentSearches = [];
+    try {
+      localStorage.removeItem('suppier_quotation_recent_searches');
+    } catch (e) { }
+  }
+
+  openSearchHistory(): void {
+    if (this.searchAnimStage === 'idle') {
+      this.isSearchHistoryOpen = true;
+    }
+  }
+
+  closeSearchHistory(): void {
+    this.isSearchHistoryOpen = false;
+  }
+
+  selectSearchHistoryItem(item: string): void {
+    this.quotationSearchQuery = item;
+    this.closeSearchHistory();
+    this.executeQuotationSearch(item);
+  }
 
   quotationSampleList: QuotationSearchResult[] = [
     {
@@ -3859,6 +3927,7 @@ Could you please include the estimated lead time as well`;
   }
 
   closeQuotationSearchView(): void {
+    this.closeSearchHistory();
     if (this.searchAnimTimeout) clearTimeout(this.searchAnimTimeout);
     this.isSearchCollapsing = false;
     this.searchAnimStage = 'idle';
@@ -3870,11 +3939,15 @@ Could you please include the estimated lead time as well`;
 
   executeQuotationSearch(query?: string): void {
     this.isThemeDrawerOpen = false;
+    this.closeSearchHistory();
     if (query !== undefined) {
       this.quotationSearchQuery = query;
     }
 
     const q = (this.quotationSearchQuery || '').trim();
+    if (q) {
+      this.saveSearchHistory(q);
+    }
     // Resolve matching supplier in directory if query matches vendor name or code
     const matchingSupplier = this.supplierList.find(s =>
       s.name.toLowerCase().includes(q.toLowerCase()) ||
@@ -3958,6 +4031,7 @@ Could you please include the estimated lead time as well`;
 
   clearSearchQuery(): void {
     this.quotationSearchQuery = '';
+    this.openSearchHistory();
   }
 
   setSearchFilterTab(tab: 'all' | 'pdf' | 'makers' | 'vendors' | 'urgent' | 'price'): void {
@@ -5073,7 +5147,7 @@ Could you please include the estimated lead time as well`;
     } catch (err: any) {
       console.error('Failed to load supplier quotations:', err);
       this.isMicroserviceOnline = false;
-      this.supplierQuotationsError = err?.message || 'Could not connect to Quotation Search service (http://localhost:8000)';
+      this.supplierQuotationsError = err?.message || 'Could not connect to Quotation Search service';
       this.supplierQuotationsResult = { query: supplierName, count: 0, results: [] };
     } finally {
       this.supplierQuotationsLoading = false;
@@ -5092,7 +5166,7 @@ Could you please include the estimated lead time as well`;
       this.aiInquiryResult = res;
       this.isMicroserviceOnline = true;
     } catch (err: any) {
-      this.aiInquiryError = err?.message || 'ไม่สามารถติดต่อ AI Quotation Copilot (http://localhost:8000) ได้';
+      this.aiInquiryError = err?.message || 'ไม่สามารถติดต่อ AI Quotation Copilot ได้';
       this.isMicroserviceOnline = false;
     } finally {
       this.aiInquiryLoading = false;

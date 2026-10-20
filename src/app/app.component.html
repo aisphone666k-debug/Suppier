@@ -419,76 +419,7 @@
 
         <!-- Logged in employee info & Logout button -->
         <div class="flex items-center gap-3">
-          <!-- ================= COLLAPSIBLE SHORTCUTS TOOLBAR ================= -->
-          <div class="shortcuts-collapsible-wrapper flex items-center">
-            
-            <!-- Toggle Button (Arrowhead Only) -->
-            <button (click)="toggleHeaderShortcuts()"
-              type="button"
-              class="shortcuts-toggle-btn group"
-              [class.is-collapsed]="isHeaderShortcutsCollapsed"
-              [title]="isHeaderShortcutsCollapsed ? 'คลิกเพื่อขยายทางลัด (Expand shortcuts)' : 'คลิกเพื่อยุบซ่อนทางลัด (Collapse shortcuts)'"
-              aria-label="Toggle shortcut buttons">
-              
-              <!-- Clean Rotating Arrowhead / Chevron -->
-              <svg class="shortcuts-chevron-icon w-4 h-4 transition-transform duration-300 text-slate-500 group-hover:text-blue-600"
-                [class.rotate-180]="isHeaderShortcutsCollapsed"
-                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
 
-            <!-- Collapsible Items Drawer (Smooth Sliding & Scaling with cubic-bezier) -->
-            <div class="shortcuts-drawer" [class.is-collapsed]="isHeaderShortcutsCollapsed">
-              <div class="shortcuts-inner-content flex items-center gap-2.5 pl-2">
-
-                <!-- 1. Quotation Search Quick Access -->
-                <button (click)="activeView === 'quotation-search' ? closeQuotationSearchView() : openQuotationSearchView()"
-                  [class]="activeView === 'quotation-search' 
-                    ? 'bg-[#131936] text-white ring-2 ring-blue-400 shadow-sm font-bold' 
-                    : 'bg-white hover:bg-blue-50/70 text-slate-700 hover:text-blue-700 border border-slate-300/80 shadow-2xs font-semibold'"
-                  class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer whitespace-nowrap shrink-0 hover:scale-[1.02] active:scale-95"
-                  title="Quotation Search">
-                  <img src="/sp-logo-emblem.png" alt="Suppier" class="w-4 h-4 object-contain shrink-0" />
-                  <span>Quotation Search</span>
-                  <span class="text-[10px] font-black px-1.5 py-0.5 rounded-md"
-                    [class]="activeView === 'quotation-search' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800'">
-                    SEARCH
-                  </span>
-                </button>
-
-                <!-- 2. Supplier Directory & Pricing Quick Access Header Button -->
-                <button (click)="openSupplierDirectoryView()"
-                  [class]="activeView === 'supplier-directory' || activeView === 'supplier-detail'
-                    ? 'bg-[#131936] text-white ring-2 ring-emerald-400 shadow-sm font-bold' 
-                    : 'bg-white hover:bg-emerald-50/70 text-slate-700 hover:text-emerald-700 border border-slate-300/80 shadow-2xs font-semibold'"
-                  class="px-3 py-1.5 rounded-xl text-xs flex items-center space-x-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 hover:scale-[1.02] active:scale-95"
-                  title="ผู้จำหน่ายและสัญญาใบเสนอราคา">
-                  <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                  <span>Suppliers & Pricing</span>
-                  <span class="text-[10px] font-black px-1.5 py-0.5 rounded-md"
-                    [class]="activeView === 'supplier-directory' || activeView === 'supplier-detail' ? 'bg-emerald-600 text-white' : 'bg-emerald-100 text-emerald-800'">
-                    {{ supplierList.length }}
-                  </span>
-                </button>
-
-                <!-- 3. Purchase Quick Access Header Button -->
-                <button *ngIf="isPurchaseSection" (click)="openPurchaseQuotationView()"
-                  class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black text-cyan-950 bg-gradient-to-r from-cyan-300 via-sky-300 to-cyan-400 hover:from-cyan-200 hover:to-sky-200 border border-cyan-500 shadow-xs hover:shadow-sm transition-all cursor-pointer whitespace-nowrap shrink-0 hover:scale-[1.02] active:scale-95">
-                  <svg class="w-3.5 h-3.5 text-cyan-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  <span>Purchase Quotation Requests</span>
-                </button>
-
-              </div>
-            </div>
-
-          </div>
 
           <!-- Employee Badge Pill with Playful Hover Interaction (Positioned next to Logout) -->
           <div (click)="openEmployeeCard()" title="คลิกเพื่อดูบัตรพนักงาน (Employee Badge)"
@@ -545,22 +476,18 @@
 
         <div class="space-y-4">
 
-          <!-- Group 1: ALL DOCUMENT -->
+          <!-- ================= TOP GROUP: QUOTATION & SOURCING TOOLS ================= -->
           <div class="space-y-1.5">
-            <!-- Header when expanded -->
+            <!-- Header when expanded with collapse button -->
             <div *ngIf="!isSidebarCollapsed" class="flex items-center justify-between px-2 pb-1">
-              <span class="text-[11.5px] font-bold text-slate-400 uppercase tracking-wider">All Document</span>
-              <div class="flex items-center gap-1.5">
-                <span class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md font-mono">{{
-                  documentMenus.length }}</span>
-                <button (click)="toggleSidebar()" title="ย่อแถบเมนู (Collapse Sidebar)"
-                  class="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                  </svg>
-                </button>
-              </div>
+              <span class="text-[11.5px] font-bold text-slate-400 uppercase tracking-wider">Quotation & Sourcing</span>
+              <button (click)="toggleSidebar()" title="ย่อแถบเมนู (Collapse Sidebar)"
+                class="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                </svg>
+              </button>
             </div>
 
             <!-- Header button when collapsed -->
@@ -571,6 +498,101 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
                 </svg>
               </button>
+            </div>
+
+            <nav class="space-y-1">
+              <!-- 1. Quotation Search -->
+              <button (click)="activeView === 'quotation-search' ? closeQuotationSearchView() : openQuotationSearchView()"
+                [class]="activeView === 'quotation-search' 
+                  ? 'bg-[#131936] text-white shadow-sm font-bold' 
+                  : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 font-semibold'"
+                [class.w-full]="true"
+                [class.text-left]="!isSidebarCollapsed"
+                [class.px-3]="!isSidebarCollapsed"
+                [class.py-2]="!isSidebarCollapsed"
+                [class.p-2]="isSidebarCollapsed"
+                [class.justify-center]="isSidebarCollapsed"
+                class="rounded-xl text-sm transition-all flex items-center justify-between group cursor-pointer"
+                title="Quotation Search">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <img src="/sp-logo-emblem.png" alt="Suppier" class="w-4 h-4 object-contain shrink-0" />
+                  <span *ngIf="!isSidebarCollapsed" class="truncate font-semibold">Quotation Search</span>
+                </div>
+                <span *ngIf="!isSidebarCollapsed" class="text-[10px] font-black px-1.5 py-0.5 rounded-md shrink-0 ml-1.5"
+                  [class]="activeView === 'quotation-search' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800'">
+                  SEARCH
+                </span>
+              </button>
+
+              <!-- 2. Suppliers & Pricing -->
+              <button (click)="openSupplierDirectoryView()"
+                [class]="activeView === 'supplier-directory' || activeView === 'supplier-detail'
+                  ? 'bg-[#131936] text-white shadow-sm font-bold' 
+                  : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 font-semibold'"
+                [class.w-full]="true"
+                [class.text-left]="!isSidebarCollapsed"
+                [class.px-3]="!isSidebarCollapsed"
+                [class.py-2]="!isSidebarCollapsed"
+                [class.p-2]="isSidebarCollapsed"
+                [class.justify-center]="isSidebarCollapsed"
+                class="rounded-xl text-sm transition-all flex items-center justify-between group cursor-pointer"
+                title="Suppliers & Pricing">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <svg class="w-4 h-4 shrink-0 transition-colors"
+                    [class.text-emerald-400]="activeView === 'supplier-directory' || activeView === 'supplier-detail'"
+                    [class.text-emerald-600]="activeView !== 'supplier-directory' && activeView !== 'supplier-detail'"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  <span *ngIf="!isSidebarCollapsed" class="truncate font-semibold">Suppliers & Pricing</span>
+                </div>
+                <span *ngIf="!isSidebarCollapsed" class="text-[10px] font-black px-1.5 py-0.5 rounded-md shrink-0 ml-1.5"
+                  [class]="activeView === 'supplier-directory' || activeView === 'supplier-detail' ? 'bg-emerald-600 text-white' : 'bg-emerald-100 text-emerald-800'">
+                  {{ supplierList.length }}
+                </span>
+              </button>
+
+              <!-- 3. Purchase Quotation Requests -->
+              <button (click)="openPurchaseQuotationView()"
+                [class]="activeView === 'purchase-quotation' 
+                  ? 'bg-[#131936] text-white shadow-sm font-bold' 
+                  : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 font-semibold'"
+                [class.w-full]="true"
+                [class.text-left]="!isSidebarCollapsed"
+                [class.px-3]="!isSidebarCollapsed"
+                [class.py-2]="!isSidebarCollapsed"
+                [class.p-2]="isSidebarCollapsed"
+                [class.justify-center]="isSidebarCollapsed"
+                class="rounded-xl text-sm transition-all flex items-center justify-between group cursor-pointer"
+                title="Purchase Quotation Requests">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <svg class="w-4 h-4 shrink-0 transition-colors"
+                    [class.text-cyan-400]="activeView === 'purchase-quotation'"
+                    [class.text-cyan-600]="activeView !== 'purchase-quotation'"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  <span *ngIf="!isSidebarCollapsed" class="truncate font-semibold">Purchase Quotations</span>
+                </div>
+                <span *ngIf="!isSidebarCollapsed" class="text-[10px] font-black px-1.5 py-0.5 rounded-md shrink-0 ml-1.5"
+                  [class]="activeView === 'purchase-quotation' ? 'bg-cyan-600 text-white' : 'bg-cyan-100 text-cyan-800'">
+                  NEW
+                </span>
+              </button>
+            </nav>
+          </div>
+
+          <!-- Group 1: ALL DOCUMENT -->
+          <div class="space-y-1.5 pt-2 border-t border-slate-100">
+            <!-- Header when expanded -->
+            <div *ngIf="!isSidebarCollapsed" class="flex items-center justify-between px-2 pb-1">
+              <span class="text-[11.5px] font-bold text-slate-400 uppercase tracking-wider">All Document</span>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md font-mono">{{
+                  documentMenus.length }}</span>
+              </div>
             </div>
 
             <nav class="space-y-1">
@@ -783,53 +805,8 @@
             </nav>
           </div>
 
-          <!-- Group 3: PURCHASE EXCLUSIVE MENU (Active when Section_Name is PURCHASE) -->
-          <div *ngIf="isPurchaseSection" class="pt-2 border-t border-slate-100">
-            <div class="bg-cyan-50/70 border border-cyan-200/80 rounded-xl space-y-1" [class.p-2]="!isSidebarCollapsed"
-              [class.p-1]="isSidebarCollapsed">
-              <div *ngIf="!isSidebarCollapsed" class="flex items-center justify-between px-1">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-900 flex items-center gap-1.5">
-                  <svg class="w-3.5 h-3.5 text-cyan-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  Purchase Section
-                </span>
-                <span class="bg-cyan-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">ACTIVE</span>
-              </div>
-              <button (click)="openPurchaseQuotationView()" [class]="activeView === 'purchase-quotation' 
-                ? 'bg-cyan-700 text-white shadow-xs font-bold' 
-                : 'text-cyan-900 hover:bg-cyan-100 font-semibold'" [class.justify-center]="isSidebarCollapsed"
-                [class.px-2]="!isSidebarCollapsed" [class.py-1.5]="true"
-                class="w-full text-left rounded-lg text-xs transition-all flex items-center justify-between group cursor-pointer"
-                title="Purchase Quotation Requests">
-                <div class="flex items-center gap-2 truncate" [class.justify-center]="isSidebarCollapsed">
-                  <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  <span *ngIf="!isSidebarCollapsed" class="truncate">User Quotation Requests</span>
-                </div>
-              </button>
-            </div>
-          </div>
 
-        </div>
 
-        <!-- Testing / Demo Toggle for Purchase Section Mode -->
-        <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 px-1"
-          [class.justify-center]="isSidebarCollapsed">
-          <span *ngIf="!isSidebarCollapsed" class="font-medium flex items-center gap-1.5 text-[11px] text-slate-400">
-            <span class="w-2 h-2 rounded-full" [class.bg-emerald-500]="isPurchaseSection"
-              [class.bg-slate-300]="!isPurchaseSection"></span>
-            Purchase Mode
-          </span>
-          <button (click)="togglePurchaseTestMode()"
-            [class]="isPurchaseSection ? 'bg-cyan-600 text-white font-black' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-bold'"
-            class="px-2 py-0.5 rounded-md text-[10px] transition-all cursor-pointer shadow-2xs"
-            title="คลิกเพื่อเปิด/ปิดโหมดจำลองแผนก PURCHASE สำหรับทดสอบได้ทุกบัญชี">
-            {{ isPurchaseSection ? 'ON' : 'OFF' }}
-          </button>
         </div>
 
       </aside>
@@ -3090,7 +3067,7 @@
           <!-- ------------------------------------------------------------- -->
           <div *ngIf="searchEngineMode === 'home'"
             [style.backgroundColor]="isDarkThemeActive ? '#0f172a' : currentTheme.lightBg"
-            class="h-full w-full flex flex-col justify-between p-4 sm:p-6 sm:px-8 relative overflow-hidden transition-colors duration-300">
+            class="h-full w-full flex flex-col p-4 sm:p-6 sm:px-8 relative overflow-hidden transition-colors duration-300">
 
             <!-- Ambient subtle gradient glow (shown on color themes, hidden on pure white) -->
             <div *ngIf="currentTheme.lightBg !== '#ffffff' && !isDarkThemeActive" class="absolute -top-40 -left-40 w-96 h-96 bg-blue-100/40 rounded-full blur-3xl pointer-events-none">
@@ -3221,8 +3198,8 @@
               </div>
             </div>
 
-            <!-- Google Hero Center Section -->
-            <div class="max-w-3xl w-full mx-auto my-auto text-center space-y-7 py-8 z-10">
+            <!-- Google Hero Center Section (Positioned higher up for clean balance) -->
+            <div class="max-w-3xl w-full mx-auto text-center space-y-7 pt-12 sm:pt-20 md:pt-28 pb-8 z-10">
 
               <!-- Suppier Project Branded Quotation Search Logo (Fades out smoothly when searching) -->
               <div class="flex flex-col items-center justify-center select-none py-1 transition-all duration-500"
@@ -3239,7 +3216,12 @@
 
               <!-- Google Rounded Search Pill Input Bar Container -->
               <div class="relative w-full max-w-2xl sm:max-w-3xl mx-auto h-[54px] flex items-center justify-center">
-                <div class="search-pill-box" [class.expanding]="searchAnimStage === 'expanding'"
+                <!-- Invisible backdrop to close history dropdown on outside click -->
+                <div *ngIf="isSearchHistoryOpen && searchAnimStage === 'idle'"
+                  (click)="closeSearchHistory()"
+                  class="fixed inset-0 z-30 bg-transparent"></div>
+
+                <div class="search-pill-box relative z-40" [class.expanding]="searchAnimStage === 'expanding'"
                   [class.collapsing]="searchAnimStage === 'collapsing' || searchAnimStage === 'loading'"
                   [class.is-loading]="searchAnimStage === 'loading'">
 
@@ -3254,7 +3236,9 @@
 
                     <!-- Native Text Input -->
                     <input type="text" [(ngModel)]="quotationSearchQuery" [disabled]="searchAnimStage !== 'idle'"
-                      (keydown.enter)="executeQuotationSearch()"
+                      (focus)="openSearchHistory()"
+                      (click)="openSearchHistory()"
+                      (keydown.enter)="executeQuotationSearch(); closeSearchHistory()"
                       placeholder="ค้นหาด้วย Part Name, Spec, Maker, Vendor, Quotation No, Requisition No..."
                       class="w-full bg-transparent text-sm sm:text-base text-slate-800 placeholder-slate-400 focus:outline-none leading-normal font-sans" />
 
@@ -3383,97 +3367,58 @@
                   </div>
 
                 </div>
-              </div>
 
-              <!-- Google Action Buttons Under Search Bar (Gradually fades away when search begins) -->
-              <div class="flex items-center justify-center gap-3 flex-wrap pt-1 transition-all duration-500"
-                [class.opacity-0]="isSearchCollapsing" [class.translate-y-3]="isSearchCollapsing"
-                [class.pointer-events-none]="isSearchCollapsing">
-                <button (click)="executeQuotationSearch()"
-                  class="px-5 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs sm:text-sm font-semibold border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all cursor-pointer">
-                  ค้นหาด้วย Quotation Search
-                </button>
-                <button (click)="feelingLucky()"
-                  class="px-5 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs sm:text-sm font-semibold border border-slate-200/80 shadow-2xs hover:shadow-xs transition-all cursor-pointer flex items-center gap-1.5">
+                <!-- Google Search History Dropdown Box (Styled authentically like Google Search History) -->
+                <div *ngIf="isSearchHistoryOpen && searchAnimStage === 'idle' && (filteredSearchHistory.length > 0 || quotationSearchQuery)"
+                  class="absolute top-[58px] left-0 right-0 max-w-[672px] mx-auto bg-white rounded-2xl shadow-xl border border-slate-200/90 py-2 z-50 overflow-hidden text-left animate-in fade-in zoom-in-95 duration-150">
 
-                  <span>ดีใจจัง ค้นแล้วเจอเลย</span>
-                </button>
-                <button (click)="setSearchFilterTab('urgent'); executeQuotationSearch()"
-                  class="px-4 py-2.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs sm:text-sm font-bold border border-rose-200 shadow-2xs transition-all cursor-pointer flex items-center gap-1.5">
-
-                  <span>รายการด่วน (Urgent)</span>
-                </button>
-              </div>
-
-              <!-- Languages Offered (Gradually fades away when search begins) -->
-              <div class="text-xs text-slate-500 pt-1 transition-all duration-500"
-                [class.opacity-0]="isSearchCollapsing" [class.pointer-events-none]="isSearchCollapsing">
-                <span>Quotation Search มีให้บริการใน:</span>
-                <span class="ml-2 space-x-2">
-                  <a href="javascript:void(0)" (click)="showToast('ภาษาไทย (ค่าเริ่มต้น)')"
-                    class="text-blue-700 hover:underline">ภาษาไทย</a>
-                  <a href="javascript:void(0)" (click)="showToast('English interface')"
-                    class="text-blue-700 hover:underline">English</a>
-                  <a href="javascript:void(0)" (click)="showToast('日本語インターフェース')"
-                    class="text-blue-700 hover:underline">日本語</a>
-                </span>
-              </div>
-
-              <!-- Popular / Trending Search Chips (Gradually fades away when search begins) -->
-              <div class="pt-4 border-t border-slate-100 transition-all duration-500"
-                [class.opacity-0]="isSearchCollapsing" [class.translate-y-3]="isSearchCollapsing"
-                [class.pointer-events-none]="isSearchCollapsing">
-                <div
-                  class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5 flex items-center justify-center gap-1.5">
-                  <span>คำค้นยอดนิยมสำหรับอะไหล่ & ใบเสนอราคา</span>
-                </div>
-                <div class="flex items-center justify-center gap-2 flex-wrap">
-                  <button *ngFor="let query of recentSearches" (click)="executeQuotationSearch(query)"
-                    class="px-3 py-1.5 rounded-full text-xs font-medium text-slate-700 bg-slate-100 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 border border-slate-200 transition-all cursor-pointer">
-                    {{ query }}
-                  </button>
-                </div>
-              </div>
-
-              <!-- Merged Supplier & Vendor Directory Live Search Chips -->
-              <div class="pt-3 border-t border-slate-100 transition-all duration-500 max-w-xl mx-auto w-full text-left"
-                [class.opacity-0]="isSearchCollapsing" [class.translate-y-3]="isSearchCollapsing"
-                [class.pointer-events-none]="isSearchCollapsing">
-                <div class="flex items-center justify-between gap-2 mb-2">
-                  <div class="text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>คู่ค้า & สัญญาใบเสนอราคา (Live Microservice port 8000)</span>
-                  </div>
-                  <button (click)="openSupplierDirectoryView()"
-                    class="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 hover:underline cursor-pointer flex items-center gap-1">
-                    <span>เปิดสมุดรายชื่อคู่ค้า</span>
-                    <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  <button *ngFor="let s of [
-                    { name: 'BANDO', desc: 'V-Belts & Transmission', code: '0010584101' },
-                    { name: 'IWASE', desc: 'Linear Guides & Valves', code: '26Q13131' },
-                    { name: 'FANUC', desc: 'CNC & Robotics Spares', code: '137836' },
-                    { name: 'DooDee', desc: 'Automation & Sensors', code: '26DD09113' },
-                    { name: 'THAI-INTER', desc: 'Electrical & Machine Parts', code: '0416359' },
-                    { name: 'TORNOS', desc: 'Precision Turning Parts', code: '21221998' }
-                  ]"
-                    (click)="searchSupplierInMicroservice(s.name)"
-                    class="p-2 bg-white/90 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded-xl text-left transition-all group shadow-2xs cursor-pointer">
-                    <div class="flex items-center justify-between">
-                      <span class="font-bold text-xs text-slate-800 group-hover:text-emerald-800">{{ s.name }}</span>
-                      <span class="text-[9px] font-mono font-bold text-emerald-700 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">
-                        {{ s.code }}
-                      </span>
+                  <!-- Header: ประวัติการค้นหาล่าสุด + ล้างทั้งหมด -->
+                  <div class="px-4 py-1.5 flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                    <div class="flex items-center gap-1.5">
+                      <svg class="w-3.5 h-3.5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>ประวัติการค้นหาล่าสุด</span>
                     </div>
-                    <div class="text-[10px] text-slate-400 truncate mt-0.5">{{ s.desc }}</div>
-                  </button>
+                    <button *ngIf="recentSearches.length > 0" (click)="clearAllSearchHistory($event)"
+                      class="text-slate-400 hover:text-rose-600 transition-colors cursor-pointer text-[10px] normal-case hover:underline">
+                      ล้างประวัติทั้งหมด
+                    </button>
+                  </div>
+
+                  <!-- History Items List -->
+                  <div class="max-h-64 overflow-y-auto divide-y divide-slate-50">
+                    <div *ngFor="let item of filteredSearchHistory"
+                      (click)="selectSearchHistoryItem(item)"
+                      class="px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors group">
+                      <div class="flex items-center gap-3.5 min-w-0">
+                        <!-- Google purple history clock icon -->
+                        <svg class="w-4 h-4 text-purple-600/80 group-hover:text-blue-600 shrink-0 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="text-sm font-medium text-purple-950 group-hover:text-blue-700 truncate">{{ item }}</span>
+                      </div>
+                      <button (click)="removeSearchHistory(item, $event)"
+                        title="ลบออกจากประวัติ"
+                        class="text-xs text-slate-400 hover:text-rose-600 p-1 rounded-full hover:bg-slate-200/60 opacity-0 group-hover:opacity-100 transition-all cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    <!-- No Match State -->
+                    <div *ngIf="filteredSearchHistory.length === 0" class="px-4 py-3 text-xs text-slate-400 text-center">
+                      ไม่พบประวัติที่ตรงกับ "{{ quotationSearchQuery }}" (กด Enter เพื่อค้นหา)
+                    </div>
+                  </div>
+
                 </div>
               </div>
+
+
+
+
 
             </div>
 
@@ -3522,10 +3467,18 @@
                 </div>
 
                 <!-- Center: Compact Pill Search Bar (Consistent Suppier Style) -->
-                <div class="flex-1 max-w-2xl min-w-[280px]">
+                <div class="flex-1 max-w-2xl min-w-[280px] relative">
+                  <!-- Invisible backdrop to close history dropdown on outside click -->
+                  <div *ngIf="isSearchHistoryOpen"
+                    (click)="closeSearchHistory()"
+                    class="fixed inset-0 z-30 bg-transparent"></div>
+
                   <div
-                    class="google-search-bar bg-white border border-slate-300 rounded-full px-4 py-2 sm:py-2.5 flex items-center gap-2.5 transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
-                    <input type="text" [(ngModel)]="quotationSearchQuery" (keydown.enter)="executeQuotationSearch()"
+                    class="google-search-bar bg-white border border-slate-300 rounded-full px-4 py-2 sm:py-2.5 flex items-center gap-2.5 transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 relative z-40">
+                    <input type="text" [(ngModel)]="quotationSearchQuery"
+                      (focus)="openSearchHistory()"
+                      (click)="openSearchHistory()"
+                      (keydown.enter)="executeQuotationSearch(); closeSearchHistory()"
                       placeholder="ค้นหา Part Name, Spec, Maker, Vendor, Quotation No..."
                       class="w-full bg-transparent text-sm text-slate-800 placeholder-slate-400 focus:outline-none leading-normal font-sans" />
 
@@ -3557,6 +3510,53 @@
                       </svg>
                     </button>
                   </div>
+
+                  <!-- Google Search History Dropdown Box in Results Mode -->
+                  <div *ngIf="isSearchHistoryOpen && (filteredSearchHistory.length > 0 || quotationSearchQuery)"
+                    class="absolute top-12 left-0 right-0 bg-white rounded-2xl shadow-xl border border-slate-200/90 py-2 z-50 overflow-hidden text-left animate-in fade-in zoom-in-95 duration-150">
+
+                    <!-- Header -->
+                    <div class="px-4 py-1.5 flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                      <div class="flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>ประวัติการค้นหาล่าสุด</span>
+                      </div>
+                      <button *ngIf="recentSearches.length > 0" (click)="clearAllSearchHistory($event)"
+                        class="text-slate-400 hover:text-rose-600 transition-colors cursor-pointer text-[10px] normal-case hover:underline">
+                        ล้างประวัติทั้งหมด
+                      </button>
+                    </div>
+
+                    <!-- History Items List -->
+                    <div class="max-h-64 overflow-y-auto divide-y divide-slate-50">
+                      <div *ngFor="let item of filteredSearchHistory"
+                        (click)="selectSearchHistoryItem(item)"
+                        class="px-4 py-2 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors group">
+                        <div class="flex items-center gap-3 min-w-0">
+                          <svg class="w-4 h-4 text-purple-600/80 group-hover:text-blue-600 shrink-0 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span class="text-sm font-medium text-purple-950 group-hover:text-blue-700 truncate">{{ item }}</span>
+                        </div>
+                        <button (click)="removeSearchHistory(item, $event)"
+                          title="ลบออกจากประวัติ"
+                          class="text-xs text-slate-400 hover:text-rose-600 p-1 rounded-full hover:bg-slate-200/60 opacity-0 group-hover:opacity-100 transition-all cursor-pointer">
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+
+                      <!-- No Match State -->
+                      <div *ngIf="filteredSearchHistory.length === 0" class="px-4 py-3 text-xs text-slate-400 text-center">
+                        ไม่พบประวัติที่ตรงกับ "{{ quotationSearchQuery }}" (กด Enter เพื่อค้นหา)
+                      </div>
+                    </div>
+
+                  </div>
+
                 </div>
 
                 <!-- Right Action Button: Home -->
@@ -3613,103 +3613,66 @@
             </div>
 
             <!-- ================= PRIMARY UNIFIED TABS IN QUOTATION SEARCH ================= -->
-            <div class="bg-white rounded-2xl border border-slate-200/90 p-2 shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs">
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <!-- Tab 1: Live Microservice Quotations -->
-                <button (click)="quotationSearchTab = 'live-quotes'"
-                  [class]="quotationSearchTab === 'live-quotes'
-                    ? 'bg-[#131936] text-white shadow-xs font-bold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'"
-                  class="px-3.5 py-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer shrink-0">
-                  <span class="w-2 h-2 rounded-full bg-emerald-400" [class.animate-ping]="supplierQuotationsLoading"></span>
-                  <span>Live Quotation Search (Microservice port 8000)</span>
-                  <span class="px-2 py-0.2 rounded-full text-[10px] font-black"
-                    [class]="quotationSearchTab === 'live-quotes' ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-700'">
-                    {{ supplierQuotationsResult?.count || 0 }}
-                  </span>
-                </button>
-
-                <!-- Tab 2: Supplier & Vendor Directory -->
-                <button (click)="quotationSearchTab = 'suppliers'"
-                  [class]="quotationSearchTab === 'suppliers'
-                    ? 'bg-[#131936] text-white shadow-xs font-bold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'"
-                  class="px-3.5 py-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer shrink-0">
-                  <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                  <span>Supplier & Vendor Directory</span>
-                  <span class="px-2 py-0.2 rounded-full text-[10px] font-black"
-                    [class]="quotationSearchTab === 'suppliers' ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700'">
-                    {{ filteredSupplierList.length }}
-                  </span>
-                </button>
-
-                <!-- Tab 3: Parts & CAD Catalog -->
-                <button (click)="quotationSearchTab = 'catalog'"
-                  [class]="quotationSearchTab === 'catalog'
-                    ? 'bg-[#131936] text-white shadow-xs font-bold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'"
-                  class="px-3.5 py-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer shrink-0">
-                  <svg class="w-4 h-4 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                  </svg>
-                  <span>Parts & CAD Catalog</span>
-                  <span class="px-2 py-0.2 rounded-full text-[10px] font-black"
-                    [class]="quotationSearchTab === 'catalog' ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700'">
-                    {{ shopeeFilteredResults.length }}
-                  </span>
-                </button>
-              </div>
-
-              <!-- Service Status Badge -->
-              <div class="flex items-center gap-2 text-xs">
-                <span class="text-slate-500 font-medium hidden md:inline">Microservice:</span>
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 text-white font-mono text-[11px] font-bold">
-                  <span class="w-1.5 h-1.5 rounded-full" [class.bg-emerald-400]="isMicroserviceOnline" [class.animate-pulse]="isMicroserviceOnline" [class.bg-rose-500]="!isMicroserviceOnline"></span>
-                  <span>localhost:8000</span>
-                  <span class="text-[9px] px-1 py-0.2 rounded font-sans uppercase font-bold" [class.text-emerald-300]="isMicroserviceOnline" [class.text-rose-300]="!isMicroserviceOnline">
-                    {{ isMicroserviceOnline ? 'ONLINE' : 'OFFLINE' }}
-                  </span>
+            <div class="bg-white rounded-2xl border border-slate-200/90 p-2 shadow-2xs flex items-center gap-1.5 flex-wrap text-xs">
+              <!-- Tab 1: Live Microservice Quotations -->
+              <button (click)="quotationSearchTab = 'live-quotes'"
+                [class]="quotationSearchTab === 'live-quotes'
+                  ? 'bg-[#131936] text-white shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'"
+                class="px-3.5 py-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer shrink-0">
+                <span class="w-2 h-2 rounded-full bg-emerald-400" [class.animate-ping]="supplierQuotationsLoading"></span>
+                <span>Live Quotation Search</span>
+                <span class="px-2 py-0.2 rounded-full text-[10px] font-black"
+                  [class]="quotationSearchTab === 'live-quotes' ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-700'">
+                  {{ supplierQuotationsResult?.count || 0 }}
                 </span>
-              </div>
+              </button>
+
+              <!-- Tab 2: Supplier & Vendor Directory -->
+              <button (click)="quotationSearchTab = 'suppliers'"
+                [class]="quotationSearchTab === 'suppliers'
+                  ? 'bg-[#131936] text-white shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'"
+                class="px-3.5 py-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer shrink-0">
+                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                <span>Supplier & Vendor Directory</span>
+                <span class="px-2 py-0.2 rounded-full text-[10px] font-black"
+                  [class]="quotationSearchTab === 'suppliers' ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700'">
+                  {{ filteredSupplierList.length }}
+                </span>
+              </button>
+
+              <!-- Tab 3: Parts & CAD Catalog -->
+              <button (click)="quotationSearchTab = 'catalog'"
+                [class]="quotationSearchTab === 'catalog'
+                  ? 'bg-[#131936] text-white shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium'"
+                class="px-3.5 py-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer shrink-0">
+                <svg class="w-4 h-4 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+                <span>Parts & CAD Catalog</span>
+                <span class="px-2 py-0.2 rounded-full text-[10px] font-black"
+                  [class]="quotationSearchTab === 'catalog' ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700'">
+                  {{ shopeeFilteredResults.length }}
+                </span>
+              </button>
             </div>
 
             <!-- ================= TAB 1 CONTENT: LIVE MICROSERVICE QUOTATION SEARCH ================= -->
             <div *ngIf="quotationSearchTab === 'live-quotes'" class="space-y-4 animate-in fade-in duration-150">
               
               <!-- AI Procurement Copilot (RAG) Widget -->
-              <div class="bg-gradient-to-r from-indigo-900 via-indigo-950 to-slate-900 rounded-2xl p-4 sm:p-5 text-white shadow-md border border-indigo-700/40 space-y-3">
-                <div class="flex items-center justify-between flex-wrap gap-2">
-                  <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-indigo-500/30 border border-indigo-400/40 flex items-center justify-center text-indigo-300">
-                      <svg class="w-4 h-4 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div class="flex items-center gap-2">
-                        <span class="text-sm font-bold text-white">AI Procurement Copilot (RAG)</span>
-                        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-200 border border-indigo-400/30">FastEmbed + Hybrid Vector</span>
-                      </div>
-                      <div class="text-[11px] text-indigo-200/70">สอบถามข้อตกลงและเปรียบเทียบราคาอะไหล่ด้วยภาษาธรรมชาติ (Thai / English)</div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1.5 text-xs">
-                    <button *ngIf="aiInquiryResult || aiInquiryError" (click)="clearAiInquiry()"
-                      class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white/10 hover:bg-white/20 text-indigo-200 transition-colors cursor-pointer">
-                      ล้างคำตอบ
-                    </button>
-                  </div>
-                </div>
-
+              <div class="bg-gradient-to-r from-indigo-900 via-indigo-950 to-slate-900 rounded-2xl p-2.5 sm:p-3 text-white shadow-md border border-indigo-700/40 space-y-3">
                 <!-- AI Prompt Input -->
                 <div class="flex items-center gap-2">
                   <div class="relative flex-1">
                     <input type="text" [(ngModel)]="aiInquiryQuery" (keydown.enter)="submitAiInquiry()"
-                      placeholder="เช่น ราคา V-belt ต่ำสุดอยู่ที่ผู้ขายไหน? หรือ มีสินค้าอะไรบ้าง..."
+                      placeholder="ถาม AI เช่น ราคา V-belt ต่ำสุดอยู่ที่ผู้ขายไหน? หรือ มีสินค้าอะไรบ้าง..."
                       class="w-full bg-white/10 hover:bg-white/15 focus:bg-white/20 border border-indigo-500/40 focus:border-indigo-400 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white placeholder-indigo-300/50 focus:outline-none transition-all font-sans" />
                     <button *ngIf="aiInquiryQuery" (click)="clearAiInquiry()"
                       class="absolute right-2.5 top-1/2 -translate-y-1/2 text-indigo-300/60 hover:text-white p-1 cursor-pointer">
@@ -3731,21 +3694,6 @@
                   </button>
                 </div>
 
-                <!-- Quick AI Prompt Chips -->
-                <div class="flex items-center gap-1.5 flex-wrap text-[11px] text-indigo-300/80 pt-0.5">
-                  <span>ตัวอย่างคำถาม:</span>
-                  <button *ngFor="let prompt of [
-                    'มีสินค้าอะไรบ้าง',
-                    'ราคา V-belt ต่ำสุดอยู่ที่ผู้ขายไหน?',
-                    'สรุปเงื่อนไขและวันหมดอายุของ Bando',
-                    'มีข้อตกลงของ IWASE อะไรบ้าง?'
-                  ]"
-                    (click)="submitAiInquiry(prompt)"
-                    class="px-2.5 py-0.5 rounded-full bg-white/5 hover:bg-white/15 text-indigo-200 border border-indigo-400/20 transition-colors cursor-pointer">
-                    {{ prompt }}
-                  </button>
-                </div>
-
                 <!-- AI Answer Result Card -->
                 <div *ngIf="aiInquiryResult" class="mt-3 p-4 rounded-xl bg-white text-slate-800 shadow-sm border border-indigo-100 animate-in fade-in duration-200 space-y-3">
                   <div class="flex items-center justify-between text-xs">
@@ -3755,9 +3703,15 @@
                       </svg>
                       <span>คำตอบจาก AI Quotation Copilot</span>
                     </div>
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      {{ aiInquiryResult.cached ? '[CACHED]' : '' }} {{ aiInquiryResult.total_duration_ms }}ms
-                    </span>
+                    <div class="flex items-center gap-2">
+                      <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        {{ aiInquiryResult.cached ? '[CACHED]' : '' }} {{ aiInquiryResult.total_duration_ms }}ms
+                      </span>
+                      <button (click)="clearAiInquiry()"
+                        class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer">
+                        ล้างคำตอบ
+                      </button>
+                    </div>
                   </div>
 
                   <div class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
@@ -3837,10 +3791,10 @@
                 <div class="w-12 h-12 rounded-full border-3 border-emerald-500 border-t-transparent animate-spin mx-auto"></div>
                 <div class="space-y-1">
                   <div class="text-sm font-bold text-slate-900">
-                    กำลังค้นหาข้อตกลงใบเสนอราคาจาก Quotation Microservice...
+                    กำลังค้นหาข้อตกลงใบเสนอราคา...
                   </div>
-                  <div class="text-xs text-slate-500 font-mono">
-                    GET http://localhost:8000/api/search?query={{ quotationSearchQuery || selectedSupplier?.name || 'BANDO' }}
+                  <div class="text-xs text-slate-400">
+                    ค้นหาสำหรับ "{{ quotationSearchQuery || selectedSupplier?.name || 'BANDO' }}"
                   </div>
                 </div>
               </div>
@@ -3857,7 +3811,7 @@
                   <div class="space-y-1">
                     <div class="font-bold text-sm">ไม่สามารถเชื่อมต่อบริการ Quotation Search ได้</div>
                     <div class="text-xs text-rose-800">{{ supplierQuotationsError }}</div>
-                    <div class="text-[11px] text-rose-600">กรุณาตรวจสอบว่า Microservice ที่พอร์ต 8000 เปิดทำงานอยู่</div>
+                    <div class="text-[11px] text-rose-600">กรุณาตรวจสอบสถานะการเชื่อมต่อระบบค้นหาใบเสนอราคา</div>
                   </div>
                 </div>
                 <button (click)="executeQuotationSearch()"
@@ -3880,17 +3834,17 @@
                     No active quotation agreements on file for this supplier.
                   </h3>
                   <p class="text-xs text-slate-500 leading-relaxed">
-                    ไม่พบสัญญาใบเสนอราคาในระบบ Microservice (port 8000) สำหรับคำค้นหา <strong class="text-slate-800 font-mono">"{{ quotationSearchQuery || selectedSupplier?.name || '-' }}"</strong>
+                    ไม่พบสัญญาใบเสนอราคาในระบบ สำหรับคำค้นหา <strong class="text-slate-800 font-mono">"{{ quotationSearchQuery || selectedSupplier?.name || '-' }}"</strong>
                     <br>
                     <span class="text-[11px] text-slate-400">
-                      (Search Engine ที่ localhost:8000 ปัจจุบันเก็บสัญญา PDF ทั้งหมด 9 ฉบับ โดยมีคะแนนความตรง min_confidence = 0.65)
+                      (ระบบจัดเก็บสัญญา PDF ทั้งหมด 9 ฉบับ โดยมีเกณฑ์คะแนนความตรง min_confidence = 0.65)
                     </span>
                   </p>
 
                   <!-- Available Live Suppliers in Microservice -->
                   <div class="py-2.5 px-3 bg-slate-50 rounded-xl border border-slate-200 text-left space-y-2">
                     <div class="text-[11px] font-bold text-slate-700 flex items-center justify-between">
-                      <span>ผู้จำหน่ายที่มีไฟล์ใบเสนอราคาใน Microservice (port 8000) ขณะนี้:</span>
+                      <span>ผู้จำหน่ายที่มีไฟล์ใบเสนอราคาในระบบขณะนี้:</span>
                       <span class="text-emerald-600 font-mono text-[10px]">5 Active Vendors</span>
                     </div>
                     <div class="flex items-center gap-1.5 flex-wrap">
@@ -4838,25 +4792,15 @@
                   <h2 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
                     Supplier & Vendor Directory
                   </h2>
-                  <span class="bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
-                    Microservice Integrated
-                  </span>
                 </div>
                 <p class="text-xs text-slate-500 mt-0.5">
-                  รายชื่อผู้จำหน่ายและคู่ค้า พร้อมระบบค้นหาใบเสนอราคาอัตโนมัติจาก Microservice (port 8000)
+                  รายชื่อผู้จำหน่ายและคู่ค้า พร้อมระบบค้นหาใบเสนอราคาอัตโนมัติ
                 </p>
               </div>
             </div>
 
             <!-- Top Actions -->
             <div class="flex items-center gap-2.5 flex-wrap">
-              <div class="flex items-center bg-slate-100 rounded-xl p-1 border border-slate-200 text-xs">
-                <span class="px-2 text-slate-500 font-medium">Service Status:</span>
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-600 text-white font-mono font-bold text-[11px]">
-                  <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                  localhost:8000
-                </span>
-              </div>
               <button (click)="openQuotationSearchView()"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors cursor-pointer">
                 <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -5080,9 +5024,10 @@
                 </div>
 
                 <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/15 min-w-[130px]">
-                  <div class="text-[11px] font-semibold text-slate-300">Microservice API</div>
-                  <div class="text-xs font-mono text-cyan-300 font-bold mt-1 truncate max-w-[140px]" title="http://localhost:8000/api/search">
-                    localhost:8000
+                  <div class="text-[11px] font-semibold text-slate-300">Live Search API</div>
+                  <div class="text-xs font-bold text-emerald-300 mt-1 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    <span>Connected</span>
                   </div>
                 </div>
               </div>
@@ -5149,10 +5094,10 @@
               <div class="w-12 h-12 rounded-full border-3 border-emerald-500 border-t-transparent animate-spin mx-auto"></div>
               <div class="space-y-1">
                 <div class="text-sm font-bold text-slate-900">
-                  กำลังค้นหาข้อตกลงใบเสนอราคาจาก Quotation Microservice...
+                  กำลังค้นหาข้อตกลงใบเสนอราคา...
                 </div>
-                <div class="text-xs text-slate-500 font-mono">
-                  GET http://localhost:8000/api/search?query={{ selectedSupplier.name }}
+                <div class="text-xs text-slate-400">
+                  กำลังเชื่อมต่อฐานข้อมูลสัญญาสำหรับ "{{ selectedSupplier.name }}"
                 </div>
               </div>
             </div>
@@ -5169,7 +5114,7 @@
                 <div class="space-y-1">
                   <div class="font-bold text-sm">ไม่สามารถเชื่อมต่อบริการ Quotation Search ได้</div>
                   <div class="text-xs text-rose-800">{{ supplierQuotationsError }}</div>
-                  <div class="text-[11px] text-rose-600">กรุณาตรวจสอบว่า Microservice ที่พอร์ต 8000 เปิดทำงานอยู่</div>
+                  <div class="text-[11px] text-rose-600">กรุณาตรวจสอบสถานะการเปิดใช้งานของบริการค้นหาใบเสนอราคา</div>
                 </div>
               </div>
               <button (click)="loadSupplierQuotations(selectedSupplier.name)"
@@ -5544,7 +5489,10 @@
         <div class="px-5 py-2.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div class="flex items-center gap-2">
             <span class="text-slate-500 font-medium">Quotation Search Service:</span>
-            <span class="font-mono text-emerald-700 font-bold">http://localhost:8000/api/search</span>
+            <span class="inline-flex items-center gap-1.5 font-bold text-emerald-700">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              Live Connected
+            </span>
           </div>
 
           <div class="flex items-center gap-1.5">
@@ -5677,7 +5625,7 @@
 
         <!-- Footer -->
         <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
-          <span class="text-xs text-slate-500">Quotation Search Microservice &bull; http://localhost:8000</span>
+          <span class="text-xs text-slate-500">Quotation Search Service &bull; Live System</span>
           <button (click)="closeSupplierDetailModal()"
             class="px-4 py-1.5 text-xs font-semibold text-white bg-[#131936] rounded-lg hover:bg-[#1c244b] cursor-pointer">
             Close
