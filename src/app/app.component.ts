@@ -3921,6 +3921,7 @@ Could you please include the estimated lead time as well`;
     this.activeView = 'quotation-search';
     this.activeMenu = 'quotation-search';
     this.activeSubMenu = '';
+    this.quotationSearchTab = 'live-quotes';
     if (!this.selectedKnowledgeResult && this.quotationSampleList.length > 0) {
       this.selectedKnowledgeResult = this.quotationSampleList[0];
     }
@@ -3959,6 +3960,9 @@ Could you please include the estimated lead time as well`;
     const searchQuery = q || (matchingSupplier ? matchingSupplier.name : 'BANDO');
     this.loadSupplierQuotations(searchQuery, this.supplierUserRole);
 
+    // Always ensure Live Quotation Search tab is active upon searching
+    this.quotationSearchTab = 'live-quotes';
+
     // When searching from Home, animate:
     // Phase 1: Surrounding elements fade out, search box expands larger into center (420ms)
     // Phase 2: Search box gradually shortens inward until it becomes a circle (550ms)
@@ -3985,6 +3989,7 @@ Could you please include the estimated lead time as well`;
             this.searchEngineMode = 'results';
             this.searchAnimStage = 'idle';
             this.isSearchCollapsing = false;
+            this.quotationSearchTab = 'live-quotes';
             this.searchExecutionTime = (Math.random() * 0.18 + 0.12).toFixed(2);
             const results = this.filteredQuotationResults;
             if (results.length > 0) {
@@ -3997,6 +4002,7 @@ Could you please include the estimated lead time as well`;
     }
 
     // Direct result refresh if already on results page
+    this.quotationSearchTab = 'live-quotes';
     this.searchExecutionTime = (Math.random() * 0.18 + 0.12).toFixed(2);
     const results = this.filteredQuotationResults;
     if (results.length > 0) {
