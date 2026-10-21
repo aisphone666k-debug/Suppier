@@ -376,16 +376,16 @@
 
     <!-- ================= TOP SYSTEM BANNER ================= -->
     <header class="bg-white border-b border-slate-200 py-2.5 px-4 sm:px-6 shadow-2xs shrink-0 z-10">
-      <div class="w-full flex items-center justify-between gap-3 sm:gap-4">
+      <div class="w-full grid grid-cols-[auto_1fr_auto] md:grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-4">
 
         <!-- App Brand Logo -->
-        <div class="flex items-center shrink-0">
+        <div class="flex items-center justify-start shrink-0">
           <img src="/sp-logo-horizontal.png" alt="Suppier Logo"
             class="h-8 sm:h-9.5 w-auto object-contain filter drop-shadow-xs" />
         </div>
 
         <!-- Header Center: Prominent Stylish Typography Title with Moving Effects -->
-        <div class="flex-1 text-center py-0.5 select-none flex flex-col items-center justify-center relative">
+        <div class="text-center py-0.5 select-none flex flex-col items-center justify-center relative">
           <!-- Subtle Floating Ambient Glow behind title -->
           <div class="header-title-ambient-glow"></div>
 
@@ -419,7 +419,7 @@
         </div>
 
         <!-- Logged in employee info & Logout button -->
-        <div class="flex items-center gap-3">
+        <div class="flex items-center justify-end gap-3 shrink-0">
 
 
           <!-- Employee Badge Pill with Playful Hover Interaction (Positioned next to Logout) -->
@@ -507,7 +507,7 @@
             <nav class="space-y-1">
               <!-- 1. Quotation Search -->
               <button
-                (click)="activeView === 'quotation-search' ? closeQuotationSearchView() : openQuotationSearchView()"
+                (click)="openQuotationSearchView()"
                 [class]="activeView === 'quotation-search' 
                   ? 'bg-[#131936] text-white shadow-sm font-bold' 
                   : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 font-semibold'" [class.w-full]="true"

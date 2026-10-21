@@ -3933,8 +3933,9 @@ Could you please include the estimated lead time as well`;
     this.isSearchCollapsing = false;
     this.searchAnimStage = 'idle';
     this.showShopeeQuickView = false;
-    this.activeView = this.previousViewBeforeSearch || 'edit';
-    this.activeMenu = this.previousMenuBeforeSearch || 'spare-part';
+    const targetView = this.previousViewBeforeSearch || 'edit';
+    this.activeView = targetView;
+    this.activeMenu = this.previousMenuBeforeSearch || (targetView === 'supplier-directory' ? 'supplier-directory' : 'spare-part');
     this.activeSubMenu = this.previousSubMenuBeforeSearch || '';
   }
 
@@ -5064,23 +5065,23 @@ Could you please include the estimated lead time as well`;
   supplierLineItemFilter = '';
 
   openSupplierDirectoryView(): void {
-    this.openQuotationSearchView();
-    this.quotationSearchTab = 'suppliers';
-    this.switchSearchMode('results');
+    this.activeView = 'supplier-directory';
+    this.activeMenu = 'supplier-directory';
+    this.activeSubMenu = '';
   }
 
   viewSupplier(supplier: SupplierItem, tab: 'overview' | 'quotations' | 'items' = 'quotations'): void {
     this.selectedSupplier = supplier;
     this.supplierDetailTab = tab;
     this.activeView = 'supplier-detail';
-    this.activeMenu = 'master-supplier';
+    this.activeMenu = 'supplier-directory';
     this.loadSupplierQuotations(supplier.name, this.supplierUserRole);
   }
 
   closeSupplierDetailView(): void {
-    this.openQuotationSearchView();
-    this.quotationSearchTab = 'suppliers';
-    this.switchSearchMode('results');
+    this.activeView = 'supplier-directory';
+    this.activeMenu = 'supplier-directory';
+    this.activeSubMenu = '';
   }
 
   openSupplierDetailModal(supplierOrName: SupplierItem | string, tab: 'overview' | 'quotations' | 'items' = 'quotations', event?: MouseEvent): void {
