@@ -1,3 +1,4 @@
+import time
 from datetime import date, datetime
 import hashlib
 import os
@@ -27,6 +28,28 @@ from src.infrastructure.pdf_reader import PdfDocumentReader, CorruptPdfDocumentE
 from src.application.quotation_service import QuotationApplicationService
 from src.application.quotation_inquiry_service import QuotationInquiryService
 from src.infrastructure.gemini_answer_generator import GeminiAnswerGenerator, GeminiApiException
+
+
+def _cleanup_old_staging(max_age_seconds: int = 1800) -> None:
+    """Removes stale staging files and empty files to prevent storage exhaustion."""
+    staging_dir = os.path.join("storage", "staging")
+    if not os.path.exists(staging_dir):
+        return
+    now = time.time()
+    try:
+        total, used, free = shutil.disk_usage(staging_dir)
+        low_disk = free < 50 * 1024 * 1024  # Under 50MB free
+        threshold = 300 if low_disk else max_age_seconds
+        for entry in os.scandir(staging_dir):
+            if entry.is_file():
+                try:
+                    stat = entry.stat()
+                    if stat.st_size == 0 or (now - stat.st_mtime > threshold):
+                        os.remove(entry.path)
+                except Exception:
+                    pass
+    except Exception:
+        pass
 
 
 def seed_existing_quotations(service: QuotationApplicationService, sample_dir: str = "quoatation") -> int:
@@ -59,6 +82,7 @@ def seed_existing_quotations(service: QuotationApplicationService, sample_dir: s
                     items.append({
                         "item_number": it.item_number,
                         "part_number": it.part_number,
+                        "drawing_number": getattr(it, "drawing_number", None),
                         "description": desc,
                         "quantity": it.quantity,
                         "unit": it.unit,
@@ -100,6 +124,7 @@ def seed_existing_quotations(service: QuotationApplicationService, sample_dir: s
 class BatchCommitItem(BaseModel):
     item_number: Optional[int] = 1
     part_number: Optional[str] = None
+    drawing_number: Optional[str] = None
     description: str
     quantity: Optional[float] = 1.0
     unit: Optional[str] = "Pcs"
@@ -151,18 +176,35 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
     vector_index = MemoryVectorIndex()
     embedding_engine = FastEmbedEngine()
 
+    from src.infrastructure.bm25_index import BM25Index
+    from src.infrastructure.reranker import HybridReranker
+    from src.application.hitl_service import HitlVerificationService
+    from src.application.slot_filling_agent import SlotFillingAgent
+    from src.application.price_analytics_service import PriceAnalyticsService
+
+    bm25_index = BM25Index()
+    reranker = HybridReranker()
+
     service = QuotationApplicationService(
         quotation_repository=quotation_repo,
         manual_request_repository=manual_repo,
         search_cache=cache,
         vector_index=vector_index,
         embedding_engine=embedding_engine,
+        bm25_index=bm25_index,
+        reranker=reranker,
     )
+
+    hitl_service = HitlVerificationService(quotation_service=service)
+    slot_agent = SlotFillingAgent(manual_repo=manual_repo)
+    analytics_service = PriceAnalyticsService(db_conn=conn)
+    # Scan active quotations for upcoming expirations to create initial alerts
+    analytics_service.scan_and_generate_expiration_alerts()
 
     if auto_seed and len(quotation_repo.find_all()) == 0:
         seed_existing_quotations(service)
 
-    # Ensure in-memory vector index is populated from SQLite
+    # Ensure in-memory hybrid indices are populated from SQLite
     service.reindex_all()
 
     # Initialize RAG answer generator
@@ -182,7 +224,11 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
 
     app.state.service = service
     app.state.inquiry_service = inquiry_service
+    app.state.hitl_service = hitl_service
+    app.state.slot_agent = slot_agent
+    app.state.analytics_service = analytics_service
     app.state.templates = templates
+
 
 
     # --- HTTP Routes ---
@@ -364,9 +410,19 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
             user_role=user_role,
             reference_date=today,
         )
+
+        slot_prompt = None
+        if len(results) == 0 and query.strip():
+            slot_prompt = app.state.slot_agent.trigger_from_empty_search(
+                session_id=f"SES-{hashlib.md5(query.strip().encode()).hexdigest()[:8]}",
+                search_query=query.strip(),
+            )
+
         return {
             "query": query.strip(),
             "count": len(results),
+            "slot_filling_available": len(results) == 0 and bool(query.strip()),
+            "slot_filling_prompt": slot_prompt,
             "results": [
                 {
                     "quotation_id": str(r.quotation.quotation_id),
@@ -379,11 +435,14 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
                     "expiration_date": r.quotation.validity_period.expiration_date.isoformat(),
                     "confidence_score": float(r.confidence.value),
                     "can_receive": r.can_receive,
+                    "retrieval_stage": getattr(r, "retrieval_stage", "HYBRID"),
+                    "matched_highlights": getattr(r, "matched_highlights", []),
                     "pdf_url": f"/pdf/{os.path.basename(r.quotation.pdf_path)}",
                     "items": [
                         {
                             "item_number": it.item_number,
                             "part_number": it.part_number,
+                            "drawing_number": getattr(it, "drawing_number", None) or it.part_number,
                             "description": it.description,
                             "quantity": it.quantity,
                             "unit": it.unit,
@@ -396,6 +455,7 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
                 for r in results
             ],
         }
+
 
 
     @app.get("/pdf/{filename}")
@@ -619,20 +679,36 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
         if user_role != "PH_USER":
             raise HTTPException(status_code=403, detail="Only PH Users can extract previews")
 
+        _cleanup_old_staging(max_age_seconds=1800)
         os.makedirs("storage/staging", exist_ok=True)
         temp_path = os.path.join("storage", "staging", f"stage_{uuid.uuid4().hex}_{pdf_file.filename}")
         try:
+            await pdf_file.seek(0)
+            content = await pdf_file.read()
+            if not content:
+                raise HTTPException(status_code=400, detail="Uploaded file is empty (0 bytes)")
             with open(temp_path, "wb") as buffer:
-                shutil.copyfileobj(pdf_file.file, buffer)
+                buffer.write(content)
             draft = service.extract_draft_from_pdf(temp_path, user_role=user_role)
+        except HTTPException:
+            raise
         except (CorruptPdfDocumentException, Exception) as e:
+            if isinstance(e, OSError) and (getattr(e, "errno", None) == 28 or "No space left on device" in str(e)):
+                raise HTTPException(status_code=507, detail="Server storage is full: No space left on device.")
             raise HTTPException(status_code=400, detail=f"Invalid or corrupt PDF document: {e}")
+        finally:
+            try:
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
+            except Exception:
+                pass
 
         items_list = [
             {
                 "item_number": it.item_number,
                 "description": it.description,
                 "part_number": it.part_number,
+                "drawing_number": getattr(it, "drawing_number", None) or it.part_number,
                 "quantity": it.quantity,
                 "unit": it.unit,
                 "unit_price": it.unit_price,
@@ -716,6 +792,7 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
                         {
                             "item_number": it.get("item_number", idx + 1),
                             "part_number": it.get("part_number") or None,
+                            "drawing_number": it.get("drawing_number") or it.get("part_number") or None,
                             "description": it.get("description", "").strip(),
                             "quantity": float(it.get("quantity", 1.0)),
                             "unit": it.get("unit", "Pcs") or "Pcs",
@@ -738,6 +815,7 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
                     items.append({
                         "item_number": it.item_number,
                         "part_number": item_part_number if item_part_number else it.part_number,
+                        "drawing_number": getattr(it, "drawing_number", None) or item_part_number or it.part_number,
                         "description": item_description.strip(),
                         "quantity": item_quantity if item_quantity is not None else it.quantity,
                         "unit": item_unit or it.unit,
@@ -747,6 +825,7 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
                     items.append({
                         "item_number": it.item_number,
                         "part_number": it.part_number,
+                        "drawing_number": getattr(it, "drawing_number", None) or it.part_number,
                         "description": it.description,
                         "quantity": it.quantity,
                         "unit": it.unit,
@@ -878,6 +957,7 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
                         {
                             "item_number": it.item_number,
                             "part_number": it.part_number,
+                            "drawing_number": getattr(it, "drawing_number", None),
                             "description": it.description,
                             "quantity": it.quantity,
                             "unit": it.unit,
@@ -948,6 +1028,8 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
         if user_role != "PH_USER":
             raise HTTPException(status_code=403, detail="Only PH Users can extract previews")
 
+        _cleanup_old_staging(max_age_seconds=1800)
+
         reader = PdfDocumentReader()
         drafts = []
         os.makedirs("storage/staging", exist_ok=True)
@@ -963,8 +1045,13 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
             temp_path = os.path.join("storage", "staging", temp_filename)
 
             try:
+                await pdf_file.seek(0)
+                content = await pdf_file.read()
+                if not content:
+                    raise CorruptPdfDocumentException("Uploaded file is empty (0 bytes)")
+
                 with open(temp_path, "wb") as buffer:
-                    shutil.copyfileobj(pdf_file.file, buffer)
+                    buffer.write(content)
 
                 draft = reader.extract_draft(temp_path)
                 q_num = draft.quotation_number or os.path.splitext(filename)[0]
@@ -977,6 +1064,7 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
                         {
                             "item_number": it.item_number,
                             "part_number": it.part_number or "",
+                            "drawing_number": getattr(it, "drawing_number", None) or it.part_number or "",
                             "description": it.description or "Industrial Item",
                             "quantity": float(it.quantity or 1.0),
                             "unit": it.unit or "Pcs",
@@ -1015,6 +1103,11 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
                     "items": items,
                 })
             except Exception as e:
+                if os.path.exists(temp_path) and os.path.getsize(temp_path) == 0:
+                    try:
+                        os.remove(temp_path)
+                    except Exception:
+                        pass
                 drafts.append({
                     "staging_id": f"stage_{unique_prefix}",
                     "temp_file_path": temp_path.replace("\\", "/"),
@@ -1064,6 +1157,10 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
                     with open(q.temp_file_path, "rb") as f:
                         file_sha256 = hashlib.sha256(f.read()).hexdigest()
                     shutil.copy2(q.temp_file_path, dest_pdf_path)
+                    try:
+                        os.remove(q.temp_file_path)
+                    except Exception:
+                        pass
                 elif os.path.exists(dest_pdf_path):
                     with open(dest_pdf_path, "rb") as f:
                         file_sha256 = hashlib.sha256(f.read()).hexdigest()
@@ -1099,6 +1196,7 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
                     final_items.append({
                         "item_number": it.item_number or (idx + 1),
                         "part_number": part_no,
+                        "drawing_number": getattr(it, "drawing_number", None) or part_no,
                         "description": desc,
                         "quantity": qty,
                         "unit": unit,
@@ -1153,4 +1251,144 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
             "results": results,
         }
 
+    # =========================================================================
+    # Human-in-the-Loop (HITL) Procurement Verification Endpoints
+    # =========================================================================
+
+    @app.post("/api/hitl/stage")
+    async def hitl_stage_pdf(
+        pdf_file: UploadFile = File(...),
+        user_role: str = Form("PH_USER"),
+    ):
+        if user_role != "PH_USER":
+            raise HTTPException(status_code=403, detail="Only PH Users are authorized for HITL staging")
+
+        os.makedirs("storage/staging", exist_ok=True)
+        temp_path = os.path.join("storage", "staging", f"upload_{uuid.uuid4().hex}_{pdf_file.filename}")
+        with open(temp_path, "wb") as buffer:
+            shutil.copyfileobj(pdf_file.file, buffer)
+
+        try:
+            staged = app.state.hitl_service.stage_pdf_quotation(temp_path, pdf_file.filename)
+            return staged.dict()
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Failed to stage quotation PDF: {e}")
+
+    @app.get("/api/hitl/drafts")
+    async def hitl_list_drafts():
+        drafts = app.state.hitl_service.list_pending_drafts()
+        return {"count": len(drafts), "drafts": [d.dict() for d in drafts]}
+
+    @app.get("/api/hitl/drafts/{staging_id}")
+    async def hitl_get_draft(staging_id: str):
+        draft = app.state.hitl_service.get_staged_draft(staging_id)
+        if not draft:
+            raise HTTPException(status_code=404, detail=f"Staged draft {staging_id} not found")
+        return draft.dict()
+
+    @app.post("/api/hitl/drafts/{staging_id}/update")
+    async def hitl_update_draft(staging_id: str, payload: dict):
+        try:
+            updated = app.state.hitl_service.update_draft(staging_id, payload)
+            return updated.dict()
+        except KeyError as e:
+            raise HTTPException(status_code=404, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+    @app.post("/api/hitl/drafts/{staging_id}/commit")
+    async def hitl_commit_draft(staging_id: str, user_role: str = Form("PH_USER")):
+        if user_role != "PH_USER":
+            raise HTTPException(status_code=403, detail="Only PH Users can commit verified quotations")
+        try:
+            committed = app.state.hitl_service.commit_draft_to_database(staging_id, user_role=user_role)
+            # Add alert for new quotation
+            app.state.analytics_service.add_alert(
+                alert_type="NEW_QUOTATION",
+                title=f"Quotation {committed.quotation_number} Verified & Committed",
+                message=f"ใบเสนอราคาจาก {committed.vendor_name} ({len(committed.items)} items) ได้รับการตรวจสอบและบันทึกเข้าระบบเรียบร้อยแล้ว",
+                severity="INFO",
+                related_quotation_id=str(committed.quotation_id),
+            )
+            return {
+                "status": "COMMITTED",
+                "quotation_id": str(committed.quotation_id),
+                "quotation_number": committed.quotation_number,
+                "vendor_name": committed.vendor_name,
+                "items_count": len(committed.items),
+            }
+        except KeyError as e:
+            raise HTTPException(status_code=404, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+    @app.post("/api/hitl/drafts/{staging_id}/discard")
+    async def hitl_discard_draft(staging_id: str):
+        app.state.hitl_service.discard_draft(staging_id)
+        return {"status": "DISCARDED", "staging_id": staging_id}
+
+    # =========================================================================
+    # Slot-Filling Conversational PR/RFQ Agent Endpoints
+    # =========================================================================
+
+    class SlotChatRequest(BaseModel):
+        session_id: Optional[str] = None
+        message: str
+        user_id: Optional[str] = "emp_user"
+        user_role: Optional[str] = "NORMAL_USER"
+
+    @app.post("/api/chat/slot-filling")
+    async def chat_slot_filling(payload: SlotChatRequest):
+        res = app.state.slot_agent.process_user_message(
+            session_id=payload.session_id or f"SES-{uuid.uuid4().hex[:8].upper()}",
+            user_message=payload.message,
+            user_id=payload.user_id or "emp_user",
+            user_role=payload.user_role or "NORMAL_USER",
+        )
+        # If draft was generated, trigger an alert for procurement
+        if res.get("step") == "COMPLETED" and res.get("draft"):
+            d = res["draft"]
+            app.state.analytics_service.add_alert(
+                alert_type="RFQ_GENERATED",
+                title=f"New RFQ Draft Generated: {d.get('rfq_number')}",
+                message=f"ระบบ AI สร้างแบบร่างใบขอราคา {d.get('item_name')} ({d.get('quantity')} {d.get('unit')}) โดย {d.get('requester_user_id')}",
+                severity="WARNING" if d.get("urgency") in ["URGENT", "CRITICAL"] else "INFO",
+            )
+        return res
+
+    @app.get("/api/chat/slot-filling/{session_id}")
+    async def get_slot_filling_session(session_id: str):
+        session = app.state.slot_agent.get_or_create_session(session_id)
+        return {
+            "session_id": session.session_id,
+            "slots": session.slots.dict(),
+            "step": session.step,
+            "history": session.history,
+            "draft": session.generated_draft.dict() if session.generated_draft else None,
+        }
+
+    # =========================================================================
+    # Price Analytics & Real-Time Procurement Alerts Endpoints
+    # =========================================================================
+
+    @app.get("/api/analytics/price-trend")
+    async def get_price_trend(query: str = ""):
+        if not query.strip():
+            return {"query": "", "data": None}
+        analysis = app.state.analytics_service.analyze_price_trends(query)
+        if not analysis:
+            return {"query": query.strip(), "data": None, "message": "No historical price records found"}
+        return {"query": query.strip(), "data": analysis.dict()}
+
+    @app.get("/api/alerts/recent")
+    async def get_recent_alerts(limit: int = 15):
+        alerts = app.state.analytics_service.get_recent_alerts(limit=limit)
+        return {"count": len(alerts), "alerts": [a.dict() for a in alerts]}
+
+    @app.post("/api/alerts/scan")
+    async def trigger_alerts_scan():
+        count = app.state.analytics_service.scan_and_generate_expiration_alerts(days_threshold=30)
+        return {"status": "SUCCESS", "new_alerts_created": count}
+
     return app
+

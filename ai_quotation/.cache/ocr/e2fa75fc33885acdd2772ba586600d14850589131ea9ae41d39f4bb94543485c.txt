@@ -1,0 +1,359 @@
+PART No.               5
+            TOM-04-268- -xx               ITEM    L      c
+                                    REV.
+             Rt=6               -01     2      IO
+                                                                                               0.01  A               -02    1.1      IO
+                                                                      0.01  A               0   0.01
+                                                                   O   0.01               -03     2      6.4
+                                                                                                                     -04    1.1     6.4
+                                                                                                                     -05     2      4.5
+                                                                                                                     -06    1.1      IO
+                                                                                                                            2      IO
+                                                                                                                     -08    1.1      10
+                                                                                        Markin  Dw  No.               -09     2      6.4
+                                                         Ø 2.50 THRU ALL               .
+                                                        M3xO.5 - 6H THRU ALL
+                                                                                                                           1.1     6.4
+                                                        Insert Helicoil              c      L ±0.05
+                                                                                                                            2      4.5
+                  Note:  I  Break all Corner approx by C().2               SECTION D-D               -12    1.1     4.5
+                        2. . General Tolerance to. I               •oeaMitse
+                                                                          SCALE 2 • 1.5
+                                                                                                  Uncontrolled Copy Issued •9             -13     2      3.6
+                                                        Mat'l Tick by user
+                                                                                                   5/2/2569
+                                                           Nylon blue               Engineering
+                                                              white               Design center -S •             14
+                                                           Pom
+                                                           peek               •1 &MIB.
+                                                               gray
+                                                            pp Gray               -15
+      REV. ECN NO. DATE  NAME         DESCRIPTION          UNLESS SPECIFIED   OAR/  MIC.        Q'ty     List Request No.
+                                              CO. I OR RO.          Vis Sleeve   1 2               MinebeaMitsurni Inc.
+                          ENGINEERING RELEASE     GENERAL TOLERANCE               2015               Genera/ Machining Parts Div. 1
+                      Add:2   Etc.: RO-24,'15              JISBO'105 MACHING   6.3S  MATERIAL               3 RD ANCLE
+      2       21 Ian'15 Preecha               WORKING              See table
+      3       24 Aug' IS Preecha  Add:Tob'e +C Etc.: RO-374,'15            LESS JHAN 0.5  20.05               SCALE .      SHEET         UNIT (mm.)   TITLE:
+                                               0.5-6   20.1    v   FINISH               DETAILED  DESIGNED  CHECKED  APPROVED             Roller (1)
+      4       27    Preecho  Change: Dofam A               6 - 30    20.2
+      5       13    Preechcl  Add: Geometric etc.:               30-120   20.3  1 oos               Phalachal Aphisek  Preecha Preecha PART No.               A
+                                              120 - doo   20.4       HEAT TREATMENT               TGM-04-268-l-xx
+                                                - 1000  20.8               DATE   20 Oct' 14
+                                               ANGLE        UNCUT
+     PART No.
+             TCM-04-315-04
+            RI-12
+                                                                                      93
+                                       Markin  Dw  No,
+                                                                                      81
+                                                                                      65
+                                       3.180
+                                                                                      33.25               toeaMitS&4,
+                                                                                      2675               Uncontrolled Copy Issued
+                                                                                                            6/2/2569
+                                                                                                             ng neer ng
+                                                                                                            Design Center a •
+                                                                                                           •7 & MIB.
+                                                                                      6.75
+                                                                                          Note:  I  Break all Corner approx by CO.2
+                                                                                                 2. . General Tolerance to. I
+            SECTION B-b
+    REV.   NO. DATE  NAME         DESCRIPTION
+                         ENGINEERING RELEASE               Vis Sleeve               MinebeaMitsumi Inc.
+                                                                                   2015               Genera/ Machinin  Parts Div. 1
+            ÜAug'12       Add:C'80te               Peek gray
+                                                                                                               Rail (Right)
+                                                                            halachai Aphisek  Preecha Preechq PART No.
+                                                                                   15 Feb'               TCM-04-31504
+     PART No.
+             TGM-04-315-03
+                                 93
+                                                                                             Markin  Dw  No.
+                                                                                                       .
+                                 65               A] 60
+                                33.3
+                                26.8
+                                                                                               Note:    Break all Corner approx by CO.2
+                                13.3               •oeaMitse               2. . General Tolerance to. I
+                                 6.8               Copy Issued
+                                                                Uncontrolled O
+                                                                 612/2569               SECTION B-B
+                                                                 ng neer ng
+                                                                Design center
+                                                                •7 & MIB•
+     REV.      DATE  NAME         DESCRIPTION
+                         ENGINEERING RELEASE               Vis Sleeve               MinebeaMitsurni Inc.
+                                                                                   2015               Genera/ Machinin  Parts Div. 1
+            e Aug' 12 Pfeecha  Add: CEO:e               Peek gray
+            17 Aug' 12 heecha  Add: 65
+                                                                                                                 Rail (Left)
+                                                                           Phaiacha  Aphisek  Preecha Preecha PART No.
+                                                                                         12               TCM-04-315-03
+     PART No.               4-0.05               Item   w
+           TGM-04-257-Ol A-xx               Ø2.5  0
+                                                                                                                         -01   3.8
+           R 1=12
+                                                                                                                         -02        19
+                                                                                                                               o  .19
+                                                                              No Have Chi               -04    2  19
+                                                                                         DETAIL D               -05
+                                                  +0.05               Markin  Dw   No.
+                                                3.1  0
+                                                SECTION B-B
+                                                SCALE I
+                                                                        (h 4.50 THRU
+                             Ø 2.05 THRU               u Ø8V6
+                          M2.5xO.45  6H THRU               M i&e.
+                           Insert Helicoil               spa
+                                                                                                                    Uncontrolled Copy Issued
+                                                                                                                     6/212569
+                                                                               25.5               Englneerlng
+                                                                                                                    Design center S •
+                                                                               5.5
+       Note:    Break all Corner approx by CO.2
+             2. General Tolerance ±0.1
+                                                     For: Fix lock               ke               SCALE
+                                                               Sensor No. FU -48    ence
+     REV.      DATE  NAME         DESCRIPTION               V/
+                                                            Vis Sleeve               MinebeaMitsumi Inc.
+                         ENGINEERING RELEASE               439/16               Genera/ Machinin  Parts Div. 1
+                 pveecha  Change: 7               Nylon Blue
+                                                                                                      Ill.;        Sensor Block (A)
+                                                                            halachai Aphisek  Preecha Preecha PART No.
+                                                                                   23 Sep' 16               TCM-04-257-O I A-xx
+     PART No.
+           TOM-04-315-05A-xx
+                                                                                                                  Item  D    For P/No.
+          Rt=12      Rt=6
+                                                                                                                            01-7018-1
+                                             Markin  Dw  No.
+                                                       .
+                                                                                                                   -02   15  OT-7069-G B
+                                                    49
+                                                    38
+                                                                                                                   -04
+                                                    IO               -05
+                                                                                                                   -06
+                                                                                                toea Mitse.,
+                                                           33.2               -09
+                                                                                                 Uncontrolled Copy Issued
+            22.1               O
+               -0.05               | 6/2/2569
+             20 -0.05               Engineering
+                                                                                                 Design center
+                                                                                                 •1 & MIB.
+                                                                                                                   -12
+                                                                                        2 x Ø 3.40 THRU ALL
+                                      1.0  so               Ø 6.50   12              -13
+                                      Note:    Break all Corner approx by CO.2
+                                               General Tolerance ±0.1
+    REV. ECNNO. DATE  NAME         DESCRIPTION               -.11     V'/
+                                                              Vis-SL               MinebeaMitsumi Inc.
+                         ENGINEERING RELEASE               652/17               Genera/ Machinin
+                                                                                                                         Parts Div. 1
+                                                              Nylon blue
+                                                                                                              Guide Part (A)
+                                                                           Phalacha Aphisek  Preecha Preecha PARI No.
+                                                                                  16 Nov' 17               TOM-04-315-05A-xx
+     PART No.               2
+           TGM-04-257-4E-xx               A
+                                    REV.               ITEM  L    W  Check
+                                      2 x Ø 2.50   7.50
+          Rt=12      Rt=6               M3xO.5-      6               toeaMitS&
+                                                                                                                     -01   4    4  Preecha
+                                               20               Uncontrolled Copy Issued
+                                                                                              5/2/2569               -02  5.3   5  Preecha
+                                               16               Englneerlng
+                                                6               Design center
+                                                                                                                     -03
+                                                                                                                     -04
+       Note:  I  Break all Corner approx by CO.2               -05
+             2. . General Tolerance to. I
+                                           38.5               -06
+                                                                                                                     -07
+                                            24
+                                            19               -08
+                                            15
+                                                                                                                     -09
+                                            4.5
+                                             0               -10
+      Markin  Dw               0 1.0           00
+                 . No.            5 x Ø 3.30   9.10
+                               M4xO.7 -
+                                                                                                                     -12
+                               [Z]               2
+                                 Mat'l Tick by user               11.5               -13
+                                     Nylon blue               3.2
+                                     Pom white               14
+                               C]     peek               Ø4.5
+                                        gray
+                                     PP Gray               Ø8               SECTION D-D               -15
+    REV. ECNNo. DATE  NAME         DESCRIPTION          UNLESS SPECIFIED               Q'ty     List Request No.
+                                             CO.I OR RO. I          Vis Sleeve    I               MinebeaMitsumi Inc.
+                         ENGINEERING RELEASE     GENERAL JOLERANCE               652/17               Genera/ Machining
+     2       5 Feb'26               JISd0405 MACHING   6.3S   MATERIAL               Parts Div. 1
+                     Change:               RO.352/25    WORKING              See table               3 RD ANGLE
+                                            LESS THAN 0.5       255/'               SCALE       SHEET         UNIT (mm.)   TITLE:
+                                              0.5 -6   20.1    V   FINISH               DETAILED  DESIGNED  CHECKED  APPROVED           Rail end (E)
+                                              6 - 30   20.2           See table
+                                               120   20.3               Phalachai Aphisek  Preecha Preecha PART No.
+                                             120 -              HEAT TREATMENT               A
+                                             doo - loco  20.8               DATE   21 Nov' 17               TCM-04-257-4E-xx
+                                             ANGLE        UNCUT
+     PART No.               3
+           TGM-04-339-30-xx               ITEM   W   Check
+                                    REV.
+              Rt=3.2               Ø  +0. IO               -01   2.5
+                                                    5+0.05 THRU ALL               Preecha
+                                                                                                                        -02    3    Preecha
+                                                        13               -03    4
+                                                                                                                                 Preecha
+                                                        7
+                                                                                                                        -04    5    Preecha
+                                                                                                                        -05
+                                                                                                                        -06
+                                                                                                                        -07
+                                                   Ø 2.50 THRU               Ø
+                                                                                     2.50 THRU               -08
+                Markin  Dw  No.               M3xO.5 - 6H THRU               M3xO.5  6H THRU
+                          .               -
+                                                                                                                        -09
+                                                       8               -IO
+                              TGM               4
+                                                                                                  .oeaMitse               -12
+                                                                           so
+                                                                                                   Uncontrolled Copy Issued •9
+                                                           C]     Tick               •e               -13
+                                                             Mat'l    by user               5/2/2569
+            Note:  I . Break all Corner approx by CO.2               Nylon blue               Engineering
+                 2. General Tolerance to. I               Design center
+                                                                 Pom white
+                                                                 Peek gray
+                                                                 pp Gray               -15
+     REV. ECN No. DATE  NAME         DESCRIPTION              SSPE IFIED               Qiy     List Request No.
+                                              CO. I OR RO.)          Vis Sleeve    I               MinebeaMitsumi Inc.
+                          ENGINEERING RELEASE     GENERAL TOLERANCE  6.3S               2780               Genera/ Machining Parts Div. 1
+      2            Preecha  Chonge:      Etc.:               JISBO,105 MACHING        MATERIAL               3 DANGLE
+                                               WORKING              See table     SCALE       SHEET         UNIT (mm.)   TITLE:
+      3       5 Feb'26  Preecho  Change: 2.5    Elc.: RQ352/25               0.5  20.05               .               Pusher loader
+                                              0.5 -6             FINISH               DETAILED  DESIGNED  CHECKED  APPROVED
+                                              6 - 30    20.2           See table
+                                                120   20.3               halachal Aphisek  Preecha Preecha PARI No.
+                                               - 'too            HEAT TREATMENT               TCM-04-339-30-xx
+                                                1000  20.8               DATE   29 Jan' 13
+                                                        UNCUT
+     PART No.               6               Common
+            TGM-04-257 -3 xx               A    C   total Lg.    For PINO.  Check
+                                                                      Formula               Part
+                                                                      A = (Lg. part  l)               -01   16   1.6   15.596  AS-4356-1 4289-1' AS  Preecha
+          Rt=6        Rt=1 6        Markin       No.
+                                                                      C  Lg. flank + 0.5
+                                                                                                   -02  7.5   1.6    7.09              Preecha
+                              qoeaMitS&
+                                                            Note:    Break all Corner approx by CO.2
+                              Copy Issued               2'. General Tolerance ±O.I             -03        1.6    6.35              Preecha
+                              Uncontrolled
+                              Il'¯ü/2569--1
+                               Englneenng               +0.05               12.6               9,3   1.6    8.89              preecha
+                              Design center
+                                                                                                   -05  5.8               AS-4381-   Preecha
+                                                                                                   -06  7.8   1.4            F2002- I    Preeqha
+                                      35               AS-4373-
+                                31
+                                30               -07  0.34  2               Preecha
+                                28.5          c
+                                                                                                   -08   II               AS-4390-   Preecha
+                                                                                                                       l,T7069-C
+                                                                  4               -09  18.7               F3002-l    Preecha
+                                0
+                                                                                                   -10  .15.5  1.6    14.7     A4339- I    Preecha
+                                                            2 x Ø 2.50 THRU ALL
+                                                            M3xO.5    THRU ALL               20   1.6  3.1 to 19            Preecha
+                                      +0.015               -               Rq.90/17
+                                                            (Insert Helicoil)
+                                                                                                    12  5.5               Preecha
+                                                                                                                                RG.90/17
+                                                                                                    13  13.3       5.1 to 13            Preecha
+                      [7 W  Tick by user               MO  •Tick by user               Rq.90/1/
+                               8               900               Preecha
+                                                                      1 200               -14    4         13.8    T1099AMlA Rq,352/2$
+                               9
+                               10
+     REV. ECN NO. DATE  NAME         DESCRIPTION
+                                                            Visua\ Sleeve               2400               MinebeaMitsumi Inc.
+                         ENGINEERING RELEASE               Genera/ Machinin  Parts Div. 1
+      2       30  12  Preecho  Change:     L) 40. 4         e!c.;               Nylon Blue
+                 Preecho  Change               Turn Over Tool
+                 Preecho  Chonge•
+      5       22 Fob'17 Preecha      D.Cut etc.: Rq.90/17               Phalacha  Aphisek  Preecha  Preecha PART No.
+                 Preccha  Change. . 9    etc.: Rq.2S2/2S               TCM-04-257-3-xx
+                                                                                   8 Oct' 10
+     PART No.               3
+           TOM-04-339-1 2-xx               ITEM               Use for Lg. Part   Check
+                                   REV.
+          Rt=3.2
+                                                                                                      -01    3      5        4 to 7     Preecha
+                                                     Markin  Dw  No.               -02   6      5        8 to 15     Preecha
+                                                               .
+                                                                                                      -03   6     10        7.355     Preecha
+                                                                                                      -04   12     8     24 (017009)  Preecha
+                                                                   10.5
+                                                                   3.5               -05
+                                                                                                      -06
+                                                            60
+                                                   O    O               -08
+                                                                                                      -09
+                                                                                                      -IO
+                                                               Note:  I . Break all Corner approx by CO.2
+                                                                    2. General Tolerance ±0.1
+            •oeaMitS&               -12
+            Uncontrolled Copy issued               -13
+             5/2/2569               Mat'l Tick by user
+             Engineering               Nylon blue
+            Design center               C]
+            •7 &MIB•               Pom white
+                                                                 Peek gray
+                                                                 PP Gray               -15
+     REV. ECN NO. DATE  NAME         DESCRIPTION          IJI.ILESS SPECIFIED               Q'ty     List Request No.
+                                              CO. I OR RO. I          Vis. Sleeve               MinebeaMitsumi Inc.
+                          ENGINEERING RELEASE     CLAERAL [OLERANCE  6.3S               2593               Genera/ Machining Parts Div. 1
+      2       31    Preecha  Change: 3  L Etc.:               JISBO,105 MACHIFIG        MATERIAL               3 RD ANGLE
+                                               WORKING              See table     SCALE       SHEET         UNIT (mm.)   TITLE:
+      3       16    Preec ha  Change: 5 -0 Etc: RO.562/17           LESS THAN 0.5  20.05               .               Pusher
+                                              0.5 -6             FINISH               DETAILED  DESIGNED  CHECKED  APPROVED
+                                              6-30    20.2           See table
+                                             go- 120   20.3               halachai Aphisek  Preecha Preecha PART No.               A
+                                             120 -              HEAT TREATMENT               TOM-04-339-12-xx
+                                                    20.8               DATE   7 Nov' 13
+                                              ANCLE        UNCUT
+     PART No.               Item               for D.       Check
+             TGM-04-195B-xx
+                    Rt=6               15.3     2.5       9.525       Preecha
+                                                                                       -02            16.3     2.5               Preecl- a
+                                                                                       103            16.3           T7164-GlC    Preecha
+                                                                                              IO     .16.3     3.5     OIL7099A     Preecha
+                                              EQU: Vendor make
+                                                                                       -05            16.3             01-7069     Preecha
+                                                                                       -06
+                                                                    1.6               -07
+                       2 x Ø 2.5 THRU ALL
+                      M3xO.5 - 6M II-IRU ALL
+                                                               6.7    6.7
+                               Markin  Dw  No.
+                                                                                       -09
+                                                                                       -10
+                                                                                                       '.oeaMitse
+        7.8               -12               Issued
+                                                                                                        Copy
+                                                                                                        5/2/2569
+                                                                                        13               Englneerlng
+                                                                  19               Design Center
+     Note:   Break all Corner approx by CO.2
+          2. General Tolerance ±O.I
+     REV. ECNNO. DATE  NAME         DESCRIPTION               Vis Sleeve               MinebeaMitsumi Inc.
+                          ENGINEERING RELEASE               359/15
+                                                                                                             General Mnchinin Parts Div. 1
+                                                                Peek gray
+                                                                                                             Transfer Chuck (B)
+                                                                            Aphisek  Aphisek  Preecha  Preecha  PART No.               A
+                                                                                       15 oct'15               TOM-04-195B-xx

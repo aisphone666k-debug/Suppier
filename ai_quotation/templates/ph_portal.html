@@ -164,7 +164,8 @@
                                     <thead>
                                         <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-semibold text-[10px]">
                                             <th class="px-3 py-2 w-10 text-center">#</th>
-                                            <th class="px-3 py-2 w-44">Part Number</th>
+                                            <th class="px-3 py-2 w-36">Part Number</th>
+                                            <th class="px-3 py-2 w-36">DWG / Drawing No.</th>
                                             <th class="px-3 py-2">Item Description</th>
                                             <th class="px-3 py-2 w-20 text-center">Qty</th>
                                             <th class="px-3 py-2 w-20 text-center">Unit</th>
@@ -178,6 +179,9 @@
                                             <td class="px-3 py-2 font-mono text-slate-400 text-[11px] text-center single-item-num">1</td>
                                             <td class="px-2 py-1.5">
                                                 <input type="text" class="single-item-part w-full px-2 py-1 border border-slate-200 rounded font-mono text-xs text-indigo-700 bg-slate-50 focus:bg-white" placeholder="Part Number" oninput="serializeSingleItems()">
+                                            </td>
+                                            <td class="px-2 py-1.5">
+                                                <input type="text" class="single-item-dwg w-full px-2 py-1 border border-slate-200 rounded font-mono text-xs text-blue-700 bg-slate-50 focus:bg-white" placeholder="DWG No." oninput="serializeSingleItems()">
                                             </td>
                                             <td class="px-2 py-1.5">
                                                 <input type="text" class="single-item-desc w-full px-2 py-1 border border-slate-200 rounded text-xs text-slate-800 bg-slate-50 focus:bg-white" placeholder="Item Description" required oninput="serializeSingleItems()">
@@ -527,7 +531,14 @@
                 method: 'POST',
                 body: formData
             });
-            if (!resp.ok) throw new Error('Extraction failed');
+            if (!resp.ok) {
+                let msg = 'Extraction failed with HTTP status ' + resp.status;
+                try {
+                    const errData = await resp.json();
+                    if (errData && errData.detail) msg = errData.detail;
+                } catch (_) {}
+                throw new Error(msg);
+            }
             const data = await resp.json();
             
             // Auto-populate form fields
@@ -575,7 +586,7 @@
             
         } catch (err) {
             statusBanner.className = "p-3 rounded-xl mb-4 bg-amber-50 border border-amber-200 text-amber-800 text-xs";
-            statusBanner.innerText = "Smart auto-extraction ran into an issue. You can still submit with standard defaults.";
+            statusBanner.innerText = `Smart auto-extraction ran into an issue (${err.message}). You can still submit with standard defaults.`;
         }
     }
 
@@ -593,6 +604,9 @@
                 <td class="px-3 py-2 font-mono text-slate-400 text-[11px] text-center single-item-num">${idx + 1}</td>
                 <td class="px-2 py-1.5">
                     <input type="text" class="single-item-part w-full px-2 py-1 border border-slate-200 rounded font-mono text-xs text-indigo-700 bg-slate-50 focus:bg-white" placeholder="Part Number" value="${escapeHtml(it.part_number || '')}" oninput="serializeSingleItems()">
+                </td>
+                <td class="px-2 py-1.5">
+                    <input type="text" class="single-item-dwg w-full px-2 py-1 border border-slate-200 rounded font-mono text-xs text-blue-700 bg-slate-50 focus:bg-white" placeholder="DWG No." value="${escapeHtml(it.drawing_number || it.part_number || '')}" oninput="serializeSingleItems()">
                 </td>
                 <td class="px-2 py-1.5">
                     <input type="text" class="single-item-desc w-full px-2 py-1 border border-slate-200 rounded text-xs text-slate-800 bg-slate-50 focus:bg-white" placeholder="Item Description" required value="${escapeHtml(it.description || '')}" oninput="serializeSingleItems()">
@@ -663,6 +677,9 @@
                 <input type="text" class="single-item-part w-full px-2 py-1 border border-slate-200 rounded font-mono text-xs text-indigo-700 bg-slate-50 focus:bg-white" placeholder="Part Number" oninput="serializeSingleItems()">
             </td>
             <td class="px-2 py-1.5">
+                <input type="text" class="single-item-dwg w-full px-2 py-1 border border-slate-200 rounded font-mono text-xs text-blue-700 bg-slate-50 focus:bg-white" placeholder="DWG No." oninput="serializeSingleItems()">
+            </td>
+            <td class="px-2 py-1.5">
                 <input type="text" class="single-item-desc w-full px-2 py-1 border border-slate-200 rounded text-xs text-slate-800 bg-slate-50 focus:bg-white" placeholder="Item Description" required oninput="serializeSingleItems()">
             </td>
             <td class="px-2 py-1.5">
@@ -697,6 +714,7 @@
         rows.forEach((r, idx) => {
             const desc = (r.querySelector('.single-item-desc')?.value || '').trim();
             const part = (r.querySelector('.single-item-part')?.value || '').trim();
+            const dwg = (r.querySelector('.single-item-dwg')?.value || '').trim();
             const qty = parseFloat(r.querySelector('.single-item-qty')?.value) || 1.0;
             const unit = (r.querySelector('.single-item-unit')?.value || 'Pcs').trim();
             const price = parseFloat(r.querySelector('.single-item-price')?.value) || 0.0;
@@ -705,7 +723,8 @@
             items.push({
                 item_number: idx + 1,
                 description: desc,
-                part_number: part || null,
+                part_number: part || dwg || null,
+                drawing_number: dwg || part || null,
                 quantity: qty,
                 unit: unit || 'Pcs',
                 unit_price: price,
@@ -813,7 +832,14 @@
                 method: 'POST',
                 body: formData
             });
-            if (!resp.ok) throw new Error('Preview extraction failed with HTTP status ' + resp.status);
+            if (!resp.ok) {
+                let msg = 'Preview extraction failed with HTTP status ' + resp.status;
+                try {
+                    const errData = await resp.json();
+                    if (errData && errData.detail) msg = errData.detail;
+                } catch (_) {}
+                throw new Error(msg);
+            }
             const data = await resp.json();
             
             progressBar.style.width = '100%';
@@ -829,7 +855,7 @@
             
         } catch (err) {
             progressContainer.className = "p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800";
-            progressContainer.innerHTML = `<span class="font-bold">Extraction Error:</span> ${err.message}. Please try again or upload standard PDF files.`;
+            progressContainer.innerHTML = `<span class="font-bold">Extraction Error:</span> ${err.message}. Please try again or check storage/disk space.`;
             batchBtn.disabled = false;
             batchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
         }
@@ -929,7 +955,8 @@
                             <thead>
                                 <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-semibold text-[10px]">
                                     <th class="px-3 py-2 w-10">#</th>
-                                    <th class="px-3 py-2 w-44">Part Number</th>
+                                    <th class="px-3 py-2 w-36">Part Number</th>
+                                    <th class="px-3 py-2 w-36">DWG / Drawing No.</th>
                                     <th class="px-3 py-2">Item Description</th>
                                     <th class="px-3 py-2 w-20">Qty</th>
                                     <th class="px-3 py-2 w-20">Unit</th>
@@ -980,6 +1007,9 @@
                 <td class="px-3 py-2 font-mono text-slate-400 text-[11px] item-num">${idx}</td>
                 <td class="px-2 py-1.5">
                     <input type="text" class="item-part w-full px-2 py-1 border border-slate-200 rounded font-mono text-xs text-indigo-700 bg-slate-50 focus:bg-white" placeholder="Part Number" value="${escapeHtml(it.part_number || '')}">
+                </td>
+                <td class="px-2 py-1.5">
+                    <input type="text" class="item-dwg w-full px-2 py-1 border border-slate-200 rounded font-mono text-xs text-blue-700 bg-slate-50 focus:bg-white" placeholder="DWG No." value="${escapeHtml(it.drawing_number || it.part_number || '')}">
                 </td>
                 <td class="px-2 py-1.5">
                     <input type="text" class="item-desc w-full px-2 py-1 border border-slate-200 rounded text-xs text-slate-800 bg-slate-50 focus:bg-white" placeholder="Item Description" value="${escapeHtml(it.description || '')}">
@@ -1153,6 +1183,7 @@
             const items = [];
             card.querySelectorAll('.item-row').forEach((row, rowIdx) => {
                 const partNo = row.querySelector('.item-part').value.trim();
+                const dwgNo = row.querySelector('.item-dwg')?.value.trim();
                 const desc = row.querySelector('.item-desc').value.trim() || `Item ${rowIdx + 1}`;
                 const qty = parseFloat(row.querySelector('.item-qty').value) || 1.0;
                 const unit = row.querySelector('.item-unit').value.trim() || 'Pcs';
@@ -1160,7 +1191,8 @@
                 
                 items.push({
                     item_number: rowIdx + 1,
-                    part_number: partNo || null,
+                    part_number: partNo || dwgNo || null,
+                    drawing_number: dwgNo || partNo || null,
                     description: desc,
                     quantity: qty,
                     unit: unit,

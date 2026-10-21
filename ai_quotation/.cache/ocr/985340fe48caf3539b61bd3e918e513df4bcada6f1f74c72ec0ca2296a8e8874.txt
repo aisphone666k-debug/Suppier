@@ -1,0 +1,49 @@
+A.P.  CALIBRATION SERVICE CO., LTD.
+                        1 350/127-128 PATTANAKARN ROAD, SUANLUANG BANGKOK 10250
+                                   TEL. 0-2065-3960-1  FAX. 0-2065-3962
+                                Report Measuring Workpiece
+           Detector Contour 2600E
+          stylus and Arm  DM4551 and DM45530
+           Set Workpiece on Jig with angle 18.5 degree
+           Measuring Length 3 mm.
+           Measuring Speed 0.03 mm/s
+                       A.P. CALIBRATION SERVICE CO., LTD.
+                        1 350/127-128 PATTANAKARN ROAD, SIJANLUANG BANGKOK 10250
+                                   TEL. 0-2065-3960-1  FAX. 0-2065-3962
+                        Disp. Ma  122.97
+                          0.0465mm               O. 7736mm
+                                                                               29.898
+                                                              -9
+                                                             OT7162
+                  Name of item         Content
+                                                              NO.3
+                  Measure range         +1-25.OOOOmm
+                  Stylus direction
+                  Measure length        2.5770mm
+                  Measure pitch         1.00gm
+                  Measure speed        0.030mrn/s
+                  Measure direction       Right
+                  Sampling method       Axis fixed
+                  Ave. calc
+                  Retract before measuring   OFF
+                  Edge detection measurement OFF
+                        A.P.  CALIBRATION SERVICE CO., LTD.
+                         1 350/127-128 PATTANAKARN ROAD, SIJANLUANG BANGKOK 10250
+                                    TEL. 0-2065-3960-1  FAX. 0-2065-3962
+                      Dis . Ma  131.33
+                      0.0500mm               0.7776mm
+                                                                           29.80290
+                                                           5)
+                                                            OT-7162
+                  Name of item         Content
+                                                              NO.3
+                  Measure range         +1-25.0000mm
+                  Stylus direction
+                  Measure length        2.9937mm
+                  Measure pitch         1.00gm
+                  Measure speed        0.030mrws
+                  Measure direction       Right
+                  Sampling method       Axis fixed
+                  Ave. calc
+                  Retract before measuring   OFF
+                  Edge detection measurement OFF

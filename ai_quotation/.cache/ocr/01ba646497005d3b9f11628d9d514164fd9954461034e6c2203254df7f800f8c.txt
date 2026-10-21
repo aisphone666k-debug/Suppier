@@ -1,0 +1,57 @@
+PART No.               8               Item     ØDI         ØD2     03      12    For Spec    Control   Check
+             TGBM106-xx               No.
+                                                                      -321  Ø 1.4+0.002    Ø 1.6-0.005      8       10  Øl.5+01               Preecha
+                                  900               RQ327/22
+                                                                                 +0.0020 Ø11.638               (D      ±O.OI            Preecha
+                                                                      -322               15       10    1 1.628               RQ339/22
+                                                                      -323 Øo.996 +0.007  Ø 1.056-0•005   6.35  16  16  Ø1.026
+                                                            -005               +0.002               RQ90/23
+                                                                           Ø    +0.007    Ø               10               Preecha
+                                                                      -324   4.3 +0.002      4.5        7.14  IO               RQ232/23
+                                                                                                                    T9503
+                                                                           Ø    +0.007   Ø               Ø1.75 20.03              Preecha
+                                                                      -325   1.72+0.002     1.78-0.005   6.35  15  15               RQ373/23
+                                     5               T6008
+                                                                                                                  +0.15
+                                  DETAIL D               -326               0.05
+                                                                                                                    T6036
+                            A               Ø   +0.007     Ø 2.3-0.005    6.35  10  10  Ø2.2               Preecha
+                              Marking by Laser               -327   2.1+0.002               RQ20/24
+                                                      SCALE 25 :               A 99
+                       A               (Both Side)         -328 Ø 1.7+0.0016 +0.0036    Ø 1.75-0.002   6.35  15  15  Ø 1.75 005              Preecha
+               See Table               156/24
+                                                                                                                    16037
+                                                                           Ø2.617 +0.007  Ø 2.717-0.005               Ø2.667+005
+             A Markin  B  Laser             Ø 2 THRU ALL               -329        +0.002               7.14  10  10               RQ 184/24
+                  Control No.               In     .4               T9491D
+                                         (Both Side)               -330 Ø6.95 +0.0036   Ø7          9.52  IO  10  Ø7-0 05               Preecha
+           Carbide               1200               -0.002               Ti185A.T7193A          RQ282 24
+             o   Ide)               -331 Ø7.185 +0.0036 Ø7.215       9.52  10      Ø7.2 - +0.015          f\J0a2 Preecha
+                                                                                 +0.0016        -0002               T7225-FIB          R  602
+                                                                      -332 Ø4.45  +0.0016   Ø4.5        7.14 20  20 Ø4.5 -0043007-2           Preecha
+                                                                                                                   J3012-
+                                                                      -333 Ø2.47  +0.007               7.14  15  15       20.12              Preecha
+                                                                                       Ø2.71  -0.005              Ø2.59  A5383-2           RQ321 25
+                                                                      -334
+                        12/2               D3     -335
+                                                                 3
+               LI               50               12               -336
+                                                           0 0.0005
+                         Aluminium            Markin  B  Laser A Ä       A  -337
+       0 0.0005               For Spec               Uncontrolled
+                                                                      -338
+          0.001
+                                                See               -339               Dalmcente
+      Remark  Reference old no. TGM-OIOO-1139-xx               -340               •1 & MIB.
+            :
+     REV. ECNN0. DATE  NAME         DESCRIPTION               List Recuest No.               N
+                                             t-_n.l               MinebeaMitsumi Inc.
+                          ENGINEERING RELEASE               General Machinin Parts Div. 1
+     2       3 r,F-c18 Preecho               •ect.RQ662/18               No.GT130
+                                                  ING           (Carbide, Aluminium
+     3       4 SFP'C9 Preecha CH:  0 0005     COOC,3 'ect.RQ662/18               A Type Plug gauge
+     4        'AN'IO Proccho ADD: Control No. ,ect
+     5       25FFB'lO Preecha ADD: Detail Marking 3y Laser . ect               Aphisek  Chonknok  Preecha  Preecha  PART No.               A
+     6       4 JUN' • 5 Preecho CH: LI .    15. etc. RQ:228/15               Aug'99               -006-xx
+     7               CH: RO,   Detail R RQ:656/16               DATC        16
+            23               .

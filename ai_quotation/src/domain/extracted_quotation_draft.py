@@ -13,6 +13,7 @@ class DraftItem:
     unit_price: float
     part_number: Optional[str] = None
     amount: Optional[float] = None
+    drawing_number: Optional[str] = None
 
 
 @dataclass(frozen=True)

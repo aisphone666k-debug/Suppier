@@ -419,6 +419,43 @@ export class ApiService {
     }
     return await response.json();
   }
+
+  /**
+   * Conversational Slot-Filling Agent for PR/RFQ Draft Generation (port 8000)
+   */
+  async chatSlotFilling(sessionId: string, message: string, userId: string = 'emp_user'): Promise<any> {
+    const response = await fetch('http://localhost:8000/api/chat/slot-filling', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: sessionId, message, user_id: userId }),
+    });
+    if (!response.ok) {
+      throw new Error(`Slot-Filling Agent HTTP ${response.status}`);
+    }
+    return await response.json();
+  }
+
+  /**
+   * Price Trend Analytics (port 8000)
+   */
+  async getPriceTrend(query: string): Promise<any> {
+    const response = await fetch(`http://localhost:8000/api/analytics/price-trend?query=${encodeURIComponent(query)}`);
+    if (!response.ok) {
+      throw new Error(`Price Analytics HTTP ${response.status}`);
+    }
+    return await response.json();
+  }
+
+  /**
+   * Real-time Procurement Alerts (port 8000)
+   */
+  async getRecentAlerts(): Promise<any> {
+    const response = await fetch('http://localhost:8000/api/alerts/recent');
+    if (!response.ok) {
+      throw new Error(`Alerts HTTP ${response.status}`);
+    }
+    return await response.json();
+  }
 }
 
 export interface AiInquiryCitation {
@@ -441,6 +478,7 @@ export interface AiInquiryResponse {
 export interface QuotationLineItem {
   item_number: number;
   part_number: string | null;
+  drawing_number?: string | null;
   description: string;
   quantity: number;
   unit: string;
@@ -460,11 +498,16 @@ export interface SupplierQuotationResult {
   confidence_score: number;
   can_receive: boolean;
   pdf_url: string;
+  retrieval_stage?: string;
+  matched_highlights?: string[];
   items: QuotationLineItem[];
 }
 
 export interface SupplierQuotationSearchResponse {
   query: string;
   count: number;
+  slot_filling_available?: boolean;
+  slot_filling_prompt?: any;
   results: SupplierQuotationResult[];
 }
+
