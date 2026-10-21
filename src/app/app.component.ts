@@ -3544,9 +3544,27 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   get isPurchaseSection(): boolean {
     if (this.isPurchaseTestMode) return true;
-    const secName = this.employeeSectionName.toUpperCase();
-    const sec = (this.currentUser?.section || this.section || '').toUpperCase();
-    return secName.includes('PURCHASE') || sec === 'P/H' || sec === 'PURCHASE';
+    if (!this.currentUser) return false;
+
+    const sec = (this.currentUser.section || '').toUpperCase().trim();
+    const secName = (this.currentUser.sectionName || '').toUpperCase().trim();
+    const div = (this.currentUser.division || '').toUpperCase().trim();
+    const divName = (this.currentUser.divisionName || '').toUpperCase().trim();
+    const pos = (this.currentUser.positionGroup || '').toUpperCase().trim();
+
+    return sec === 'P/H' ||
+      sec === 'PURCHASE' ||
+      sec.includes('PURCHASE') ||
+      secName.includes('PURCHASE') ||
+      secName.includes('PROCUREMENT') ||
+      secName.includes('จัดซื้อ') ||
+      div === 'P/H' ||
+      div === 'PURCHASE' ||
+      divName.includes('PURCHASE') ||
+      divName.includes('PROCUREMENT') ||
+      divName.includes('จัดซื้อ') ||
+      pos.includes('PURCHASE') ||
+      pos.includes('PROCUREMENT');
   }
 
   togglePurchaseTestMode(): void {
@@ -4464,6 +4482,12 @@ Could you please include the estimated lead time as well`;
   }
 
   async openPurchaseQuotationView(): Promise<void> {
+    if (!this.isPurchaseSection) {
+      this.showToast('เฉพาะพนักงานฝ่ายจัดซื้อ (Purchase) เท่านั้นที่สามารถเข้าถึงหน้านี้ได้');
+      this.activeView = 'edit';
+      this.activeMenu = 'spare-part';
+      return;
+    }
     this.activeView = 'purchase-quotation';
     this.activeMenu = 'purchase-quotations';
     this.activeSubMenu = '';

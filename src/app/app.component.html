@@ -514,17 +514,12 @@
                 [class.text-left]="!isSidebarCollapsed" [class.px-3]="!isSidebarCollapsed"
                 [class.py-2]="!isSidebarCollapsed" [class.p-2]="isSidebarCollapsed"
                 [class.justify-center]="isSidebarCollapsed"
-                class="rounded-xl text-sm transition-all flex items-center justify-between group cursor-pointer"
+                class="rounded-xl text-sm transition-all flex items-center group cursor-pointer"
                 title="Quotation Search">
                 <div class="flex items-center gap-2.5 min-w-0">
                   <img src="/sp-logo-emblem.png" alt="Suppier" class="w-4 h-4 object-contain shrink-0" />
                   <span *ngIf="!isSidebarCollapsed" class="truncate font-semibold">Quotation Search</span>
                 </div>
-                <span *ngIf="!isSidebarCollapsed"
-                  class="text-[10px] font-black px-1.5 py-0.5 rounded-md shrink-0 ml-1.5"
-                  [class]="activeView === 'quotation-search' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800'">
-                  SEARCH
-                </span>
               </button>
 
               <!-- 2. Suppliers & Pricing -->
@@ -534,7 +529,7 @@
                 [class.text-left]="!isSidebarCollapsed" [class.px-3]="!isSidebarCollapsed"
                 [class.py-2]="!isSidebarCollapsed" [class.p-2]="isSidebarCollapsed"
                 [class.justify-center]="isSidebarCollapsed"
-                class="rounded-xl text-sm transition-all flex items-center justify-between group cursor-pointer"
+                class="rounded-xl text-sm transition-all flex items-center group cursor-pointer"
                 title="Suppliers & Pricing">
                 <div class="flex items-center gap-2.5 min-w-0">
                   <svg class="w-4 h-4 shrink-0 transition-colors"
@@ -546,21 +541,16 @@
                   </svg>
                   <span *ngIf="!isSidebarCollapsed" class="truncate font-semibold">Suppliers & Pricing</span>
                 </div>
-                <span *ngIf="!isSidebarCollapsed"
-                  class="text-[10px] font-black px-1.5 py-0.5 rounded-md shrink-0 ml-1.5"
-                  [class]="activeView === 'supplier-directory' || activeView === 'supplier-detail' ? 'bg-emerald-600 text-white' : 'bg-emerald-100 text-emerald-800'">
-                  {{ supplierList.length }}
-                </span>
               </button>
 
-              <!-- 3. Purchase Quotation Requests -->
-              <button (click)="openPurchaseQuotationView()" [class]="activeView === 'purchase-quotation' 
+              <!-- 3. Purchase Quotation Requests (Visible only to Purchase) -->
+              <button *ngIf="isPurchaseSection" (click)="openPurchaseQuotationView()" [class]="activeView === 'purchase-quotation' 
                   ? 'bg-[#131936] text-white shadow-sm font-bold' 
                   : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 font-semibold'" [class.w-full]="true"
                 [class.text-left]="!isSidebarCollapsed" [class.px-3]="!isSidebarCollapsed"
                 [class.py-2]="!isSidebarCollapsed" [class.p-2]="isSidebarCollapsed"
                 [class.justify-center]="isSidebarCollapsed"
-                class="rounded-xl text-sm transition-all flex items-center justify-between group cursor-pointer"
+                class="rounded-xl text-sm transition-all flex items-center group cursor-pointer"
                 title="Purchase Quotation Requests">
                 <div class="flex items-center gap-2.5 min-w-0">
                   <svg class="w-4 h-4 shrink-0 transition-colors"
@@ -572,11 +562,6 @@
                   </svg>
                   <span *ngIf="!isSidebarCollapsed" class="truncate font-semibold">Purchase Quotations</span>
                 </div>
-                <span *ngIf="!isSidebarCollapsed"
-                  class="text-[10px] font-black px-1.5 py-0.5 rounded-md shrink-0 ml-1.5"
-                  [class]="activeView === 'purchase-quotation' ? 'bg-cyan-600 text-white' : 'bg-cyan-100 text-cyan-800'">
-                  NEW
-                </span>
               </button>
             </nav>
           </div>
@@ -2440,7 +2425,26 @@
         </div>
 
         <!-- ================= VIEW 3: PURCHASE QUOTATION REQUESTS & EMAIL GENERATOR ================= -->
-        <div *ngIf="activeView === 'purchase-quotation'" class="space-y-5">
+        <!-- Access Denied fallback for non-Purchase users -->
+        <div *ngIf="activeView === 'purchase-quotation' && !isPurchaseSection"
+          class="bg-white rounded-2xl border border-red-200 p-8 text-center max-w-md mx-auto shadow-sm my-12 space-y-4">
+          <div class="w-14 h-14 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center mx-auto">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 15v2m0 0v2m0-2h2m-2 0H10m4-6V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <h3 class="text-base font-bold text-slate-800">เฉพาะฝ่ายจัดซื้อ (Purchase) เท่านั้น</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            ท่านไม่มีสิทธิ์เข้าถึงหน้านี้ ระบบสงวนสิทธิ์เฉพาะพนักงานฝ่ายจัดซื้อ (P/H) เท่านั้น
+          </p>
+          <button (click)="activeView = 'edit'; activeMenu = 'spare-part'"
+            class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold cursor-pointer transition-colors">
+            กลับหน้าหลัก
+          </button>
+        </div>
+
+        <div *ngIf="activeView === 'purchase-quotation' && isPurchaseSection" class="space-y-5">
 
           <!-- Top Navigation Header Bar (Minimalist) -->
           <div
@@ -3234,7 +3238,7 @@
                         </div>
                         <div class="font-bold text-slate-700 text-[11px]">ดูใบเสนอราคา</div>
                       </div>
-                      <div (click)="openPurchaseQuotationView(); showGoogleAppsMenu = false"
+                      <div *ngIf="isPurchaseSection" (click)="openPurchaseQuotationView(); showGoogleAppsMenu = false"
                         class="p-2.5 rounded-xl hover:bg-cyan-50/80 cursor-pointer transition-colors group">
                         <div
                           class="w-10 h-10 mx-auto rounded-xl bg-cyan-100 text-cyan-700 flex items-center justify-center text-lg mb-1 group-hover:scale-105 transition-transform">
