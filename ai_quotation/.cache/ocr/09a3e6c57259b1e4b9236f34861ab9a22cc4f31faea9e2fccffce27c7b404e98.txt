@@ -1,0 +1,51 @@
+PART No.               Markin  B  Laser
+            TGM-Ol-071C-xx               A Control No.
+                                                                                  Aluminium       Ø 2 THRU ALL
+    ØDI : 1    R=O.5               A /  0.0005 A      0 0.0005        Carbide               Sink   2.4               1200
+         2 to 3               0               See Detail
+         3 to 4   .3               0.0005               (Both side)
+         4 to 5 R=1.5A               o
+         6 to 7 R=2A               G               0.4
+         7 to 8 R=2.5A
+         9 to 10 R=2.8A
+           to 12 R=3A
+         13 to 14 R=3.5A
+         15to 16 R=4A
+         17 to 18 R=5A               13
+         19 to 20 R=8.5A
+                                                                                     10               25           (Both side)      3
+                           SCALUI-QZ          LI         12               Lg Carbide
+       ØDI               50               Markin  For S ec
+           s2R=l               For Spec
+                                                DETAIL U               DETAIL Q        x
+                                              SCALE 10:
+      (Follow spec R Plug Gauge MV2)
+    NO     ØDI               LI   12  L3   For Spec    Control    Check   NO     ØDI         ØD2               L3    For Spec    Control    Check
+                                                     No.               No.
+     -41              Ø 4.432-0.002   9   9   8  Ø4.42 20.012               -51  Ø 4.691+00015  Ø 4.711-0.0005    11    11    8   Ø4.701 20.01             PREECHA
+     -42 Ø2.949.o:0015 Ø 2.969-0.0005  IO  10   8  Ø2.959 20.01             PREECHA  -52 Ø3.55+0.002 +0.007    Ø3.65         10   10   12  Ø3.6 20.05              PREECHA
+                                                                                        -0.005
+     -43 Ø2.939+o:0016 Ø 2.979-0001  IO  10   8  Ø2.959+002            PRECHA  -53               +0.02               Preecha
+                                                                                                                               RQ:161/21
+     -44 Ø2.01 +0.0005  Ø 2.02-0.0005   11   11   8  Ø2 +0.02               PREECHA  -54               Preecha
+             0               +0.01               R  :161 21
+     -45 Ø2.510 +0.0005  Ø 2.52-0.0005   11       8  Ø2.5 +0.02              PREECHA  -55 Ø 4.423 +0.0005  Ø 4.431-0.0005    10   10    8   Ø 4.410013 +0.021
+                                            +0.01               0               R  :161 21
+     -46 Ø4.9750    Ø 4.983-0.0005  8   8   8  Ø 4.985 -o:mo            PREECHA  -56               -o•.013
+     -47 Ø4.9780 +0.0005 Ø 4.98600005  8   8   8  Ø4.98&o.008            PREECHA  -57              Ø9.26000S      8    8    8   Ø9.21+005              Preecha
+                                                                                                                               R  :161 21
+     -48 Ø6.327 +0.0005 Ø 6.335-0.0005  8   8      Ø 6.335-0.008    No.9    p REECHA  -58 Ø 4.575+0:0015  Ø 4.59500005    8    8    8   Ø4.585 20.01             Preecha
+              0               RQ:161 21
+     -49 Ø3.980 +0.0005  Ø3.98800005  8   8   8  Ø3.9880008            PREECHA  -59 Ø 4.573+0.0016  Ø4.5970.002    8    8    8   Ø4.858 20.012            Preecha
+                                                                                                                               R  :161 21
+     -50 Ø3.97+o:002   Ø 4.03-0.005    11   11   8  Ø4+003               PREECHA  -60 Ø4.613+0.0010  Ø 4.625-0.0005              8   Ø4.6-o.'013
+       ECNNo. DATE  NAME         DESCRIPTION               Request No.
+                                                                                     2436               MinebeaMitsumi Inc.
+                         ENGINEERING RELEASE
+     14        MAR  PREECHA               No. GT130               General Mgchinin Parts Div. 1
+                               •ssms               Carbide Aluminium
+     9       9 NOV"21       Ch :       . Item-64.-66,-67 RQ499/21               C Type Plug Gauge
+     10               Ch : spec Item-91 RQ:50/23
+             JUN'23 PREECHA Ch Item-60 spec               Aphisek  Chonknok  Preecha  Preecha  pART No.
+     12       21 DEC  PREECHA Add :               TGM-Ol-071C-xx
+     13       31    PREECHA Ch :               p,ATF        16 AUG'12
