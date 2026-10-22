@@ -390,6 +390,11 @@ Write-Output ([string]::Join("`r`n", $allPageLines))
         combined = (layout_text + "\n" + raw_text) if layout_text else raw_text
         ignored_tokens = {"title", "subject", "date", "page", "number", "quotation", "item", "header", "unknown", "email", "e-mail", "fax", "tel", "phone"}
 
+        # Priority: AP Metrology pattern (e.g. "AP/26-G1 16", "AP/26-G1 1 7", "AP/25-G022", "AP/25-G134")
+        m_ap = re.search(r"\b(AP/\d{2}-[A-Za-z]\s*\d+(?:\s*\d+)*)\b", combined, re.IGNORECASE)
+        if m_ap:
+            return re.sub(r"\s+", "", m_ap.group(1).upper())
+
         # Priority: explicit Quote# / Quotation# pattern (e.g. ViSCO "Quote# : S25000425")
         m_qnum = re.search(r"(?:Quote\s*#?|Quotation\s*#?)\s*[:\?#\uff1a\s]\s*([A-Za-z0-9\-_/]{4,25})", combined, re.IGNORECASE)
         if m_qnum:
@@ -516,9 +521,13 @@ Write-Output ([string]::Join("`r`n", $allPageLines))
 
     def _infer_total_amount(self, raw_text: str, layout_text: str = "") -> Optional[float]:
         combined = (layout_text + "\n" + raw_text) if layout_text else raw_text
+        cleaned_combined = re.sub(r"(\d)\s*,\s*(\d)", r"\1,\2", combined)
+        cleaned_combined = re.sub(r"(\d)\s*\.\s*(\d)", r"\1.\2", cleaned_combined)
+        cleaned_combined = re.sub(r"(\b(?:Total|Grand\s*Total|Vat|Net\s*Total|ยอดรวม|รวมเงิน|สุทธิ)\b[^\d\n]{0,30}?)(\d{1,2})\s([1-9]\d{0,2},\d{3}\.\d{2})\b", r"\1\2\3", cleaned_combined, flags=re.I)
+
         # Priority 1: Explicit Grand Total / รวมเงินทั้งสิ้น / ยอดรวมทั้งสิ้น / จำนวนเงินสุทธิ (final payable with VAT)
-        p1 = r"(?:Grand\s*Total|ยอดรวมทั้งสิ้น|รวมเงินทั้งสิ้น|จ[ำาํ\s]*นวนเงินสุทธิ|จ[ำาํ\s]*นวนเงินรวมทั้งสิ้น)\s*[:=\u0e53|/]?\s*([0-9,]+(?:\.[0-9]{2})?)"
-        m1 = re.search(p1, combined, re.IGNORECASE)
+        p1 = r"(?:Grand\s*Total|ยอดรวมทั้งสิ้น|รวมเงินทั้งสิ้น|จ[ำาํ\s]*นวนเงินสุทธิ|จ[ำาํ\s]*นวนเงินรวมทั้งสิ้น)\s*(?:\([^)]*\)|[A-Za-z]{2,5})?\s*[:=\u0e53|/]?\s*([0-9,]+(?:\.[0-9]{2})?)"
+        m1 = re.search(p1, cleaned_combined, re.IGNORECASE)
         if m1:
             try:
                 return float(m1.group(1).replace(",", ""))
@@ -526,8 +535,8 @@ Write-Output ([string]::Join("`r`n", $allPageLines))
                 pass
 
         # Priority 2: Net Total / Net Amount / Total Amount / ยอดเงินสุทธิ
-        p2 = r"(?:Net\s*Total|Net\s*Amount|Total\s*Amount|ยอดเงินสุทธิ)\s*[:=\u0e53|/]?\s*([0-9,]+(?:\.[0-9]{2})?)"
-        m2 = re.search(p2, combined, re.IGNORECASE)
+        p2 = r"(?:Net\s*Total|Net\s*Amount|Total\s*Amount|ยอดเงินสุทธิ)\s*(?:\([^)]*\)|[A-Za-z]{2,5})?\s*[:=\u0e53|/]?\s*([0-9,]+(?:\.[0-9]{2})?)"
+        m2 = re.search(p2, cleaned_combined, re.IGNORECASE)
         if m2:
             try:
                 return float(m2.group(1).replace(",", ""))
@@ -536,8 +545,8 @@ Write-Output ([string]::Join("`r`n", $allPageLines))
 
 
         # Priority 3: Total / Sub Total / ยอดรวม / จำนวนเงินรวม
-        p3 = r"(?:Total|ยอดรวม|จ[ำาํ\s]*นวนเงินรวม)\s*[:=\u0e53|/]?\s*([0-9,]+(?:\.[0-9]{2})?)"
-        m3 = re.search(p3, combined, re.IGNORECASE)
+        p3 = r"(?:Total|ยอดรวม|จ[ำาํ\s]*นวนเงินรวม)\s*(?:\([^)]*\)|[A-Za-z]{2,5})?\s*[:=\u0e53|/]?\s*([0-9,]+(?:\.[0-9]{2})?)"
+        m3 = re.search(p3, cleaned_combined, re.IGNORECASE)
         if m3:
             clean_str = m3.group(1).replace(",", "")
             try:
@@ -601,6 +610,10 @@ Write-Output ([string]::Join("`r`n", $allPageLines))
 
     def _extract_quotation_number(self, base_name: str, raw_text: str, layout_text: str = "") -> str:
         combined = (layout_text + "\n" + raw_text) if layout_text else raw_text
+        m_ap = re.search(r"\b(AP/\d{2}-[A-Za-z]\s*\d+(?:\s*\d+)*)\b", combined, re.IGNORECASE)
+        if m_ap:
+            return re.sub(r"\s+", "", m_ap.group(1).upper())
+
         patterns = [
             r"Quote\s*#\s*[:\?#\uff1a]?\s*([A-Za-z0-9\-_/]{4,25})",
             r"(?:REF\s*No\.?|Quotation\s*Net)\s*[:\?#\uff1a\s]?\s*\(?([A-Za-z0-9\-_/]{4,25})\)?",
@@ -973,7 +986,7 @@ Write-Output ([string]::Join("`r`n", $allPageLines))
         return middle, None
 
     def _extract_line_items(self, raw_text: str, inferred_total: Optional[float], layout_text: str = "") -> tuple[DraftItem, ...]:
-        unit_tokens = r"(?:SET|PCS|PRS|LOT|UNIT|BOX|PAIRS?|PCE|ชุด|ชิ้น|คู่|ตัว|อัน)"
+        unit_tokens = r"(?:SET|PCS|PRS|LOT|UNIT|BOX|PAIRS?|PCE|JOB|ชุด|ชิ้น|คู่|ตัว|อัน)"
         multi_price_pattern = re.compile(
             r"^\s*(?:(\d{1,4})[\.\)]?\s+)?"
             r"([A-Za-z0-9\-_#/]{2,25})\s+"
@@ -994,6 +1007,12 @@ Write-Output ([string]::Join("`r`n", $allPageLines))
                     l_clean = re.sub(r"(\d)\s*,\s*(\d)", r"\1,\2", l)
                     l_clean = re.sub(r"\.(?:oo|o0|0o|OO|oO|Oo)\b", ".00", l_clean)
                     l_clean = re.sub(r"(\d)\s*\.\s*(\d)", r"\1.\2", l_clean)
+                    # 1. Split price and amount: '1 5,000.00       1 5,000.00' -> '15,000.00       15,000.00'
+                    l_clean = re.sub(r"\b(\d{1,2})\s([1-9]\d{0,2},\d{3}\.\d{2})\s+(\d{1,2})\s([1-9]\d{0,2},\d{3}\.\d{2})\b", r"\1\2 \3\4", l_clean)
+                    # 2. Split price after a known unit: 'JOB   1 5,000.00' -> 'JOB   15,000.00'
+                    l_clean = re.sub(r"(\b(?:JOB|PCS|SET|UNIT|LOT|BOX|PAIR|PCE|ชุด|ชิ้น|คู่|ตัว|อัน)\b[^\d\n]{1,30}?)(\d{1,2})\s([1-9]\d{0,2},\d{3}\.\d{2})\b", r"\1\2\3", l_clean, flags=re.I)
+                    # 3. Split total in summary: 'Total (Baht) 1 5,000.00' -> 'Total (Baht) 15,000.00'
+                    l_clean = re.sub(r"(\b(?:Total|Grand\s*Total|Vat|ยอดรวม|รวมเงิน|สุทธิ)\b[^\d\n]{0,30}?)(\d{1,2})\s([1-9]\d{0,2},\d{3}\.\d{2})\b", r"\1\2\3", l_clean, flags=re.I)
                     cleaned_layout_lines.append(l_clean)
             layout_lines = cleaned_layout_lines
 
@@ -1005,7 +1024,7 @@ Write-Output ([string]::Join("`r`n", $allPageLines))
             # 2 KEY PIN TGM-16-025B-06 R.1 2 PIECE 25 DAYS 300.00 600.00
             # 1 BMD-S4-3.00 "DIATEST" (Germany Made) 1.00Pce 22,100.00 20.00 % 17,680.00
             table_row_pattern = re.compile(
-                r"^\s*(\d{1,4})[\.\)]?\s+"
+                r"^\s*(?:(\d{1,4})[\.\)]?\s+)?"
                 r"([A-Za-z\u0E00-\u0E7F0-9\"].*?)\s+"
                 r"([0-9,]+(?:\.\d+)?)\s*"
                 r"([A-Za-z\u0E00-\u0E7F\./]{1,15})?\s+"
@@ -1224,12 +1243,19 @@ Write-Output ([string]::Join("`r`n", $allPageLines))
                 else:
                     m_tbl = table_row_pattern.match(l_line)
                     if m_tbl:
-                        item_no = int(m_tbl.group(1))
+                        item_no = int(m_tbl.group(1)) if m_tbl.group(1) else (len(layout_items) + 1)
                         middle = m_tbl.group(2)
                         qty = float(m_tbl.group(3).replace(",", ""))
                         unit = m_tbl.group(4).strip() if m_tbl.group(4) else "Pcs"
                         price = float(m_tbl.group(6).replace(",", ""))
                         amt = float(m_tbl.group(7).replace(",", ""))
+                        # Guard: If item_no is not provided, verify that qty * price ~ amt and not a summary/tax line
+                        if not m_tbl.group(1):
+                            if abs(price * qty - amt) > max(1.0, 0.05 * amt):
+                                continue
+                            if re.search(r"\b(total|vat|subtotal|grand\s*total|ภาษี|ยอดรวม|discount|ส่วนลด)\b", middle, re.I):
+                                continue
+
                         desc, part_no = self._parse_middle_desc_and_part(middle)
 
                         # Lookahead for continuation lines until next item or summary
@@ -1250,6 +1276,7 @@ Write-Output ([string]::Join("`r`n", $allPageLines))
                                     if not part_no and spec_m:
                                         part_no = spec_m.group(1).strip()
                                     desc_parts.append(next_l.strip())
+                                skip_indices.add(j)
                             j += 1
 
                         full_desc = " ".join(desc_parts)
@@ -1294,7 +1321,14 @@ Write-Output ([string]::Join("`r`n", $allPageLines))
                     amount=tot_amt,
                 ),)
 
-        lines = [line.strip() for line in raw_text.splitlines() if line.strip()]
+        cleaned_raw_lines = []
+        for line in raw_text.splitlines():
+            if line.strip():
+                cl = re.sub(r"(\d)\s*,\s*(\d)", r"\1,\2", line.strip())
+                cl = re.sub(r"\b(\d{1,2})\s([1-9]\d{0,2},\d{3}\.\d{2})\s+(\d{1,2})\s([1-9]\d{0,2},\d{3}\.\d{2})\b", r"\1\2 \3\4", cl)
+                cl = re.sub(r"(\b(?:JOB|PCS|SET|UNIT|LOT|BOX|PAIR|PCE|ชุด|ชิ้น|คู่|ตัว|อัน)\b[^\d\n]{1,30}?)(\d{1,2})\s([1-9]\d{0,2},\d{3}\.\d{2})\b", r"\1\2\3", cl, flags=re.I)
+                cleaned_raw_lines.append(cl)
+        lines = cleaned_raw_lines
         items: list[DraftItem] = []
 
         # Standard line item formats

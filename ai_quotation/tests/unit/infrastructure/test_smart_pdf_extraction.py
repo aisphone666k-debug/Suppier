@@ -602,6 +602,36 @@ def test_smart_extraction_pcrg_cleanroom_price_agreement():
     assert draft.total_amount == 3228.0
 
 
+def test_smart_extraction_ap_metrology_contour_calibration():
+    reader = PdfDocumentReader()
+    candidates = [
+        os.path.join("..", "Quatation", "Quotation test", "26G116AP CONTOUR 2600E.pdf"),
+        os.path.join("storage", "staging", "stage_7d461b1a_26G116AP CONTOUR 2600E.pdf"),
+    ]
+    pdf_path = next((p for p in candidates if os.path.exists(p)), None)
+    if not pdf_path:
+        import pytest
+        pytest.skip("AP Metrology test fixture not found")
+
+    draft = reader.extract_draft(pdf_path)
+
+    assert draft.quotation_number == "AP/26-G116"
+    assert "A.P. METROLOGY SERVICE" in draft.vendor_name
+    assert draft.issue_date == date(2026, 5, 25)
+    assert draft.total_amount == 16050.0
+    assert len(draft.items) == 1
+
+    item = draft.items[0]
+    assert item.item_number == 1
+    assert "Contour 2600E" in item.description
+    assert item.part_number == "KA8802LW"
+    assert item.quantity == 1.0
+    assert item.unit == "JOB"
+    assert item.unit_price == 15000.0
+    assert item.amount == 15000.0
+
+
+
 
 
 
