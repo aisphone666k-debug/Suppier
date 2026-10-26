@@ -93,9 +93,25 @@
                             <svg class="w-10 h-10 text-indigo-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
-                            <span id="file-label" class="text-sm font-bold text-indigo-600 hover:text-indigo-700">Choose or Drop Single Vendor PDF (Instant Auto-Extraction)</span>
-                            <p class="text-xs text-slate-400 mt-1">Accepts any standard vendor quotation PDF</p>
+                            <span id="file-label" class="text-sm font-bold text-indigo-600 hover:text-indigo-700">Choose, Drop Single Vendor PDF or Drag/Paste Google Drive Link</span>
+                            <p class="text-xs text-slate-400 mt-1">ลากไฟล์ PDF มาวาง หรือโยน/วางลิงก์จาก Google Drive ได้ทันที (Auto-Extract)</p>
                         </label>
+                        <div class="gdrive-inline-container mt-4 max-w-lg mx-auto flex items-center bg-white rounded-xl border border-indigo-200 shadow-2xs p-1 focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-100 transition-all" onclick="event.stopPropagation();">
+                            <span class="pl-2.5 pr-1.5 flex-shrink-0">
+                                <svg class="w-4 h-4" viewBox="0 0 87.3 78" fill="none">
+                                    <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5l5.4 9.35z" fill="#0066DA"/>
+                                    <path d="M43.65 25L29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44C.4 50 0 51.55 0 53.1h27.5L43.65 25z" fill="#00AC47"/>
+                                    <path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.8l5.85 10.15 7.9 13.65z" fill="#EA4335"/>
+                                    <path d="M43.65 25L57.4 1.2c-1.35-.8-2.9-1.2-4.45-1.2H34.35c-1.55 0-3.1.4-4.45 1.2L43.65 25z" fill="#00832D"/>
+                                    <path d="M59.8 53.1H87.3c0-1.55-.4-3.1-1.2-4.5l-25.4-44c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25 59.8 53.1z" fill="#2684FC"/>
+                                    <path d="M73.55 76.8H27.5L13.75 53H73.55l-.8 1.4-4.6 7.95-4.6 7.95c-.8 1.4-1.95 2.5-3.3 3.3z" fill="#FFBA00"/>
+                                </svg>
+                            </span>
+                            <input type="text" class="gdrive-inline-url w-full text-xs text-slate-800 placeholder-slate-400 focus:outline-none bg-transparent" placeholder="วางลิงก์ Google Drive ตรงนี้ (กด Enter หรือคลิก 'ดึงไฟล์')..." oninput="onGdriveInlineInput(this, 'single');" onkeydown="if(event.key==='Enter'){event.preventDefault();submitInlineGdrive(this,'single');}">
+                            <button type="button" onclick="submitInlineGdrive(this,'single');" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs shadow-xs transition-all flex items-center whitespace-nowrap ml-1 flex-shrink-0">
+                                ดึงไฟล์ &amp; สกัด
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Dynamic Status / Smart Preview Card -->
@@ -246,9 +262,31 @@
                             <svg class="w-12 h-12 text-indigo-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
                             </svg>
-                            <span id="batch-file-label" class="text-sm font-bold text-indigo-600 hover:text-indigo-700">Choose or Drop Multiple Quotation PDFs (Bulk Ingestion &amp; Review)</span>
-                            <p class="text-xs text-slate-400 mt-1">Select multiple vendor PDFs. The AI parser will extract all quotation fields and line items into an interactive review queue where you can edit everything before saving to your website.</p>
+                            <span id="batch-file-label" class="text-sm font-bold text-indigo-600 hover:text-indigo-700">Choose, Drop Multiple Quotation PDFs or Throw Google Drive Links</span>
+                            <p class="text-xs text-slate-400 mt-1">เลือกไฟล์ PDF หลายไฟล์ หรือโยน/ลากลิงก์ไฟล์หรือโฟลเดอร์จาก Google Drive มาวางที่นี่ได้ทันที</p>
                         </label>
+                        <div class="gdrive-inline-container mt-4 max-w-xl mx-auto flex items-center bg-white rounded-xl border border-indigo-200 shadow-2xs p-1 focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-100 transition-all" onclick="event.stopPropagation();">
+                            <span class="pl-3 pr-2 flex-shrink-0">
+                                <svg class="w-4 h-4" viewBox="0 0 87.3 78" fill="none">
+                                    <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5l5.4 9.35z" fill="#0066DA"/>
+                                    <path d="M43.65 25L29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44C.4 50 0 51.55 0 53.1h27.5L43.65 25z" fill="#00AC47"/>
+                                    <path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.8l5.85 10.15 7.9 13.65z" fill="#EA4335"/>
+                                    <path d="M43.65 25L57.4 1.2c-1.35-.8-2.9-1.2-4.45-1.2H34.35c-1.55 0-3.1.4-4.45 1.2L43.65 25z" fill="#00832D"/>
+                                    <path d="M59.8 53.1H87.3c0-1.55-.4-3.1-1.2-4.5l-25.4-44c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25 59.8 53.1z" fill="#2684FC"/>
+                                    <path d="M73.55 76.8H27.5L13.75 53H73.55l-.8 1.4-4.6 7.95-4.6 7.95c-.8 1.4-1.95 2.5-3.3 3.3z" fill="#FFBA00"/>
+                                </svg>
+                            </span>
+                            <input type="text" class="gdrive-inline-url w-full text-xs text-slate-800 placeholder-slate-400 focus:outline-none bg-transparent" placeholder="วางลิงก์ Google Drive ตรงนี้ (กด Enter หรือคลิก 'ดึงไฟล์')..." oninput="onGdriveInlineInput(this, 'batch');" onkeydown="if(event.key==='Enter'){event.preventDefault();submitInlineGdrive(this,'batch');}">
+                            <button type="button" onclick="submitInlineGdrive(this,'batch');" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs shadow-xs transition-all flex items-center whitespace-nowrap ml-1 flex-shrink-0">
+                                ดึงไฟล์ &amp; สกัด
+                            </button>
+                        </div>
+                        <div class="mt-2 text-center" onclick="event.stopPropagation();">
+                            <button type="button" onclick="openGoogleDriveModal('batch');" class="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 underline inline-flex items-center space-x-1">
+                                <span>หรือเปิดหน้าต่างวางหลายลิงก์ / ลิงก์โฟลเดอร์ Google Drive</span>
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-1">
@@ -266,17 +304,117 @@
                     </div>
                 </div>
 
-                <!-- Progress container -->
-                <div id="batch-progress-container" class="hidden p-5 rounded-2xl bg-indigo-50/70 border border-indigo-200 text-xs space-y-3">
-                    <div class="flex items-center justify-between text-indigo-900 font-semibold">
-                        <span id="batch-progress-text" class="flex items-center">
-                            <svg class="w-4 h-4 mr-2 animate-spin text-indigo-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                            Parsing PDFs and extracting draft quotation data...
-                        </span>
-                        <span id="batch-progress-pct" class="font-mono text-indigo-700">0%</span>
+                <!-- Real-Time Progress Dashboard Container -->
+                <div id="batch-progress-container" class="hidden p-6 rounded-2xl bg-gradient-to-b from-indigo-50/90 via-slate-50/70 to-white border-2 border-indigo-200/90 shadow-lg text-xs space-y-4 transition-all">
+                    <!-- Header Row -->
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-indigo-100">
+                        <div class="flex items-center space-x-3">
+                            <span class="relative flex h-3.5 w-3.5 flex-shrink-0">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-indigo-600"></span>
+                            </span>
+                            <div>
+                                <div class="flex items-center space-x-2">
+                                    <h4 class="font-extrabold text-slate-900 text-sm sm:text-base">Real-Time PDF Auto-Extraction</h4>
+                                    <span id="batch-progress-count-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200/60 font-mono">0 / 0 PDFs</span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 mt-0.5" id="batch-progress-subtitle">ระบบ AI กำลังอ่านและสกัดข้อมูล Header, Vendor, รายการสินค้า และราคาแบบเรียลไทม์...</p>
+                            </div>
+                        </div>
+                        <div class="flex items-baseline space-x-2 self-end sm:self-auto bg-indigo-100/60 px-3 py-1 rounded-xl border border-indigo-200/60">
+                            <span class="text-xs font-semibold text-indigo-800">ความคืบหน้า:</span>
+                            <span id="batch-progress-pct" class="font-mono text-2xl font-black text-indigo-700 tracking-tight">0%</span>
+                        </div>
                     </div>
-                    <div class="w-full bg-indigo-200/80 rounded-full h-2 overflow-hidden">
-                        <div id="batch-progress-bar" class="bg-indigo-600 h-2 transition-all duration-300" style="width: 0%"></div>
+
+                    <!-- Animated Progress Bar -->
+                    <div class="space-y-1">
+                        <div class="w-full bg-slate-200/90 rounded-full h-3.5 p-0.5 overflow-hidden border border-indigo-200/80 shadow-inner">
+                            <div id="batch-progress-bar" class="bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 h-full rounded-full transition-all duration-300 ease-out shadow-sm" style="width: 0%"></div>
+                        </div>
+                        <div class="flex items-center justify-between text-[10px] text-slate-400 font-mono px-1">
+                            <span>0%</span>
+                            <span id="batch-progress-ratio-label">0 / 0 completed</span>
+                            <span>100%</span>
+                        </div>
+                    </div>
+
+                    <!-- 4 Live Metric Cards -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                        <div class="p-3 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                            <div class="flex items-center justify-between text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">
+                                <span>⏱️ เวลาที่ใช้ไป</span>
+                                <span class="text-slate-300">Elapsed</span>
+                            </div>
+                            <div id="batch-progress-elapsed" class="font-mono text-base font-extrabold text-slate-800">00:00</div>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-white border border-indigo-200/80 bg-indigo-50/30 shadow-2xs">
+                            <div class="flex items-center justify-between text-indigo-600 text-[10px] font-bold uppercase tracking-wider mb-1">
+                                <span>⏳ เวลาที่เหลือ (ETA)</span>
+                                <span class="text-indigo-300">Remaining</span>
+                            </div>
+                            <div id="batch-progress-eta" class="font-mono text-base font-extrabold text-indigo-600 truncate">กำลังคำนวณ...</div>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                            <div class="flex items-center justify-between text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">
+                                <span>⚡ ความเร็ว</span>
+                                <span class="text-slate-300">Speed</span>
+                            </div>
+                            <div id="batch-progress-speed" class="font-mono text-base font-extrabold text-emerald-600">0.0 files/s</div>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                            <div class="flex items-center justify-between text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">
+                                <span>📊 สถานะความคืบหน้า</span>
+                                <span class="text-slate-300">Status</span>
+                            </div>
+                            <div id="batch-progress-status" class="font-mono text-xs sm:text-sm font-extrabold text-slate-700 truncate">✓ 0 สำเร็จ</div>
+                        </div>
+                    </div>
+
+                    <!-- Currently Processing File Banner -->
+                    <div class="flex items-center justify-between px-3 py-2 bg-indigo-50/80 border border-indigo-100 rounded-xl">
+                        <div class="flex items-center space-x-2 min-w-0">
+                            <svg class="w-4 h-4 text-indigo-600 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <span class="text-indigo-900 font-bold flex-shrink-0 text-[11px]">กำลังสกัดข้อมูล:</span>
+                            <span id="batch-progress-current-file" class="font-mono text-indigo-700 truncate text-[11px]">เตรียมส่งไฟล์เข้าสู่กระบวนการ...</span>
+                        </div>
+                        <span id="batch-progress-active-workers" class="font-mono font-semibold text-indigo-600 text-[10px] ml-2 flex-shrink-0 bg-white px-2 py-0.5 rounded border border-indigo-100">Multi-worker active</span>
+                    </div>
+
+                    <!-- Live Rolling Activity Stream (Recent Extracted PDFs) -->
+                    <div class="space-y-1.5 pt-1">
+                        <div class="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider px-1">
+                            <span class="flex items-center space-x-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                                <span>รายการเอกสารล่าสุดที่สกัดสำเร็จ (Live Extracted Feed)</span>
+                            </span>
+                            <span class="text-slate-400 font-normal text-[10px]">อัปเดตแบบเรียลไทม์</span>
+                        </div>
+                        <div id="batch-progress-log" class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                            <div class="text-[11px] text-slate-400 italic px-2.5 py-1.5 bg-white/70 rounded-lg border border-slate-100 flex items-center space-x-2">
+                                <svg class="w-3.5 h-3.5 text-slate-400 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                <span>กำลังเริ่มต้นอ่านไฟล์... รายการเอกสารที่สกัดเสร็จจะแสดงขึ้นที่นี่</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Extraction Controls -->
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t border-indigo-100/80">
+                        <span class="text-[11px] text-slate-400">ระบบประมวลผลพร้อมกันหลายไฟล์แบบขนาน (Parallel Workers) เพื่อความเร็วสูงสุด</span>
+                        <div class="flex items-center space-x-2 self-end sm:self-auto">
+                            <button type="button" id="batch-stop-btn" onclick="stopBatchExtractionAndReview()" class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl text-xs shadow-xs transition-all flex items-center">
+                                <svg class="w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                หยุด &amp; ตรวจสอบไฟล์ที่เสร็จแล้ว
+                            </button>
+                            <button type="button" onclick="cancelBatchExtractionAll()" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-600 border border-slate-300 font-semibold rounded-xl text-xs transition-all">
+                                ยกเลิกทั้งหมด
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -297,12 +435,23 @@
                             <button type="button" onclick="cancelBatchStaging()" class="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-white border border-slate-300 rounded-xl transition-all">
                                 Discard &amp; Re-upload
                             </button>
-                            <button type="button" onclick="commitBatchStaging()" class="px-5 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-600/20 rounded-xl transition-all flex items-center">
+                            <button type="button" id="staging-commit-top-btn" onclick="commitBatchStaging()" class="px-5 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-600/20 rounded-xl transition-all flex items-center">
                                 <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                 </svg>
                                 Save &amp; Take All to Website
                             </button>
+                        </div>
+                    </div>
+
+                    <!-- Search & Filter in Staging -->
+                    <div class="flex items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+                        <div class="relative flex-1">
+                            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <input type="text" id="staging-search-filter" oninput="filterStagingCards(this.value)" placeholder="ค้นหาตามเลขที่ใบเสนอราคา, ชื่อ Vendor, หรือชื่อไฟล์..." class="w-full pl-9 pr-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div id="staging-counter-badge" class="text-xs font-bold text-slate-600 whitespace-nowrap px-3 py-1.5 bg-slate-100 rounded-lg">
+                            แสดง 0 / 0 รายการ
                         </div>
                     </div>
 
@@ -496,11 +645,66 @@
                 No open manual quotation requests. All user demands are fulfilled!
             </div>
             {% endif %}
+    </div>
+</div>
+
+<!-- Google Drive Import Modal Dialog -->
+<div id="gdrive-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full p-6 space-y-4 animate-in fade-in zoom-in duration-150">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6" viewBox="0 0 87.3 78" fill="none">
+                        <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5l5.4 9.35z" fill="#0066DA"/>
+                        <path d="M43.65 25L29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44C.4 50 0 51.55 0 53.1h27.5L43.65 25z" fill="#00AC47"/>
+                        <path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.8l5.85 10.15 7.9 13.65z" fill="#EA4335"/>
+                        <path d="M43.65 25L57.4 1.2c-1.35-.8-2.9-1.2-4.45-1.2H34.35c-1.55 0-3.1.4-4.45 1.2L43.65 25z" fill="#00832D"/>
+                        <path d="M59.8 53.1H87.3c0-1.55-.4-3.1-1.2-4.5l-25.4-44c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25 59.8 53.1z" fill="#2684FC"/>
+                        <path d="M73.55 76.8H27.5L13.75 53H73.55l-.8 1.4-4.6 7.95-4.6 7.95c-.8 1.4-1.95 2.5-3.3 3.3z" fill="#FFBA00"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-sm font-extrabold text-slate-900">นำเข้าใบเสนอราคาจาก Google Drive</h3>
+                    <p class="text-[11px] text-slate-500">วางลิงก์ไฟล์ PDF หรือลิงก์โฟลเดอร์จาก Google Drive</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeGoogleDriveModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <div class="space-y-2">
+            <label class="block text-xs font-bold text-slate-700">
+                วางลิงก์ Google Drive (วางได้หลายบรรทัด หรือวางลิงก์โฟลเดอร์):
+            </label>
+            <textarea id="gdrive-urls-input" rows="4" placeholder="https://drive.google.com/file/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OIvE2e144/view?usp=sharing&#10;https://drive.google.com/drive/folders/..." class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+            
+            <div class="p-3 bg-amber-50 border border-amber-200/80 rounded-xl text-[11px] text-amber-900 flex items-start space-x-2">
+                <span class="text-base leading-none">💡</span>
+                <div>
+                    <strong class="font-bold">เคล็ดลับการใช้งาน:</strong>
+                    <p class="mt-0.5 text-amber-800">โปรดตรวจสอบว่าไฟล์หรือโฟลเดอร์ใน Google Drive ได้เปิดสิทธิ์การแชร์เป็น <em>"ทุกคนที่มีลิงก์ (Anyone with the link)"</em> ระบบจะดาวน์โหลดและเริ่มสกัดข้อมูลตารางอัตโนมัติทันที</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+            <span class="text-[11px] text-slate-400">💡 คุณสามารถลาก/โยนไฟล์จาก Google Drive มาวางที่กล่อง Dropzone ได้โดยตรง</span>
+            <div class="flex items-center space-x-2">
+                <button type="button" onclick="closeGoogleDriveModal()" class="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-all">
+                    ยกเลิก
+                </button>
+                <button type="button" id="gdrive-submit-btn" onclick="submitGoogleDriveImport()" class="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition-all flex items-center">
+                    <svg class="w-3.5 h-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    ดึงไฟล์ &amp; เริ่มสกัดข้อมูล
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
+    let singleTimerInterval = null;
     async function handleSmartPdfSelect(input) {
         const label = document.getElementById('file-label');
         const statusBanner = document.getElementById('smart-status-banner');
@@ -511,12 +715,21 @@
         
         statusBanner.classList.remove('hidden');
         statusBanner.className = "p-4 rounded-xl mb-4 bg-indigo-50 border border-indigo-200 text-indigo-900 text-xs flex items-center justify-between";
-        statusBanner.innerHTML = `
-            <div class="flex items-center space-x-2">
-                <svg class="w-4 h-4 animate-spin text-indigo-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                <span class="font-semibold">Smart Parser analyzing PDF... Auto-extracting vendor, pricing, validity terms, and line items.</span>
-            </div>
-        `;
+        
+        const singleStart = Date.now();
+        if (singleTimerInterval) clearInterval(singleTimerInterval);
+        
+        const updateSingleBanner = () => {
+            const sec = ((Date.now() - singleStart) / 1000).toFixed(1);
+            statusBanner.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <svg class="w-4 h-4 animate-spin text-indigo-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span class="font-semibold">Smart Parser analyzing PDF... (<span class="font-mono text-indigo-700">${sec}s</span>) Auto-extracting vendor, pricing, validity terms, and line items.</span>
+                </div>
+            `;
+        };
+        updateSingleBanner();
+        singleTimerInterval = setInterval(updateSingleBanner, 300);
         
         const formData = new FormData();
         formData.append('pdf_file', file);
@@ -527,6 +740,9 @@
                 method: 'POST',
                 body: formData
             });
+            if (singleTimerInterval) clearInterval(singleTimerInterval);
+            const durationSec = ((Date.now() - singleStart) / 1000).toFixed(1);
+
             if (!resp.ok) throw new Error('Extraction failed');
             const data = await resp.json();
             
@@ -548,7 +764,7 @@
                 <div class="flex items-center justify-between mb-2">
                     <div class="flex items-center space-x-2">
                         <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                        <span class="font-bold">Smart Auto-Extraction Complete (${data.items.length} Items Loaded into Editor Below)</span>
+                        <span class="font-bold">Smart Auto-Extraction Complete (${data.items.length} Items Loaded into Editor Below) &bull; ${durationSec}s</span>
                     </div>
                     <span class="text-[10px] font-semibold uppercase tracking-wider bg-emerald-200/60 text-emerald-800 px-2 py-0.5 rounded">100% Inferred</span>
                 </div>
@@ -574,6 +790,7 @@
             submitBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
             
         } catch (err) {
+            if (singleTimerInterval) clearInterval(singleTimerInterval);
             statusBanner.className = "p-3 rounded-xl mb-4 bg-amber-50 border border-amber-200 text-amber-800 text-xs";
             statusBanner.innerText = "Smart auto-extraction ran into an issue. You can still submit with standard defaults.";
         }
@@ -761,6 +978,9 @@
 
     let selectedBatchFiles = [];
     let stagedDrafts = [];
+    let isBatchCancelled = false;
+    let isBatchStopped = false;
+    let batchTimerInterval = null;
 
     function handleBatchSelect(input) {
         if (!input.files || input.files.length === 0) return;
@@ -768,71 +988,324 @@
         
         const countLabel = document.getElementById('batch-file-count');
         const batchBtn = document.getElementById('batch-start-btn');
-        countLabel.innerText = `${selectedBatchFiles.length} PDF file(s) selected`;
-        batchBtn.disabled = false;
-        batchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        if (countLabel) countLabel.innerText = `${selectedBatchFiles.length.toLocaleString()} PDF file(s) selected`;
+        if (batchBtn) {
+            batchBtn.disabled = false;
+            batchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
 
         // Automatically start extraction to smoothly transition into staging review
         startBatchExtraction();
     }
 
-    async function startBatchExtraction() {
-        if (!selectedBatchFiles || selectedBatchFiles.length === 0) return;
+    function addRecentItemToLog(draft) {
+        const logContainer = document.getElementById('batch-progress-log');
+        if (!logContainer) return;
         
+        // Remove initial placeholder if present
+        if (logContainer.querySelector('.italic')) {
+            logContainer.innerHTML = '';
+        }
+
+        const isWarn = Boolean(draft.warning);
+        const itemEl = document.createElement('div');
+        itemEl.className = "flex items-center justify-between px-3 py-1.5 rounded-lg border text-[11px] transition-all bg-white shadow-2xs " + (isWarn ? "border-amber-200 bg-amber-50/40" : "border-slate-100 hover:border-indigo-200");
+        
+        const itemsCount = draft.items ? draft.items.length : 0;
+        const totalFormatted = (draft.currency || 'THB') + ' ' + (draft.total_amount ? Number(draft.total_amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00');
+
+        itemEl.innerHTML = `
+            <div class="flex items-center space-x-2 min-w-0">
+                <span class="flex-shrink-0 w-4 h-4 rounded-full ${isWarn ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'} flex items-center justify-center font-bold text-[10px]">
+                    ${isWarn ? '!' : '✓'}
+                </span>
+                <span class="font-bold text-slate-800 truncate max-w-[140px] sm:max-w-xs">${escapeHtml(draft.filename)}</span>
+                <span class="text-slate-400">&bull;</span>
+                <span class="text-slate-600 truncate max-w-[120px] sm:max-w-xs">${escapeHtml(draft.vendor_name || 'Vendor')}</span>
+            </div>
+            <div class="flex items-center space-x-2 flex-shrink-0 font-mono text-[10px]">
+                <span class="text-slate-500">${itemsCount} รายการ</span>
+                <span class="font-bold text-slate-900">${totalFormatted}</span>
+            </div>
+        `;
+
+        logContainer.prepend(itemEl);
+
+        // Keep at most 6 latest items to prevent DOM bloat
+        while (logContainer.children.length > 6) {
+            logContainer.removeChild(logContainer.lastChild);
+        }
+    }
+
+    function stopBatchExtractionAndReview() {
+        if (isBatchStopped || isBatchCancelled) return;
+        isBatchStopped = true;
+        const stopBtn = document.getElementById('batch-stop-btn');
+        if (stopBtn) {
+            stopBtn.disabled = true;
+            stopBtn.innerHTML = `
+                <svg class="w-3.5 h-3.5 mr-1 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                กำลังหยุดและเตรียมเปิดคิว...
+            `;
+        }
+    }
+
+    function cancelBatchExtractionAll() {
+        isBatchCancelled = true;
+        if (batchTimerInterval) clearInterval(batchTimerInterval);
+        cancelBatchStaging();
+    }
+
+    async function startBatchExtraction() {
+        if (!selectedBatchFiles || selectedBatchFiles.length === 0) {
+            const batchGdriveInput = document.querySelector('#batch-dropzone-section .gdrive-inline-url');
+            if (batchGdriveInput && batchGdriveInput.value.trim()) {
+                submitInlineGdrive(batchGdriveInput, 'batch');
+                return;
+            }
+            return;
+        }
+        
+        isBatchCancelled = false;
+        isBatchStopped = false;
+        if (batchTimerInterval) clearInterval(batchTimerInterval);
+
+        const totalFiles = selectedBatchFiles.length;
         const batchBtn = document.getElementById('batch-start-btn');
         const progressContainer = document.getElementById('batch-progress-container');
         const progressBar = document.getElementById('batch-progress-bar');
         const progressPct = document.getElementById('batch-progress-pct');
-        const progressText = document.getElementById('batch-progress-text');
+        const progressCountBadge = document.getElementById('batch-progress-count-badge');
+        const progressRatioLabel = document.getElementById('batch-progress-ratio-label');
+        const progressElapsed = document.getElementById('batch-progress-elapsed');
+        const progressEta = document.getElementById('batch-progress-eta');
+        const progressSpeed = document.getElementById('batch-progress-speed');
+        const progressStatus = document.getElementById('batch-progress-status');
+        const progressCurrentFile = document.getElementById('batch-progress-current-file');
+        const progressWorkers = document.getElementById('batch-progress-active-workers');
+        const progressLog = document.getElementById('batch-progress-log');
         const dropzoneSection = document.getElementById('batch-dropzone-section');
         const resultsContainer = document.getElementById('batch-results-container');
+        const stagingContainer = document.getElementById('batch-staging-container');
+        const stopBtn = document.getElementById('batch-stop-btn');
         
         resultsContainer.classList.add('hidden');
+        stagingContainer.classList.add('hidden');
         batchBtn.disabled = true;
         batchBtn.classList.add('opacity-50', 'cursor-not-allowed');
         progressContainer.classList.remove('hidden');
-        
-        progressBar.style.width = '35%';
-        progressPct.innerText = '35%';
-        progressText.innerHTML = `
-            <svg class="w-4 h-4 mr-2 animate-spin text-indigo-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            Auto-extracting metadata &amp; line items from ${selectedBatchFiles.length} PDF(s)...
-        `;
-        
-        const formData = new FormData();
-        for (const f of selectedBatchFiles) {
-            formData.append('pdf_files', f);
+        if (stopBtn) {
+            stopBtn.disabled = false;
+            stopBtn.innerHTML = `
+                <svg class="w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                หยุด &amp; ตรวจสอบไฟล์ที่เสร็จแล้ว
+            `;
         }
-        formData.append('user_role', 'PH_USER');
         
-        try {
-            progressBar.style.width = '65%';
-            progressPct.innerText = '65%';
-            
-            const resp = await fetch('/api/quotations/batch-preview', {
-                method: 'POST',
-                body: formData
-            });
-            if (!resp.ok) throw new Error('Preview extraction failed with HTTP status ' + resp.status);
-            const data = await resp.json();
-            
-            progressBar.style.width = '100%';
-            progressPct.innerText = '100%';
-            
-            stagedDrafts = data.drafts || [];
-            
-            setTimeout(() => {
-                progressContainer.classList.add('hidden');
-                dropzoneSection.classList.add('hidden');
-                renderStagingWorkbench();
-            }, 300);
-            
-        } catch (err) {
-            progressContainer.className = "p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800";
-            progressContainer.innerHTML = `<span class="font-bold">Extraction Error:</span> ${err.message}. Please try again or upload standard PDF files.`;
-            batchBtn.disabled = false;
-            batchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        // Reset metrics
+        progressBar.style.width = '0%';
+        progressPct.innerText = '0%';
+        if (progressCountBadge) progressCountBadge.innerText = `0 / ${totalFiles.toLocaleString()} PDFs`;
+        if (progressRatioLabel) progressRatioLabel.innerText = `0 / ${totalFiles.toLocaleString()} completed`;
+        if (progressElapsed) progressElapsed.innerText = '00:00';
+        if (progressEta) progressEta.innerText = 'กำลังคำนวณ...';
+        if (progressSpeed) progressSpeed.innerText = '0.0 files/s';
+        if (progressStatus) progressStatus.innerText = '✓ 0 สำเร็จ';
+        if (progressCurrentFile) progressCurrentFile.innerText = 'เริ่มต้นกระบวนการสกัดข้อมูล...';
+        if (progressLog) {
+            progressLog.innerHTML = `
+                <div class="text-[11px] text-slate-400 italic px-2.5 py-1.5 bg-white/70 rounded-lg border border-slate-100 flex items-center space-x-2">
+                    <svg class="w-3.5 h-3.5 text-indigo-500 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span>กำลังเริ่มต้นอ่านไฟล์... รายการเอกสารที่สกัดเสร็จจะแสดงขึ้นที่นี่</span>
+                </div>
+            `;
         }
+
+        stagedDrafts = [];
+        let processedFilesCount = 0;
+        let successCount = 0;
+        let warnCount = 0;
+        const startTime = Date.now();
+
+        // High precision live ticker for Elapsed & ETA
+        batchTimerInterval = setInterval(() => {
+            if (isBatchCancelled) {
+                clearInterval(batchTimerInterval);
+                return;
+            }
+            const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+            const m = Math.floor(elapsedSec / 60).toString().padStart(2, '0');
+            const s = (elapsedSec % 60).toString().padStart(2, '0');
+            if (progressElapsed) progressElapsed.innerText = `${m}:${s}`;
+
+            if (processedFilesCount > 0 && elapsedSec > 0) {
+                const speed = processedFilesCount / elapsedSec;
+                if (progressSpeed) progressSpeed.innerText = `${speed.toFixed(1)} files/s`;
+
+                const remainingFiles = totalFiles - processedFilesCount;
+                if (remainingFiles <= 0) {
+                    if (progressEta) progressEta.innerText = 'เสร็จสมบูรณ์!';
+                } else if (speed > 0) {
+                    const remSec = Math.ceil(remainingFiles / speed);
+                    if (remSec < 60) {
+                        if (progressEta) progressEta.innerText = `อีก ~${remSec} วิ (~${remSec}s)`;
+                    } else {
+                        const remMin = Math.floor(remSec / 60);
+                        const secLeft = (remSec % 60).toString().padStart(2, '0');
+                        if (progressEta) progressEta.innerText = `อีก ~${remMin}น ${secLeft}วิ`;
+                    }
+                }
+            }
+        }, 400);
+
+        // Dynamic Chunk Sizing & Worker Pool for Maximum Real-Time Responsiveness
+        const CHUNK_SIZE = totalFiles >= 100 ? 8 : (totalFiles >= 20 ? 4 : (totalFiles >= 5 ? 2 : 1));
+        const CONCURRENCY = Math.min(3, Math.ceil(totalFiles / CHUNK_SIZE));
+        if (progressWorkers) progressWorkers.innerText = `${CONCURRENCY} workers active (${CHUNK_SIZE}/chunk)`;
+
+        const chunks = [];
+        for (let i = 0; i < totalFiles; i += CHUNK_SIZE) {
+            chunks.push(selectedBatchFiles.slice(i, i + CHUNK_SIZE));
+        }
+
+        let nextChunkIndex = 0;
+
+        async function processWorker(workerId) {
+            while (nextChunkIndex < chunks.length && !isBatchCancelled && !isBatchStopped) {
+                const currentChunkIdx = nextChunkIndex++;
+                const currentChunk = chunks[currentChunkIdx];
+
+                if (progressCurrentFile) {
+                    progressCurrentFile.innerText = currentChunk.length === 1 
+                        ? `${currentChunk[0].name}` 
+                        : `${currentChunk[0].name} (และอีก ${currentChunk.length - 1} ไฟล์ในชุดที่ #${currentChunkIdx + 1})`;
+                }
+
+                const formData = new FormData();
+                for (const f of currentChunk) {
+                    formData.append('pdf_files', f);
+                }
+                formData.append('user_role', 'PH_USER');
+
+                try {
+                    const resp = await fetch('/api/quotations/batch-preview', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!resp.ok) {
+                        let errMsg = `HTTP ${resp.status}`;
+                        try {
+                            const errJson = await resp.json();
+                            if (errJson && errJson.detail) errMsg = errJson.detail;
+                        } catch (_) {}
+                        throw new Error(errMsg);
+                    }
+
+                    const data = await resp.json();
+                    const drafts = data.drafts || [];
+                    stagedDrafts.push(...drafts);
+
+                    drafts.forEach(d => {
+                        if (d.warning) {
+                            warnCount++;
+                        } else {
+                            successCount++;
+                        }
+                        addRecentItemToLog(d);
+                    });
+
+                } catch (err) {
+                    console.error("Batch chunk error:", err);
+                    warnCount += currentChunk.length;
+                    // Provide fallback drafts so no files are dropped
+                    currentChunk.forEach(f => {
+                        const fallbackDraft = {
+                            staging_id: 'stage_' + Math.random().toString(36).substring(2, 10),
+                            temp_file_path: '',
+                            filename: f.name,
+                            quotation_number: f.name.replace(/\.[^/.]+$/, ""),
+                            vendor_name: "Manual Review Needed",
+                            vendor_tax_id: "",
+                            issue_date: new Date().toISOString().split('T')[0],
+                            expiration_date: new Date(new Date().getFullYear(), 11, 31).toISOString().split('T')[0],
+                            currency: "THB",
+                            total_amount: 0.0,
+                            items: [{
+                                item_number: 1,
+                                part_number: "",
+                                drawing_number: "",
+                                description: `${f.name} (ตรวจสอบเพิ่มเติม)`,
+                                quantity: 1.0,
+                                unit: "Pcs",
+                                unit_price: 0.0,
+                                total_price: 0.0
+                            }],
+                            warning: err.message
+                        };
+                        stagedDrafts.push(fallbackDraft);
+                        addRecentItemToLog(fallbackDraft);
+                    });
+                }
+
+                processedFilesCount += currentChunk.length;
+                if (processedFilesCount > totalFiles) processedFilesCount = totalFiles;
+
+                // Real-time Progress Bar & Metric updates
+                const pct = Math.min(100, Math.round((processedFilesCount / totalFiles) * 100));
+                progressBar.style.width = `${pct}%`;
+                progressPct.innerText = `${pct}%`;
+                if (progressCountBadge) progressCountBadge.innerText = `${processedFilesCount.toLocaleString()} / ${totalFiles.toLocaleString()} PDFs`;
+                if (progressRatioLabel) progressRatioLabel.innerText = `${processedFilesCount.toLocaleString()} / ${totalFiles.toLocaleString()} completed (${pct}%)`;
+                if (progressStatus) progressStatus.innerText = `✓ ${successCount} สำเร็จ${warnCount > 0 ? ` • ⚠️ ${warnCount} ตรวจสอบ` : ''}`;
+            }
+        }
+
+        // Launch concurrent workers
+        const workerPromises = [];
+        for (let w = 0; w < CONCURRENCY; w++) {
+            workerPromises.push(processWorker(w));
+        }
+
+        await Promise.all(workerPromises);
+        if (batchTimerInterval) clearInterval(batchTimerInterval);
+
+        if (isBatchCancelled) {
+            cancelBatchStaging();
+            return;
+        }
+
+        // Final UI updates
+        progressBar.style.width = '100%';
+        progressPct.innerText = '100%';
+        if (progressEta) progressEta.innerText = 'เสร็จสิ้นแล้ว!';
+        if (progressCurrentFile) progressCurrentFile.innerText = isBatchStopped 
+            ? `หยุดการสกัดชั่วคราวตามสั่ง • กำลังเปิดคิวตรวจสอบ ${stagedDrafts.length.toLocaleString()} รายการ...`
+            : `สกัดข้อมูลครบถ้วนทั้งหมด ${stagedDrafts.length.toLocaleString()} ไฟล์! กำลังเปิดคิวตรวจสอบ...`;
+
+        setTimeout(() => {
+            progressContainer.classList.add('hidden');
+            dropzoneSection.classList.add('hidden');
+            renderStagingWorkbench();
+        }, 450);
+    }
+
+    function filterStagingCards(query) {
+        const q = (query || '').toLowerCase().trim();
+        const cards = document.querySelectorAll('.quotation-staging-card');
+        let visibleCount = 0;
+        cards.forEach(card => {
+            const qNum = (card.querySelector('.q-number')?.value || '').toLowerCase();
+            const vendor = (card.querySelector('.q-vendor')?.value || '').toLowerCase();
+            const fname = (card.dataset.filename || '').toLowerCase();
+            const match = !q || qNum.includes(q) || vendor.includes(q) || fname.includes(q);
+            card.style.display = match ? '' : 'none';
+            if (match) visibleCount++;
+        });
+        const badge = document.getElementById('staging-counter-badge');
+        if (badge) badge.innerText = `แสดง ${visibleCount.toLocaleString()} / ${cards.length.toLocaleString()} รายการ`;
     }
 
     function renderStagingWorkbench() {
@@ -844,6 +1317,8 @@
             cancelBatchStaging();
             return;
         }
+
+        const fragment = document.createDocumentFragment();
 
         stagedDrafts.forEach((draft, cardIdx) => {
             const card = document.createElement('div');
@@ -929,7 +1404,8 @@
                             <thead>
                                 <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-semibold text-[10px]">
                                     <th class="px-3 py-2 w-10">#</th>
-                                    <th class="px-3 py-2 w-44">Part Number</th>
+                                    <th class="px-3 py-2 w-36">Part Number</th>
+                                    <th class="px-3 py-2 w-36">DWG / Drawing No.</th>
                                     <th class="px-3 py-2">Item Description</th>
                                     <th class="px-3 py-2 w-20">Qty</th>
                                     <th class="px-3 py-2 w-20">Unit</th>
@@ -963,12 +1439,23 @@
                 </div>
             `;
             
-            stagingList.appendChild(card);
+            fragment.appendChild(card);
+        });
+
+        stagingList.appendChild(fragment);
+        
+        // Update totals
+        stagedDrafts.forEach(draft => {
             recalculateCardTotal(draft.staging_id);
         });
 
         stagingContainer.classList.remove('hidden');
         updateStickySummary();
+
+        const badge = document.getElementById('staging-counter-badge');
+        if (badge) badge.innerText = `แสดง ${stagedDrafts.length.toLocaleString()} / ${stagedDrafts.length.toLocaleString()} รายการ`;
+        const searchInput = document.getElementById('staging-search-filter');
+        if (searchInput) searchInput.value = '';
     }
 
     function createItemRowHtml(it, idx, currency) {
@@ -1131,11 +1618,23 @@
         if (cards.length === 0) return;
         
         const confirmBtn = document.getElementById('confirm-commit-btn');
-        confirmBtn.disabled = true;
-        confirmBtn.innerHTML = `
+        const topBtn = document.getElementById('staging-commit-top-btn');
+        
+        const setButtonsState = (disabled, html) => {
+            if (confirmBtn) {
+                confirmBtn.disabled = disabled;
+                confirmBtn.innerHTML = html;
+            }
+            if (topBtn) {
+                topBtn.disabled = disabled;
+                topBtn.innerHTML = html;
+            }
+        };
+
+        setButtonsState(true, `
             <svg class="w-4 h-4 mr-2 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            Saving &amp; Vectorizing...
-        `;
+            กำลังเตรียมข้อมูลบันทึก...
+        `);
         
         const quotationsPayload = [];
         cards.forEach(card => {
@@ -1182,17 +1681,49 @@
             });
         });
         
+        const totalToSave = quotationsPayload.length;
+        const COMMIT_CHUNK_SIZE = 30;
+        let successful = 0;
+        let failed = 0;
+        const allResults = [];
+        let savedCount = 0;
+
         try {
-            const resp = await fetch('/api/quotations/batch-commit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_role: 'PH_USER',
-                    quotations: quotationsPayload
-                })
-            });
-            if (!resp.ok) throw new Error('Failed to commit batch: HTTP ' + resp.status);
-            const data = await resp.json();
+            for (let i = 0; i < totalToSave; i += COMMIT_CHUNK_SIZE) {
+                const chunk = quotationsPayload.slice(i, i + COMMIT_CHUNK_SIZE);
+                savedCount += chunk.length;
+                const pct = Math.min(100, Math.round((savedCount / totalToSave) * 100));
+
+                setButtonsState(true, `
+                    <svg class="w-4 h-4 mr-2 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    กำลังบันทึกและ Vectorize: ${savedCount.toLocaleString()} / ${totalToSave.toLocaleString()} (${pct}%)...
+                `);
+
+                const resp = await fetch('/api/quotations/batch-commit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_role: 'PH_USER',
+                        quotations: chunk
+                    })
+                });
+
+                if (!resp.ok) {
+                    let errMsg = `HTTP ${resp.status}`;
+                    try {
+                        const errJson = await resp.json();
+                        if (errJson && errJson.detail) errMsg = errJson.detail;
+                    } catch (_) {}
+                    throw new Error(errMsg);
+                }
+
+                const chunkData = await resp.json();
+                successful += (chunkData.successful || 0);
+                failed += (chunkData.failed || 0);
+                if (chunkData.results) {
+                    allResults.push(...chunkData.results);
+                }
+            }
             
             // Render results
             document.getElementById('batch-staging-container').classList.add('hidden');
@@ -1200,10 +1731,10 @@
             const resultsTbody = document.getElementById('batch-results-tbody');
             resultsTbody.innerHTML = '';
             
-            document.getElementById('results-headline').innerText = `Successfully Published ${data.successful} Quotation(s) to Website!`;
-            document.getElementById('results-subtext').innerText = `${data.successful} quotations and all edited line items are committed to quotations.db and immediately indexed in live search.`;
+            document.getElementById('results-headline').innerText = `Successfully Published ${successful.toLocaleString()} Quotation(s) to Website!`;
+            document.getElementById('results-subtext').innerText = `${successful.toLocaleString()} quotations and all edited line items are committed to quotations.db and immediately indexed in live search.${failed > 0 ? ` (${failed.toLocaleString()} failed)` : ''}`;
             
-            data.results.forEach(res => {
+            allResults.forEach(res => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 border-b border-slate-100 text-xs";
                 const isSuccess = res.status === 'SUCCESS';
@@ -1226,13 +1757,12 @@
         } catch (err) {
             alert('Error saving batch quotations: ' + err.message);
         } finally {
-            confirmBtn.disabled = false;
-            confirmBtn.innerHTML = `
+            setButtonsState(false, `
                 <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
                 Confirm &amp; Take All to Website
-            `;
+            `);
         }
     }
 
@@ -1251,12 +1781,298 @@
             .replace(/'/g, '&#039;');
     }
 
+    // Google Drive Import Management
+    let activeGdriveModalMode = 'batch';
+    function openGoogleDriveModal(mode = 'batch') {
+        activeGdriveModalMode = mode;
+        const modal = document.getElementById('gdrive-modal');
+        const input = document.getElementById('gdrive-urls-input');
+        if (modal) {
+            modal.classList.remove('hidden');
+            if (input) {
+                input.value = '';
+                setTimeout(() => input.focus(), 50);
+            }
+        }
+    }
+
+    function closeGoogleDriveModal() {
+        const modal = document.getElementById('gdrive-modal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    function onGdriveInlineInput(el, mode = 'batch') {
+        const val = (el.value || '').trim();
+        if (mode === 'batch') {
+            const batchBtn = document.getElementById('batch-start-btn');
+            const countLabel = document.getElementById('batch-file-count');
+            if (val) {
+                if (countLabel && (!selectedBatchFiles || selectedBatchFiles.length === 0)) {
+                    countLabel.innerText = "ตรวจพบลิงก์ Google Drive พร้อมสกัดข้อมูล";
+                }
+                if (batchBtn && (!selectedBatchFiles || selectedBatchFiles.length === 0)) {
+                    batchBtn.disabled = false;
+                    batchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            } else {
+                if (!selectedBatchFiles || selectedBatchFiles.length === 0) {
+                    if (countLabel) countLabel.innerText = "No files selected";
+                    if (batchBtn) {
+                        batchBtn.disabled = true;
+                        batchBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+            }
+        }
+    }
+
+    async function submitInlineGdrive(targetEl, mode = 'batch') {
+        let input = null;
+        let btn = null;
+
+        if (targetEl && targetEl.classList && targetEl.classList.contains('gdrive-inline-url')) {
+            input = targetEl;
+            const container = targetEl.closest('.gdrive-inline-container') || targetEl.parentElement;
+            btn = container ? container.querySelector('button') : null;
+        } else if (targetEl) {
+            btn = targetEl;
+            const container = targetEl.closest('.gdrive-inline-container') || targetEl.parentElement;
+            input = container ? container.querySelector('.gdrive-inline-url') : null;
+        }
+
+        const val = (input ? input.value : '').trim();
+        if (!val) {
+            alert('กรุณาวางลิงก์ Google Drive (เช่น https://drive.google.com/file/d/... หรือลิงก์โฟลเดอร์)');
+            if (input) input.focus();
+            return;
+        }
+
+        const originalBtnHtml = btn ? btn.innerHTML : '';
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `
+                <svg class="w-3.5 h-3.5 mr-1.5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                กำลังดึงข้อมูล...
+            `;
+        }
+
+        try {
+            await handleGoogleDriveImportFromText(val, mode);
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnHtml;
+            }
+        }
+    }
+
+    async function submitGoogleDriveImport() {
+        const input = document.getElementById('gdrive-urls-input');
+        const submitBtn = document.getElementById('gdrive-submit-btn');
+        const rawText = (input ? input.value : '').trim();
+        if (!rawText) {
+            alert('โปรดวางลิงก์ Google Drive ก่อนกดปุ่ม');
+            return;
+        }
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <svg class="w-3.5 h-3.5 mr-1.5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                กำลังดึงข้อมูล...
+            `;
+        }
+
+        closeGoogleDriveModal();
+        try {
+            await handleGoogleDriveImportFromText(rawText, activeGdriveModalMode);
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `
+                    <svg class="w-3.5 h-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    ดึงไฟล์ &amp; เริ่มสกัดข้อมูล
+                `;
+            }
+        }
+    }
+
+    function extractAnyGoogleDriveLink(dt) {
+        if (!dt) return null;
+
+        // Check all dataTransfer types
+        const textPieces = [];
+        if (dt.types) {
+            for (const t of dt.types) {
+                try {
+                    const val = dt.getData(t);
+                    if (val) textPieces.push(val);
+                } catch (_) {}
+            }
+        }
+
+        const combined = textPieces.join('\n');
+
+        // Check for full URL
+        const urlMatch = combined.match(/https?:\/\/(?:drive|docs)\.google\.com\/[^\s"'<>]+/i);
+        if (urlMatch) {
+            return urlMatch[0];
+        }
+
+        // Check for Google Drive data-id="[id]" or data-target="[id]" or data-item-id="[id]"
+        const idMatch = combined.match(/data-(?:id|target|item-id)=["']([a-zA-Z0-9_-]{25,50})["']/i);
+        if (idMatch) {
+            return `https://drive.google.com/file/d/${idMatch[1]}/view`;
+        }
+
+        // Check for raw 28-45 char Google Drive ID if text mentions google or drive
+        const rawIdMatch = combined.match(/\b([a-zA-Z0-9_-]{28,45})\b/);
+        if (rawIdMatch && (combined.includes('google') || combined.includes('drive'))) {
+            return `https://drive.google.com/file/d/${rawIdMatch[1]}/view`;
+        }
+
+        return null;
+    }
+
+    let isGdriveImporting = false;
+    async function handleGoogleDriveImportFromText(rawText, mode = 'batch') {
+        if (!rawText || isGdriveImporting) return;
+        isGdriveImporting = true;
+
+        if (mode === 'single') {
+            const statusBanner = document.getElementById('smart-status-banner');
+            if (statusBanner) {
+                statusBanner.classList.remove('hidden');
+                statusBanner.className = "p-4 rounded-xl mb-4 bg-indigo-50 border border-indigo-200 text-indigo-900 text-xs flex items-center justify-between";
+                statusBanner.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-4 h-4 animate-spin text-indigo-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <span class="font-semibold">กำลังเชื่อมต่อ Google Drive... กำลังดาวน์โหลดและสกัดข้อมูลอัตโนมัติ</span>
+                    </div>
+                `;
+            }
+        } else {
+            switchIngestionTab('batch');
+            const progressContainer = document.getElementById('batch-progress-container');
+            const dropzoneSection = document.getElementById('batch-dropzone-section');
+            const progressCurrentFile = document.getElementById('batch-progress-current-file');
+            const progressStatus = document.getElementById('batch-progress-status');
+            const progressEta = document.getElementById('batch-progress-eta');
+            const progressBar = document.getElementById('batch-progress-bar');
+            const progressPct = document.getElementById('batch-progress-pct');
+            const progressCountBadge = document.getElementById('batch-progress-count-badge');
+            const progressRatioLabel = document.getElementById('batch-progress-ratio-label');
+            const progressLog = document.getElementById('batch-progress-log');
+            const stopBtn = document.getElementById('batch-stop-btn');
+
+            if (dropzoneSection) dropzoneSection.classList.remove('hidden');
+            if (progressContainer) progressContainer.classList.remove('hidden');
+            if (progressBar) progressBar.style.width = '30%';
+            if (progressPct) progressPct.innerText = '30%';
+            if (progressCountBadge) progressCountBadge.innerText = 'Google Drive Ingest';
+            if (progressRatioLabel) progressRatioLabel.innerText = 'Connecting & downloading from Google Drive...';
+            if (progressCurrentFile) progressCurrentFile.innerText = 'กำลังเชื่อมต่อและดาวน์โหลดไฟล์จาก Google Drive...';
+            if (progressStatus) progressStatus.innerText = 'กำลังประมวลผล...';
+            if (progressEta) progressEta.innerText = 'โปรดรอสักครู่';
+            if (stopBtn) stopBtn.disabled = true;
+            if (progressLog) {
+                progressLog.innerHTML = `
+                    <div class="text-[11px] text-indigo-700 italic px-2.5 py-1.5 bg-indigo-50/70 rounded-lg border border-indigo-100 flex items-center space-x-2">
+                        <svg class="w-3.5 h-3.5 text-indigo-600 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <span>ตรวจพบไฟล์ Google Drive! กำลังสตรีมไฟล์เข้าสู่ระบบและเริ่มสกัดข้อมูล...</span>
+                    </div>
+                `;
+            }
+        }
+
+        try {
+            const resp = await fetch('/api/quotations/gdrive-import', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_role: 'PH_USER',
+                    raw_text: rawText
+                })
+            });
+
+            if (!resp.ok) {
+                let errMsg = `HTTP ${resp.status}`;
+                try {
+                    const errJson = await resp.json();
+                    if (errJson && errJson.detail) errMsg = errJson.detail;
+                } catch (_) {}
+                throw new Error(errMsg);
+            }
+
+            const data = await resp.json();
+            const drafts = data.drafts || [];
+            if (drafts.length === 0) {
+                throw new Error('ไม่พบเอกสาร PDF ในลิงก์ Google Drive ที่ระบุ');
+            }
+
+            if (mode === 'single' && drafts.length === 1 && !drafts[0].warning) {
+                const d = drafts[0];
+                if (d.quotation_number) document.getElementById('input_quotation_number').value = d.quotation_number;
+                if (d.vendor_name) document.getElementById('input_vendor_name').value = d.vendor_name;
+                if (d.issue_date) document.getElementById('input_issue_date').value = d.issue_date;
+                if (d.expiration_date) document.getElementById('input_expiration_date').value = d.expiration_date;
+
+                if (d.items && d.items.length > 0) {
+                    renderSingleItemsTable(d.items, d.currency || 'THB');
+                }
+
+                const statusBanner = document.getElementById('smart-status-banner');
+                if (statusBanner) {
+                    statusBanner.className = "p-4 rounded-xl mb-4 bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs";
+                    statusBanner.innerHTML = `
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <span class="font-bold">Google Drive Auto-Extraction Complete (${d.items.length} Items จาก ${escapeHtml(d.filename)})</span>
+                            </div>
+                            <span class="text-[10px] font-semibold uppercase tracking-wider bg-emerald-200/60 text-emerald-800 px-2 py-0.5 rounded">Google Drive Ingest</span>
+                        </div>
+                    `;
+                }
+            } else {
+                switchIngestionTab('batch');
+                stagedDrafts.push(...drafts);
+                drafts.forEach(d => addRecentItemToLog(d));
+
+                const progressContainer = document.getElementById('batch-progress-container');
+                const dropzoneSection = document.getElementById('batch-dropzone-section');
+                const progressBar = document.getElementById('batch-progress-bar');
+                const progressPct = document.getElementById('batch-progress-pct');
+                if (progressBar) progressBar.style.width = '100%';
+                if (progressPct) progressPct.innerText = '100%';
+
+                setTimeout(() => {
+                    if (progressContainer) progressContainer.classList.add('hidden');
+                    if (dropzoneSection) dropzoneSection.classList.add('hidden');
+                    renderStagingWorkbench();
+                }, 400);
+            }
+
+        } catch (err) {
+            alert('Google Drive Import: ' + err.message);
+            const progressContainer = document.getElementById('batch-progress-container');
+            if (progressContainer) progressContainer.classList.add('hidden');
+            const statusBanner = document.getElementById('smart-status-banner');
+            if (statusBanner) {
+                statusBanner.className = "p-3 rounded-xl mb-4 bg-amber-50 border border-amber-200 text-amber-800 text-xs";
+                statusBanner.innerText = "ไม่สามารถนำเข้าไฟล์จาก Google Drive ได้: " + err.message;
+            }
+        } finally {
+            isGdriveImporting = false;
+        }
+    }
+
     // Attach native HTML5 Drag and Drop event listeners for Single and Batch dropzones
     document.addEventListener('DOMContentLoaded', () => {
         const setupDropzone = (zoneId, inputId, onSelectFn) => {
             const dropzone = document.getElementById(zoneId);
             const fileInput = document.getElementById(inputId);
-            if (!dropzone || !fileInput) return;
+            if (!dropzone) return;
 
             ['dragenter', 'dragover'].forEach(eventName => {
                 dropzone.addEventListener(eventName, (e) => {
@@ -1266,7 +2082,7 @@
                 }, false);
             });
 
-            ['dragleave', 'drop'].forEach(eventName => {
+            ['dragleave'].forEach(eventName => {
                 dropzone.addEventListener(eventName, (e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -1275,10 +2091,49 @@
             });
 
             dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzone.classList.remove('border-indigo-600', 'bg-indigo-100/60', 'scale-[1.01]');
                 const dt = e.dataTransfer;
-                if (dt && dt.files && dt.files.length > 0) {
-                    fileInput.files = dt.files;
-                    onSelectFn(fileInput);
+                if (!dt) return;
+
+                // 1. If physical files were dropped (from OS desktop, Windows Explorer, or Google Drive for Desktop)
+                if (dt.files && dt.files.length > 0) {
+                    const mode = zoneId.includes('single') ? 'single' : 'batch';
+                    if (mode === 'single') {
+                        if (fileInput) {
+                            fileInput.files = dt.files;
+                            onSelectFn(fileInput);
+                        }
+                    } else {
+                        selectedBatchFiles = Array.from(dt.files);
+                        const countLabel = document.getElementById('batch-file-count');
+                        const batchBtn = document.getElementById('batch-start-btn');
+                        if (countLabel) countLabel.innerText = `${selectedBatchFiles.length.toLocaleString()} PDF file(s) selected`;
+                        if (batchBtn) {
+                            batchBtn.disabled = false;
+                            batchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        }
+                        startBatchExtraction();
+                    }
+                    return;
+                }
+
+                // 2. If dragged/dropped from Google Drive web browser tab or web element
+                const gdriveLink = extractAnyGoogleDriveLink(dt);
+                if (gdriveLink) {
+                    const mode = zoneId.includes('single') ? 'single' : 'batch';
+                    handleGoogleDriveImportFromText(gdriveLink, mode);
+                    return;
+                }
+
+                // 3. Fallback: Check if user dragged item from Google Drive without a direct URL
+                const allTypes = dt.types ? Array.from(dt.types) : [];
+                const plainText = (dt.getData('text/plain') || '').trim();
+                if (allTypes.some(t => t.includes('google') || t.includes('drive')) || plainText.toLowerCase().endsWith('.pdf')) {
+                    alert(`💡 ตรวจพบการลากไฟล์ "${plainText || 'จาก Google Drive'}": เนื่องจากเบราว์เซอร์จำกัดการดึงไฟล์ข้ามแท็บโดยตรง โปรดคลิกขวาที่ไฟล์ใน Google Drive แล้วเลือก 'คัดลอกลิงก์ (Copy link)' จากนั้นกด Ctrl+V ที่นี่ หรือวางลิงก์ในช่อง Google Drive ได้ทันทีครับ`);
+                    const inlineInput = dropzone.querySelector('.gdrive-inline-url');
+                    if (inlineInput) inlineInput.focus();
                 }
             });
         };
@@ -1288,6 +2143,63 @@
         if (typeof serializeSingleItems === 'function') {
             serializeSingleItems();
         }
+
+        // Global Window Drag & Drop and Paste (Ctrl+V) listener
+        window.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        window.addEventListener('drop', (e) => {
+            const isInsideDropzone = e.target.closest('#single-dropzone, #batch-dropzone, #gdrive-modal');
+            if (!isInsideDropzone) {
+                e.preventDefault();
+                const dt = e.dataTransfer;
+                if (!dt) return;
+
+                const activeBatchTab = !document.getElementById('panel-batch').classList.contains('hidden');
+                
+                // If dropped files anywhere on the page
+                if (dt.files && dt.files.length > 0) {
+                    if (activeBatchTab) {
+                        selectedBatchFiles = Array.from(dt.files);
+                        const countLabel = document.getElementById('batch-file-count');
+                        const batchBtn = document.getElementById('batch-start-btn');
+                        if (countLabel) countLabel.innerText = `${selectedBatchFiles.length.toLocaleString()} PDF file(s) selected`;
+                        if (batchBtn) {
+                            batchBtn.disabled = false;
+                            batchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        }
+                        startBatchExtraction();
+                    } else {
+                        const fileInput = document.getElementById('pdf_file');
+                        if (fileInput) {
+                            fileInput.files = dt.files;
+                            handleSmartPdfSelect(fileInput);
+                        }
+                    }
+                    return;
+                }
+
+                // If dropped Google Drive link anywhere on the page
+                const gdriveLink = extractAnyGoogleDriveLink(dt);
+                if (gdriveLink) {
+                    handleGoogleDriveImportFromText(gdriveLink, activeBatchTab ? 'batch' : 'single');
+                    return;
+                }
+            }
+        });
+
+        window.addEventListener('paste', (e) => {
+            const tag = (e.target.tagName || '').toLowerCase();
+            if (tag === 'input' || tag === 'textarea') return;
+
+            const text = (e.clipboardData?.getData('text') || '').trim();
+            if (text && (text.includes('drive.google.com') || text.includes('docs.google.com') || text.match(/[a-zA-Z0-9_-]{28,45}/))) {
+                e.preventDefault();
+                const activeBatchTab = !document.getElementById('panel-batch').classList.contains('hidden');
+                handleGoogleDriveImportFromText(text, activeBatchTab ? 'batch' : 'single');
+            }
+        });
     });
 </script>
 {% endblock %}

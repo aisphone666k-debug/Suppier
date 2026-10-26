@@ -296,4 +296,53 @@ def test_ask_inquiry_json_endpoint(client):
     assert isinstance(data["citations"], list)
 
 
+def test_gdrive_import_endpoint_validation_and_flow(client):
+    import os
+    from unittest.mock import patch
 
+    # 1. Non-PH user is rejected with 403
+    resp_403 = client.post(
+        "/api/quotations/gdrive-import",
+        json={"user_role": "NORMAL_USER", "url": "https://drive.google.com/file/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OIvE2e144/view"},
+    )
+    assert resp_403.status_code == 403
+
+    # 2. Empty input is rejected with 400
+    resp_empty = client.post(
+        "/api/quotations/gdrive-import",
+        json={"user_role": "PH_USER", "raw_text": ""},
+    )
+    assert resp_empty.status_code == 400
+
+    # 3. Valid link with mocked download
+    sample_pdf = os.path.join("quoatation", "QT NO. 137836.pdf")
+    with patch("src.infrastructure.google_drive_importer.GoogleDriveImporter.download_gdrive_pdf") as mock_dl:
+        mock_dl.return_value = (sample_pdf, "Quotation_Fanuc.pdf")
+
+        resp_ok = client.post(
+            "/api/quotations/gdrive-import",
+            json={
+                "user_role": "PH_USER",
+                "raw_text": "https://drive.google.com/file/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OIvE2e144/view?usp=sharing",
+            },
+        )
+        assert resp_ok.status_code == 200
+        data = resp_ok.json()
+        assert data["total_files"] == 1
+        assert data["successful"] == 1
+        assert len(data["drafts"]) == 1
+        draft = data["drafts"][0]
+        assert "137836" in draft["quotation_number"]
+        assert len(draft["items"]) >= 1
+
+    # 4. Folder with no files raises informative 400
+    with patch("src.infrastructure.google_drive_importer.GoogleDriveImporter.fetch_folder_file_ids", return_value=[]):
+        resp_empty_folder = client.post(
+            "/api/quotations/gdrive-import",
+            json={
+                "user_role": "PH_USER",
+                "raw_text": "https://drive.google.com/drive/folders/1ALajU3I5oWp0GFNznYJvwdJg8gCbuM3A",
+            },
+        )
+        assert resp_empty_folder.status_code == 400
+        assert "ไม่สามารถดึงรายการไฟล์จากโฟลเดอร์ Google Drive" in resp_empty_folder.json()["detail"]

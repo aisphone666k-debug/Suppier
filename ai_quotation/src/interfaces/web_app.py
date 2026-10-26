@@ -27,6 +27,7 @@ from src.infrastructure.pdf_reader import PdfDocumentReader, CorruptPdfDocumentE
 from src.application.quotation_service import QuotationApplicationService
 from src.application.quotation_inquiry_service import QuotationInquiryService
 from src.infrastructure.gemini_answer_generator import GeminiAnswerGenerator, GeminiApiException
+from src.infrastructure.google_drive_importer import GoogleDriveImporter, GoogleDriveImportError
 
 
 def seed_existing_quotations(service: QuotationApplicationService, sample_dir: str = "quoatation") -> int:
@@ -122,6 +123,13 @@ class BatchCommitQuotation(BaseModel):
 class BatchCommitRequest(BaseModel):
     user_role: str = "PH_USER"
     quotations: list[BatchCommitQuotation]
+
+
+class GoogleDriveImportRequest(BaseModel):
+    user_role: str = "PH_USER"
+    url: Optional[str] = None
+    urls: Optional[list[str]] = None
+    raw_text: Optional[str] = None
 
 
 def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAPI:
@@ -1042,6 +1050,157 @@ def create_app(db_path: str = "quotations.db", auto_seed: bool = True) -> FastAP
 
         return {
             "total_files": len(pdf_files),
+            "drafts": drafts,
+        }
+
+    @app.post("/api/quotations/gdrive-import")
+    async def gdrive_import_endpoint(payload: GoogleDriveImportRequest):
+        if payload.user_role != "PH_USER":
+            raise HTTPException(status_code=403, detail="Only PH Users can import from Google Drive")
+
+        text_inputs = []
+        if payload.url:
+            text_inputs.append(payload.url)
+        if payload.urls:
+            text_inputs.extend(payload.urls)
+        if payload.raw_text:
+            text_inputs.append(payload.raw_text)
+
+        combined_text = "\n".join(text_inputs).strip()
+        if not combined_text:
+            raise HTTPException(
+                status_code=400,
+                detail="ไม่พบข้อมูลหรือลิงก์ Google Drive โปรดระบุลิงก์ เช่น https://drive.google.com/file/d/..."
+            )
+
+        targets = GoogleDriveImporter.extract_gdrive_targets(combined_text)
+        if not targets:
+            raise HTTPException(
+                status_code=400,
+                detail="ไม่พบลิงก์ Google Drive ในข้อมูลที่ส่งมา โปรดคัดลอกลิงก์จาก Google Drive เช่น https://drive.google.com/file/d/..."
+            )
+
+        # Expand folders into individual files if public
+        file_targets = []
+        folder_targets = []
+        for t in targets:
+            if t["type"] == "folder":
+                folder_targets.append(t)
+                folder_file_ids = GoogleDriveImporter.fetch_folder_file_ids(t["id"])
+                if folder_file_ids:
+                    for fid in folder_file_ids:
+                        file_targets.append({"type": "file", "id": fid, "source": f"folder:{t['id']}"})
+            else:
+                file_targets.append(t)
+
+        if not file_targets:
+            if folder_targets:
+                raise HTTPException(
+                    status_code=400,
+                    detail="ไม่สามารถดึงรายการไฟล์จากโฟลเดอร์ Google Drive นี้ได้: โปรดตรวจสอบว่าโฟลเดอร์ได้ตั้งค่าการแชร์เป็น 'ทุกคนที่มีลิงก์ (Anyone with the link)' หรือเปิดเข้าไปในโฟลเดอร์แล้วคัดลอกลิงก์ของไฟล์ PDF โดยตรง (เช่น https://drive.google.com/file/d/...)"
+                )
+            else:
+                raise HTTPException(
+                    status_code=400,
+                    detail="ไม่พบไฟล์ที่สามารถดาวน์โหลดได้จากลิงก์ Google Drive ที่ระบุ"
+                )
+
+        reader = PdfDocumentReader()
+        drafts = []
+        os.makedirs("storage/staging", exist_ok=True)
+        today = date.today()
+
+        for t in file_targets:
+            item_id = t["id"]
+            item_type = t.get("type", "file")
+            unique_prefix = uuid.uuid4().hex[:8]
+
+            try:
+                temp_path, filename = GoogleDriveImporter.download_gdrive_pdf(
+                    item_id=item_id,
+                    item_type=item_type,
+                    dest_dir=os.path.join("storage", "staging")
+                )
+
+                draft = reader.extract_draft(temp_path)
+                q_num = draft.quotation_number or os.path.splitext(filename)[0]
+                vendor = draft.vendor_name or "Vendor International"
+                issue_date = draft.issue_date or today
+                expiration_date = draft.expiration_date or date(today.year, 12, 31)
+
+                if draft.items:
+                    items = [
+                        {
+                            "item_number": it.item_number,
+                            "part_number": it.part_number or "",
+                            "description": it.description or "Industrial Item",
+                            "quantity": float(it.quantity or 1.0),
+                            "unit": it.unit or "Pcs",
+                            "unit_price": float(it.unit_price or 0.0),
+                            "total_price": float(it.amount if it.amount is not None else (it.quantity * it.unit_price if it.quantity and it.unit_price else 0.0)),
+                        }
+                        for it in draft.items
+                    ]
+                else:
+                    clean_item_desc = os.path.splitext(filename)[0]
+                    items = [
+                        {
+                            "item_number": 1,
+                            "part_number": q_num,
+                            "description": f"{clean_item_desc} - Google Drive Supply",
+                            "quantity": 1.0,
+                            "unit": "Lot",
+                            "unit_price": float(draft.total_amount or 1500.0),
+                            "total_price": float(draft.total_amount or 1500.0),
+                        }
+                    ]
+
+                total_amount = float(draft.total_amount) if draft.total_amount is not None else sum(it["total_price"] for it in items)
+
+                drafts.append({
+                    "staging_id": f"stage_{unique_prefix}",
+                    "temp_file_path": temp_path.replace("\\", "/"),
+                    "filename": filename,
+                    "quotation_number": q_num,
+                    "vendor_name": vendor,
+                    "vendor_tax_id": draft.vendor_tax_id or "",
+                    "issue_date": str(issue_date),
+                    "expiration_date": str(expiration_date),
+                    "currency": draft.currency or "THB",
+                    "total_amount": round(total_amount, 2),
+                    "items": items,
+                })
+
+            except Exception as e:
+                drafts.append({
+                    "staging_id": f"stage_{unique_prefix}",
+                    "temp_file_path": "",
+                    "filename": f"gdrive_{item_id[:8]}.pdf",
+                    "quotation_number": f"GD-{item_id[:8]}",
+                    "vendor_name": "Google Drive Review",
+                    "vendor_tax_id": "",
+                    "issue_date": str(today),
+                    "expiration_date": str(date(today.year, 12, 31)),
+                    "currency": "THB",
+                    "total_amount": 0.0,
+                    "items": [
+                        {
+                            "item_number": 1,
+                            "part_number": "",
+                            "description": f"Google Drive File ({item_id})",
+                            "quantity": 1.0,
+                            "unit": "Pcs",
+                            "unit_price": 0.0,
+                            "total_price": 0.0,
+                        }
+                    ],
+                    "warning": str(e),
+                })
+
+        return {
+            "total_files": len(drafts),
+            "successful": sum(1 for d in drafts if not d.get("warning")),
+            "failed": sum(1 for d in drafts if d.get("warning")),
             "drafts": drafts,
         }
 
