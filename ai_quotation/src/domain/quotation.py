@@ -44,6 +44,7 @@ class QuotationItem:
     unit: str
     unit_price: float
     part_number: Optional[str] = None
+    drawing_number: Optional[str] = None
 
     @property
     def total_price(self) -> float:

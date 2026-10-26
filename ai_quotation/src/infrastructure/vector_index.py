@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Optional, List, Dict, Set
 import numpy as np
 
 from src.domain.quotation import QuotationId
@@ -9,14 +9,27 @@ from src.domain.quotation import QuotationId
 class VectorSearchResult:
     quotation_id: QuotationId
     score: float
+    matched_chunk: Optional[str] = None
+
+
+@dataclass
+class VectorChunk:
+    chunk_id: str
+    quotation_id: QuotationId
+    vector: np.ndarray
+    label: str = ""
 
 
 class MemoryVectorIndex:
-    """In-memory hybrid vector index with cosine similarity and token keyword matching."""
+    """In-memory hybrid vector index with cosine similarity, token keyword matching,
+
+    and granular line-item chunk indexing.
+    """
 
     def __init__(self) -> None:
-        self._vectors: dict[QuotationId, np.ndarray] = {}
-        self._token_index: dict[str, set[QuotationId]] = {}
+        self._vectors: Dict[QuotationId, np.ndarray] = {}
+        self._chunks: Dict[str, VectorChunk] = {}
+        self._token_index: Dict[str, Set[QuotationId]] = {}
 
     def __len__(self) -> int:
         return len(self._vectors)
@@ -56,14 +69,34 @@ class MemoryVectorIndex:
                     self._token_index[syn] = set()
                 self._token_index[syn].add(quotation_id)
 
+    def add_chunk(self, chunk_id: str, quotation_id: QuotationId, vector: np.ndarray, label: str = "") -> None:
+        """Adds a granular line-item or text-chunk vector."""
+        norm = np.linalg.norm(vector)
+        if norm > 0:
+            norm_vector = vector / norm
+        else:
+            norm_vector = vector
+        self._chunks[chunk_id] = VectorChunk(
+            chunk_id=chunk_id,
+            quotation_id=quotation_id,
+            vector=norm_vector.astype(np.float32),
+            label=label,
+        )
+
     def remove(self, quotation_id: QuotationId) -> None:
         if quotation_id in self._vectors:
             del self._vectors[quotation_id]
+        # Remove associated chunks
+        chunks_to_remove = [
+            cid for cid, ch in self._chunks.items() if ch.quotation_id == quotation_id
+        ]
+        for cid in chunks_to_remove:
+            del self._chunks[cid]
         for token_set in self._token_index.values():
             token_set.discard(quotation_id)
 
-    def search(self, query_vector: np.ndarray, limit: int = 10) -> list[VectorSearchResult]:
-        if not self._vectors:
+    def search(self, query_vector: np.ndarray, limit: int = 25) -> list[VectorSearchResult]:
+        if not self._vectors and not self._chunks:
             return []
 
         norm = np.linalg.norm(query_vector)
@@ -72,14 +105,33 @@ class MemoryVectorIndex:
         else:
             q_norm = query_vector
 
-        results = []
-        for qid, vec in self._vectors.items():
-            # Dot product of normalized vectors = Cosine similarity
-            similarity = float(np.dot(q_norm, vec))
-            # Bound within [-1.0, 1.0] and map to [0.0, 1.0]
-            score = max(0.0, min(1.0, similarity))
-            results.append(VectorSearchResult(quotation_id=qid, score=score))
+        # Map quotation_id -> highest similarity score across doc-level & chunk-level
+        score_map: Dict[QuotationId, float] = {}
+        matched_chunk_map: Dict[QuotationId, str] = {}
 
+        # 1. Document-level vectors
+        for qid, vec in self._vectors.items():
+            sim = float(np.dot(q_norm, vec))
+            score = max(0.0, min(1.0, sim))
+            score_map[qid] = score
+            matched_chunk_map[qid] = "document_composite"
+
+        # 2. Granular Line-item chunk vectors
+        for cid, chunk in self._chunks.items():
+            sim = float(np.dot(q_norm, chunk.vector))
+            score = max(0.0, min(1.0, sim))
+            if score > score_map.get(chunk.quotation_id, 0.0):
+                score_map[chunk.quotation_id] = score
+                matched_chunk_map[chunk.quotation_id] = chunk.label or cid
+
+        results = [
+            VectorSearchResult(
+                quotation_id=qid,
+                score=round(score, 4),
+                matched_chunk=matched_chunk_map.get(qid),
+            )
+            for qid, score in score_map.items()
+        ]
         results.sort(key=lambda r: r.score, reverse=True)
         return results[:limit]
 
@@ -107,4 +159,3 @@ class MemoryVectorIndex:
         ]
         results.sort(key=lambda r: r.score, reverse=True)
         return results
-

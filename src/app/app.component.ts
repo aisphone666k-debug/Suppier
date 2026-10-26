@@ -576,7 +576,16 @@ export class AppComponent implements OnInit, AfterViewInit {
   aiInquiryResult: AiInquiryResponse | null = null;
   aiInquiryError = '';
 
+  // Hybrid Search, Price Analytics & Slot-Filling State
+  activePriceTrend: any = null;
+  priceTrendLoading = false;
+  systemAlertsList: any[] = [];
+  slotFillingSession: any = null;
+  slotFillingUserMessage = '';
+  slotFillingLoading = false;
+
   // Customize Chrome Theme State (Authentic Google Chrome Side Panel)
+
   isThemeDrawerOpen = false;
   themeMode: 'light' | 'dark' | 'device' = 'light';
   selectedThemeId = 'default-chrome';
@@ -5175,6 +5184,13 @@ Could you please include the estimated lead time as well`;
       if (this.selectedSupplier) {
         this.selectedSupplier.quotationCount = response.count;
       }
+      if (response.count > 0) {
+        this.loadPriceTrend(supplierName);
+        this.slotFillingSession = null;
+      } else if (response.slot_filling_available && response.slot_filling_prompt) {
+        this.slotFillingSession = response.slot_filling_prompt;
+        this.activePriceTrend = null;
+      }
     } catch (err: any) {
       console.error('Failed to load supplier quotations:', err);
       this.isMicroserviceOnline = false;
@@ -5184,6 +5200,47 @@ Could you please include the estimated lead time as well`;
       this.supplierQuotationsLoading = false;
     }
   }
+
+  async loadPriceTrend(term: string): Promise<void> {
+    if (!term || !term.trim()) return;
+    this.priceTrendLoading = true;
+    try {
+      const res = await this.apiService.getPriceTrend(term);
+      this.activePriceTrend = res?.data || null;
+    } catch {
+      this.activePriceTrend = null;
+    } finally {
+      this.priceTrendLoading = false;
+    }
+  }
+
+  async sendSlotFillingMessage(): Promise<void> {
+    const msg = (this.slotFillingUserMessage || '').trim();
+    if (!msg || !this.slotFillingSession) return;
+    this.slotFillingLoading = true;
+    try {
+      const res = await this.apiService.chatSlotFilling(this.slotFillingSession.session_id, msg);
+      this.slotFillingSession = res;
+      this.slotFillingUserMessage = '';
+      if (res.step === 'COMPLETED' && res.draft) {
+        this.showToast(`สร้างแบบร่าง PR/RFQ สำเร็จ: ${res.draft.rfq_number}`);
+      }
+    } catch (err: any) {
+      console.error('Failed to send slot filling message:', err);
+    } finally {
+      this.slotFillingLoading = false;
+    }
+  }
+
+  async loadSystemAlerts(): Promise<void> {
+    try {
+      const res = await this.apiService.getRecentAlerts();
+      this.systemAlertsList = res?.alerts || [];
+    } catch (err) {
+      console.error('Failed to load system alerts:', err);
+    }
+  }
+
 
   async submitAiInquiry(query?: string): Promise<void> {
     const q = (query || this.aiInquiryQuery || '').trim();
@@ -5260,6 +5317,7 @@ Could you please include the estimated lead time as well`;
     if (filter) {
       return allItems.filter(it => 
         (it.part_number && it.part_number.toLowerCase().includes(filter)) ||
+        (it.drawing_number && it.drawing_number.toLowerCase().includes(filter)) ||
         (it.description && it.description.toLowerCase().includes(filter)) ||
         it.quotationNo.toLowerCase().includes(filter)
       );
@@ -5273,8 +5331,8 @@ Could you please include the estimated lead time as well`;
     const newItem: RequisitionItem = {
       id: Date.now(),
       no: nextNo,
-      partName: item.description || item.part_number || 'Quoted Part',
-      spec: item.part_number || item.description || '',
+      partName: item.description || item.drawing_number || item.part_number || 'Quoted Part',
+      spec: item.drawing_number || item.part_number || item.description || '',
       position: 'Main Line',
       makerName: quote.vendor_name || '',
       qty: item.quantity || 1,

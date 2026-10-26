@@ -1,3 +1,5 @@
+import os
+import time
 from datetime import date
 import pytest
 from fastapi.testclient import TestClient
@@ -296,8 +298,48 @@ def test_ask_inquiry_json_endpoint(client):
     assert isinstance(data["citations"], list)
 
 
+def test_extract_preview_empty_file_returns_clear_error(client):
+    resp = client.post(
+        "/api/quotations/extract-preview",
+        files={"pdf_file": ("empty.pdf", b"", "application/pdf")},
+        data={"user_role": "PH_USER"},
+    )
+    assert resp.status_code == 400
+    assert "empty (0 bytes)" in resp.json()["detail"]
+
+
+def test_batch_preview_empty_file_handled_without_leaving_zero_byte_file(client):
+    import glob
+    resp = client.post(
+        "/api/quotations/batch-preview",
+        files=[("pdf_files", ("empty.pdf", b"", "application/pdf"))],
+        data={"user_role": "PH_USER"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["total_files"] == 1
+    assert "empty" in data["drafts"][0]["warning"].lower()
+
+    # Ensure no 0-byte stage files linger in staging
+    zero_files = [f for f in glob.glob("storage/staging/stage_*empty.pdf") if os.path.getsize(f) == 0]
+    assert len(zero_files) == 0
+
+
+def test_cleanup_old_staging():
+    from src.interfaces.web_app import _cleanup_old_staging
+    os.makedirs("storage/staging", exist_ok=True)
+    dummy_old = os.path.join("storage", "staging", "stage_test_old.pdf")
+    with open(dummy_old, "wb") as f:
+        f.write(b"test")
+    # Set mtime to 2 hours ago
+    past = time.time() - 7200
+    os.utime(dummy_old, (past, past))
+
+    _cleanup_old_staging(max_age_seconds=1800)
+    assert not os.path.exists(dummy_old)
+
+
 def test_gdrive_import_endpoint_validation_and_flow(client):
-    import os
     from unittest.mock import patch
 
     # 1. Non-PH user is rejected with 403

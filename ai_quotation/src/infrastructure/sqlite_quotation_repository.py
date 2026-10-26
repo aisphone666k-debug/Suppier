@@ -46,9 +46,14 @@ class SqliteQuotationRepository:
                 quantity REAL NOT NULL,
                 unit TEXT NOT NULL,
                 unit_price REAL NOT NULL,
+                drawing_number TEXT,
                 FOREIGN KEY (quotation_id) REFERENCES quotations(id) ON DELETE CASCADE
             )
         """)
+        try:
+            cursor.execute("ALTER TABLE quotation_items ADD COLUMN drawing_number TEXT")
+        except sqlite3.OperationalError:
+            pass
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS quotation_acknowledgments (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -97,8 +102,8 @@ class SqliteQuotationRepository:
         for item in quotation.items:
             cursor.execute("""
                 INSERT INTO quotation_items (
-                    quotation_id, item_number, part_number, description, quantity, unit, unit_price
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    quotation_id, item_number, part_number, description, quantity, unit, unit_price, drawing_number
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 str(quotation.quotation_id),
                 item.item_number,
@@ -107,6 +112,7 @@ class SqliteQuotationRepository:
                 item.quantity,
                 item.unit,
                 item.unit_price,
+                getattr(item, "drawing_number", None),
             ))
         self._conn.commit()
 
@@ -184,6 +190,7 @@ class SqliteQuotationRepository:
                 unit=ir["unit"],
                 unit_price=ir["unit_price"],
                 part_number=ir["part_number"],
+                drawing_number=ir["drawing_number"] if "drawing_number" in ir.keys() else None,
             )
             for ir in item_rows
         )

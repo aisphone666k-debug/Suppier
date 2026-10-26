@@ -29,5 +29,6 @@ if __name__ == "__main__":
     print("[INFO] Engine initialized successfully.", flush=True)
     print("[INFO] QuotationFinder Web App is running at http://localhost:8000", flush=True)
     print("[INFO] (Note: This is a web server. It stays active listening for requests. Press Ctrl+C to stop.)", flush=True)
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, app_dir=str(base_dir))
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=False)
+
 

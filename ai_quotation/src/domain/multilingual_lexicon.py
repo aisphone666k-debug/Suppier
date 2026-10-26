@@ -84,6 +84,26 @@ class MultilingualLexicon:
                     self._lookup[normalized] = set()
                 self._lookup[normalized].update(cluster)
 
+    @staticmethod
+    def normalize_units(text: str) -> str:
+        """Converts natural language metric and engineering units (Thai/English) to standard compact notation."""
+        if not text:
+            return ""
+        t = text.lower()
+        # Meter: เมตร, ม., m, meters
+        t = re.sub(r"(\d+(?:\.\d+)?)\s*(?:เมตร|meters?|metres?|ม\.(?!\w))", r"\1m", t)
+        # Millimeter: มม., mm, มิลลิเมตร
+        t = re.sub(r"(\d+(?:\.\d+)?)\s*(?:มม\.(?!\w)|mm\b|มิลลิเมตร)", r"\1mm", t)
+        # Centimeter: ซม., cm, เซนติเมตร
+        t = re.sub(r"(\d+(?:\.\d+)?)\s*(?:ซม\.(?!\w)|cm\b|เซนติเมตร)", r"\1cm", t)
+        # Kilowatt: kw, กิโลวัตต์
+        t = re.sub(r"(\d+(?:\.\d+)?)\s*(?:กิโลวัตต์|kw\b)", r"\1kw", t)
+        # Volt: v, โวลต์
+        t = re.sub(r"(\d+(?:\.\d+)?)\s*(?:โวลต์|v\b)", r"\1v", t)
+        # Amp: a, แอมป์, แอมแปร์
+        t = re.sub(r"(\d+(?:\.\d+)?)\s*(?:แอมป์|แอมแปร์|amp\b|a\b)", r"\1a", t)
+        return t
+
     def _normalize(self, text: str) -> str:
         return text.strip().lower()
 

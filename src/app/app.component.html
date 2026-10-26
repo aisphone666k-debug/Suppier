@@ -4135,10 +4135,9 @@
                         <tr
                           class="bg-slate-100/80 border-b border-slate-200 text-slate-700 font-bold text-[11px] uppercase tracking-wider">
                           <th class="py-2.5 px-3.5 text-center w-12 border-r border-slate-200">#</th>
-                          <th class="py-2.5 px-3.5 border-r border-slate-200 min-w-[140px]">Part Number (รหัสสินค้า)
-                          </th>
-                          <th class="py-2.5 px-4 border-r border-slate-200 min-w-[280px]">Description (รายละเอียดสินค้า)
-                          </th>
+                          <th class="py-2.5 px-3.5 border-r border-slate-200 min-w-[140px]">Part Number (รหัสสินค้า)</th>
+                          <th class="py-2.5 px-3.5 border-r border-slate-200 min-w-[140px]">DWG / Drawing No.</th>
+                          <th class="py-2.5 px-4 border-r border-slate-200 min-w-[280px]">Description (รายละเอียดสินค้า)</th>
                           <th class="py-2.5 px-3.5 text-center border-r border-slate-200 min-w-[90px]">QTY / Unit</th>
                           <th class="py-2.5 px-4 text-right border-r border-slate-200 min-w-[130px]">Unit Price
                             (ราคาต่อหน่วย)</th>
@@ -4155,6 +4154,9 @@
                           </td>
                           <td class="py-2.5 px-3.5 font-mono font-bold text-blue-700 border-r border-slate-100">
                             {{ item.part_number || '-' }}
+                          </td>
+                          <td class="py-2.5 px-3.5 font-mono font-bold text-indigo-600 border-r border-slate-100">
+                            {{ item.drawing_number || item.part_number || '-' }}
                           </td>
                           <td class="py-2.5 px-4 font-medium leading-relaxed border-r border-slate-100">
                             <div class="text-slate-900 font-semibold">{{ item.description }}</div>
@@ -5435,6 +5437,93 @@
                     ค้นหาใน Quotation Search Engine
                   </button>
                 </div>
+
+                <!-- Slot-Filling Interactive PR / RFQ Generator Widget -->
+                <div *ngIf="slotFillingSession" class="mt-4 p-4 bg-indigo-50/70 border border-indigo-200 rounded-2xl text-left">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-black text-indigo-900 flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
+                      AI Slot-Filling Agent: ออกแบบร่างใบขอราคา (PR/RFQ Draft) อัตโนมัติ
+                    </span>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-200/70 text-indigo-800 font-bold">
+                      Step: {{ slotFillingSession.step }}
+                    </span>
+                  </div>
+
+                  <p class="text-xs text-slate-700 whitespace-pre-line leading-relaxed mb-3">
+                    {{ slotFillingSession.message }}
+                  </p>
+
+                  <!-- Generated Draft Preview Card -->
+                  <div *ngIf="slotFillingSession.draft" class="p-3 bg-white border border-emerald-300 rounded-xl mb-3 shadow-xs font-mono text-[11px] text-slate-800">
+                    <div class="text-emerald-700 font-bold mb-1">✓ แบบร่าง PR/RFQ พร้อมใช้งาน (ID: {{ slotFillingSession.draft.rfq_number }})</div>
+                    <div>Item: <strong>{{ slotFillingSession.draft.item_name }}</strong></div>
+                    <div>Spec: {{ slotFillingSession.draft.specification }}</div>
+                    <div>QTY: {{ slotFillingSession.draft.quantity }} {{ slotFillingSession.draft.unit }} | Urgency: {{ slotFillingSession.draft.urgency }}</div>
+                  </div>
+
+                  <!-- Slot Input Form -->
+                  <div *ngIf="slotFillingSession.step !== 'COMPLETED'" class="flex items-center gap-2">
+                    <input type="text"
+                      [(ngModel)]="slotFillingUserMessage"
+                      (keyup.enter)="sendSlotFillingMessage()"
+                      placeholder="เช่น ระบุสเปก, จำนวน 5 Pcs, ด่วนมาก, แผนก Maintenance..."
+                      class="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-500 bg-white" />
+                    <button (click)="sendSlotFillingMessage()"
+                      [disabled]="slotFillingLoading || !slotFillingUserMessage.trim()"
+                      class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50">
+                      {{ slotFillingLoading ? 'กำลังประมวลผล...' : 'ส่งข้อมูล' }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Price Analytics Historical Trend Widget -->
+            <div *ngIf="activePriceTrend && (supplierQuotationsResult?.count || 0) > 0"
+              class="mb-4 p-4 bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-slate-50 border border-blue-200/80 rounded-2xl shadow-2xs">
+              <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-2xs">
+                    📈
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-black text-slate-900">
+                      Price Analytics & Trend Intelligence: <span class="text-blue-700">{{ activePriceTrend.matched_description || activePriceTrend.query_term }}</span>
+                    </h4>
+                    <p class="text-[11px] text-slate-500">วิเคราะห์ข้อมูลราคาประวัติย้อนหลังจากการสกัดเอกสารใบเสนอราคา</p>
+                  </div>
+                </div>
+                <!-- Trend Badge -->
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold font-mono"
+                  [ngClass]="activePriceTrend.trend_direction === 'UP' ? 'bg-rose-100 text-rose-800 border border-rose-300' : (activePriceTrend.trend_direction === 'DOWN' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-slate-100 text-slate-700 border border-slate-300')">
+                  Trend: {{ activePriceTrend.trend_direction }} ({{ activePriceTrend.price_change_pct }}%)
+                </span>
+              </div>
+
+              <!-- Price Metrics Summary -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+                <div class="p-2.5 bg-white/90 rounded-xl border border-slate-200">
+                  <div class="text-[10px] text-slate-500 font-semibold uppercase">Min Price</div>
+                  <div class="text-sm font-bold font-mono text-emerald-700">฿{{ activePriceTrend.min_price | number:'1.2-2' }}</div>
+                </div>
+                <div class="p-2.5 bg-white/90 rounded-xl border border-slate-200">
+                  <div class="text-[10px] text-slate-500 font-semibold uppercase">Average Price</div>
+                  <div class="text-sm font-bold font-mono text-slate-800">฿{{ activePriceTrend.avg_price | number:'1.2-2' }}</div>
+                </div>
+                <div class="p-2.5 bg-white/90 rounded-xl border border-slate-200">
+                  <div class="text-[10px] text-slate-500 font-semibold uppercase">Max Price</div>
+                  <div class="text-sm font-bold font-mono text-rose-700">฿{{ activePriceTrend.max_price | number:'1.2-2' }}</div>
+                </div>
+                <div class="p-2.5 bg-white/90 rounded-xl border border-slate-200">
+                  <div class="text-[10px] text-slate-500 font-semibold uppercase">Latest Price</div>
+                  <div class="text-sm font-bold font-mono text-blue-700">฿{{ activePriceTrend.latest_price | number:'1.2-2' }}</div>
+                </div>
+              </div>
+
+              <div class="text-xs text-slate-700 font-medium bg-white/70 p-2.5 rounded-xl border border-blue-100 flex items-center gap-1.5">
+                <span class="font-bold text-blue-900 shrink-0">คำแนะนำการจัดซื้อ:</span>
+                <span>{{ activePriceTrend.recommendation }}</span>
               </div>
             </div>
 
@@ -5475,7 +5564,19 @@
                           ID: {{ quote.quotation_id }}
                         </span>
 
-                        <!-- Status Badge (ACTIVE / EXPIRED - Requirement 3) -->
+                        <!-- Retrieval Stage Badge (HYBRID, BM25, VECTOR) -->
+                        <span *ngIf="quote.retrieval_stage"
+                          class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-100 text-indigo-900 border border-indigo-200">
+                          ⚡ {{ quote.retrieval_stage }}
+                        </span>
+
+                        <!-- Confidence Score -->
+                        <span *ngIf="quote.confidence_score"
+                          class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-100 text-purple-900 border border-purple-200">
+                          Score: {{ (quote.confidence_score * 100).toFixed(0) }}%
+                        </span>
+
+                        <!-- Status Badge (ACTIVE / EXPIRED) -->
                         <span *ngIf="quote.status === 'ACTIVE'"
                           class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-900 border border-emerald-300 shadow-2xs">
                           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -5493,6 +5594,15 @@
                           ✓ PO Ready
                         </span>
                       </div>
+
+                      <!-- Matched Highlights -->
+                      <div *ngIf="quote.matched_highlights && quote.matched_highlights.length > 0" class="flex items-center gap-1.5 mt-1 flex-wrap">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase">Matches:</span>
+                        <span *ngFor="let h of quote.matched_highlights" class="px-2 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-900 border border-amber-200">
+                          {{ h }}
+                        </span>
+                      </div>
+
 
                       <div class="flex items-center gap-3 text-xs text-slate-500 mt-1 flex-wrap font-sans">
                         <span class="flex items-center gap-1 font-mono">
@@ -5637,6 +5747,7 @@
                     <th class="py-2.5 px-3 text-center w-12">#</th>
                     <th class="py-2.5 px-3">Quote Ref</th>
                     <th class="py-2.5 px-3">Part Number</th>
+                    <th class="py-2.5 px-3">DWG / Drawing</th>
                     <th class="py-2.5 px-4 min-w-[250px]">Description</th>
                     <th class="py-2.5 px-3 text-center">Qty / Unit</th>
                     <th class="py-2.5 px-4 text-right">Unit Price</th>
@@ -5650,6 +5761,7 @@
                     <td class="py-2.5 px-3 text-center font-mono text-slate-500">{{ idx + 1 }}</td>
                     <td class="py-2.5 px-3 font-mono font-bold text-slate-700">{{ it.quotationNo }}</td>
                     <td class="py-2.5 px-3 font-mono font-bold text-blue-700">{{ it.part_number || '-' }}</td>
+                    <td class="py-2.5 px-3 font-mono font-bold text-indigo-600">{{ it.drawing_number || it.part_number || '-' }}</td>
                     <td class="py-2.5 px-4 font-medium text-slate-900">{{ it.description }}</td>
                     <td class="py-2.5 px-3 text-center font-mono">{{ it.quantity }} {{ it.unit }}</td>
                     <td class="py-2.5 px-4 text-right font-mono font-bold text-emerald-700">
@@ -5910,6 +6022,7 @@
                       class="bg-slate-100/70 border-b border-slate-200 text-slate-600 font-bold text-[10px] uppercase">
                       <th class="py-2 px-3 text-center w-10">#</th>
                       <th class="py-2 px-3">Part Number</th>
+                      <th class="py-2 px-3">DWG / Drawing</th>
                       <th class="py-2 px-3">Description</th>
                       <th class="py-2 px-3 text-center">QTY</th>
                       <th class="py-2 px-3 text-right">Unit Price</th>
@@ -5921,6 +6034,7 @@
                     <tr *ngFor="let item of quote.items" class="hover:bg-slate-50">
                       <td class="py-2 px-3 text-center font-mono text-slate-500">{{ item.item_number }}</td>
                       <td class="py-2 px-3 font-mono font-bold text-blue-700">{{ item.part_number || '-' }}</td>
+                      <td class="py-2 px-3 font-mono font-bold text-indigo-600">{{ item.drawing_number || item.part_number || '-' }}</td>
                       <td class="py-2 px-3 font-medium">{{ item.description }}</td>
                       <td class="py-2 px-3 text-center font-mono">{{ item.quantity }} {{ item.unit }}</td>
                       <td class="py-2 px-3 text-right font-mono font-bold text-emerald-700">

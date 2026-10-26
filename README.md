@@ -1,6 +1,8 @@
 # Suppier
 
-> 📘 **Production Developer Manual**: For comprehensive architecture, database schemas, function registries, and feature workflows, refer to [DEVELOPER_MANUAL.md](file:///D:/suppier/Suppier/DEVELOPER_MANUAL.md).
+> 📘 **Developer Documentation**:
+> - 🗺️ **Comprehensive System Workflows**: [WORKFLOW_DEV_MANUAL.md](file:///d:/suppier/Suppier/WORKFLOW_DEV_MANUAL.md) — Complete visual Mermaid sequence diagrams, state machines, and end-to-end operational traces.
+> - 📑 **Master Developer Manual**: [DEVELOPER_MANUAL.md](file:///d:/suppier/Suppier/DEVELOPER_MANUAL.md) — Full system specifications, database schemas, and all 169+ function registries.
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.21.
 

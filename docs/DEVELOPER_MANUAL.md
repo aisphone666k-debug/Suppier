@@ -22,14 +22,21 @@
    - [Part B: Frontend Service Layer (api.service.ts)](#part-b-frontend-service-layer---srcappservicesapiservicets)
    - [Part C: Frontend Component Layer (app.component.ts - All 169+ Methods)](#part-c-frontend-component-layer---srcappappcomponentts)
    - [Part D: AI Quotation & Copilot Microservice Layer (Python/FastAPI :8000)](#part-d-ai-quotation--copilot-microservice-layer-pythonfastapi-8000)
-5. [End-to-End System Workflows & Edge Cases](#5-end-to-end-system-workflows--edge-cases)
-   - [Flow 1: OTP Login & Master Employee Sync](#flow-1-otp-verification--session-bootstrap-flow)
-   - [Flow 2: Requisition Header & Item Atomic Persistence](#flow-2-requisition-crud--transactional-persistence-flow)
-   - [Flow 3: Requisition Attachment Upload & Disk Storage](#flow-6-requisition-document-attachment-upload--disk-persistence)
-   - [Flow 4: Google SERP & Shopee Hybrid Quotation Search](#flow-4-google-serp--shopee-hybrid-quotation-search--cart-transfer)
+5. [End-to-End System Workflows & Edge Cases](#5-end-to-end-system-workflows--edge-cases) *(See also dedicated [WORKFLOW_DEV_MANUAL.md](file:///d:/suppier/Suppier/WORKFLOW_DEV_MANUAL.md))*
+   - [Flow 1: OTP Login & Master Employee Sync](#flow-1-5-digit-employee-otp-authentication-with-animated-convergence--local-persistence)
+   - [Flow 2: Requisition Header & Item Atomic Persistence](#flow-2-requisition-item-creation-inline-grid-editing-and-transactional-db-save)
+   - [Flow 3: Purchase Section Multi-Request Selection & Outlook Cyan Email Generation](#flow-3-purchase-section-multi-request-selection--outlook-cyan-email-generation)
+   - [Flow 4: Google SERP & Shopee Hybrid Quotation Search](#flow-4-google--shopee-hybrid-quotation-search-with-microservice-query--cart-import)
    - [Flow 5: MinebeaMitsumi 3D Employee Card Flipping](#flow-5-minebeamitsumi-3d-employee-card-flipping--2026-shift-calendar-navigation)
-   - [Flow 6: AI Copilot Conversational RAG Procurement Inquiry](#flow-7-ai-copilot-conversational-rag-procurement-inquiry)
-   - [Flow 7: Smart PDF Auto-Extraction & Drag-and-Drop Ingestion](#flow-8-smart-pdf-auto-extraction--drag-and-drop-ingestion-zero-input)
+   - [Flow 6: Requisition Document Attachment Upload & Disk Persistence](#flow-6-requisition-document-attachment-upload--disk-persistence)
+   - [Flow 7: AI Copilot Conversational RAG Procurement Inquiry](#flow-7-ai-copilot-conversational-rag-procurement-inquiry)
+   - [Flow 8: Smart PDF Auto-Extraction & Drag-and-Drop Ingestion](#flow-8-smart-pdf-auto-extraction--drag-and-drop-ingestion-zero-input)
+   - [Flow 9: Hybrid Search Pipeline (BM25 + FastEmbed + Cross-Encoder Reranking)](#flow-9-hybrid-search-pipeline-bm25-lexical--fastembed-dense--cross-encoder-reranking)
+   - [Flow 10: Human-in-the-Loop (HITL) Staging, Validation & Curation](#flow-10-human-in-the-loop-hitl-staging-validation--curation)
+   - [Flow 11: Conversational Slot-Filling Agent for Automated RFQ / PR Generation](#flow-11-conversational-slot-filling-agent-for-automated-rfq--pr-generation)
+   - [Flow 12: Historical Price Trend Analytics & Anomaly Detection](#flow-12-historical-price-trend-analytics--anomaly-detection)
+   - [Flow 13: Quotation Expiration Lifecycle & Proactive Alert Scanner](#flow-13-quotation-expiration-lifecycle--proactive-alert-scanner)
+   - [Flow 14: Failover, Graceful Degradation & In-Memory Offline Modes](#flow-14-failover-graceful-degradation--in-memory-offline-modes)
    - [Edge Cases & Reliability Safeguards](#edge-cases--handling)
 6. [Extension & Future Development Guide](#6-extension--future-development-guide)
    - [How to Add a Backend REST API Endpoint](#1-adding-a-new-backend-rest-api-endpoint)
@@ -2839,6 +2846,175 @@ sequenceDiagram
     MS->>MS: Re-indexes vector embeddings in FastEmbed
     MS-->>PORTAL: 200 OK { success: true, count: 10 }
     PORTAL->>Officer: Displays success toast and updates active quotation KPIs
+```
+
+---
+
+#### Flow 9: Hybrid Search Pipeline (BM25 Lexical + FastEmbed Dense + Cross-Encoder Reranking)
+```mermaid
+flowchart TD
+    START([User Submits Search Query]) --> NORM[Query Normalization & Tokenization]
+    NORM --> CACHE_CHK{SHA-256 Hash in SearchCache?}
+    CACHE_CHK -- Cache Hit (<0.05ms) --> RET_CACHE[Return Cached Ranked Results]
+    CACHE_CHK -- Cache Miss (~25ms) --> DUAL_RETRIEVAL[/Initiate Parallel Dual Retrieval/]
+    subgraph Parallel_Retrieval [Two-Stage Dual Retrieval]
+        DUAL_RETRIEVAL --> DENSE_PATH[FastEmbed ONNX Engine\nDense 384-dim Embedding\nBAAI/bge-small-en-v1.5]
+        DUAL_RETRIEVAL --> SPARSE_PATH[BM25 Lexical Index\nMultilingual Token Matcher\nThai, Japanese, Model Codes]
+        DENSE_PATH --> COSINE[Cosine Similarity Calculation\nOver Indexed Quotation Chunks]
+        SPARSE_PATH --> BM25_SCORE[BM25Okapi Scoring & Field Boosting]
+    end
+    COSINE --> RRF[Reciprocal Rank Fusion\nk = 60, weight_vector = 0.5, weight_bm25 = 0.5]
+    BM25_SCORE --> RRF
+    RRF --> TOP_CANDIDATES[Top-25 Fused Candidates]
+    TOP_CANDIDATES --> RERANK[Cross-Encoder Reranker\nms-marco-MiniLM-L-6-v2]
+    RERANK --> CACHE_PUT[Store Results in SearchCache with TTL]
+    CACHE_PUT --> ROLE_MASK{User Role Check}
+    ROLE_MASK -- NORMAL_USER --> MASK_PRICE[Mask Supplier Margins & Commercial Terms]
+    ROLE_MASK -- PH_USER --> RAW_PRICE[Expose Raw Unit Prices & Historical Margins]
+    MASK_PRICE --> RESP([Return JSON Response to Client])
+    RAW_PRICE --> RESP
+    RET_CACHE --> ROLE_MASK
+```
+
+---
+
+#### Flow 10: Human-in-the-Loop (HITL) Staging, Validation & Curation
+```mermaid
+stateDiagram-v2
+    [*] --> Upload_PDF: Officer uploads unverified vendor PDF
+    Upload_PDF --> Vision_LLM_Staging: POST /api/hitl/stage
+    state Vision_LLM_Staging {
+        [*] --> Save_Staging_File: Save to storage/staging/STAGE-{UUID}
+        Save_Staging_File --> Extract_Vision_LLM: Multimodal extraction
+        Extract_Vision_LLM --> Validate_Invariants: Check expiration >= issue_date, positive price
+    }
+    Vision_LLM_Staging --> PENDING_VERIFICATION: Create StagedQuotationDraft
+    state PENDING_VERIFICATION {
+        Review_Draft --> Edit_Fields: User corrects Vendor, Line Items, Unit Prices
+        Edit_Fields --> Review_Diff: Highlight modified fields in Amber
+    }
+    PENDING_VERIFICATION --> VERIFIED_COMMITTED: POST /api/hitl/drafts/{id}/commit
+    PENDING_VERIFICATION --> DISCARDED: POST /api/hitl/drafts/{id}/discard
+    state VERIFIED_COMMITTED {
+        Move_File: Move PDF from storage/staging to storage/pdf
+        Insert_DB: Commit to quotations.db
+        Reindex: Update FastEmbed ONNX & BM25 Indexes
+    }
+    state DISCARDED {
+        Purge_File: Delete temporary staged file from disk
+    }
+    VERIFIED_COMMITTED --> [*]
+    DISCARDED --> [*]
+```
+
+---
+
+#### Flow 11: Conversational Slot-Filling Agent for Automated RFQ / PR Generation
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Tech as Factory Engineer
+    participant UI as Requisition / Chat Interface
+    participant AC as AppComponent
+    participant AS as ApiService
+    participant AGENT as SlotFillingAgent (slot_filling_agent.py)
+    participant REPO as SqliteManualRequestRepository
+
+    Tech->>UI: Searches for "Hydraulic Solenoid Valve D03" -> 0 matches found
+    UI->>AC: Empty search detected
+    AC->>AS: triggerFromEmptySearch("Hydraulic Solenoid Valve D03")
+    AS->>AGENT: trigger_from_empty_search(session_id, "Hydraulic Solenoid Valve D03")
+    AGENT->>AGENT: Initialize ConversationSession (step: "COLLECTING")
+    AGENT-->>AS: Returns prompt: "ระบบพร้อมจัดทำแบบร่าง RFQ อัตโนมัติ กรุณาระบุสเปก, จำนวน, และความเร่งด่วน"
+    AS-->>UI: Displays assistant message bubble in chat drawer
+    Tech->>UI: Replies: "สเปก 24VDC 5000psi ต้องการ 3 ตัว ด่วนมาก"
+    UI->>AC: sendMessage(text)
+    AC->>AS: processUserMessage(session_id, text)
+    AS->>AGENT: process_user_message(session_id, text)
+    AGENT->>AGENT: Heuristic slot extraction (spec, qty, unit, urgency)
+    AGENT->>AGENT: Transition to "CONFIRMING" -> Generate PrRfqDraft
+    AGENT-->>AS: Returns draft summary and confirmation request
+    AS-->>UI: Renders formatted PR/RFQ Draft card with "ยืนยันการจัดทำ PR" button
+    Tech->>UI: Clicks "ยืนยันการจัดทำ PR"
+    UI->>AGENT: confirmDraft(session_id)
+    AGENT->>REPO: Persist ManualQuotationRequest aggregate into database
+    AGENT->>AGENT: Step = "COMPLETED"
+    AGENT-->>UI: "สร้างเอกสารขอซื้อเรียบร้อยแล้ว ส่งไปยังแผนกจัดซื้อเรียบร้อยครับ"
+```
+
+---
+
+#### Flow 12: Historical Price Trend Analytics & Anomaly Detection
+```mermaid
+flowchart TD
+    QUERY([User Requests Price Trend for Component]) --> FETCH[Query Sqlite Database for all line items matching Part/Spec]
+    FETCH --> SORT[Sort Historical Price Points by Date Ascending]
+    subgraph Analytics_Calculation [PriceAnalyticsService]
+        SORT --> STATS[Compute Statistical Metrics:\n- Minimum Price\n- Maximum Price\n- Average Price\n- Latest Price]
+        STATS --> DIFF[Calculate Price Change Percentage:\n((Latest - Avg) / Avg) * 100]
+        DIFF --> DIRECTION{Evaluate Trend Direction}
+        DIRECTION -- Change > +5% --> DIR_UP[Trend: UP\nFlag Potential Cost Increase]
+        DIRECTION -- Change < -5% --> DIR_DOWN[Trend: DOWN\nFlag Favorable Negotiation Window]
+        DIRECTION -- Between -5% and +5% --> DIR_STABLE[Trend: STABLE\nStable Historical Pricing]
+    end
+    DIR_UP --> ANOMALY{Is Latest Price > 1.25 * Max Previous?}
+    DIR_DOWN --> REC
+    DIR_STABLE --> REC
+    ANOMALY -- Yes --> ALERT[Generate SystemAlert: PRICE_INCREASE\nSeverity: WARNING]
+    ANOMALY -- No --> REC[Synthesize Procurement Recommendation]
+    ALERT --> OUT([Return PriceTrendAnalysis & Recommendation DTO])
+    REC --> OUT
+```
+
+---
+
+#### Flow 13: Quotation Expiration Lifecycle & Proactive Alert Scanner
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Cron as Automated Scanner / P/H Buyer
+    participant MS as AI Microservice (:8000)
+    participant SVC as PriceAnalyticsService & QuotationService
+    participant DB as quotations.db
+    participant CACHE as SearchCache
+    participant PORTAL as Purchasing Dashboard
+
+    Cron->>MS: POST /api/alerts/scan
+    MS->>SVC: Scan active quotations against current clock
+    SVC->>DB: SELECT * FROM quotations WHERE status = 'ACTIVE'
+    loop For each active quotation
+        alt expiration_date < Today
+            SVC->>DB: UPDATE quotations SET status = 'EXPIRED' WHERE id = @id
+            SVC->>CACHE: Invalidate all cache entries referencing quotation_id
+            SVC->>SVC: add_alert(alert_type='EXPIRING_SOON', severity='WARNING', ...)
+            SVC->>DB: INSERT INTO system_alerts (...)
+        else expiration_date between Today and Today + 14 Days
+            SVC->>SVC: add_alert(alert_type='EXPIRING_SOON', severity='INFO', ...)
+            SVC->>DB: INSERT INTO system_alerts (...)
+        end
+    end
+    MS-->>PORTAL: 200 OK { scanned_count: 142, expired_count: 3, alert_count: 5 }
+    PORTAL->>PORTAL: Renders red alert badge on Purchasing Navigation Bar
+```
+
+---
+
+#### Flow 14: Failover, Graceful Degradation & In-Memory Offline Modes
+```mermaid
+flowchart TD
+    REQ([Frontend Issues API Request]) --> TRY_NET{Backend Server Reachable?}
+    TRY_NET -- Yes (:5000 Online) --> BE_MSSQL{MSSQL Host PBGM8G Connected?}
+    TRY_NET -- No (Network / Server Down) --> FE_FALLBACK[Frontend In-Memory Fallback\nLocal mock accounts: X4770, A3415\nUninterrupted UI Editing]
+    BE_MSSQL -- Yes (Pool Active) --> EXEC_SQL[Execute TDS Transactional SQL]
+    BE_MSSQL -- No (Timeout / Pool Error) --> BE_FALLBACK[Backend CSV / Memory Mode\nauth.controller streams Master_Employee.csv\nrequisition.controller stores drafts in RAM]
+    EXEC_SQL --> OK([Success 200 OK])
+    BE_FALLBACK --> OK
+    FE_FALLBACK --> OK
+    subgraph Microservice_Resilience [Port 8000 AI Service Resilience]
+        AI_REQ([Search / Copilot Request]) --> MS_CHK{Is Microservice Online?}
+        MS_CHK -- Yes --> MS_OK[Return Semantic Results]
+        MS_CHK -- No / Timeout (5000ms) --> MS_FALLBACK[AbortController aborts gracefully\nisMicroserviceOnline = false\nFriendly inline reconnection banner\nRequisition saving remains 100% active]
+    end
 ```
 
 ---
