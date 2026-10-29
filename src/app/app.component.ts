@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ApiService, EmployeeUser, QuotationLineItem, SupplierQuotationResult, SupplierQuotationSearchResponse, AiInquiryResponse, AiInquiryCitation } from './services/api.service';
+import { TigerMascotComponent } from './tiger-mascot/tiger-mascot.component';
 
 export interface SupplierItem {
   id: string;
@@ -123,7 +124,7 @@ export interface ThemeOption {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TigerMascotComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

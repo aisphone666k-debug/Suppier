@@ -371,6 +371,13 @@
     </div>
   </div>
 
+  <!-- Floating Tiger Mascot (Chroma-Key Green Screen Removed) -->
+  <div *ngIf="!isLoggedIn"
+    class="fixed bottom-0 right-0 sm:bottom-2 sm:right-4 md:bottom-4 md:right-8 z-50 pointer-events-none select-none">
+    <app-tiger-mascot></app-tiger-mascot>
+  </div>
+
+
   <!-- ================= 2. MAIN APPLICATION SYSTEM (VISIBLE WHEN LOGGED IN) ================= -->
   <div *ngIf="isLoggedIn" class="h-screen bg-slate-50 text-slate-800 flex flex-col font-sans overflow-hidden">
 
